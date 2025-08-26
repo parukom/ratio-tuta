@@ -3,6 +3,15 @@ import { prisma } from '@lib/prisma';
 import { verifyPassword } from '@lib/auth';
 import { setSession } from '@lib/session';
 
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      Allow: 'POST, OPTIONS',
+    },
+  });
+}
+
 export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();

@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const Auth = () => {
-    const [form, setForm] = useState("login");
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [message, setMessage] = useState("");
+    const [form, setForm] = useState<string>("login");
+    const [name, setName] = useState<string>("");
+    const [email, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
+    const [message, setMessage] = useState<string>("");
     const router = useRouter();
 
     // If already logged in, redirect to home
@@ -32,6 +32,7 @@ const Auth = () => {
         const res = await fetch("/api/register/self", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            credentials: "include",
             body: JSON.stringify({ name, email, password }),
         });
 
@@ -50,6 +51,7 @@ const Auth = () => {
         const res = await fetch("/api/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            credentials: "include",
             body: JSON.stringify({ email, password }),
         });
 

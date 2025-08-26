@@ -1,12 +1,15 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@lib/prisma';
 import { hashPassword } from '@lib/auth';
+import { getSession } from '@lib/session';
 
 // Protected endpoint: register someone else (e.g., worker)
 export async function POST(req: Request) {
   try {
-    // TODO: Add your auth check here (e.g., verify role permissions)
-    // if (!isAuthorized(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const session = await getSession();
+    if (!session || session.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const { name, email, password, role } = await req.json();
 
