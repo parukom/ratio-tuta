@@ -12,28 +12,69 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
     const [name, setName] = useState<string>('')
     const [email, setEmail] = useState<string>('')
     const [role, setRole] = useState<'USER' | 'ADMIN'>('USER')
+    const [password, setPassword] = useState<string>('')
+    const [showPassword, setShowPassword] = useState<boolean>(false)
     const [message, setMessage] = useState<string>('')
     const [submitting, setSubmitting] = useState<boolean>(false)
+
+    function generatePassword(len = 14) {
+        // Strong password: upper, lower, digits, symbols
+        const upp = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
+        const low = 'abcdefghijkmnopqrstuvwxyz'
+        const dig = '23456789'
+        const sym = '!@#$%^&*()-_=+[]{},.?'
+        const all = upp + low + dig + sym
+        const pick = (chars: string) => chars[Math.floor(Math.random() * chars.length)]
+        const required = [pick(upp), pick(low), pick(dig), pick(sym)]
+        const rest = Array.from({ length: Math.max(0, len - required.length) }, () => pick(all))
+        const arr = [...required, ...rest]
+        // shuffle
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1))
+                ;[arr[i], arr[j]] = [arr[j], arr[i]]
+        }
+        setPassword(arr.join(''))
+        setShowPassword(true)
+    }
+
+    async function copyPassword() {
+        if (!password) return
+        try {
+            await navigator.clipboard.writeText(password)
+            setMessage('Password copied to clipboard')
+        } catch {
+            setMessage('Failed to copy password')
+        }
+    }
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
         setMessage('')
         setSubmitting(true)
         try {
+            const payload: Record<string, unknown> = { name, email, role, teamId }
+            if (password.trim().length > 0) payload.password = password.trim()
             const res = await fetch('/api/register/worker', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, role, teamId }),
+                body: JSON.stringify(payload),
             })
             const data = await res.json()
             if (!res.ok) {
                 setMessage(data.error || 'Error registering')
                 return
             }
-            setMessage('Member created and added!')
+            if (data.generatedPassword) {
+                setPassword(String(data.generatedPassword))
+                setShowPassword(true)
+                setMessage('Member created. Password generated and shown below.')
+            } else {
+                setMessage('Member created and added!')
+            }
             setName('')
             setEmail('')
             setRole('USER')
+            setPassword('')
             onSuccess?.()
         } catch {
             setMessage('Network error')
@@ -83,6 +124,48 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
                         align="left"
                     />
                 </div>
+            </div>
+
+            <div>
+                <label className="block text-sm/6 font-medium text-gray-900 dark:text-white">Set password (optional)</label>
+                <div className="mt-2 flex gap-2">
+                    <Input
+                        id="password"
+                        name="password"
+                        type={showPassword ? 'text' : 'password'}
+                        value={password}
+                        placeholder="Leave blank to auto-generate"
+                        className="flex-1"
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <button
+                        type="button"
+                        disabled={submitting}
+                        onClick={() => setShowPassword((v) => !v)}
+                        className="inline-flex items-center justify-center rounded-md border border-gray-300 px-3 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5"
+                    >
+                        {showPassword ? 'Hide' : 'Show'}
+                    </button>
+                </div>
+                <div className="mt-2 flex gap-2">
+                    <button
+                        type="button"
+                        disabled={submitting}
+                        onClick={() => generatePassword()}
+                        className="inline-flex items-center justify-center rounded-md bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-800 hover:bg-gray-200 dark:bg-white/10 dark:text-gray-200 dark:hover:bg-white/5"
+                    >
+                        Generate password
+                    </button>
+                    <button
+                        type="button"
+                        disabled={submitting || !password}
+                        onClick={copyPassword}
+                        className="inline-flex items-center justify-center rounded-md bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-800 hover:bg-gray-200 disabled:opacity-60 dark:bg-white/10 dark:text-gray-200 dark:hover:bg-white/5"
+                    >
+                        Copy
+                    </button>
+                </div>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">If left blank, a secure password will be generated by the server.</p>
             </div>
 
             <button

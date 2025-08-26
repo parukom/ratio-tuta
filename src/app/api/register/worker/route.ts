@@ -51,7 +51,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Work out team to attach to: if request includes teamId, validate membership; else if requester has one team, use it
     let targetTeamId: number | undefined = undefined;
     if (typeof teamId === 'number') {
       // ensure requester belongs to this team
@@ -65,7 +64,7 @@ export async function POST(req: Request) {
         },
         select: { id: true },
       });
-      if (!ok)
+      if (!ok) {
         await logAudit({
           action: 'user.register.worker',
           status: 'DENIED',
@@ -73,7 +72,11 @@ export async function POST(req: Request) {
           actor: session,
           metadata: { teamId },
         });
-      return NextResponse.json({ error: 'Forbidden teamId' }, { status: 403 });
+        return NextResponse.json(
+          { error: 'Forbidden teamId' },
+          { status: 403 },
+        );
+      }
       targetTeamId = teamId;
     } else {
       const [owned, memberOf] = await Promise.all([
@@ -93,18 +96,19 @@ export async function POST(req: Request) {
         ]),
       );
       if (teamIds.length === 1) targetTeamId = teamIds[0];
-      if (teamIds.length === 0)
+      if (teamIds.length === 0) {
         await logAudit({
           action: 'user.register.worker',
           status: 'ERROR',
           message: 'Requester not in any team',
           actor: session,
         });
-      return NextResponse.json(
-        { error: 'Requester is not in any team' },
-        { status: 400 },
-      );
-      if (teamIds.length > 1)
+        return NextResponse.json(
+          { error: 'Requester is not in any team' },
+          { status: 400 },
+        );
+      }
+      if (teamIds.length > 1) {
         await logAudit({
           action: 'user.register.worker',
           status: 'ERROR',
@@ -112,10 +116,11 @@ export async function POST(req: Request) {
           actor: session,
           metadata: { teamIds },
         });
-      return NextResponse.json(
-        { error: 'Multiple teams found; provide teamId' },
-        { status: 400 },
-      );
+        return NextResponse.json(
+          { error: 'Multiple teams found; provide teamId' },
+          { status: 400 },
+        );
+      }
     }
 
     const finalPassword = password ?? randomBytes(12).toString('base64url');
@@ -147,7 +152,11 @@ export async function POST(req: Request) {
       target: { table: 'User', id: user.id },
       metadata: { email },
     });
-    return NextResponse.json(user, { status: 201 });
+    const responseBody: Record<string, unknown> = { user };
+    if (!password) {
+      responseBody.generatedPassword = finalPassword;
+    }
+    return NextResponse.json(responseBody, { status: 201 });
   } catch (err) {
     await logAudit({
       action: 'user.register.worker',
