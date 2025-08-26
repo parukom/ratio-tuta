@@ -1,17 +1,12 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@lib/prisma';
 import { getSession } from '@lib/session';
-import { logAudit } from '@lib/logger';
+// removed audit logging for GET to avoid noisy logs on navigation
 
 export async function GET(req: Request) {
   // Identify current user from session
   const session = await getSession();
   if (!session) {
-    await logAudit({
-      action: 'user.list',
-      status: 'DENIED',
-      message: 'Unauthorized',
-    });
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -41,35 +36,15 @@ export async function GET(req: Request) {
   if (teamIdParam) {
     const tid = Number(teamIdParam);
     if (!Number.isInteger(tid)) {
-      await logAudit({
-        action: 'user.list',
-        status: 'ERROR',
-        message: 'Invalid teamId',
-        actor: session,
-        metadata: { teamIdParam },
-      });
       return NextResponse.json({ error: 'Invalid teamId' }, { status: 400 });
     }
     if (!myTeamIds.has(tid)) {
-      await logAudit({
-        action: 'user.list',
-        status: 'DENIED',
-        message: 'Forbidden',
-        actor: session,
-        metadata: { teamId: tid },
-      });
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
     targetTeamIds = [tid];
   }
 
   if (targetTeamIds.length === 0) {
-    await logAudit({
-      action: 'user.list',
-      status: 'SUCCESS',
-      actor: session,
-      message: 'No teams; returning empty',
-    });
     return NextResponse.json([]);
   }
 
@@ -92,12 +67,6 @@ export async function GET(req: Request) {
     orderBy: { name: 'asc' },
   });
 
-  await logAudit({
-    action: 'user.list',
-    status: 'SUCCESS',
-    actor: session,
-    metadata: { count: users.length, teamIds: targetTeamIds },
-  });
   return NextResponse.json(users);
 }
 
