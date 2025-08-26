@@ -2,17 +2,30 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@lib/prisma';
 import { hashPassword } from '@lib/auth';
 import { setSession } from '@lib/session';
+import { logAudit } from '@lib/logger';
 
 export async function POST(req: Request) {
   try {
     const { name, email, password, teamName } = await req.json();
 
     if (!name || !email || !password || !teamName) {
+      await logAudit({
+        action: 'user.register.self',
+        status: 'ERROR',
+        message: 'Missing fields',
+        metadata: { name, email, teamName: teamName ?? null },
+      });
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
+      await logAudit({
+        action: 'user.register.self',
+        status: 'DENIED',
+        message: 'User already exists',
+        metadata: { email },
+      });
       return NextResponse.json(
         { error: 'User already exists' },
         { status: 400 },
@@ -55,8 +68,23 @@ export async function POST(req: Request) {
       role: result.createdUser.role as 'USER' | 'ADMIN',
     });
 
+    await logAudit({
+      action: 'user.register.self',
+      status: 'SUCCESS',
+      actor: {
+        userId: result.createdUser.id,
+        name: result.createdUser.name,
+        role: result.createdUser.role as 'USER' | 'ADMIN',
+      },
+      metadata: { teamId: result.team.id },
+    });
     return NextResponse.json(result, { status: 201 });
   } catch (err) {
+    await logAudit({
+      action: 'user.register.self',
+      status: 'ERROR',
+      message: 'Server error',
+    });
     console.error(err);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }

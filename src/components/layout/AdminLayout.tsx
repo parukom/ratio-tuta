@@ -14,6 +14,7 @@ import {
 } from '@heroicons/react/24/outline'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import LogoutButton from '../LogoutButton'
 
 const navigation = [
     { name: 'Home', href: '/dashboard/home', icon: HomeIcon },
@@ -237,21 +238,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                                         ))}
                                     </ul>
                                 </li>
-                                <li className="-mx-6 mt-auto">
-                                    <a
-                                        href="#"
-                                        className="flex items-center gap-x-4 px-6 py-3 text-sm/6 font-semibold text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-                                    >
-                                        <Image
-                                            alt=""
-                                            src="/images/cat.jpg"
-                                            className="size-8 rounded-full bg-gray-50 outline -outline-offset-1 outline-black/5 dark:bg-gray-800 dark:outline-white/10"
-                                            width={32}
-                                            height={32}
-                                        />
-                                        <span className="sr-only">Your profile</span>
-                                        <span aria-hidden="true">Tom Cook</span>
-                                    </a>
+                                <li className="mx-auto pb-4 mt-auto">
+                                    <LogoutButton />
                                 </li>
                             </ul>
                         </nav>

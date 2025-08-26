@@ -18,6 +18,9 @@ model User {
 
   teams      TeamMember[]
   ownedTeams Team[]       @relation("OwnedTeams")
+
+  // Back-reference: audit logs where this user is the actor
+  auditLogsAsActor AuditLog[] @relation("AuditActorUser")
 }
 
 model Team {
@@ -32,6 +35,9 @@ model Team {
   places         Place[]
   itemCategories ItemCategory[]
   placeTypes     PlaceType[]
+
+  // Back-reference: audit logs associated with this team
+  auditLogsForTeam AuditLog[] @relation("AuditTeam")
 }
 
 model TeamMember {
@@ -57,6 +63,13 @@ enum TeamRole {
 enum UserRole {
   USER
   ADMIN
+}
+
+// Status for audit logs
+enum AuditStatus {
+  SUCCESS
+  ERROR
+  DENIED
 }
 
 // A physical or virtual venue to register sales (food trucks, kiosks, parks, events, etc.)
@@ -143,4 +156,29 @@ model ItemCategory {
   @@unique([teamId, name])
   @@unique([teamId, slug])
   @@index([teamId])
+}
+
+// Audit log for backend actions
+model AuditLog {
+  id        Int         @id @default(autoincrement())
+  timestamp DateTime    @default(now())
+  action    String
+  status    AuditStatus
+  message   String?
+
+  actorUserId Int?
+  actorUser   User? @relation(name: "AuditActorUser", fields: [actorUserId], references: [id])
+
+  teamId Int?
+  team   Team? @relation(name: "AuditTeam", fields: [teamId], references: [id])
+
+  targetTable String?
+  targetId    Int?
+  ip          String?
+  userAgent   String?
+  metadata    Json?
+
+  @@index([action, timestamp])
+  @@index([actorUserId, timestamp])
+  @@index([teamId, timestamp])
 }

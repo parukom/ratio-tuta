@@ -3,12 +3,18 @@ import { prisma } from '@lib/prisma';
 import { hashPassword } from '@lib/auth';
 import { getSession } from '@lib/session';
 import { randomBytes } from 'crypto';
+import { logAudit } from '@lib/logger';
 
 // Protected endpoint: register someone else (e.g., worker)
 export async function POST(req: Request) {
   try {
     const session = await getSession();
     if (!session || session.role !== 'ADMIN') {
+      await logAudit({
+        action: 'user.register.worker',
+        status: 'DENIED',
+        message: 'Unauthorized',
+      });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -21,11 +27,24 @@ export async function POST(req: Request) {
     };
 
     if (!name || !email) {
+      await logAudit({
+        action: 'user.register.worker',
+        status: 'ERROR',
+        message: 'Missing fields',
+        actor: session,
+      });
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
+      await logAudit({
+        action: 'user.register.worker',
+        status: 'DENIED',
+        message: 'User already exists',
+        actor: session,
+        metadata: { email },
+      });
       return NextResponse.json(
         { error: 'User already exists' },
         { status: 400 },
@@ -47,10 +66,14 @@ export async function POST(req: Request) {
         select: { id: true },
       });
       if (!ok)
-        return NextResponse.json(
-          { error: 'Forbidden teamId' },
-          { status: 403 },
-        );
+        await logAudit({
+          action: 'user.register.worker',
+          status: 'DENIED',
+          message: 'Forbidden teamId',
+          actor: session,
+          metadata: { teamId },
+        });
+      return NextResponse.json({ error: 'Forbidden teamId' }, { status: 403 });
       targetTeamId = teamId;
     } else {
       const [owned, memberOf] = await Promise.all([
@@ -71,23 +94,36 @@ export async function POST(req: Request) {
       );
       if (teamIds.length === 1) targetTeamId = teamIds[0];
       if (teamIds.length === 0)
-        return NextResponse.json(
-          { error: 'Requester is not in any team' },
-          { status: 400 },
-        );
+        await logAudit({
+          action: 'user.register.worker',
+          status: 'ERROR',
+          message: 'Requester not in any team',
+          actor: session,
+        });
+      return NextResponse.json(
+        { error: 'Requester is not in any team' },
+        { status: 400 },
+      );
       if (teamIds.length > 1)
-        return NextResponse.json(
-          { error: 'Multiple teams found; provide teamId' },
-          { status: 400 },
-        );
+        await logAudit({
+          action: 'user.register.worker',
+          status: 'ERROR',
+          message: 'Multiple teams; provide teamId',
+          actor: session,
+          metadata: { teamIds },
+        });
+      return NextResponse.json(
+        { error: 'Multiple teams found; provide teamId' },
+        { status: 400 },
+      );
     }
 
-  const finalPassword = password ?? randomBytes(12).toString('base64url');
-  const userRole: 'USER' | 'ADMIN' = role ?? 'USER';
-  const passwordHash = await hashPassword(finalPassword);
+    const finalPassword = password ?? randomBytes(12).toString('base64url');
+    const userRole: 'USER' | 'ADMIN' = role ?? 'USER';
+    const passwordHash = await hashPassword(finalPassword);
     const user = await prisma.$transaction(async (tx) => {
       const created = await tx.user.create({
-    data: { name, email, password: passwordHash, role: userRole },
+        data: { name, email, password: passwordHash, role: userRole },
         select: {
           id: true,
           name: true,
@@ -103,8 +139,21 @@ export async function POST(req: Request) {
       return created;
     });
 
+    await logAudit({
+      action: 'user.register.worker',
+      status: 'SUCCESS',
+      actor: session,
+      teamId: targetTeamId!,
+      target: { table: 'User', id: user.id },
+      metadata: { email },
+    });
     return NextResponse.json(user, { status: 201 });
   } catch (err) {
+    await logAudit({
+      action: 'user.register.worker',
+      status: 'ERROR',
+      message: 'Server error',
+    });
     console.error(err);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
