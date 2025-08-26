@@ -16,13 +16,12 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 
 const navigation = [
-    { name: 'Home', href: '/', icon: HomeIcon },
+    { name: 'Home', href: '/dashboard/home', icon: HomeIcon },
     { name: 'Team', href: '/dashboard/team', icon: UsersIcon },
-    { name: 'Members', href: '/dashboard/members', icon: UsersIcon },
-    { name: 'Projects', href: '#', icon: FolderIcon },
-    { name: 'Calendar', href: '#', icon: CalendarIcon },
-    { name: 'Documents', href: '#', icon: DocumentDuplicateIcon },
-    { name: 'Reports', href: '#', icon: ChartPieIcon },
+    { name: 'Projects', href: '/dashboard/projects', icon: FolderIcon },
+    { name: 'Calendar', href: '/dashboard/calendar', icon: CalendarIcon },
+    { name: 'Documents', href: '/dashboard/documents', icon: DocumentDuplicateIcon },
+    { name: 'Reports', href: '/dashboard/reports', icon: ChartPieIcon },
 ]
 const teams = [
     { id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false },
