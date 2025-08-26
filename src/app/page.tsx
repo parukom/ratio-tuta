@@ -22,9 +22,7 @@ export default async function Home() {
           </Link>
         )}
       </header>
-      <main className="">
-        <h1>tom</h1>
-      </main>
+      <main className="" />
       <footer className="">
 
       </footer>

@@ -1,6 +1,5 @@
 'use client'
 import { useState } from "react";
-import LogoutButton from "@/components/LogoutButton";
 
 const Members = () => {
   const [name, setName] = useState<string>("");
@@ -32,9 +31,6 @@ const Members = () => {
   }
   return (
     <div className="bg-zinc-500 flex flex-col items-center min-h-screen py-8 gap-4">
-      <div className="w-80 flex justify-end">
-        <LogoutButton />
-      </div>
       <form
         onSubmit={handleSubmit}
         className="p-6 bg-white shadow-md rounded-xl space-y-4 w-80"

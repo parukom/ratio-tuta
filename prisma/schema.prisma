@@ -46,11 +46,14 @@ model TeamMember {
   user      User       @relation(fields: [userId], references: [id])
 
   @@unique([teamId, userId])
+  // Ensure a user can belong to at most one team at a time
+  @@unique([userId])
 }
 
 enum TeamRole {
   OWNER
   MEMBER
+  ADMIN
 }
 
 enum UserRole {
