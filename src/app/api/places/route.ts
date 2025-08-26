@@ -3,6 +3,75 @@ import { prisma } from '@lib/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
 
+export async function GET(req: Request) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const { searchParams } = new URL(req.url);
+  const teamIdParam = searchParams.get('teamId');
+
+  // Teams current user belongs to (owner or member)
+  const [owned, memberOf] = await Promise.all([
+    prisma.team.findMany({ where: { ownerId: session.userId }, select: { id: true } }),
+    prisma.teamMember.findMany({ where: { userId: session.userId }, select: { teamId: true } }),
+  ]);
+  const myTeamIds = Array.from(new Set<number>([
+    ...owned.map((t) => t.id),
+    ...memberOf.map((t) => t.teamId),
+  ]));
+
+  if (myTeamIds.length === 0) return NextResponse.json([]);
+
+  let filterTeamIds = myTeamIds;
+  if (teamIdParam) {
+    const tid = Number(teamIdParam);
+    if (!Number.isInteger(tid)) return NextResponse.json({ error: 'Invalid teamId' }, { status: 400 });
+    if (!myTeamIds.includes(tid)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    filterTeamIds = [tid];
+  }
+
+  const places = await prisma.place.findMany({
+    where: { teamId: { in: filterTeamIds } },
+    select: {
+      id: true,
+      teamId: true,
+      name: true,
+      description: true,
+      city: true,
+      country: true,
+      currency: true,
+      totalEarnings: true,
+      placeTypeId: true,
+      createdAt: true,
+      isActive: true,
+      team: {
+        select: {
+          ownerId: true,
+          _count: { select: { members: true } },
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  const shaped = places.map((p) => ({
+    id: p.id,
+    teamId: p.teamId,
+    name: p.name,
+    description: p.description,
+    city: p.city,
+    country: p.country,
+    currency: p.currency,
+    totalEarnings: p.totalEarnings,
+    placeTypeId: p.placeTypeId,
+    createdAt: p.createdAt,
+    isActive: p.isActive,
+    teamPeopleCount: (p.team?._count.members ?? 0) + 1, // owner + members
+  }));
+
+  return NextResponse.json(shaped);
+}
+
 export async function POST(req: Request) {
   const session = await getSession();
   if (!session) {
@@ -131,6 +200,7 @@ export async function POST(req: Request) {
         city: true,
         country: true,
         currency: true,
+  totalEarnings: true,
         placeTypeId: true,
         createdAt: true,
       },
