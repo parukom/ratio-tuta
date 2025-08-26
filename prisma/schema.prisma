@@ -14,8 +14,43 @@ model User {
   name      String
   email     String   @unique
   password  String
-  role      UserRole @default(ADMIN)
+  role      UserRole @default(USER)
   createdAt DateTime @default(now())
+
+  // Relations
+  teams      TeamMember[]
+  ownedTeams Team[]       @relation("OwnedTeams")
+}
+
+model Team {
+  id        Int           @id @default(autoincrement())
+  name      String
+  createdAt DateTime      @default(now())
+
+  // Owner relationship
+  ownerId   Int
+  owner     User          @relation("OwnedTeams", fields: [ownerId], references: [id])
+
+  // Members
+  members   TeamMember[]
+}
+
+model TeamMember {
+  id        Int        @id @default(autoincrement())
+  teamId    Int
+  userId    Int
+  role      TeamRole   @default(MEMBER)
+  createdAt DateTime   @default(now())
+
+  team      Team       @relation(fields: [teamId], references: [id])
+  user      User       @relation(fields: [userId], references: [id])
+
+  @@unique([teamId, userId])
+}
+
+enum TeamRole {
+  OWNER
+  MEMBER
 }
 
 enum UserRole {
