@@ -8,6 +8,7 @@ export default async function Team() {
     if (!session) redirect('/auth')
     return (
         <AdminLayout>
+
             <TeamTable />
         </AdminLayout>
     )

@@ -19,7 +19,7 @@ import LogoutButton from '../LogoutButton'
 const navigation = [
     { name: 'Home', href: '/dashboard/home', icon: HomeIcon },
     { name: 'Team', href: '/dashboard/team', icon: UsersIcon },
-    { name: 'Projects', href: '/dashboard/projects', icon: FolderIcon },
+    { name: 'Items', href: '/dashboard/items', icon: FolderIcon },
     { name: 'Calendar', href: '/dashboard/calendar', icon: CalendarIcon },
     { name: 'Documents', href: '/dashboard/documents', icon: DocumentDuplicateIcon },
     { name: 'Reports', href: '/dashboard/reports', icon: ChartPieIcon },

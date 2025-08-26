@@ -2,6 +2,7 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import AdminLayout from '@/components/layout/AdminLayout'
 import { useEffect, useState } from 'react'
+import CreatePlaceButton from '@/components/admin-zone/places/CreatePlaceButton'
 
 
 const secondaryNavigation = [
@@ -64,6 +65,10 @@ const Home = () => {
         <>
             <AdminLayout>
                 <div>
+                    <div className="flex items-center justify-between mb-6">
+                        <h1 className="text-base font-semibold text-gray-900 dark:text-white">Team</h1>
+                        <CreatePlaceButton />
+                    </div>
                     <div className="">
                         {/* Sticky search header */}
                         <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-6 border-b border-gray-200 bg-white px-4 shadow-xs sm:px-6 lg:px-8 dark:border-white/5 dark:bg-gray-900 dark:shadow-none">

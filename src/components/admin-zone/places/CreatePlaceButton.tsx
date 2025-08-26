@@ -1,0 +1,105 @@
+'use client'
+import { useState } from 'react'
+import Modal from '@/components/modals/Modal'
+import Input from '@/components/ui/Input'
+
+type Props = {
+    teamId?: number
+    onCreated?: (place: { id: number; name: string }) => void
+}
+
+export default function CreatePlaceButton({ teamId, onCreated }: Props) {
+    const [open, setOpen] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [message, setMessage] = useState('')
+
+    // form fields
+    const [name, setName] = useState('')
+    const [placeTypeId, setPlaceTypeId] = useState<number | undefined>(undefined)
+    const [description, setDescription] = useState('')
+    const [address1, setAddress1] = useState('')
+    const [address2, setAddress2] = useState('')
+    const [city, setCity] = useState('')
+    const [country, setCountry] = useState('')
+    const [timezone, setTimezone] = useState('')
+    const [currency, setCurrency] = useState('EUR')
+    const [isActive, setIsActive] = useState(true)
+
+    function reset() {
+        setName(''); setPlaceTypeId(undefined); setDescription(''); setAddress1(''); setAddress2(''); setCity(''); setCountry(''); setTimezone(''); setCurrency('EUR'); setIsActive(true);
+    }
+
+    async function submit(e: React.FormEvent) {
+        e.preventDefault()
+        setMessage('')
+        setLoading(true)
+        try {
+            const res = await fetch('/api/places', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ teamId, name, placeTypeId, description, address1, address2, city, country, timezone, currency, isActive }),
+            })
+            const data = await res.json()
+            if (!res.ok) { setMessage(data.error || 'Failed to create'); return }
+            setMessage('Place created')
+            onCreated?.(data)
+            reset()
+            setOpen(false)
+        } catch {
+            setMessage('Network error')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    return (
+        <>
+            <button
+                type="button"
+                onClick={() => setOpen(true)}
+                className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+            >
+                Create place
+            </button>
+
+            <Modal open={open} onClose={() => setOpen(false)}>
+                <div className="sm:flex sm:items-start">
+                    <div className="mt-3 text-left sm:mt-0 sm:text-left w-full">
+                        <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">Create a place</h3>
+                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Fill in details for the new venue.</p>
+                    </div>
+                </div>
+
+                <form onSubmit={submit} className="mt-4 space-y-3">
+                    <Input id="name" name="name" type="text" className="" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
+                    <Input id="description" name="description" type="text" className="" placeholder="Description (optional)" value={description} onChange={(e) => setDescription(e.target.value)} />
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <Input id="address1" name="address1" type="text" className="" placeholder="Address line 1" value={address1} onChange={(e) => setAddress1(e.target.value)} />
+                        <Input id="address2" name="address2" type="text" className="" placeholder="Address line 2" value={address2} onChange={(e) => setAddress2(e.target.value)} />
+                    </div>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <Input id="city" name="city" type="text" className="" placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} />
+                        <Input id="country" name="country" type="text" className="" placeholder="Country" value={country} onChange={(e) => setCountry(e.target.value)} />
+                    </div>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <Input id="timezone" name="timezone" type="text" className="" placeholder="Timezone (e.g. Europe/Vilnius)" value={timezone} onChange={(e) => setTimezone(e.target.value)} />
+                        <Input id="currency" name="currency" type="text" className="" placeholder="Currency (e.g. EUR)" value={currency} onChange={(e) => setCurrency(e.target.value)} />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <input id="isActive" name="isActive" type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="size-4" />
+                        <label htmlFor="isActive" className="text-sm text-gray-700 dark:text-gray-300">Active</label>
+                    </div>
+
+                    <div className="mt-4 flex items-center justify-between">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Unique per team by name.</p>
+                        <div className="flex gap-2">
+                            <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Cancel</button>
+                            <button type="submit" disabled={loading} className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400">{loading ? 'Creating…' : 'Create'}</button>
+                        </div>
+                    </div>
+                    {message && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{message}</p>}
+                </form>
+            </Modal>
+        </>
+    )
+}
