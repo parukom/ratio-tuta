@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Input from '@/components/ui/Input'
+import Dropdown from '@/components/ui/Dropdown'
 
 type Props = {
     teamId?: number
@@ -69,21 +70,18 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
             />
 
             <div>
-                <label htmlFor="role" className="block text-sm/6 font-medium text-gray-900 dark:text-white">
-                    User role
-                </label>
+                <label className="block text-sm/6 font-medium text-gray-900 dark:text-white">User role</label>
                 <div className="mt-2">
-                    <select
-                        id="role"
-                        name="role"
-                        value={role}
-                        onChange={(e) => setRole(e.target.value as 'USER' | 'ADMIN')}
-                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500"
+                    <Dropdown
+                        buttonLabel={role === 'ADMIN' ? 'Admin' : 'User'}
                         disabled={submitting}
-                    >
-                        <option value="USER">User</option>
-                        <option value="ADMIN">Admin</option>
-                    </select>
+                        items={[
+                            { key: 'USER', label: 'User', onSelect: () => setRole('USER') },
+                            { key: 'ADMIN', label: 'Admin', onSelect: () => setRole('ADMIN') },
+                        ]}
+                        onSelect={(key) => setRole(key as 'USER' | 'ADMIN')}
+                        align="left"
+                    />
                 </div>
             </div>
 

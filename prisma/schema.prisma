@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -17,36 +16,35 @@ model User {
   role      UserRole @default(USER)
   createdAt DateTime @default(now())
 
-  // Relations
   teams      TeamMember[]
   ownedTeams Team[]       @relation("OwnedTeams")
 }
 
 model Team {
-  id        Int           @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   name      String
-  createdAt DateTime      @default(now())
+  createdAt DateTime @default(now())
 
-  // Owner relationship
-  ownerId   Int
-  owner     User          @relation("OwnedTeams", fields: [ownerId], references: [id])
+  ownerId Int
+  owner   User @relation("OwnedTeams", fields: [ownerId], references: [id])
 
-  // Members
-  members   TeamMember[]
+  members        TeamMember[]
+  places         Place[]
+  itemCategories ItemCategory[]
+  placeTypes     PlaceType[]
 }
 
 model TeamMember {
-  id        Int        @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   teamId    Int
   userId    Int
-  role      TeamRole   @default(MEMBER)
-  createdAt DateTime   @default(now())
+  role      TeamRole @default(MEMBER)
+  createdAt DateTime @default(now())
 
-  team      Team       @relation(fields: [teamId], references: [id])
-  user      User       @relation(fields: [userId], references: [id])
+  team Team @relation(fields: [teamId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   @@unique([teamId, userId])
-  // Ensure a user can belong to at most one team at a time
   @@unique([userId])
 }
 
@@ -59,4 +57,90 @@ enum TeamRole {
 enum UserRole {
   USER
   ADMIN
+}
+
+// A physical or virtual venue to register sales (food trucks, kiosks, parks, events, etc.)
+model Place {
+  id          Int        @id @default(autoincrement())
+  teamId      Int
+  name        String
+  placeTypeId Int?
+  placeType   PlaceType? @relation(fields: [placeTypeId], references: [id])
+  description String?
+  address1    String?
+  address2    String?
+  city        String?
+  country     String?
+  timezone    String?
+  currency    String?    @default("EUR")
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  team  Team   @relation(fields: [teamId], references: [id])
+  items Item[]
+
+  @@unique([teamId, name]) // unique place name per team
+  @@index([teamId])
+  @@index([placeTypeId])
+}
+
+// A sellable item attached to a Place (per-place catalog)
+model Item {
+  id         Int           @id @default(autoincrement())
+  placeId    Int
+  name       String
+  sku        String?
+  categoryId Int?
+  category   ItemCategory? @relation(fields: [categoryId], references: [id])
+  price      Float
+  taxRateBps Int           @default(0) // basis points (e.g. 2100 = 21.00%)
+  isActive   Boolean       @default(true)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  place Place @relation(fields: [placeId], references: [id])
+
+  @@unique([placeId, name]) // unique item name within a place
+  @@unique([placeId, sku])
+  @@index([placeId])
+  @@index([categoryId])
+}
+
+// Team-scoped type for Places (user-defined). teamId null means global / shared.
+model PlaceType {
+  id        Int      @id @default(autoincrement())
+  teamId    Int?
+  name      String
+  slug      String
+  color     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  team   Team?   @relation(fields: [teamId], references: [id])
+  places Place[]
+
+  @@unique([teamId, name])
+  @@unique([teamId, slug])
+  @@index([teamId])
+}
+
+// Team-scoped type for Items (user-defined). teamId null means global / shared.
+model ItemCategory {
+  id        Int      @id @default(autoincrement())
+  teamId    Int?
+  name      String
+  slug      String
+  color     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  team  Team?  @relation(fields: [teamId], references: [id])
+  items Item[]
+
+  @@unique([teamId, name])
+  @@unique([teamId, slug])
+  @@index([teamId])
 }
