@@ -4,7 +4,7 @@ import Input from '@/components/ui/Input'
 import Dropdown from '@/components/ui/Dropdown'
 
 type Props = {
-    teamId?: number
+    teamId?: string
     onSuccess?: () => void
 }
 

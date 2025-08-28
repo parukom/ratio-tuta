@@ -14,21 +14,12 @@ export async function POST(
       action: 'team.member.add',
       status: 'DENIED',
       message: 'Unauthorized',
-      teamId: Number(teamIdParam),
+      teamId: teamIdParam,
     });
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const teamId = Number(teamIdParam);
-  if (!Number.isInteger(teamId)) {
-    await logAudit({
-      action: 'team.member.add',
-      status: 'ERROR',
-      message: 'Invalid teamId',
-      metadata: { teamIdParam },
-    });
-    return NextResponse.json({ error: 'Invalid teamId' }, { status: 400 });
-  }
+  const teamId = teamIdParam;
 
   const { email, role } = (await _req.json()) as {
     email: string;

@@ -9,12 +9,13 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
+  id        String    @id @default(uuid())
   name      String
-  email     String   @unique
+  email     String    @unique
   password  String
-  role      UserRole @default(USER)
-  createdAt DateTime @default(now())
+  role      UserRole  @default(USER)
+  createdAt DateTime  @default(now())
+  Receipt   Receipt[]
 
   teams      TeamMember[]
   ownedTeams Team[]       @relation("OwnedTeams")
@@ -24,26 +25,27 @@ model User {
 }
 
 model Team {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   name      String
   createdAt DateTime @default(now())
 
-  ownerId Int
-  owner   User @relation("OwnedTeams", fields: [ownerId], references: [id])
+  ownerId String
+  owner   User   @relation("OwnedTeams", fields: [ownerId], references: [id])
 
   members        TeamMember[]
   places         Place[]
   itemCategories ItemCategory[]
   placeTypes     PlaceType[]
+  items          Item[]
 
   // Back-reference: audit logs associated with this team
   auditLogsForTeam AuditLog[] @relation("AuditTeam")
 }
 
 model TeamMember {
-  id        Int      @id @default(autoincrement())
-  teamId    Int
-  userId    Int
+  id        String   @id @default(uuid())
+  teamId    String
+  userId    String
   role      TeamRole @default(MEMBER)
   createdAt DateTime @default(now())
 
@@ -54,30 +56,12 @@ model TeamMember {
   @@unique([userId])
 }
 
-enum TeamRole {
-  OWNER
-  MEMBER
-  ADMIN
-}
-
-enum UserRole {
-  USER
-  ADMIN
-}
-
-// Status for audit logs
-enum AuditStatus {
-  SUCCESS
-  ERROR
-  DENIED
-}
-
 // A physical or virtual venue to register sales (food trucks, kiosks, parks, events, etc.)
 model Place {
-  id            Int        @id @default(autoincrement())
-  teamId        Int
+  id            String     @id @default(uuid())
+  teamId        String
   name          String
-  placeTypeId   Int?
+  placeTypeId   String?
   placeType     PlaceType? @relation(fields: [placeTypeId], references: [id])
   description   String?
   address1      String?
@@ -91,21 +75,22 @@ model Place {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
-  team  Team   @relation(fields: [teamId], references: [id])
-  items Item[]
+  team       Team        @relation(fields: [teamId], references: [id])
+  placeItems PlaceItem[]
+  Receipt    Receipt[]
 
   @@unique([teamId, name]) // unique place name per team
   @@index([teamId])
   @@index([placeTypeId])
 }
 
-// A sellable item attached to a Place (per-place catalog)
+// A sellable item scoped to a Team (team-wide catalog / storage)
 model Item {
-  id         Int           @id @default(autoincrement())
-  placeId    Int
+  id         String        @id @default(uuid())
+  teamId     String
   name       String
   sku        String?
-  categoryId Int?
+  categoryId String?
   category   ItemCategory? @relation(fields: [categoryId], references: [id])
   price      Float
   taxRateBps Int           @default(0) // basis points (e.g. 2100 = 21.00%)
@@ -113,18 +98,36 @@ model Item {
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
 
-  place Place @relation(fields: [placeId], references: [id])
+  team   Team        @relation(fields: [teamId], references: [id])
+  places PlaceItem[]
 
-  @@unique([placeId, name]) // unique item name within a place
-  @@unique([placeId, sku])
-  @@index([placeId])
+  @@unique([teamId, name]) // unique item name within a team
+  @@unique([teamId, sku])
+  @@index([teamId])
   @@index([categoryId])
+}
+
+// Items assigned to a Place with a quantity in stock
+model PlaceItem {
+  id        String   @id @default(uuid())
+  placeId   String
+  itemId    String
+  quantity  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  place Place @relation(fields: [placeId], references: [id])
+  item  Item  @relation(fields: [itemId], references: [id])
+
+  @@unique([placeId, itemId])
+  @@index([placeId])
+  @@index([itemId])
 }
 
 // Team-scoped type for Places (user-defined). teamId null means global / shared.
 model PlaceType {
-  id        Int      @id @default(autoincrement())
-  teamId    Int?
+  id        String   @id @default(uuid())
+  teamId    String?
   name      String
   slug      String
   color     String?
@@ -142,8 +145,8 @@ model PlaceType {
 
 // Team-scoped type for Items (user-defined). teamId null means global / shared.
 model ItemCategory {
-  id        Int      @id @default(autoincrement())
-  teamId    Int?
+  id        String   @id @default(uuid())
+  teamId    String?
   name      String
   slug      String
   color     String?
@@ -161,17 +164,17 @@ model ItemCategory {
 
 // Audit log for backend actions
 model AuditLog {
-  id        Int         @id @default(autoincrement())
+  id        String      @id @default(uuid())
   timestamp DateTime    @default(now())
   action    String
   status    AuditStatus
   message   String?
 
-  actorUserId Int?
-  actorUser   User? @relation(name: "AuditActorUser", fields: [actorUserId], references: [id])
+  actorUserId String?
+  actorUser   User?   @relation(name: "AuditActorUser", fields: [actorUserId], references: [id])
 
-  teamId Int?
-  team   Team? @relation(name: "AuditTeam", fields: [teamId], references: [id])
+  teamId String?
+  team   Team?   @relation(name: "AuditTeam", fields: [teamId], references: [id])
 
   targetTable String?
   targetId    Int?
@@ -182,4 +185,60 @@ model AuditLog {
   @@index([action, timestamp])
   @@index([actorUserId, timestamp])
   @@index([teamId, timestamp])
+}
+
+model Receipt {
+  id            String        @id @default(uuid())
+  userId        String?
+  placeId       String?
+  totalPrice    Float
+  amountGiven   Float
+  change        Float
+  timestamp     DateTime      @default(now())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  paymentOption PaymenOption  @default(CASH)
+  status        ReceiptStatus @default(COMPLETED)
+  place         Place?        @relation(fields: [placeId], references: [id])
+  user          User?         @relation(fields: [userId], references: [id])
+  items         ReceiptItem[]
+}
+
+model ReceiptItem {
+  id        String  @id @default(uuid())
+  receiptId String
+  itemId    String
+  title     String
+  price     Float
+  quantity  Int
+  receipt   Receipt @relation(fields: [receiptId], references: [id])
+}
+
+enum TeamRole {
+  OWNER
+  MEMBER
+  ADMIN
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum AuditStatus {
+  SUCCESS
+  ERROR
+  DENIED
+}
+
+enum PaymenOption {
+  CASH
+  CARD
+  REFUND
+}
+
+enum ReceiptStatus {
+  COMPLETED
+  REFUNDED
+  CANCELLED
 }

@@ -23,7 +23,7 @@ export async function POST(req: Request) {
       email: string;
       password?: string;
       role?: 'USER' | 'ADMIN';
-      teamId?: number;
+      teamId?: string;
     };
 
     if (!name || !email) {
@@ -51,8 +51,8 @@ export async function POST(req: Request) {
       );
     }
 
-    let targetTeamId: number | undefined = undefined;
-    if (typeof teamId === 'number') {
+    let targetTeamId: string | undefined = undefined;
+    if (typeof teamId === 'string' && teamId) {
       // ensure requester belongs to this team
       const ok = await prisma.team.findFirst({
         where: {
@@ -90,7 +90,7 @@ export async function POST(req: Request) {
         }),
       ]);
       const teamIds = Array.from(
-        new Set<number>([
+        new Set<string>([
           ...owned.map((t) => t.id),
           ...memberOf.map((t) => t.teamId),
         ]),

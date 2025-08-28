@@ -1,0 +1,3 @@
+-- Placeholder migration file restored to satisfy Prisma migration history.
+-- This migration originally had no SQL changes or was removed.
+-- No-op.

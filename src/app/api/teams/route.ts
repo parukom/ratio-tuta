@@ -20,9 +20,10 @@ export async function GET() {
     }),
   ]);
 
-  const map = new Map<number, { id: number; name: string }>();
-  for (const t of owned) map.set(t.id, t);
-  for (const tm of memberOf) map.set(tm.team.id, tm.team);
+  const map = new Map<string, { id: string; name: string }>();
+  for (const t of owned) map.set(t.id, { id: t.id, name: t.name });
+  for (const tm of memberOf)
+    map.set(tm.team.id, { id: tm.team.id, name: tm.team.name });
 
   return NextResponse.json(
     Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name)),

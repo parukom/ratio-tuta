@@ -34,7 +34,7 @@ function sign(payloadB64: string, secret: string): string {
 }
 
 export type SessionData = {
-  userId: number;
+  userId: string;
   name: string;
   role: 'USER' | 'ADMIN';
 };

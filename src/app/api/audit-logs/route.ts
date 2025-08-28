@@ -24,7 +24,7 @@ export async function GET(req: Request) {
     }),
   ]);
   const myTeamIds = Array.from(
-    new Set<number>([
+    new Set<string>([
       ...owned.map((t) => t.id),
       ...memberOf.map((t) => t.teamId),
     ]),
@@ -34,9 +34,7 @@ export async function GET(req: Request) {
 
   let filterTeamIds = myTeamIds;
   if (teamIdParam) {
-    const tid = Number(teamIdParam);
-    if (!Number.isInteger(tid))
-      return NextResponse.json({ error: 'Invalid teamId' }, { status: 400 });
+    const tid = teamIdParam;
     if (!myTeamIds.includes(tid))
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     filterTeamIds = [tid];
@@ -54,7 +52,7 @@ export async function GET(req: Request) {
     }),
   ]);
   const teamUserIds = Array.from(
-    new Set<number>([
+    new Set<string>([
       ...members.map((m) => m.userId),
       ...owners.map((o) => o.ownerId),
     ]),

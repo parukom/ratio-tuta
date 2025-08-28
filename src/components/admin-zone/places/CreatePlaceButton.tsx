@@ -4,8 +4,8 @@ import Modal from '@/components/modals/Modal'
 import Input from '@/components/ui/Input'
 
 type Props = {
-    teamId?: number
-    onCreated?: (place: { id: number; name: string }) => void
+    teamId?: string
+    onCreated?: (place: { id: string; name: string }) => void
 }
 
 export default function CreatePlaceButton({ teamId, onCreated }: Props) {
@@ -15,7 +15,7 @@ export default function CreatePlaceButton({ teamId, onCreated }: Props) {
 
     // form fields
     const [name, setName] = useState('')
-    const [placeTypeId, setPlaceTypeId] = useState<number | undefined>(undefined)
+    const [placeTypeId, setPlaceTypeId] = useState<string | undefined>(undefined)
     const [description, setDescription] = useState('')
     const [address1, setAddress1] = useState('')
     const [address2, setAddress2] = useState('')

@@ -8,8 +8,8 @@ export type AuditInput = {
   status: AuditStatus;
   message?: string;
   actor?: SessionData | null;
-  teamId?: number | null;
-  target?: { table?: string; id?: number };
+  teamId?: string | null;
+  target?: { table?: string; id?: string | number };
   metadata?: Prisma.InputJsonValue;
 };
 
@@ -32,7 +32,12 @@ export async function logAudit(input: AuditInput) {
         actorUserId: input.actor?.userId ?? null,
         teamId: input.teamId ?? null,
         targetTable: input.target?.table,
-        targetId: input.target?.id,
+        targetId:
+          typeof input.target?.id === 'number'
+            ? input.target?.id
+            : Number.isFinite(Number(input.target?.id))
+            ? Number(input.target?.id)
+            : null,
         ip,
         userAgent,
         metadata: input.metadata ?? undefined,

@@ -7,9 +7,9 @@ import AdminHeader from '@/components/layout/AdminHeader'
 import TableSkeleton from '@/components/ui/TableSkeleton'
 
 type Person = { name: string; email: string; role: string }
-type ApiUser = { id: number; name: string; email: string; role: 'USER' | 'ADMIN'; createdAt: string }
-type ApiTeam = { id: number; name: string }
-type Props = { teamId?: number }
+type ApiUser = { id: string; name: string; email: string; role: 'USER' | 'ADMIN'; createdAt: string }
+type ApiTeam = { id: string; name: string }
+type Props = { teamId?: string }
 
 const TeamTable = ({ teamId }: Props) => {
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -17,7 +17,7 @@ const TeamTable = ({ teamId }: Props) => {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [teams, setTeams] = useState<ApiTeam[]>([])
-    const [activeTeamId, setActiveTeamId] = useState<number | undefined>(teamId)
+    const [activeTeamId, setActiveTeamId] = useState<string | undefined>(teamId)
 
     async function loadTeams() {
         try {
@@ -32,7 +32,7 @@ const TeamTable = ({ teamId }: Props) => {
         }
     }
 
-    async function loadUsers(tid?: number) {
+    async function loadUsers(tid?: string) {
         setLoading(true)
         setError(null)
         try {
@@ -76,7 +76,7 @@ const TeamTable = ({ teamId }: Props) => {
                                 id="team"
                                 name="team"
                                 value={activeTeamId}
-                                onChange={(e) => { const tid = Number(e.target.value); setActiveTeamId(tid); loadUsers(tid) }}
+                                onChange={(e) => { const tid = e.target.value; setActiveTeamId(tid); loadUsers(tid) }}
                                 className="block w-full max-w-xs rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500"
                             >
                                 {teams.map(t => (

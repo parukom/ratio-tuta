@@ -5,28 +5,37 @@ import { logAudit } from '@lib/logger';
 
 export async function GET(req: Request) {
   const session = await getSession();
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!session)
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
   const teamIdParam = searchParams.get('teamId');
 
   // Teams current user belongs to (owner or member)
   const [owned, memberOf] = await Promise.all([
-    prisma.team.findMany({ where: { ownerId: session.userId }, select: { id: true } }),
-    prisma.teamMember.findMany({ where: { userId: session.userId }, select: { teamId: true } }),
+    prisma.team.findMany({
+      where: { ownerId: session.userId },
+      select: { id: true },
+    }),
+    prisma.teamMember.findMany({
+      where: { userId: session.userId },
+      select: { teamId: true },
+    }),
   ]);
-  const myTeamIds = Array.from(new Set<number>([
-    ...owned.map((t) => t.id),
-    ...memberOf.map((t) => t.teamId),
-  ]));
+  const myTeamIds = Array.from(
+    new Set<string>([
+      ...owned.map((t) => t.id),
+      ...memberOf.map((t) => t.teamId),
+    ]),
+  );
 
   if (myTeamIds.length === 0) return NextResponse.json([]);
 
   let filterTeamIds = myTeamIds;
   if (teamIdParam) {
-    const tid = Number(teamIdParam);
-    if (!Number.isInteger(tid)) return NextResponse.json({ error: 'Invalid teamId' }, { status: 400 });
-    if (!myTeamIds.includes(tid)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    const tid = teamIdParam;
+    if (!myTeamIds.includes(tid))
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     filterTeamIds = [tid];
   }
 
@@ -85,8 +94,8 @@ export async function POST(req: Request) {
 
   const body = (await req.json()) as {
     name?: string;
-    teamId?: number;
-    placeTypeId?: number | null;
+    teamId?: string;
+    placeTypeId?: string | null;
     description?: string | null;
     address1?: string | null;
     address2?: string | null;
@@ -109,8 +118,8 @@ export async function POST(req: Request) {
   }
 
   // Resolve teamId: either validate the provided one or auto-detect if user belongs to exactly one team.
-  let targetTeamId: number | undefined = undefined;
-  if (typeof body.teamId === 'number') {
+  let targetTeamId: string | undefined = undefined;
+  if (typeof body.teamId === 'string' && body.teamId) {
     const ok = await prisma.team.findFirst({
       where: {
         id: body.teamId,
@@ -144,7 +153,7 @@ export async function POST(req: Request) {
       }),
     ]);
     const teamIds = Array.from(
-      new Set<number>([
+      new Set<string>([
         ...owned.map((t) => t.id),
         ...memberOf.map((t) => t.teamId),
       ]),
@@ -200,7 +209,7 @@ export async function POST(req: Request) {
         city: true,
         country: true,
         currency: true,
-  totalEarnings: true,
+        totalEarnings: true,
         placeTypeId: true,
         createdAt: true,
       },

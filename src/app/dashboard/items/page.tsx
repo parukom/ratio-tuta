@@ -1,26 +1,23 @@
 "use client"
 import AdminLayout from '@/components/layout/AdminLayout';
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import CreateItemButton from '@/components/admin-zone/items/CreateItemButton'
 import TableSkeleton from '@/components/ui/TableSkeleton'
-import Input from '@/components/ui/Input'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { useSearchParams, useRouter } from 'next/navigation'
 
 type ItemRow = {
-    id: number
-    placeId: number
+    id: string
+    teamId: string
     name: string
     sku?: string | null
-    categoryId?: number | null
+    categoryId?: string | null
     categoryName?: string | null
     price: number
     taxRateBps: number
     isActive: boolean
     createdAt: string
-    placeName: string
     currency: string
-    teamId?: number | null
 }
 
 const Items = () => {
@@ -34,7 +31,7 @@ const Items = () => {
     const [q, setQ] = useState(qParam)
     const [onlyActive, setOnlyActive] = useState(onlyActiveParam === 'true')
 
-    function applyQuery(next: { q?: string; onlyActive?: boolean }) {
+    const applyQuery = useCallback((next: { q?: string; onlyActive?: boolean }) => {
         const params = new URLSearchParams(searchParams?.toString() ?? '')
         if (typeof next.q === 'string') {
             if (next.q) params.set('q', next.q); else params.delete('q')
@@ -43,33 +40,66 @@ const Items = () => {
             params.set('onlyActive', String(next.onlyActive))
         }
         router.push(`?${params.toString()}`)
-    }
+    }, [router, searchParams])
 
-    // Fetch items
-    useEffect(() => {
-        let cancelled = false
+    // Fetch items (shared)
+    const fetchItems = useCallback(async () => {
         setLoading(true)
-        const qp = new URLSearchParams()
-        if (qParam) qp.set('q', qParam)
-        if (onlyActiveParam) qp.set('onlyActive', onlyActiveParam)
-        fetch(`/api/items?${qp.toString()}`)
-            .then(r => r.ok ? r.json() : Promise.reject(r))
-            .then((data: ItemRow[]) => { if (!cancelled) setItems(data) })
-            .catch(() => { if (!cancelled) setItems([]) })
-            .finally(() => { if (!cancelled) setLoading(false) })
-        return () => { cancelled = true }
+        try {
+            const qp = new URLSearchParams()
+            if (qParam) qp.set('q', qParam)
+            if (onlyActiveParam) qp.set('onlyActive', onlyActiveParam)
+            const r = await fetch(`/api/items?${qp.toString()}`)
+            if (!r.ok) throw new Error('Failed to fetch')
+            const data: ItemRow[] = await r.json()
+            setItems(Array.isArray(data) ? data : [])
+        } catch {
+            setItems([])
+        } finally {
+            setLoading(false)
+        }
     }, [qParam, onlyActiveParam])
+
+    // Fetch on param changes
+    useEffect(() => { fetchItems() }, [fetchItems])
 
     // When q/onlyActive inputs change, push to URL after small debounce for q
     useEffect(() => {
         const h = setTimeout(() => applyQuery({ q }), 300)
         return () => clearTimeout(h)
-    }, [q])
-    useEffect(() => { applyQuery({ onlyActive }) }, [onlyActive])
+    }, [q, applyQuery])
+    useEffect(() => { applyQuery({ onlyActive }) }, [onlyActive, applyQuery])
 
-    function onCreated() {
-        // Simple refresh
-        applyQuery({})
+    function onCreated(created: {
+        id: string
+        teamId: string
+        name: string
+        sku?: string | null
+        categoryId?: string | null
+        price: number
+        taxRateBps: number
+        isActive: boolean
+        createdAt: string
+    }) {
+        // Optimistic add to top (only if visible per current filter)
+        if (!onlyActive || created.isActive) {
+            const optimistic: ItemRow = {
+                id: created.id,
+                teamId: created.teamId,
+                name: created.name,
+                sku: created.sku ?? null,
+                categoryId: created.categoryId ?? null,
+                categoryName: null,
+                price: created.price,
+                taxRateBps: created.taxRateBps,
+                isActive: created.isActive,
+                createdAt: created.createdAt,
+                currency: 'EUR',
+            }
+            setItems(prev => [optimistic, ...prev.filter(i => i.id !== optimistic.id)])
+        }
+        // Background refetch to sync
+        fetchItems()
     }
 
     return (
@@ -104,11 +134,11 @@ const Items = () => {
                             <th className="px-2 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">Category</th>
                             <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Price</th>
                             <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Tax</th>
-                            <th className="px-4 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Place</th>
+                            <th className="px-4 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Team</th>
                         </tr>
                     </thead>
                     {loading ? (
-                        <TableSkeleton rows={8} columnWidths={["w-56","w-36","w-24","w-24","w-16","w-40"]} />
+                        <TableSkeleton rows={8} columnWidths={["w-56", "w-36", "w-24", "w-24", "w-16", "w-40"]} />
                     ) : items.length === 0 ? (
                         <tbody>
                             <tr>
@@ -131,7 +161,7 @@ const Items = () => {
                                         {new Intl.NumberFormat(undefined, { style: 'currency', currency: it.currency || 'EUR' }).format(it.price)}
                                     </td>
                                     <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{(it.taxRateBps / 100).toFixed(2)}%</td>
-                                    <td className="px-4 py-2 text-right text-gray-700 dark:text-gray-300">{it.placeName}</td>
+                                    <td className="px-4 py-2 text-right text-gray-700 dark:text-gray-300">Team #{it.teamId}</td>
                                 </tr>
                             ))}
                         </tbody>

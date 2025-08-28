@@ -26,18 +26,15 @@ export async function GET(req: Request) {
     }),
   ]);
 
-  const myTeamIds = new Set<number>([
+  const myTeamIds = new Set<string>([
     ...memberTeams.map((t) => t.teamId),
     ...ownedTeams.map((t) => t.id),
   ]);
 
   // If a specific teamId is requested, ensure the user belongs to it
-  let targetTeamIds: number[] = Array.from(myTeamIds);
+  let targetTeamIds: string[] = Array.from(myTeamIds);
   if (teamIdParam) {
-    const tid = Number(teamIdParam);
-    if (!Number.isInteger(tid)) {
-      return NextResponse.json({ error: 'Invalid teamId' }, { status: 400 });
-    }
+    const tid = teamIdParam;
     if (!myTeamIds.has(tid)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
