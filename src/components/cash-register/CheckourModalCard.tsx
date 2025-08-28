@@ -12,7 +12,6 @@ type Props = {
     setShowChange: (value: React.SetStateAction<boolean>) => void
     completeSale: () => Promise<void>
     loading: boolean
-    darkMode?: boolean
 }
 
 const CheckoutModalCard: React.FC<Props> = ({
@@ -24,19 +23,18 @@ const CheckoutModalCard: React.FC<Props> = ({
     setChange,
     setShowChange,
     completeSale,
-    loading,
-    darkMode
+    loading
 }) => {
 
     return (
         <>
             <header className="flex justify-between items-center mb-4">
-                <h2 className={`text-xl font-bold ${darkMode ? 'text-white/90' : 'text-gray-800'}`}>Krepšelis</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Krepšelis</h2>
                 <button
                     onClick={() => {
                         setIsModalOpen(false);
                     }}
-                    className="text-gray-500 hover:text-gray-700"
+                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                 >
                     <X className="cursor-pointer"/>
                 </button>
@@ -45,10 +43,10 @@ const CheckoutModalCard: React.FC<Props> = ({
             {/* body - items */}
             <div className="mb-4 max-h-64 overflow-y-auto">
                 {cart.map(item => (
-                    <div key={item.id} className="flex justify-between items-center py-2 border-b border-gray-200">
+            <div key={item.id} className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-white/10">
                         <div>
-                            <span className={`font-medium text-2xl ${darkMode ? "text-white/90": ""}`}>{item.name}</span>
-                            <span className="text-gray-500 text-sm ml-2">x{item.quantity}</span>
+                <span className="font-medium text-2xl text-gray-900 dark:text-white">{item.name}</span>
+                <span className="text-gray-500 text-sm ml-2 dark:text-gray-400">x{item.quantity}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <button
@@ -63,11 +61,11 @@ const CheckoutModalCard: React.FC<Props> = ({
                                         return newCart;
                                     });
                                 }}
-                                className="px-5 py-3 text-xl flex items-center justify-center bg-gray-200 rounded-2xl hover:bg-gray-300"
+                                className="px-5 py-3 text-xl flex items-center justify-center rounded-2xl bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20"
                             >
                                 -
                             </button>
-                            <span className={`text-2xl ${darkMode ? 'text-white/90' : ''}`}>€{(item.price * item.quantity).toFixed(2)}</span>
+                            <span className="text-2xl text-gray-900 dark:text-white">€{(item.price * item.quantity).toFixed(2)}</span>
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -82,7 +80,7 @@ const CheckoutModalCard: React.FC<Props> = ({
                                         return newCart;
                                     });
                                 }}
-                                className="px-5 py-3 text-xl flex items-center justify-center bg-gray-200 rounded-2xl hover:bg-gray-300"
+                                className="px-5 py-3 text-xl flex items-center justify-center rounded-2xl bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20"
                             >
                                 +
                             </button>
@@ -92,7 +90,7 @@ const CheckoutModalCard: React.FC<Props> = ({
             </div>
 
             <footer className="border-gray-200 mb-4">
-                <div className={`flex justify-between font-semibold text-lg mb-4 ${darkMode ? 'text-white/80' : ''}`}>
+        <div className="flex justify-between font-semibold text-lg mb-4 text-gray-900 dark:text-white">
                     <span>Viso:</span>
                     <span className="text-2xl">€{cartTotal.toFixed(2)}</span>
                 </div>
@@ -105,7 +103,7 @@ const CheckoutModalCard: React.FC<Props> = ({
                         onClick={() => {
                                 completeSale();
                         }}
-                        className={`w-full text-black transition-all duration-500 ${darkMode ? 'bg-zinc-400 hover:bg-zinc-500 hover:text-white/90' : 'border hover:bg-zinc-200 border-zinc-200'}  px-6 py-6 rounded-lg transition-colors`}
+            className="w-full rounded-lg px-6 py-6 text-sm font-medium shadow-sm transition-colors bg-gray-800 text-white hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600"
                     >
                         <span className="flex items-center justify-center">
                             <CreditCard className="w-4 h-4 mr-2" />
@@ -122,7 +120,7 @@ const CheckoutModalCard: React.FC<Props> = ({
                             setChange(0);
                             setShowChange(false);
                         }}
-                        className={`w-full cursor-pointer ${darkMode ? 'hover:bg-zinc-900 text-gray-200 border border-zinc-500' : 'hover:bg-zinc-200 text-gray-800'} px-4 py-6 rounded-md transition-all duration-500`}
+            className="w-full cursor-pointer rounded-md border px-4 py-6 transition-colors text-gray-800 border-gray-300 hover:bg-gray-50 dark:text-gray-200 dark:border-white/10 dark:hover:bg-white/5"
                     >
                         Atšaukti
                     </button>

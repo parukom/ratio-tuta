@@ -19,7 +19,6 @@ type Props = {
     loading: boolean
     setPaymentOption: (value: React.SetStateAction<string>) => void
     cartCount: number
-    darkMode?: boolean
 }
 
 const CheckoutModal: React.FC<Props> = ({
@@ -37,20 +36,19 @@ const CheckoutModal: React.FC<Props> = ({
     change,
     loading,
     setPaymentOption,
-    cartCount,
-    darkMode
+    cartCount
 }) => {
 
     return (
         <>
             <header className="flex justify-between items-center mb-4">
-                <h2 className={`text-xl font-bold ${darkMode ? 'text-white/90' : 'text-gray-800'}`}>Krepšelis</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Krepšelis</h2>
                 <button
                     onClick={() => {
                         setIsModalOpen(false);
                         setPaymentOption('CASH');
                     }}
-                    className="text-gray-500 hover:text-gray-700"
+                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                 >
                     <X className="cursor-pointer"/>
                 </button>
@@ -59,10 +57,10 @@ const CheckoutModal: React.FC<Props> = ({
             {/* body - items */}
             <div className="mb-4 max-h-64 overflow-y-auto">
                 {cart.map(item => (
-                    <div key={item.id} className="flex justify-between items-center py-2 border-b border-gray-200">
+            <div key={item.id} className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-white/10">
                         <div>
-                            <span className={`font-medium text-2xl ${darkMode ? "text-white/90": ""}`}>{item.name}</span>
-                            <span className="text-gray-500 text-sm ml-2">x{item.quantity}</span>
+                <span className="font-medium text-2xl text-gray-900 dark:text-white">{item.name}</span>
+                <span className="text-gray-500 text-sm ml-2 dark:text-gray-400">x{item.quantity}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <button
@@ -79,11 +77,11 @@ const CheckoutModal: React.FC<Props> = ({
                                         return newCart;
                                     });
                                 }}
-                                className="px-5 py-3 text-xl flex items-center justify-center bg-gray-200 rounded-2xl hover:bg-gray-300"
+                                className="px-5 py-3 text-xl flex items-center justify-center rounded-2xl bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20"
                             >
                                 -
                             </button>
-                            <span className={`text-2xl ${darkMode ? 'text-white/90' : ''}`}>€{(item.price * item.quantity).toFixed(2)}</span>
+                            <span className="text-2xl text-gray-900 dark:text-white">€{(item.price * item.quantity).toFixed(2)}</span>
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -98,7 +96,7 @@ const CheckoutModal: React.FC<Props> = ({
                                         return newCart;
                                     });
                                 }}
-                                className="px-5 py-3 text-xl flex items-center justify-center bg-gray-200 rounded-2xl hover:bg-gray-300"
+                                className="px-5 py-3 text-xl flex items-center justify-center rounded-2xl bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20"
                             >
                                 +
                             </button>
@@ -108,14 +106,14 @@ const CheckoutModal: React.FC<Props> = ({
             </div>
 
             <footer className="border-gray-200 mb-4">
-                <div className={`flex justify-between font-semibold text-lg mb-4 ${darkMode ? 'text-white/80' : ''}`}>
+                <div className="flex justify-between font-semibold text-lg mb-4 text-gray-900 dark:text-white">
                     <span>Viso:</span>
                     <span className="text-2xl">€{cartTotal.toFixed(2)}</span>
                 </div>
 
                 {/* amount given */}
                 <div className="mb-4">
-                    <label htmlFor="amount-given" className={`block ${darkMode ? 'text-white/80' : 'text-gray-700'} mb-2`}>
+                    <label htmlFor="amount-given" className="block text-gray-700 dark:text-gray-300 mb-2">
                         Gauta pinigų (€)
                     </label>
                     <input
@@ -135,7 +133,7 @@ const CheckoutModal: React.FC<Props> = ({
                                 setShowChange(false);
                             }
                         }}
-                        className={`text-2xl w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${darkMode ? 'bg-zinc-300' : ''} ${paymentOption === 'CARD' && !darkMode ? 'bg-gray-100' : ''}`}
+                        className={`text-2xl w-full px-3 py-2 rounded-md outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 bg-white text-gray-900 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500 ${paymentOption === 'CARD' ? 'opacity-60' : ''}`}
                         min="0"
                         step="0.01"
                     />
@@ -143,8 +141,8 @@ const CheckoutModal: React.FC<Props> = ({
 
                 {/* change due */}
                 {showChange && (
-                    <div className="mb-4 p-3 bg-gray-100 rounded-md">
-                        <p className="font-medium text-xl">
+                    <div className="mb-4 p-3 rounded-md bg-gray-50 dark:bg-white/5">
+                        <p className="font-medium text-xl text-gray-900 dark:text-white">
                             Grąža: <span>€{change.toFixed(2)}</span>
                         </p>
                     </div>
@@ -167,7 +165,7 @@ const CheckoutModal: React.FC<Props> = ({
                                     }
                                 }}
                                 disabled={paymentOption === 'CARD'}
-                                className={`px-4 cursor-pointer ${darkMode ? 'bg-emerald-600 text-white/90 hover:bg-emerald-800' : 'bg-zinc-700 text-white hover:bg-zinc-800'} transition-all duration-500 py-5 rounded-md text-lg font-semibold shadow-md hover:shadow-lg`}
+                                className="px-4 py-5 rounded-md text-lg font-semibold shadow-sm cursor-pointer transition-colors bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
                             >
                                 €{value}
                             </button>
@@ -184,7 +182,7 @@ const CheckoutModal: React.FC<Props> = ({
                     <button
                         onClick={completeSale}
                         disabled={(paymentOption === 'CASH' && !showChange) || loading}
-                        className={`transition-all duration-500 cursor-pointer py-6 px-5 text-sm font-medium focus:outline-none rounded-lg border focus:z-10 focus:ring-4  w-full ${darkMode ? 'focus:ring-gray-700 bg-emerald-800 text-gray-100 border-gray-600 hover:text-white hover:bg-emerald-900' : 'focus:ring-gray-700 bg-gray-800 text-gray-100 border-gray-600 hover:text-white hover:bg-gray-700'} ${(paymentOption === 'CASH' && !showChange) || loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className="w-full cursor-pointer rounded-lg px-5 py-6 text-sm font-medium text-white shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-gray-800 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600"
                     >
                         {loading ? <><span className='loader'></span>Saugoma</> : <span className="flex items-center justify-center"><Banknote className="w-5 h-5 mr-2" /> Grynais</span>}
                     </button>
@@ -198,7 +196,7 @@ const CheckoutModal: React.FC<Props> = ({
                             }
                         }}
                         disabled={cartCount === 0}
-                        className={`w-full text-black transition-all duration-500 ${darkMode ? 'bg-zinc-400 hover:bg-zinc-500 hover:text-white/90' : 'border hover:bg-zinc-200 border-zinc-200'}  px-6 py-6 rounded-lg transition-colors ${cartCount === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                        className={`w-full rounded-lg px-6 py-6 text-sm font-medium shadow-sm transition-colors bg-gray-800 text-white hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 ${cartCount === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                     >
                         <span className="flex items-center justify-center">
                             <CreditCard className="w-4 h-4 mr-2" />
@@ -218,7 +216,7 @@ const CheckoutModal: React.FC<Props> = ({
                             // const cartRef = ref(db, `carts/${id}`);
                             // set(cartRef, null);
                         }}
-                        className={`w-full cursor-pointer ${darkMode ? 'hover:bg-zinc-900 text-gray-200 border border-zinc-500' : 'hover:bg-zinc-200 text-gray-800'} px-4 py-6 rounded-md transition-all duration-500`}
+                        className="w-full cursor-pointer rounded-md border px-4 py-6 transition-colors text-gray-800 border-gray-300 hover:bg-gray-50 dark:text-gray-200 dark:border-white/10 dark:hover:bg-white/5"
                     >
                         Atšaukti
                     </button>

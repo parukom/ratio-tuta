@@ -47,7 +47,6 @@ export default function CashRegisterClient() {
     const [amountGiven, setAmountGiven] = useState(0);
     const [change, setChange] = useState(0);
     const [showChange, setShowChange] = useState(false);
-    const [darkMode, setDarkMode] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const activePlace = useMemo(() => places?.find((p) => p.id === activePlaceId) || null, [places, activePlaceId]);
@@ -228,12 +227,6 @@ export default function CashRegisterClient() {
         }
     }
 
-    // detect dark mode for SVG strokes in selection modal
-    useEffect(() => {
-        const compute = () => setDarkMode(typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
-        compute();
-    }, []);
-
     return (
         <div className="flex h-dvh flex-col overflow-hidden bg-gray-50 dark:bg-gray-900">
             {/* Header */}
@@ -325,12 +318,10 @@ export default function CashRegisterClient() {
                         >
                             Clear
                         </button>
-                                                <button
-                                                        onClick={() => {
-                                                                // refresh dark mode snapshot when opening
-                                                                setDarkMode(typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
-                                                                setOpenChoosePayment(true);
-                                                        }}
+                        <button
+                            onClick={() => {
+                                setOpenChoosePayment(true);
+                            }}
                             disabled={cart.size === 0 || checkingOut}
                             className="mb-1 me-2 rounded-lg border border-gray-300 bg-gray-800 px-8 py-2.5 text-xl font-medium text-white disabled:opacity-50 dark:border-white/10 dark:bg-gray-700"
                         >
@@ -339,89 +330,87 @@ export default function CashRegisterClient() {
                     </div>
                 </div>
             </footer>
-                        {/* Choose Payment Modal */}
-                        <Modal open={openChoosePayment} onClose={() => setOpenChoosePayment(false)} size="md">
-                                <div>
-                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Pasirinkite mokėjimo būdą</h3>
-                                        <div className='mt-4 flex justify-between gap-4'>
-                                            <button
-                                                className={`flex flex-col items-center justify-center h-48 w-full rounded-lg p-6 transition-all duration-300 ${darkMode ? 'bg-zinc-700 hover:bg-zinc-600 border-zinc-600' : 'bg-white hover:bg-gray-100 border-gray-200'} border shadow-md`}
-                                                onClick={() => {
-                                                    setPaymentOption('CASH');
-                                                    setOpenChoosePayment(false);
-                                                    setOpenCashModal(true);
-                                                }}
-                                            >
-                                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M2 12C2 8.22876 2 6.34315 3.17157 5.17157C4.34315 4 6.22876 4 10 4H14C17.7712 4 19.6569 4 20.8284 5.17157C22 6.34315 22 8.22876 22 12C22 15.7712 22 17.6569 20.8284 18.8284C19.6569 20 17.7712 20 14 20H10C6.22876 20 4.34315 20 3.17157 18.8284C2 17.6569 2 15.7712 2 12Z" stroke={darkMode ? '#10b981' : '#000'} strokeWidth="2" />
-                                                    <path d="M19 16H5" stroke={darkMode ? '#10b981' : '#000'} strokeWidth="2" strokeLinecap="round" />
-                                                    <path d="M19 8H5" stroke={darkMode ? '#10b981' : '#000'} strokeWidth="2" strokeLinecap="round" />
-                                                    <circle cx="12" cy="12" r="2" stroke={darkMode ? '#10b981' : '#000'} strokeWidth="2" />
-                                                </svg>
-                                                <span className={`mt-4 text-xl font-semibold ${darkMode ? 'text-emerald-400' : 'text-gray-800'}`}>GRYNAIS</span>
-                                            </button>
+            {/* Choose Payment Modal */}
+            <Modal open={openChoosePayment} onClose={() => setOpenChoosePayment(false)} size="md">
+                <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Pasirinkite mokėjimo būdą</h3>
+                    <div className='mt-4 flex justify-between gap-4'>
+                        <button
+                            className="flex flex-col items-center justify-center h-48 w-full rounded-lg p-6 transition-colors border shadow-sm bg-white hover:bg-gray-50 border-gray-200 dark:bg-white/5 dark:hover:bg-white/10 dark:border-white/10"
+                            onClick={() => {
+                                setPaymentOption('CASH');
+                                setOpenChoosePayment(false);
+                                setOpenCashModal(true);
+                            }}
+                        >
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-900 dark:text-white">
+                                <path d="M2 12C2 8.22876 2 6.34315 3.17157 5.17157C4.34315 4 6.22876 4 10 4H14C17.7712 4 19.6569 4 20.8284 5.17157C22 6.34315 22 8.22876 22 12C22 15.7712 22 17.6569 20.8284 18.8284C19.6569 20 17.7712 20 14 20H10C6.22876 20 4.34315 20 3.17157 18.8284C2 17.6569 2 15.7712 2 12Z" stroke="currentColor" strokeWidth="2" />
+                                <path d="M19 16H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                                <path d="M19 8H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                                <circle cx="12" cy="12" r="2" stroke="currentColor" strokeWidth="2" />
+                            </svg>
+                            <span className="mt-4 text-xl font-semibold text-gray-900 dark:text-white">GRYNAIS</span>
+                        </button>
 
-                                            <button
-                                                className={`flex flex-col items-center justify-center h-48 w-full rounded-lg p-6 transition-all duration-300 ${darkMode ? 'bg-zinc-700 hover:bg-zinc-600 border-zinc-600' : 'bg-white hover:bg-gray-100 border-gray-200'} border shadow-md`}
-                                                onClick={() => {
-                                                    setPaymentOption('CARD');
-                                                    setOpenChoosePayment(false);
-                                                    setOpenCardModal(true);
-                                                }}
-                                            >
-                                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M22 10H2V8C2 6.34315 3.34315 5 5 5H19C20.6569 5 22 6.34315 22 8V10Z" stroke={darkMode ? '#3b82f6' : '#000'} strokeWidth="2" />
-                                                    <path d="M22 10V16C22 17.6569 20.6569 19 19 19H5C3.34315 19 2 17.6569 2 16V10" stroke={darkMode ? '#3b82f6' : '#000'} strokeWidth="2" />
-                                                    <path d="M6 15H10" stroke={darkMode ? '#3b82f6' : '#000'} strokeWidth="2" strokeLinecap="round" />
-                                                </svg>
-                                                <span className={`mt-4 text-xl font-semibold ${darkMode ? 'text-blue-400' : 'text-gray-800'}`}>KORTELE</span>
-                                            </button>
-                                        </div>
-                                </div>
-                        </Modal>
+                        <button
+                            className="flex flex-col items-center justify-center h-48 w-full rounded-lg p-6 transition-colors border shadow-sm bg-white hover:bg-gray-50 border-gray-200 dark:bg-white/5 dark:hover:bg-white/10 dark:border-white/10"
+                            onClick={() => {
+                                setPaymentOption('CARD');
+                                setOpenChoosePayment(false);
+                                setOpenCardModal(true);
+                            }}
+                        >
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-900 dark:text-white">
+                                <path d="M22 10H2V8C2 6.34315 3.34315 5 5 5H19C20.6569 5 22 6.34315 22 8V10Z" stroke="currentColor" strokeWidth="2" />
+                                <path d="M22 10V16C22 17.6569 20.6569 19 19 19H5C3.34315 19 2 17.6569 2 16V10" stroke="currentColor" strokeWidth="2" />
+                                <path d="M6 15H10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                            </svg>
+                            <span className="mt-4 text-xl font-semibold text-gray-900 dark:text-white">KORTELE</span>
+                        </button>
+                    </div>
+                </div>
+            </Modal>
 
-                        {/* Cash Modal */}
-                        <Modal open={openCashModal} onClose={() => setOpenCashModal(false)} size="lg">
-                                <CheckoutModalCash
-                                        setIsModalOpen={setOpenCashModal}
-                                        cart={cartArray}
-                                        setCart={setCartFromModal}
-                                        id={activePlaceId ?? undefined}
-                                        cartTotal={totals.sum}
-                                        amountGiven={amountGiven}
-                                        setAmountGiven={setAmountGiven}
-                                        setChange={setChange}
-                                        setShowChange={setShowChange}
-                                        showChange={showChange}
-                                        completeSale={async () => {
-                                                setPaymentOption('CASH');
-                                                await completeSale();
-                                        }}
-                                        change={change}
-                                        loading={checkingOut}
-                                        darkMode={darkMode}
-                                />
-                        </Modal>
+            {/* Cash Modal */}
+            <Modal open={openCashModal} onClose={() => setOpenCashModal(false)} size="lg">
+                <CheckoutModalCash
+                    setIsModalOpen={setOpenCashModal}
+                    cart={cartArray}
+                    setCart={setCartFromModal}
+                    id={activePlaceId ?? undefined}
+                    cartTotal={totals.sum}
+                    amountGiven={amountGiven}
+                    setAmountGiven={setAmountGiven}
+                    setChange={setChange}
+                    setShowChange={setShowChange}
+                    showChange={showChange}
+                    completeSale={async () => {
+                        setPaymentOption('CASH');
+                        await completeSale();
+                    }}
+                    change={change}
+                    loading={checkingOut}
+                />
+            </Modal>
 
-                        {/* Card Modal */}
-                        <Modal open={openCardModal} onClose={() => setOpenCardModal(false)} size="lg">
-                                <CheckoutModalCard
-                                        setIsModalOpen={setOpenCardModal}
-                                        cart={cartArray}
-                                        setCart={setCartFromModal}
-                                        id={activePlaceId ?? undefined}
-                                        cartTotal={totals.sum}
-                                        setAmountGiven={setAmountGiven}
-                                        setChange={setChange}
-                                        setShowChange={setShowChange}
-                                        completeSale={async () => {
-                                                setPaymentOption('CARD');
-                                                await completeSale();
-                                        }}
-                                        loading={checkingOut}
-                                        darkMode={darkMode}
-                                />
-                        </Modal>
+            {/* Card Modal */}
+            <Modal open={openCardModal} onClose={() => setOpenCardModal(false)} size="lg">
+                <CheckoutModalCard
+                    setIsModalOpen={setOpenCardModal}
+                    cart={cartArray}
+                    setCart={setCartFromModal}
+                    id={activePlaceId ?? undefined}
+                    cartTotal={totals.sum}
+                    setAmountGiven={setAmountGiven}
+                    setChange={setChange}
+                    setShowChange={setShowChange}
+                    completeSale={async () => {
+                        setPaymentOption('CARD');
+                        await completeSale();
+                    }}
+                    loading={checkingOut}
+                />
+            </Modal>
         </div>
     );
 }
