@@ -133,11 +133,41 @@ export async function POST(
     );
 
   try {
-    const upserted = await prisma.placeItem.upsert({
-      where: { placeId_itemId: { placeId, itemId } },
-      update: { quantity },
-      create: { placeId, itemId, quantity },
-      select: { id: true, placeId: true, itemId: true, quantity: true },
+    // Transaction: adjust place quantity and team warehouse stock accordingly
+    const result = await prisma.$transaction(async (tx) => {
+      const existing = await tx.placeItem.findUnique({
+        where: { placeId_itemId: { placeId, itemId } },
+        select: { id: true, quantity: true },
+      });
+
+      const prevQty = existing?.quantity ?? 0;
+      const delta = quantity - prevQty; // positive means moving from warehouse to place
+
+      if (delta > 0) {
+        // Ensure enough stock in warehouse and decrement
+        const upd = await tx.item.updateMany({
+          where: { id: itemId, teamId: place.teamId, stockQuantity: { gte: delta } },
+          data: { stockQuantity: { decrement: delta } },
+        });
+        if (upd.count !== 1) {
+          throw new Error('INSUFFICIENT_TEAM_STOCK');
+        }
+      } else if (delta < 0) {
+        // Returning stock to warehouse
+        await tx.item.update({
+          where: { id: itemId },
+          data: { stockQuantity: { increment: -delta } },
+        });
+      }
+
+      const upserted = await tx.placeItem.upsert({
+        where: { placeId_itemId: { placeId, itemId } },
+        update: { quantity },
+        create: { placeId, itemId, quantity },
+        select: { id: true, placeId: true, itemId: true, quantity: true },
+      });
+
+      return upserted;
     });
 
     await logAudit({
@@ -145,13 +175,19 @@ export async function POST(
       status: 'SUCCESS',
       actor: session,
       teamId: place.teamId,
-      target: { table: 'PlaceItem', id: upserted.id },
+      target: { table: 'PlaceItem', id: result.id },
       metadata: { placeId, itemId, quantity },
     });
 
-    return NextResponse.json(upserted, { status: 200 });
+    return NextResponse.json(result, { status: 200 });
   } catch (e) {
     console.error(e);
+    if ((e as Error)?.message === 'INSUFFICIENT_TEAM_STOCK') {
+      return NextResponse.json(
+        { error: 'Insufficient team stock to allocate', itemId },
+        { status: 409 },
+      );
+    }
     await logAudit({
       action: 'place.items.upsert',
       status: 'ERROR',
@@ -203,10 +239,22 @@ export async function DELETE(
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   try {
-    // Delete if exists (idempotent)
-    await prisma.placeItem.delete({
-      where: { placeId_itemId: { placeId, itemId } },
-    }).catch(() => undefined);
+    // Return any remaining place quantity back to warehouse, then remove link
+    await prisma.$transaction(async (tx) => {
+      const row = await tx.placeItem.findUnique({
+        where: { placeId_itemId: { placeId, itemId } },
+        select: { quantity: true },
+      });
+      if (row && row.quantity > 0) {
+        await tx.item.update({
+          where: { id: itemId },
+          data: { stockQuantity: { increment: row.quantity } },
+        });
+      }
+      await tx.placeItem.delete({
+        where: { placeId_itemId: { placeId, itemId } },
+      }).catch(() => undefined);
+    });
 
     await logAudit({
       action: 'place.items.remove',

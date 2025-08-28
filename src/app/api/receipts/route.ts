@@ -205,12 +205,22 @@ export async function POST(req: Request) {
         select: { id: true },
       });
 
-      // Decrement stock per item
+  // Decrement stock per item for the place, guarding against negatives
       for (const it of items) {
-        await tx.placeItem.update({
-          where: { placeId_itemId: { placeId, itemId: it.itemId! } },
-          data: { quantity: { decrement: it.quantity! } },
+        const qty = it.quantity!;
+
+        // 1) Place stock: ensure sufficient quantity atomically
+        const placeUpd = await tx.placeItem.updateMany({
+          where: {
+            placeId,
+            itemId: it.itemId!,
+            quantity: { gte: qty },
+          },
+          data: { quantity: { decrement: qty } },
         });
+        if (placeUpd.count !== 1) {
+          throw new Error(`INSUFFICIENT_PLACE_STOCK:${it.itemId}`);
+        }
       }
 
       // Update place earnings
@@ -237,6 +247,14 @@ export async function POST(req: Request) {
     );
   } catch (e) {
     console.error(e);
+    const msg = (e as Error)?.message || '';
+    if (msg.startsWith('INSUFFICIENT_PLACE_STOCK')) {
+      const [, code] = msg.split(':');
+      return NextResponse.json(
+        { error: 'Insufficient stock', scope: 'place', itemId: code },
+        { status: 409 },
+      );
+    }
     await logAudit({
       action: 'receipt.create',
       status: 'ERROR',
