@@ -29,9 +29,11 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
   const [price, setPrice] = useState('')
   const [taxRateBps, setTaxRateBps] = useState('0')
   const [isActive, setIsActive] = useState(true)
+  const [unit, setUnit] = useState('pcs')
+  const [stockQuantity, setStockQuantity] = useState('0')
 
   function reset() {
-    setName(''); setSku(''); setPrice(''); setTaxRateBps('0'); setIsActive(true)
+    setName(''); setSku(''); setPrice(''); setTaxRateBps('0'); setIsActive(true); setUnit('pcs'); setStockQuantity('0')
   }
 
   async function submit(e: React.FormEvent) {
@@ -49,6 +51,8 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
           price: Number(price),
           taxRateBps: Number(taxRateBps) || 0,
           isActive,
+          unit: unit.trim() || 'pcs',
+          stockQuantity: Number(stockQuantity) || 0,
         }),
       })
       const data = await res.json()
@@ -88,6 +92,10 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Input id="price" name="price" type="number" className="" placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} />
             <Input id="taxRateBps" name="taxRateBps" type="number" className="" placeholder="Tax (bps) e.g. 2100" value={taxRateBps} onChange={(e) => setTaxRateBps(e.target.value)} />
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Input id="unit" name="unit" type="text" className="" placeholder="Unit (e.g. pcs, box)" value={unit} onChange={(e) => setUnit(e.target.value)} />
+            <Input id="stockQuantity" name="stockQuantity" type="number" className="" placeholder="Initial stock quantity" value={stockQuantity} onChange={(e) => setStockQuantity(e.target.value)} />
           </div>
           <div className="flex items-center gap-2">
             <input id="isActive" name="isActive" type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="size-4" />

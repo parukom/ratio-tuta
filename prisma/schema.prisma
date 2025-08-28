@@ -86,17 +86,21 @@ model Place {
 
 // A sellable item scoped to a Team (team-wide catalog / storage)
 model Item {
-  id         String        @id @default(uuid())
-  teamId     String
-  name       String
-  sku        String?
-  categoryId String?
-  category   ItemCategory? @relation(fields: [categoryId], references: [id])
-  price      Float
-  taxRateBps Int           @default(0) // basis points (e.g. 2100 = 21.00%)
-  isActive   Boolean       @default(true)
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+  id            String        @id @default(uuid())
+  teamId        String
+  name          String
+  sku           String?
+  categoryId    String?
+  category      ItemCategory? @relation(fields: [categoryId], references: [id])
+  price         Float
+  taxRateBps    Int           @default(0) // basis points (e.g. 2100 = 21.00%)
+  isActive      Boolean       @default(true)
+  // Total stock available at the team level (e.g., warehouse).
+  stockQuantity Int           @default(0)
+  // Display unit for this item (e.g., "pcs", "box", "pack").
+  unit          String        @default("pcs")
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   team   Team        @relation(fields: [teamId], references: [id])
   places PlaceItem[]

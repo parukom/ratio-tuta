@@ -10,6 +10,8 @@ type Item = {
     price: number
     currency?: string | null
     isActive: boolean
+    unit?: string | null
+    stockQuantity?: number
 }
 
 type PlaceItem = {
@@ -33,6 +35,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
     const [error, setError] = useState<string | null>(null)
     const [search, setSearch] = useState('')
     const [addingIds, setAddingIds] = useState<Set<string>>(new Set())
+    const [qtyMap, setQtyMap] = useState<Record<string, string>>({})
 
     useEffect(() => {
         if (!open) return
@@ -43,7 +46,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
             fetch('/api/items?onlyActive=true').then((r) => (r.ok ? r.json() : r.json().then((d) => Promise.reject(d?.error || 'Error')))),
             fetch(`/api/places/${placeId}/items`).then((r) => (r.ok ? r.json() : r.json().then((d) => Promise.reject(d?.error || 'Error')))),
         ])
-            .then(([allItems, placeItems]: [Item[], PlaceItem[]]) => {
+            .then(([allItems, placeItems]: [any[], PlaceItem[]]) => {
                 if (cancelled) return
                 const mapped: Item[] = allItems.map((it) => ({
                     id: it.id,
@@ -53,9 +56,15 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                     price: it.price,
                     currency: it.currency ?? 'EUR',
                     isActive: it.isActive,
+                    unit: it.unit ?? 'pcs',
+                    stockQuantity: typeof it.stockQuantity === 'number' ? it.stockQuantity : 0,
                 }))
                 setItems(mapped)
                 setAssigned(placeItems)
+                // initialize default quantity to 1 for each unassigned item
+                const initial: Record<string, string> = {}
+                for (const it of mapped) initial[it.id] = '1'
+                setQtyMap(initial)
             })
             .catch((e) => {
                 if (!cancelled) setError(typeof e === 'string' ? e : 'Failed to load items')
@@ -82,13 +91,17 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
             .slice(0, 100)
     }, [items, assignedIds, search])
 
-    const handleAdd = async (itemId: string) => {
+    const handleAdd = async (itemId: string, quantityOverride?: number) => {
         try {
             setAddingIds((s) => new Set(s).add(itemId))
+            const chosen = Number(
+                typeof quantityOverride === 'number' ? quantityOverride : Number(qtyMap[itemId] ?? '1'),
+            )
+            const quantity = Number.isInteger(chosen) && chosen > 0 ? chosen : 1
             const res = await fetch(`/api/places/${placeId}/items`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ itemId, quantity: 1 }),
+                body: JSON.stringify({ itemId, quantity }),
             })
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}))
@@ -97,7 +110,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
             // reflect locally
             setAssigned((prev) => [
                 ...prev,
-                { id: String(Date.now()), placeId, itemId, quantity: 1 },
+                { id: String(Date.now()), placeId, itemId, quantity },
             ])
             onAdded?.(1)
         } catch (e) {
@@ -138,19 +151,44 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                         <ul className="divide-y divide-gray-200 dark:divide-white/10">
                             {visibleItems.map((it) => (
                                 <li key={it.id} className="flex items-center justify-between gap-4 px-4 py-3">
-                                    <div>
+                                    <div className="min-w-0 flex-1">
                                         <div className="text-sm font-medium text-gray-900 dark:text-white">{it.name}</div>
-                                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                                            {it.sku || '—'} {it.categoryName ? `• ${it.categoryName}` : ''}
+                                        <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                            <span>{it.sku || '—'}</span>
+                                            {it.categoryName && <span>• {it.categoryName}</span>}
+                                            <span className="inline-flex items-center rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700 ring-1 ring-inset ring-gray-200 dark:bg-white/5 dark:text-gray-300 dark:ring-white/10">
+                                                In warehouse: {it.stockQuantity ?? 0} {it.unit ?? 'pcs'}
+                                            </span>
                                         </div>
                                     </div>
-                                    <button
-                                        onClick={() => handleAdd(it.id)}
-                                        disabled={addingIds.has(it.id)}
-                                        className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-60"
-                                    >
-                                        {addingIds.has(it.id) ? 'Adding…' : 'Add'}
-                                    </button>
+                                    <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="number"
+                                                min={1}
+                                                max={Math.max(1, it.stockQuantity ?? 1)}
+                                                value={qtyMap[it.id] ?? '1'}
+                                                onChange={(e) => setQtyMap((m) => ({ ...m, [it.id]: e.target.value }))}
+                                                className="w-24 rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+                                            />
+                                            <span className="text-xs text-gray-600 dark:text-gray-400">{it.unit ?? 'pcs'}</span>
+                                        </div>
+                                        <button
+                                            onClick={() => handleAdd(it.id, it.stockQuantity ?? 0)}
+                                            disabled={addingIds.has(it.id) || (it.stockQuantity ?? 0) <= 0}
+                                            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-60 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5"
+                                            title="Add all units from warehouse"
+                                        >
+                                            All
+                                        </button>
+                                        <button
+                                            onClick={() => handleAdd(it.id)}
+                                            disabled={addingIds.has(it.id)}
+                                            className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+                                        >
+                                            {addingIds.has(it.id) ? 'Adding…' : 'Add'}
+                                        </button>
+                                    </div>
                                 </li>
                             ))}
                         </ul>

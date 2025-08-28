@@ -5,10 +5,18 @@ import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react'
 type Props = {
     children: React.ReactNode
     open: boolean
-    onClose: () => void;
+    onClose: () => void
+    size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
 }
 
-const Modal = ({ children, open, onClose }: Props) => {
+const Modal = ({ children, open, onClose, size = 'sm' }: Props) => {
+
+    const sizeClass =
+        size === '2xl' ? 'sm:max-w-5xl' :
+        size === 'xl' ? 'sm:max-w-3xl' :
+        size === 'lg' ? 'sm:max-w-lg' :
+        size === 'md' ? 'sm:max-w-md' :
+        'sm:max-w-sm'
 
     return (
         <Dialog open={open} onClose={onClose} className="relative z-[10000]">
@@ -21,7 +29,7 @@ const Modal = ({ children, open, onClose }: Props) => {
                 <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
                     <DialogPanel
                         transition
-                        className="relative transform rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 sm:w-full sm:max-w-sm sm:p-6 data-closed:sm:translate-y-0 data-closed:sm:scale-95 dark:bg-gray-800 dark:outline dark:-outline-offset-1 dark:outline-white/10"
+                        className={`relative transform rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 sm:w-full ${sizeClass} sm:p-6 data-closed:sm:translate-y-0 data-closed:sm:scale-95 dark:bg-gray-800 dark:outline dark:-outline-offset-1 dark:outline-white/10`}
                     >
                         {children}
                     </DialogPanel>

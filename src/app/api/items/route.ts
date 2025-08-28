@@ -17,8 +17,8 @@ export async function GET(req: Request) {
     onlyActiveParam === 'true'
       ? true
       : onlyActiveParam === 'false'
-      ? false
-      : undefined;
+        ? false
+        : undefined;
 
   // Resolve teams current user belongs to
   const [owned, memberOf] = await Promise.all([
@@ -70,11 +70,11 @@ export async function GET(req: Request) {
       ...(onlyActive === undefined ? {} : { isActive: onlyActive }),
       ...(q
         ? {
-            OR: [
-              { name: { contains: q, mode: 'insensitive' } },
-              { sku: { contains: q, mode: 'insensitive' } },
-            ],
-          }
+          OR: [
+            { name: { contains: q, mode: 'insensitive' } },
+            { sku: { contains: q, mode: 'insensitive' } },
+          ],
+        }
         : {}),
     },
     select: {
@@ -86,6 +86,8 @@ export async function GET(req: Request) {
       price: true,
       taxRateBps: true,
       isActive: true,
+      unit: true,
+      stockQuantity: true,
       createdAt: true,
       category: { select: { name: true } },
     },
@@ -102,6 +104,8 @@ export async function GET(req: Request) {
     price: it.price,
     taxRateBps: it.taxRateBps,
     isActive: it.isActive,
+    unit: it.unit,
+    stockQuantity: it.stockQuantity,
     createdAt: it.createdAt,
     currency: 'EUR',
   }));
@@ -128,11 +132,17 @@ export async function POST(req: Request) {
     price?: number;
     taxRateBps?: number;
     isActive?: boolean;
+    unit?: string;
+    stockQuantity?: number;
   };
 
   const name = (body.name || '').trim();
   const price = Number(body.price);
   const taxRateBps = body.taxRateBps ?? 0;
+  const unit = (body.unit ?? 'pcs').trim();
+  const stockQuantity = Number(
+    typeof body.stockQuantity === 'number' ? body.stockQuantity : 0,
+  );
 
   if (!name)
     return NextResponse.json({ error: 'Name is required' }, { status: 400 });
@@ -143,6 +153,13 @@ export async function POST(req: Request) {
     );
   if (!Number.isInteger(taxRateBps) || taxRateBps < 0)
     return NextResponse.json({ error: 'Invalid taxRateBps' }, { status: 400 });
+  if (!unit)
+    return NextResponse.json({ error: 'Unit is required' }, { status: 400 });
+  if (!Number.isInteger(stockQuantity) || stockQuantity < 0)
+    return NextResponse.json(
+      { error: 'Invalid stockQuantity' },
+      { status: 400 },
+    );
 
   // Resolve team: from provided teamId or infer if user belongs to exactly one
   let targetTeamId: string | undefined = undefined;
@@ -217,6 +234,8 @@ export async function POST(req: Request) {
         price,
         taxRateBps,
         isActive: body.isActive ?? true,
+        unit,
+        stockQuantity,
       },
       select: {
         id: true,
@@ -227,6 +246,8 @@ export async function POST(req: Request) {
         price: true,
         taxRateBps: true,
         isActive: true,
+        unit: true,
+        stockQuantity: true,
         createdAt: true,
       },
     });

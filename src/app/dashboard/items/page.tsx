@@ -5,6 +5,8 @@ import CreateItemButton from '@/components/admin-zone/items/CreateItemButton'
 import TableSkeleton from '@/components/ui/TableSkeleton'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { useSearchParams, useRouter } from 'next/navigation'
+import Input from '@/components/ui/Input'
+import Modal from '@/components/modals/Modal'
 
 type ItemRow = {
     id: string
@@ -16,6 +18,8 @@ type ItemRow = {
     price: number
     taxRateBps: number
     isActive: boolean
+    unit?: string
+    stockQuantity?: number
     createdAt: string
     currency: string
 }
@@ -93,6 +97,8 @@ const ItemsInner = () => {
                 price: created.price,
                 taxRateBps: created.taxRateBps,
                 isActive: created.isActive,
+                unit: (created as any).unit ?? 'pcs',
+                stockQuantity: (created as any).stockQuantity ?? 0,
                 createdAt: created.createdAt,
                 currency: 'EUR',
             }
@@ -102,7 +108,38 @@ const ItemsInner = () => {
         fetchItems()
     }
 
+    // Edit/Delete helpers
+    async function updateItem(id: string, patch: Partial<Pick<ItemRow, 'name'|'sku'|'price'|'taxRateBps'|'isActive'|'unit'|'stockQuantity'>>) {
+        const res = await fetch(`/api/items/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(patch),
+        })
+        if (!res.ok) throw new Error('Failed to update')
+        const updated: ItemRow = await res.json()
+        setItems(prev => prev.map(it => it.id === id ? { ...it, ...updated } : it))
+    }
+
+    const [conflictInfo, setConflictInfo] = useState<null | { id: string; places: { placeId: string; placeName: string; quantity: number }[] }>(null)
+    async function deleteItem(id: string) {
+        const res = await fetch(`/api/items/${id}`, { method: 'DELETE' })
+        if (res.status === 409) {
+            // Fetch where it's used and show guidance
+            try {
+                const r2 = await fetch(`/api/items/${id}/places`)
+                const data = await r2.json()
+                setConflictInfo({ id, places: Array.isArray(data) ? data : [] })
+            } catch {
+                setConflictInfo({ id, places: [] })
+            }
+            return
+        }
+        if (!res.ok) throw new Error('Failed to delete')
+        setItems(prev => prev.filter(it => it.id !== id))
+    }
+
     return (
+        <>
         <AdminLayout>
             <div className="flex items-center justify-between mb-6">
                 <h1 className="text-base font-semibold text-gray-900 dark:text-white">Items</h1>
@@ -135,15 +172,18 @@ const ItemsInner = () => {
                             <th className="px-2 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">Category</th>
                             <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Price</th>
                             <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Tax</th>
+                            <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Unit</th>
+                            <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Stock</th>
                             <th className="px-4 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Team</th>
+                            <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Actions</th>
                         </tr>
                     </thead>
                     {loading ? (
-                        <TableSkeleton rows={8} columnWidths={["w-56", "w-36", "w-24", "w-24", "w-16", "w-40"]} />
+                        <TableSkeleton rows={8} columnWidths={["w-56", "w-36", "w-24", "w-24", "w-16", "w-20", "w-20", "w-40", "w-32"]} />
                     ) : items.length === 0 ? (
-                        <tbody>
+            <tbody>
                             <tr>
-                                <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-600 dark:text-gray-300">
+                <td colSpan={9} className="px-4 py-8 text-center text-sm text-gray-600 dark:text-gray-300">
                                     No items found.
                                 </td>
                             </tr>
@@ -162,7 +202,12 @@ const ItemsInner = () => {
                                         {new Intl.NumberFormat(undefined, { style: 'currency', currency: it.currency || 'EUR' }).format(it.price)}
                                     </td>
                                     <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{(it.taxRateBps / 100).toFixed(2)}%</td>
+                                    <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{it.unit || 'pcs'}</td>
+                                    <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{typeof it.stockQuantity === 'number' ? it.stockQuantity : '0'}</td>
                                     <td className="px-4 py-2 text-right text-gray-700 dark:text-gray-300">Team #{it.teamId}</td>
+                                    <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">
+                                        <ItemRowActions item={it} onUpdate={updateItem} onDelete={deleteItem} />
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -170,6 +215,130 @@ const ItemsInner = () => {
                 </table>
             </div>
         </AdminLayout>
+        <ConflictModal info={conflictInfo} onClose={() => setConflictInfo(null)} />
+        </>
+     )
+}
+
+function ItemRowActions({ item, onUpdate, onDelete }: {
+    item: ItemRow;
+    onUpdate: (id: string, patch: Partial<Pick<ItemRow, 'name'|'sku'|'price'|'taxRateBps'|'isActive'|'unit'|'stockQuantity'>>) => Promise<void>;
+    onDelete: (id: string) => Promise<void>;
+}) {
+    const [open, setOpen] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [message, setMessage] = useState('')
+
+    const [name, setName] = useState(item.name)
+    const [sku, setSku] = useState(item.sku ?? '')
+    const [price, setPrice] = useState(String(item.price))
+    const [taxRateBps, setTaxRateBps] = useState(String(item.taxRateBps))
+    const [isActive, setIsActive] = useState(!!item.isActive)
+    const [unit, setUnit] = useState(item.unit ?? 'pcs')
+    const [stockQuantity, setStockQuantity] = useState(String(item.stockQuantity ?? 0))
+
+    async function submit(e: React.FormEvent) {
+        e.preventDefault()
+        setMessage('')
+        setLoading(true)
+        try {
+            await onUpdate(item.id, {
+                name: name.trim(),
+                sku: sku.trim() || null,
+                price: Number(price),
+                taxRateBps: Number(taxRateBps) || 0,
+                isActive,
+                unit: unit.trim() || 'pcs',
+                stockQuantity: Number(stockQuantity) || 0,
+            })
+            setMessage('Saved')
+            setOpen(false)
+        } catch {
+            setMessage('Failed to save')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    async function confirmDelete() {
+        setLoading(true)
+        try {
+            await onDelete(item.id)
+            setOpen(false)
+        } catch {
+            setMessage('Failed to delete')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    return (
+        <div className="flex justify-end gap-2">
+            <button onClick={() => setOpen(true)} className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Edit</button>
+            <button onClick={() => confirmDelete()} className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50 dark:border-red-500/40 dark:text-red-400 dark:hover:bg-red-500/10">Delete</button>
+
+            <Modal open={open} onClose={() => setOpen(false)} size="lg">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white">Edit item</h3>
+                <form onSubmit={submit} className="mt-4 space-y-3">
+                    <Input id={`name-${item.id}`} name="name" type="text" className="" placeholder="Name" value={name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)} />
+                    <Input id={`sku-${item.id}`} name="sku" type="text" className="" placeholder="SKU (optional)" value={sku} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSku(e.target.value)} />
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <Input id={`price-${item.id}`} name="price" type="number" className="" placeholder="Price" value={price} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPrice(e.target.value)} />
+                        <Input id={`tax-${item.id}`} name="tax" type="number" className="" placeholder="Tax (bps)" value={taxRateBps} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTaxRateBps(e.target.value)} />
+                    </div>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <Input id={`unit-${item.id}`} name="unit" type="text" className="" placeholder="Unit (e.g. pcs, box)" value={unit} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUnit(e.target.value)} />
+                        <Input id={`stock-${item.id}`} name="stock" type="number" className="" placeholder="Stock quantity" value={stockQuantity} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStockQuantity(e.target.value)} />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <input id={`active-${item.id}`} name="isActive" type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="size-4" />
+                        <label htmlFor={`active-${item.id}`} className="text-sm text-gray-700 dark:text-gray-300">Active</label>
+                    </div>
+                    <div className="mt-4 flex items-center justify-between">
+                        <div className="text-sm text-gray-600 dark:text-gray-400">Name and SKU must be unique per team.</div>
+                        <div className="flex gap-2">
+                            <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Cancel</button>
+                            <button type="submit" disabled={loading} className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400">{loading ? 'Saving…' : 'Save'}</button>
+                        </div>
+                    </div>
+                    {message && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{message}</p>}
+                </form>
+            </Modal>
+        </div>
+    )
+}
+
+// Conflict modal at page root
+function ConflictModal({ info, onClose }: { info: { id: string; places: { placeId: string; placeName: string; quantity: number }[] } | null; onClose: () => void }) {
+    return (
+        <Modal open={!!info} onClose={onClose} size="lg">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white">Cannot delete item</h3>
+            <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">This item is currently assigned to the following places. To delete it, remove it from these shops first.</p>
+            <div className="mt-4 max-h-64 overflow-y-auto rounded border border-gray-200 dark:border-white/10">
+                <table className="min-w-full text-sm">
+                    <thead className="bg-gray-50 dark:bg-white/5">
+                        <tr>
+                            <th className="px-3 py-2 text-left font-medium">Place</th>
+                            <th className="px-3 py-2 text-right font-medium">Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 dark:divide-white/10">
+                        {(info?.places ?? []).map(p => (
+                            <tr key={p.placeId}>
+                                <td className="px-3 py-2 text-gray-800 dark:text-gray-200">{p.placeName}</td>
+                                <td className="px-3 py-2 text-right text-gray-700 dark:text-gray-300">{p.quantity}</td>
+                            </tr>
+                        ))}
+                        {(info?.places?.length ?? 0) === 0 && (
+                            <tr><td colSpan={2} className="px-3 py-4 text-center text-gray-600 dark:text-gray-300">No detailed usage available.</td></tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+            <div className="mt-4 flex justify-end">
+                <button onClick={onClose} className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Close</button>
+            </div>
+        </Modal>
     )
 }
 

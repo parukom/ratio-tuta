@@ -4,6 +4,7 @@ import AdminLayout from '@/components/layout/AdminLayout'
 import AddItemsToPlaceModal from '@/components/admin-zone/places/AddItemsToPlaceModal'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import Modal from '@/components/modals/Modal'
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ')
@@ -79,7 +80,67 @@ export default function PlaceDetailPage() {
             cancelled = true
         }
     }, [placeId])
-    console.log(place);
+    async function removeFromShop(itemId: string) {
+        if (!placeId) return
+        const res = await fetch(`/api/places/${placeId}/items`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ itemId }),
+        })
+        if (!res.ok) {
+            const data = await res.json().catch(() => ({}))
+            alert(data?.error || 'Failed to remove')
+            return
+        }
+        setAssignedItems(prev => prev.filter(r => r.itemId !== itemId))
+    }
+
+    const [infoOpen, setInfoOpen] = useState(false)
+    const [infoLoading, setInfoLoading] = useState(false)
+    const [info, setInfo] = useState<null | {
+        id: string;
+        teamId: string;
+        name: string;
+        sku: string | null;
+        categoryId: string | null;
+        price: number;
+        taxRateBps: number;
+        isActive: boolean;
+        unit: string;
+        stockQuantity: number;
+        createdAt: string;
+        updatedAt: string;
+        placeQuantity: number;
+    }>(null)
+
+    async function openInfo(itemId: string, placeQuantity: number) {
+        setInfoOpen(true)
+        setInfoLoading(true)
+        try {
+            const res = await fetch(`/api/items/${itemId}`)
+            if (!res.ok) throw new Error('Failed to load')
+            const data = await res.json()
+            setInfo({
+                id: data.id,
+                teamId: data.teamId,
+                name: data.name,
+                sku: data.sku ?? null,
+                categoryId: data.categoryId ?? null,
+                price: data.price,
+                taxRateBps: data.taxRateBps,
+                isActive: data.isActive,
+                unit: data.unit,
+                stockQuantity: data.stockQuantity ?? 0,
+                createdAt: data.createdAt,
+                updatedAt: data.updatedAt,
+                placeQuantity,
+            })
+        } catch {
+            setInfo(null)
+        } finally {
+            setInfoLoading(false)
+        }
+    }
 
     // Load items assigned to this place
     useEffect(() => {
@@ -204,17 +265,28 @@ export default function PlaceDetailPage() {
                                                     <th className="py-2">SKU</th>
                                                     <th className="py-2 text-right">Price</th>
                                                     <th className="py-2 text-right">Qty</th>
+                                                    <th className="py-2 text-right">Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-100 dark:divide-white/5">
                                                 {assignedItems.map((row) => (
                                                     <tr key={row.id}>
-                                                        <td className="py-2 text-sm text-gray-900 dark:text-white">{row.item?.name ?? `#${row.itemId}`}</td>
+                                                        <td className="py-2 text-sm">
+                                                            <button
+                                                                className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+                                                                onClick={() => openInfo(row.itemId, row.quantity)}
+                                                            >
+                                                                {row.item?.name ?? `#${row.itemId}`}
+                                                            </button>
+                                                        </td>
                                                         <td className="py-2 text-sm text-gray-500 dark:text-gray-400">{row.item?.sku ?? '—'}</td>
                                                         <td className="py-2 text-right text-sm text-gray-900 dark:text-white">
                                                             {new Intl.NumberFormat('en-US', { style: 'currency', currency: place?.currency || 'EUR' }).format(row.item?.price ?? 0)}
                                                         </td>
                                                         <td className="py-2 text-right text-sm text-gray-900 dark:text-white">{row.quantity}</td>
+                                                        <td className="py-2 text-right text-sm">
+                                                            <button onClick={() => removeFromShop(row.itemId)} className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Remove</button>
+                                                        </td>
                                                     </tr>
                                                 ))}
                                             </tbody>
@@ -236,6 +308,33 @@ export default function PlaceDetailPage() {
                         fetch(`/api/places/${placeId}/items`).then((r) => r.json()).then((rows) => setAssignedItems(rows)).finally(() => setAssignedLoading(false))
                     }}
                 />
+                <Modal open={infoOpen} onClose={() => setInfoOpen(false)} size="md">
+                    <h3 className="text-base font-semibold text-gray-900 dark:text-white">Item info</h3>
+                    {infoLoading ? (
+                        <div className="mt-3 h-16 animate-pulse rounded bg-gray-100 dark:bg-white/5" />
+                    ) : info ? (
+                        <div className="mt-3 space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                            <div><span className="font-medium">Name:</span> {info.name}</div>
+                            <div><span className="font-medium">Item ID:</span> {info.id}</div>
+                            <div><span className="font-medium">Team ID:</span> {info.teamId}</div>
+                            <div><span className="font-medium">SKU:</span> {info.sku || '—'}</div>
+                            <div><span className="font-medium">Category ID:</span> {info.categoryId || '—'}</div>
+                            <div><span className="font-medium">Unit:</span> {info.unit || 'pcs'}</div>
+                            <div><span className="font-medium">Price:</span> {new Intl.NumberFormat('en-US', { style: 'currency', currency: place?.currency || 'EUR' }).format(info.price || 0)}</div>
+                            <div><span className="font-medium">Tax:</span> {(info.taxRateBps / 100).toFixed(2)}%</div>
+                            <div><span className="font-medium">Active:</span> {info.isActive ? 'Yes' : 'No'}</div>
+                            <div><span className="font-medium">Warehouse stock:</span> {info.stockQuantity}</div>
+                            <div><span className="font-medium">Assigned to this place:</span> {info.placeQuantity}</div>
+                            <div><span className="font-medium">Created at:</span> {new Date(info.createdAt).toLocaleString()}</div>
+                            <div><span className="font-medium">Updated at:</span> {new Date(info.updatedAt).toLocaleString()}</div>
+                        </div>
+                    ) : (
+                        <div className="mt-3 text-sm text-gray-600 dark:text-gray-300">Failed to load item details.</div>
+                    )}
+                    <div className="mt-4 flex justify-end">
+                        <button onClick={() => setInfoOpen(false)} className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Close</button>
+                    </div>
+                </Modal>
             </div>
         </AdminLayout>
     )

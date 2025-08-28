@@ -162,3 +162,71 @@ export async function POST(
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
+
+// DELETE /api/places/[placeId]/items -> remove item assignment from a place
+export async function DELETE(
+  req: Request,
+  context: RouteContext<'/api/places/[placeId]/items'>,
+) {
+  const { placeId: placeIdParam } = await context.params;
+  const session = await getSession();
+  if (!session)
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const placeId = placeIdParam;
+  if (!placeId || typeof placeId !== 'string')
+    return NextResponse.json({ error: 'Invalid placeId' }, { status: 400 });
+
+  const body = (await req.json().catch(() => null)) as { itemId?: string } | null;
+  const itemId = body?.itemId as string | undefined;
+  if (!itemId || typeof itemId !== 'string')
+    return NextResponse.json({ error: 'Invalid itemId' }, { status: 400 });
+
+  const place = await prisma.place.findUnique({
+    select: { id: true, teamId: true },
+    where: { id: placeId },
+  });
+  if (!place)
+    return NextResponse.json({ error: 'Place not found' }, { status: 404 });
+
+  const allowed = await prisma.team.findFirst({
+    where: {
+      id: place.teamId,
+      OR: [
+        { ownerId: session.userId },
+        { members: { some: { userId: session.userId } } },
+      ],
+    },
+    select: { id: true },
+  });
+  if (!allowed)
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  try {
+    // Delete if exists (idempotent)
+    await prisma.placeItem.delete({
+      where: { placeId_itemId: { placeId, itemId } },
+    }).catch(() => undefined);
+
+    await logAudit({
+      action: 'place.items.remove',
+      status: 'SUCCESS',
+      actor: session,
+      teamId: place.teamId,
+      target: { table: 'PlaceItem', id: `${placeId}:${itemId}` },
+      metadata: { placeId, itemId },
+    });
+
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    await logAudit({
+      action: 'place.items.remove',
+      status: 'ERROR',
+      actor: session,
+      teamId: place.teamId,
+      message: 'Server error',
+    });
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+  }
+}
