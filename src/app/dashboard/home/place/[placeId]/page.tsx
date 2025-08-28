@@ -5,6 +5,9 @@ import AddItemsToPlaceModal from '@/components/admin-zone/places/AddItemsToPlace
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import Modal from '@/components/modals/Modal'
+import Dropdown from '@/components/ui/Dropdown'
+
+type Member = { id: string; userId: string; name: string; email: string; createdAt: string }
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ')
@@ -35,6 +38,13 @@ export default function PlaceDetailPage() {
     const [assignedItems, setAssignedItems] = useState<Array<{ id: string; itemId: string; quantity: number; item?: { id: string; name: string; sku?: string | null; price: number } }>>([])
     const [assignedLoading, setAssignedLoading] = useState(true)
     const [assignedError, setAssignedError] = useState<string | null>(null)
+    // Members state
+    const [members, setMembers] = useState<Member[]>([])
+    const [membersLoading, setMembersLoading] = useState(true)
+    const [membersError, setMembersError] = useState<string | null>(null)
+    const [teamMembers, setTeamMembers] = useState<Array<{ userId: string; name: string; email: string }>>([])
+    const [teamMembersLoading, setTeamMembersLoading] = useState(true)
+    const [submitting, setSubmitting] = useState(false)
 
     useEffect(() => {
         let cancelled = false
@@ -56,7 +66,7 @@ export default function PlaceDetailPage() {
             // ignore parse errors
         }
 
-        fetch(`/api/places/${placeId}`)
+    fetch(`/api/places/${placeId}`)
             .then((r) => (r.ok ? r.json() : r.json().then((d) => Promise.reject(d?.error || 'Error'))))
             .then((data: Place) => {
                 if (!cancelled) {
@@ -164,6 +174,71 @@ export default function PlaceDetailPage() {
         }
     }, [placeId])
 
+    // Load members for this place
+    useEffect(() => {
+        if (!placeId) return
+        let cancelled = false
+        setMembersLoading(true)
+        setMembersError(null)
+        fetch(`/api/places/${placeId}/members`, { credentials: 'include' })
+            .then(async (r) => (r.ok ? r.json() : Promise.reject(await r.json().catch(() => ({ error: 'Failed' })))))
+            .then((data: Member[]) => { if (!cancelled) setMembers(data) })
+            .catch((e) => { if (!cancelled) setMembersError(typeof e?.error === 'string' ? e.error : 'Failed to load members') })
+            .finally(() => { if (!cancelled) setMembersLoading(false) })
+        return () => { cancelled = true }
+    }, [placeId])
+
+    // Load team members for this place's team (when place is known)
+    useEffect(() => {
+        if (!place?.teamId) return
+        let cancelled = false
+        setTeamMembersLoading(true)
+        fetch(`/api/teams/${place.teamId}/members`, { credentials: 'include' })
+            .then((r) => (r.ok ? r.json() : r.json().then((d) => Promise.reject(d?.error || 'Failed'))))
+            .then((rows: Array<{ userId: string; name: string; email: string }>) => {
+                if (cancelled) return
+                setTeamMembers(rows.map(r => ({ userId: r.userId, name: r.name, email: r.email })))
+            })
+            .catch(() => { if (!cancelled) setTeamMembers([]) })
+            .finally(() => { if (!cancelled) setTeamMembersLoading(false) })
+        return () => { cancelled = true }
+    }, [place?.teamId])
+
+    async function addMemberByUserId(userId: string) {
+        if (!userId) return
+        setSubmitting(true)
+        setMembersError(null)
+        try {
+            const res = await fetch(`/api/places/${placeId}/members`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ userId })
+            })
+            const data = await res.json().catch(() => ({}))
+            if (!res.ok) throw new Error(data?.error || 'Failed to add')
+            const list = await fetch(`/api/places/${placeId}/members`, { credentials: 'include' })
+            if (list.ok) setMembers(await list.json())
+        } catch (e: any) {
+            setMembersError(e.message || 'Failed to add')
+        } finally {
+            setSubmitting(false)
+        }
+    }
+
+    async function removeMember(userId: string) {
+        if (!confirm('Remove this member from the place?')) return
+        try {
+            const res = await fetch(`/api/places/${placeId}/members`, {
+                method: 'DELETE', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ userId })
+            })
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}))
+                throw new Error(data?.error || 'Failed to remove')
+            }
+            setMembers((prev) => prev.filter((m) => m.userId !== userId))
+        } catch (e: any) {
+            alert(e.message || 'Failed to remove')
+        }
+    }
+
 
 
     const stats = useMemo(() => {
@@ -179,7 +254,7 @@ export default function PlaceDetailPage() {
     }, [place])
 
     return (
-        <AdminLayout>
+    <AdminLayout>
             <div>
                 <header>
                     {/* Heading */}
@@ -248,6 +323,44 @@ export default function PlaceDetailPage() {
                         </div>
                     ) : (
                         <div className="space-y-6">
+                            {/* Members section */}
+                            <div className="rounded-lg border border-gray-200 dark:border-white/10 p-4">
+                                <h2 className="mb-3 text-sm font-medium text-gray-900 dark:text-white">Members</h2>
+                                <div className="mb-3 flex items-center gap-2">
+                                    {(() => {
+                                        const available = teamMembers.filter(tm => !members.some(m => m.userId === tm.userId))
+                                        const label = teamMembersLoading ? 'Loading…' : available.length ? 'Add member' : 'No available members'
+                                        return (
+                                            <Dropdown
+                                                buttonLabel={label}
+                                                disabled={teamMembersLoading || submitting || available.length === 0}
+                                                align="left"
+                                                items={available.map(tm => ({ key: tm.userId, label: `${tm.name} · ${tm.email}`, onSelect: (key) => addMemberByUserId(key) }))}
+                                            />
+                                        )
+                                    })()}
+                                </div>
+                                {membersError && <p className="mb-2 text-sm text-rose-600 dark:text-rose-400">{membersError}</p>}
+                                <div className="overflow-hidden rounded border border-gray-200 dark:border-white/10">
+                                    {membersLoading ? (
+                                        <div className="p-4 text-sm text-gray-600 dark:text-gray-300">Loading…</div>
+                                    ) : members.length === 0 ? (
+                                        <div className="p-4 text-sm text-gray-600 dark:text-gray-300">No members yet.</div>
+                                    ) : (
+                                        <ul className="divide-y divide-gray-200 dark:divide-white/10">
+                                            {members.map((m) => (
+                                                <li key={m.id} className="flex items-center justify-between px-4 py-3">
+                                                    <div>
+                                                        <div className="text-sm font-medium text-gray-900 dark:text-white">{m.name}</div>
+                                                        <div className="text-xs text-gray-500 dark:text-gray-400">{m.email}</div>
+                                                    </div>
+                                                    <button onClick={() => removeMember(m.userId)} className="text-sm text-rose-600 hover:underline dark:text-rose-400">Remove</button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
+                            </div>
                             <div className="rounded-lg border border-gray-200 dark:border-white/10">
                                 <div className="border-b border-gray-200 px-4 py-3 text-sm font-medium text-gray-900 dark:border-white/10 dark:text-white">Assigned items</div>
                                 <div className="p-4">

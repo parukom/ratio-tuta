@@ -19,6 +19,8 @@ model User {
 
   teams      TeamMember[]
   ownedTeams Team[]       @relation("OwnedTeams")
+  // Places this user is explicitly registered to work at
+  placeMemberships PlaceMember[]
 
   // Back-reference: audit logs where this user is the actor
   auditLogsAsActor AuditLog[] @relation("AuditActorUser")
@@ -78,6 +80,8 @@ model Place {
   team       Team        @relation(fields: [teamId], references: [id])
   placeItems PlaceItem[]
   Receipt    Receipt[]
+  // Users explicitly assigned to this place
+  members    PlaceMember[]
 
   @@unique([teamId, name]) // unique place name per team
   @@index([teamId])
@@ -245,4 +249,18 @@ enum ReceiptStatus {
   COMPLETED
   REFUNDED
   CANCELLED
+}
+
+// Explicit membership of a User to a Place (within a Team)
+model PlaceMember {
+  id        String   @id @default(uuid())
+  placeId   String
+  userId    String
+  createdAt DateTime @default(now())
+
+  place Place @relation(fields: [placeId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@unique([placeId, userId])
+  @@index([userId])
 }

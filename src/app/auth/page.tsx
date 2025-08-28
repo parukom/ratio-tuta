@@ -40,8 +40,34 @@ export default function Auth() {
                 body: JSON.stringify({ email, password, remember }),
             });
             const data = await res.json();
-            if (!res.ok) setMessage(data.error || "Error logging in");
-            else router.replace("/");
+            if (!res.ok) {
+                setMessage(data.error || "Error logging in");
+            } else {
+                // Decide where to go next based on role and place memberships
+                const role = (data?.role as string) || "USER";
+                if (role === 'ADMIN') {
+                    router.replace('/dashboard/home');
+                    return;
+                }
+                try {
+                    // Check explicit place memberships
+                    const placesRes = await fetch('/api/places', { cache: 'no-store' });
+                    if (!placesRes.ok) {
+                        router.replace('/');
+                        return;
+                    }
+                    const places = (await placesRes.json()) as Array<{ id: string }>;
+                    if (Array.isArray(places)) {
+                        if (places.length === 0) router.replace('/no-events');
+                        else if (places.length === 1) router.replace(`/cash-register?placeId=${places[0].id}`);
+                        else router.replace('/cash-register');
+                    } else {
+                        router.replace('/');
+                    }
+                } catch {
+                    router.replace('/');
+                }
+            }
             return;
         }
 

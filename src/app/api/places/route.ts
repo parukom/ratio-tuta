@@ -39,46 +39,64 @@ export async function GET(req: Request) {
     filterTeamIds = [tid];
   }
 
+  try {
   const places = await prisma.place.findMany({
-    where: { teamId: { in: filterTeamIds } },
-    select: {
-      id: true,
-      teamId: true,
-      name: true,
-      description: true,
-      city: true,
-      country: true,
-      currency: true,
-      totalEarnings: true,
-      placeTypeId: true,
-      createdAt: true,
-      isActive: true,
-      team: {
-        select: {
-          ownerId: true,
-          _count: { select: { members: true } },
+      where: { teamId: { in: filterTeamIds } },
+      select: {
+        id: true,
+        teamId: true,
+        name: true,
+        description: true,
+        city: true,
+        country: true,
+        currency: true,
+        totalEarnings: true,
+        placeTypeId: true,
+        createdAt: true,
+        isActive: true,
+        team: {
+          select: {
+            ownerId: true,
+            _count: { select: { members: true } },
+          },
         },
       },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+      orderBy: { createdAt: 'desc' },
+    });
 
   const shaped = places.map((p) => ({
-    id: p.id,
-    teamId: p.teamId,
-    name: p.name,
-    description: p.description,
-    city: p.city,
-    country: p.country,
-    currency: p.currency,
-    totalEarnings: p.totalEarnings,
-    placeTypeId: p.placeTypeId,
-    createdAt: p.createdAt,
-    isActive: p.isActive,
-    teamPeopleCount: (p.team?._count.members ?? 0) + 1, // owner + members
-  }));
+      id: p.id,
+      teamId: p.teamId,
+      name: p.name,
+      description: p.description,
+      city: p.city,
+      country: p.country,
+      currency: p.currency,
+      totalEarnings: p.totalEarnings,
+      placeTypeId: p.placeTypeId,
+      createdAt: p.createdAt,
+      isActive: p.isActive,
+      teamPeopleCount: (p.team?._count.members ?? 0) + 1, // owner + members
+    }));
 
-  return NextResponse.json(shaped);
+    return NextResponse.json(shaped);
+  } catch (e: any) {
+    console.error('GET /api/places failed', e);
+    // audit only on error to reduce noise
+    await logAudit({
+      action: 'places.list',
+      status: 'ERROR',
+      actor: session,
+      message: 'Failed to list places',
+      metadata: { code: e?.code || null, message: typeof e?.message === 'string' ? e.message : null },
+    });
+    const message = typeof e?.message === 'string' ? e.message : 'Server error';
+    const code = e?.code || undefined;
+    return NextResponse.json(
+      { error: 'Server error', detail: process.env.NODE_ENV !== 'production' ? { message, code } : undefined },
+      { status: 500 },
+    );
+  }
 }
 
 export async function POST(req: Request) {

@@ -3,6 +3,54 @@ import { prisma } from '@lib/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
 
+// GET /api/teams/[teamId]/members -> list members of a team (requires requester in team)
+export async function GET(
+  _req: Request,
+  context: RouteContext<'/api/teams/[teamId]/members'>,
+) {
+  const { teamId: teamIdParam } = await context.params;
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const teamId = teamIdParam;
+  // Ensure requester belongs to this team (owner or member)
+  const membership = await prisma.team.findFirst({
+    where: {
+      id: teamId,
+      OR: [
+        { ownerId: session.userId },
+        { members: { some: { userId: session.userId } } },
+      ],
+    },
+    select: { id: true },
+  });
+  if (!membership) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  const rows = await prisma.teamMember.findMany({
+    where: { teamId },
+    select: {
+      id: true,
+      userId: true,
+      role: true,
+      createdAt: true,
+      user: { select: { id: true, name: true, email: true } },
+    },
+    orderBy: { createdAt: 'asc' },
+  });
+  const members = rows.map((r) => ({
+    id: r.id,
+    userId: r.userId,
+    role: r.role,
+    name: r.user.name,
+    email: r.user.email,
+    createdAt: r.createdAt,
+  }));
+  return NextResponse.json(members);
+}
+
 export async function POST(
   _req: Request,
   context: RouteContext<'/api/teams/[teamId]/members'>,

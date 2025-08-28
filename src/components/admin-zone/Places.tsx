@@ -27,7 +27,7 @@ export default function Places() {
     useEffect(() => {
         let cancelled = false
         setPlacesLoading(true)
-        fetch('/api/places')
+        fetch('/api/places', { credentials: 'include' })
             .then((r) => (r.ok ? r.json() : Promise.reject(r)))
             .then((data: Place[]) => {
                 if (!cancelled) setPlaces(data)
@@ -46,7 +46,26 @@ export default function Places() {
         <div className="border-t border-gray-200 pt-4 dark:border-white/10">
             <div className="flex items-center justify-between mb-6">
                 <span></span>
-                <CreatePlaceButton />
+                <CreatePlaceButton onCreated={(p) => {
+                    // Optimistically add the new place to the list top
+                    setPlaces((prev) => [
+                        {
+                            id: p.id,
+                            teamId: 'unknown',
+                            name: p.name,
+                            description: '',
+                            city: '',
+                            country: '',
+                            currency: 'EUR',
+                            totalEarnings: 0,
+                            placeTypeId: null,
+                            createdAt: new Date().toISOString(),
+                            isActive: true,
+                            teamPeopleCount: 1,
+                        },
+                        ...prev,
+                    ])
+                }} />
             </div>
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 px-4 sm:px-6 lg:px-8">
                 {placesLoading

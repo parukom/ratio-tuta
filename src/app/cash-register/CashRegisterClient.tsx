@@ -2,6 +2,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
+import LogoutButton from '@/components/LogoutButton';
 
 type Place = {
     id: string;
@@ -206,6 +207,7 @@ export default function CashRegisterClient() {
                         ))}
                     </select>
                 </div>
+                <LogoutButton />
             </header>
 
             {/* Content */}
