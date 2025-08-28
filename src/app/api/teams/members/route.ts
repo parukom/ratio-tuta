@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     }),
   ]);
   const teamIds = Array.from(
-    new Set<number>([
+    new Set<string>([
       ...owned.map((t) => t.id),
       ...memberOf.map((t) => t.teamId),
     ]),

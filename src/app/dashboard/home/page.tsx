@@ -5,8 +5,9 @@ import SecondaryNav from '@/components/admin-zone/places/SecondaryNav'
 import Logs from '@/components/admin-zone/Logs'
 import Places from '@/components/admin-zone/Places'
 import SearchInput from '@/components/ui/SearchInput'
+import { Suspense } from 'react'
 
-const Home = () => {
+const HomeInner = () => {
     const router = useRouter()
     const searchParams = useSearchParams()
     const tab = (searchParams.get('tab') ?? 'places') as 'places' | 'logs'
@@ -46,4 +47,11 @@ const Home = () => {
         </>
     )
 }
-export default Home;
+
+export default function Home() {
+    return (
+        <Suspense>
+            <HomeInner />
+        </Suspense>
+    )
+}

@@ -4,14 +4,15 @@ import { getSession } from '@lib/session';
 
 // GET /api/places/[placeId] -> single place details
 export async function GET(
-  _: Request,
-  { params }: { params: { placeId: string } },
+  _req: Request,
+  context: RouteContext<'/api/places/[placeId]'>,
 ) {
+  const { placeId: placeIdParam } = await context.params;
   const session = await getSession();
   if (!session)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const placeId = params.placeId;
+  const placeId = placeIdParam;
   if (!placeId || typeof placeId !== 'string')
     return NextResponse.json({ error: 'Invalid placeId' }, { status: 400 });
 

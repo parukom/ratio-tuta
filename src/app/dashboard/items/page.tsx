@@ -1,6 +1,6 @@
 "use client"
 import AdminLayout from '@/components/layout/AdminLayout';
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { Suspense, useCallback, useEffect, useState } from 'react'
 import CreateItemButton from '@/components/admin-zone/items/CreateItemButton'
 import TableSkeleton from '@/components/ui/TableSkeleton'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
@@ -20,7 +20,7 @@ type ItemRow = {
     currency: string
 }
 
-const Items = () => {
+const ItemsInner = () => {
     const searchParams = useSearchParams()
     const router = useRouter()
     const qParam = searchParams.get('q') ?? ''
@@ -171,4 +171,11 @@ const Items = () => {
         </AdminLayout>
     )
 }
-export default Items;
+
+export default function Items() {
+    return (
+        <Suspense>
+            <ItemsInner />
+        </Suspense>
+    )
+}

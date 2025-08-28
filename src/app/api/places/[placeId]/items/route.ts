@@ -5,14 +5,15 @@ import { logAudit } from '@lib/logger';
 
 // GET /api/places/[placeId]/items -> list items assigned to a place with quantities
 export async function GET(
-  _: Request,
-  { params }: { params: { placeId: string } },
+  _req: Request,
+  context: RouteContext<'/api/places/[placeId]/items'>,
 ) {
+  const { placeId: placeIdParam } = await context.params;
   const session = await getSession();
   if (!session)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const placeId = params.placeId;
+  const placeId = placeIdParam;
   if (!placeId || typeof placeId !== 'string')
     return NextResponse.json({ error: 'Invalid placeId' }, { status: 400 });
 
@@ -80,13 +81,14 @@ export async function GET(
 // POST /api/places/[placeId]/items -> upsert item quantity for the place
 export async function POST(
   req: Request,
-  { params }: { params: { placeId: string } },
+  context: RouteContext<'/api/places/[placeId]/items'>,
 ) {
+  const { placeId: placeIdParam } = await context.params;
   const session = await getSession();
   if (!session)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const placeId = params.placeId;
+  const placeId = placeIdParam;
   if (!placeId || typeof placeId !== 'string')
     return NextResponse.json({ error: 'Invalid placeId' }, { status: 400 });
 
