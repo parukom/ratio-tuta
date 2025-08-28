@@ -107,6 +107,7 @@ const ItemsInner = () => {
             <div className="flex items-center justify-between mb-6">
                 <h1 className="text-base font-semibold text-gray-900 dark:text-white">Items</h1>
                 <CreateItemButton onCreated={onCreated} />
+
             </div>
 
             <div className="sticky top-0 z-10 mb-4 flex items-center gap-3 rounded-md border border-gray-200 bg-white p-3 shadow-xs dark:border-white/10 dark:bg-gray-900">

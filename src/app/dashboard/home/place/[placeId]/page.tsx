@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import AdminLayout from '@/components/layout/AdminLayout'
 import AddItemsToPlaceModal from '@/components/admin-zone/places/AddItemsToPlaceModal'
 import { useParams } from 'next/navigation'
+import Link from 'next/link'
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ')
@@ -163,7 +164,13 @@ export default function PlaceDetailPage() {
 
                 {/* Content sections can go here (e.g., recent sales, items list, charts) */}
                 <main className="px-4 py-6 sm:px-6 lg:px-8">
-                    <div className="mb-4 flex justify-end">
+                    <div className="mb-4 flex items-center justify-end gap-3">
+                        <Link
+                            href={`/cash-register?placeId=${encodeURIComponent(String(placeId))}`}
+                            className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800 dark:text-white"
+                        >
+                            Open register
+                        </Link>
                         <button
                             type="button"
                             onClick={() => setIsAddItemsOpen(true)}
