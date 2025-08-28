@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import CashRegisterClient from './CashRegisterClient';
+import CashRegisterClient from '@components//cash-register/CashRegisterClient';
 
 export default function CashRegisterPage() {
     return (
