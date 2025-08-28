@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@lib/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
+import type { Prisma } from '@/generated/prisma';
 
 // GET /api/places/[placeId]/members -> list assigned users
 export async function GET(
@@ -59,15 +60,16 @@ export async function GET(
       };
     });
     return NextResponse.json(members);
-  } catch (e: any) {
-    console.error('GET /api/places/[placeId]/members failed', e);
+  } catch (e: unknown) {
+    const err = e as { code?: string; message?: string };
+    console.error('GET /api/places/[placeId]/members failed', err);
     await logAudit({
       action: 'place.members.list',
       status: 'ERROR',
       message: 'Server error',
-      metadata: { code: e?.code || null, message: typeof e?.message === 'string' ? e.message : null },
+      metadata: { code: err?.code || null, message: typeof err?.message === 'string' ? err.message : null } as Prisma.InputJsonValue,
     });
-    const detail = typeof e?.message === 'string' ? { message: e.message, code: e?.code } : undefined;
+    const detail = typeof err?.message === 'string' ? { message: err.message, code: err?.code } : undefined;
     return NextResponse.json({ error: 'Server error', detail: process.env.NODE_ENV !== 'production' ? detail : undefined }, { status: 500 });
   }
 }
@@ -153,34 +155,36 @@ export async function POST(
         metadata: { placeId, userId: user.id, email: user.email },
       });
       return NextResponse.json(pm, { status: 201 });
-    } catch (e: any) {
-      if (e?.code === 'P2002') {
+    } catch (e: unknown) {
+      const err = e as { code?: string; message?: string };
+      if (err?.code === 'P2002') {
         return NextResponse.json(
           { error: 'User already assigned to place' },
           { status: 409 },
         );
       }
-      if (e?.code === 'P2003') {
+      if (err?.code === 'P2003') {
         return NextResponse.json(
           { error: 'Invalid reference while assigning member' },
           { status: 400 },
         );
       }
-      console.error('place.member.add failed', e);
+      console.error('place.member.add failed', err);
       await logAudit({
         action: 'place.member.add',
         status: 'ERROR',
         actor: session,
         teamId: place.teamId,
         message: 'Server error',
-        metadata: { code: e?.code || null, message: typeof e?.message === 'string' ? e.message : null },
+        metadata: { code: err?.code || null, message: typeof err?.message === 'string' ? err.message : null } as Prisma.InputJsonValue,
       });
-      const detail = typeof e?.message === 'string' ? { message: e.message, code: e?.code } : undefined;
+      const detail = typeof err?.message === 'string' ? { message: err.message, code: err?.code } : undefined;
       return NextResponse.json({ error: 'Server error', detail: process.env.NODE_ENV !== 'production' ? detail : undefined }, { status: 500 });
     }
-  } catch (e: any) {
-    console.error('POST /api/places/[placeId]/members failed', e);
-    const detail = typeof e?.message === 'string' ? { message: e.message, code: e?.code } : undefined;
+  } catch (e: unknown) {
+    const err = e as { code?: string; message?: string };
+    console.error('POST /api/places/[placeId]/members failed', err);
+    const detail = typeof err?.message === 'string' ? { message: err.message, code: err?.code } : undefined;
     return NextResponse.json({ error: 'Server error', detail: process.env.NODE_ENV !== 'production' ? detail : undefined }, { status: 500 });
   }
 }

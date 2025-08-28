@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@lib/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
+import type { Prisma } from '@/generated/prisma';
 
 // GET /api/items/[itemId] -> single item details
 export async function GET(
@@ -172,7 +173,7 @@ export async function PATCH(
       actor: session,
       teamId: existing.teamId,
       target: { table: 'Item', id: updated.id },
-      metadata: data as any,
+      metadata: data as Prisma.InputJsonValue,
     });
 
     return NextResponse.json(updated);

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@lib/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
+import type { Prisma } from '@/generated/prisma';
 
 export async function GET(req: Request) {
   const session = await getSession();
@@ -80,18 +81,19 @@ export async function GET(req: Request) {
     }));
 
     return NextResponse.json(shaped);
-  } catch (e: any) {
-    console.error('GET /api/places failed', e);
+  } catch (e: unknown) {
+    const err = e as { code?: string; message?: string };
+    console.error('GET /api/places failed', err);
     // audit only on error to reduce noise
     await logAudit({
       action: 'places.list',
       status: 'ERROR',
       actor: session,
       message: 'Failed to list places',
-      metadata: { code: e?.code || null, message: typeof e?.message === 'string' ? e.message : null },
+      metadata: { code: err?.code || null, message: typeof err?.message === 'string' ? err.message : null } as Prisma.InputJsonValue,
     });
-    const message = typeof e?.message === 'string' ? e.message : 'Server error';
-    const code = e?.code || undefined;
+    const message = typeof err?.message === 'string' ? err.message : 'Server error';
+    const code = err?.code || undefined;
     return NextResponse.json(
       { error: 'Server error', detail: process.env.NODE_ENV !== 'production' ? { message, code } : undefined },
       { status: 500 },

@@ -43,14 +43,14 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
         setLoading(true)
         setError(null)
         Promise.all([
-            fetch('/api/items?onlyActive=true').then((r) => (r.ok ? r.json() : r.json().then((d) => Promise.reject(d?.error || 'Error')))),
-            fetch(`/api/places/${placeId}/items`).then((r) => (r.ok ? r.json() : r.json().then((d) => Promise.reject(d?.error || 'Error')))),
+            fetch('/api/items?onlyActive=true').then((r) => (r.ok ? r.json() : r.json().then((d) => Promise.reject(d?.error || 'Error')))) as Promise<Array<Partial<Item> & { id: string; price: number; isActive: boolean }>>,
+            fetch(`/api/places/${placeId}/items`).then((r) => (r.ok ? r.json() : r.json().then((d) => Promise.reject(d?.error || 'Error')))) as Promise<PlaceItem[]>,
         ])
-            .then(([allItems, placeItems]: [any[], PlaceItem[]]) => {
+            .then(([allItems, placeItems]) => {
                 if (cancelled) return
                 const mapped: Item[] = allItems.map((it) => ({
                     id: it.id,
-                    name: it.name,
+                    name: it.name ?? 'Unnamed item',
                     sku: it.sku ?? null,
                     categoryName: it.categoryName ?? null,
                     price: it.price,
@@ -67,7 +67,8 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                 setQtyMap(initial)
             })
             .catch((e) => {
-                if (!cancelled) setError(typeof e === 'string' ? e : 'Failed to load items')
+                const err = e as { error?: string } | string;
+                if (!cancelled) setError(typeof err === 'string' ? err : (err?.error ?? 'Failed to load items'))
             })
             .finally(() => {
                 if (!cancelled) setLoading(false)
@@ -113,9 +114,10 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                 { id: String(Date.now()), placeId, itemId, quantity },
             ])
             onAdded?.(1)
-        } catch (e) {
-            console.error(e)
-            alert((e as Error).message)
+        } catch (e: unknown) {
+            const err = e as { message?: string };
+            console.error(err)
+            alert(err?.message ?? 'Failed to add')
         } finally {
             setAddingIds((s) => {
                 const n = new Set(s)

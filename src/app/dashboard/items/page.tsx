@@ -97,8 +97,8 @@ const ItemsInner = () => {
                 price: created.price,
                 taxRateBps: created.taxRateBps,
                 isActive: created.isActive,
-                unit: (created as any).unit ?? 'pcs',
-                stockQuantity: (created as any).stockQuantity ?? 0,
+                unit: (created as unknown as { unit?: string }).unit ?? 'pcs',
+                stockQuantity: (created as unknown as { stockQuantity?: number }).stockQuantity ?? 0,
                 createdAt: created.createdAt,
                 currency: 'EUR',
             }
@@ -265,7 +265,7 @@ function ItemRowActions({ item, onUpdate, onDelete }: {
         try {
             await onDelete(item.id)
             setOpen(false)
-        } catch {
+    } catch {
             setMessage('Failed to delete')
         } finally {
             setLoading(false)

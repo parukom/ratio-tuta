@@ -183,7 +183,10 @@ export default function PlaceDetailPage() {
         fetch(`/api/places/${placeId}/members`, { credentials: 'include' })
             .then(async (r) => (r.ok ? r.json() : Promise.reject(await r.json().catch(() => ({ error: 'Failed' })))))
             .then((data: Member[]) => { if (!cancelled) setMembers(data) })
-            .catch((e) => { if (!cancelled) setMembersError(typeof e?.error === 'string' ? e.error : 'Failed to load members') })
+            .catch((e: unknown) => {
+                const err = e as { error?: string } | string;
+                if (!cancelled) setMembersError(typeof err === 'string' ? err : (typeof err?.error === 'string' ? err.error : 'Failed to load members'))
+            })
             .finally(() => { if (!cancelled) setMembersLoading(false) })
         return () => { cancelled = true }
     }, [placeId])
@@ -216,8 +219,9 @@ export default function PlaceDetailPage() {
             if (!res.ok) throw new Error(data?.error || 'Failed to add')
             const list = await fetch(`/api/places/${placeId}/members`, { credentials: 'include' })
             if (list.ok) setMembers(await list.json())
-        } catch (e: any) {
-            setMembersError(e.message || 'Failed to add')
+        } catch (e: unknown) {
+            const err = e as { message?: string };
+            setMembersError(err?.message || 'Failed to add')
         } finally {
             setSubmitting(false)
         }
@@ -234,8 +238,9 @@ export default function PlaceDetailPage() {
                 throw new Error(data?.error || 'Failed to remove')
             }
             setMembers((prev) => prev.filter((m) => m.userId !== userId))
-        } catch (e: any) {
-            alert(e.message || 'Failed to remove')
+        } catch (e: unknown) {
+            const err = e as { message?: string };
+            alert(err?.message || 'Failed to remove')
         }
     }
 
