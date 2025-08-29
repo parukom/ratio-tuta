@@ -89,6 +89,7 @@ export default function Places() {
                                     totalEarnings={p.totalEarnings}
                                     teamPeopleCount={p.teamPeopleCount}
                                     currency={p.currency}
+                                    onDelete={(id) => setPlaces((prev) => prev.filter((x) => x.id !== id))}
                                 />
                             ))
                         )}
