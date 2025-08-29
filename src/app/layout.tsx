@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pecunia",
-  description: "",
+  title: "RatioTuta",
+  description: "secure account/calculations, management",
 };
 
 export default function RootLayout({
