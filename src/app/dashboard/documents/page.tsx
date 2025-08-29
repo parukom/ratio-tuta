@@ -1,9 +1,11 @@
 "use client";
 import AdminLayout from "@/components/layout/AdminLayout";
 import Tabs from "@/components/ui/Tabs";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import SearchInput from "@/components/ui/SearchInput";
 import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Modal from "@/components/modals/Modal";
 
 type ReceiptItem = {
     id: string;
@@ -35,6 +37,7 @@ const ReceiptsTab: React.FC = () => {
     const [total, setTotal] = useState<number>(0);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [selected, setSelected] = useState<Receipt | null>(null);
 
     useEffect(() => {
         let cancelled = false;
@@ -109,7 +112,20 @@ const ReceiptsTab: React.FC = () => {
                                 </tr>
                             ) : (
                                 data.map((r) => (
-                                    <tr key={r.id} className="hover:bg-gray-50/60 dark:hover:bg-white/5">
+                                    <tr
+                                        key={r.id}
+                                        className="hover:bg-gray-50/60 dark:hover:bg-white/5 cursor-pointer"
+                                        onClick={() => setSelected(r)}
+                                        role="button"
+                                        tabIndex={0}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                e.preventDefault();
+                                                setSelected(r);
+                                            }
+                                        }}
+                                        aria-label={`Open receipt ${r.id}`}
+                                    >
                                                 <td className="px-4 py-3 text-gray-900 dark:text-white">
                                                     <time dateTime={(r.createdAt ?? r.timestamp ?? '') as string}>
                                                         {new Date(r.createdAt ?? r.timestamp ?? '').toLocaleString()}
@@ -126,6 +142,96 @@ const ReceiptsTab: React.FC = () => {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Details Modal */}
+                <Modal size="xl" open={!!selected} onClose={() => setSelected(null)}>
+                    {selected && (
+                        <div className="space-y-4">
+                            <div className="flex items-start justify-between">
+                                <div>
+                                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Receipt</h2>
+                                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">ID: {selected.id}</p>
+                                </div>
+                                <button
+                                    className="rounded-md border border-gray-300 px-2 py-1 text-sm text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/10"
+                                    onClick={() => setSelected(null)}
+                                >
+                                    Close
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3 text-sm">
+                                <div>
+                                    <div className="text-gray-500 dark:text-gray-400">Date</div>
+                                    <div className="text-gray-900 dark:text-white">
+                                        <time dateTime={(selected.createdAt ?? selected.timestamp ?? '') as string}>
+                                            {new Date(selected.createdAt ?? selected.timestamp ?? '').toLocaleString()}
+                                        </time>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="text-gray-500 dark:text-gray-400">Status</div>
+                                    <div className="text-gray-900 dark:text-white">{selected.status}</div>
+                                </div>
+                                <div>
+                                    <div className="text-gray-500 dark:text-gray-400">Payment</div>
+                                    <div className="text-gray-900 dark:text-white">{selected.paymentOption}</div>
+                                </div>
+                                {selected.placeId && (
+                                    <div>
+                                        <div className="text-gray-500 dark:text-gray-400">Place</div>
+                                        <div className="text-gray-900 dark:text-white">{selected.placeId}</div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="overflow-hidden rounded-md border border-gray-200 dark:border-white/10">
+                                <table className="min-w-full divide-y divide-gray-200 text-sm dark:divide-white/10">
+                                    <thead className="bg-gray-50 text-gray-900 dark:bg-white/5 dark:text-white">
+                                        <tr>
+                                            <th className="px-3 py-2 text-left font-medium">Item</th>
+                                            <th className="px-3 py-2 text-right font-medium">Price</th>
+                                            <th className="px-3 py-2 text-right font-medium">Qty</th>
+                                            <th className="px-3 py-2 text-right font-medium">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-200 dark:divide-white/10">
+                                        {selected.items.map((it) => (
+                                            <tr key={it.id}>
+                                                <td className="px-3 py-2 text-gray-900 dark:text-white">{it.title}</td>
+                                                <td className="px-3 py-2 text-right text-gray-700 dark:text-gray-300">EUR {it.price.toFixed(2)}</td>
+                                                <td className="px-3 py-2 text-right text-gray-700 dark:text-gray-300">{it.quantity}</td>
+                                                <td className="px-3 py-2 text-right text-gray-900 dark:text-white">EUR {(it.price * it.quantity).toFixed(2)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div className="">
+                                <div className="w-full space-y-1 text-sm">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-gray-600 dark:text-gray-400">Subtotal</span>
+                                        <span className="text-gray-900 dark:text-white">EUR {selected.items.reduce((s, i) => s + i.price * i.quantity, 0).toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-gray-600 dark:text-gray-400">Amount given</span>
+                                        <span className="text-gray-900 dark:text-white">EUR {selected.amountGiven.toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-gray-600 dark:text-gray-400">Change</span>
+                                        <span className="text-gray-900 dark:text-white">EUR {selected.change.toFixed(2)}</span>
+                                    </div>
+                                    <div className="mt-2 border-t border-gray-200 pt-2 dark:border-white/10" />
+                                    <div className="flex items-center justify-between text-base font-semibold">
+                                        <span className="text-gray-900 dark:text-white">Total</span>
+                                        <span className="text-gray-900 dark:text-white">EUR {selected.totalPrice.toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </Modal>
 
                 {/* Pagination */}
                 <div className="mt-4 flex items-center justify-between">
@@ -173,6 +279,15 @@ const DocumentsInner: React.FC = () => {
     return (
         <AdminLayout>
             <main>
+                <div className="px-4 pt-4 sm:px-6 lg:px-8">
+                    <Breadcrumbs
+                        items={[
+                            { name: 'Dashboard', href: '/dashboard/home' },
+                            { name: 'Documents', href: '/dashboard/documents' },
+                            { name: tab === 'receipts' ? 'Receipts' : 'Other' },
+                        ]}
+                    />
+                </div>
                         <Tabs
                     items={[
                         { key: 'receipts', label: 'Receipts' },

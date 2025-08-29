@@ -2,6 +2,7 @@
 import AdminLayout from '@/components/layout/AdminLayout'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Tabs from '@/components/ui/Tabs'
+import Breadcrumbs from '@/components/ui/Breadcrumbs'
 import Logs from '@/components/admin-zone/Logs'
 import Places from '@/components/admin-zone/Places'
 import SearchInput from '@/components/ui/SearchInput'
@@ -29,6 +30,14 @@ const HomeInner = () => {
 
                         <main>
                             <header>
+                                <div className="px-4 pt-4 sm:px-6 lg:px-8">
+                                    <Breadcrumbs
+                                        items={[
+                                            { name: 'Dashboard', href: '/dashboard/home' },
+                                            { name: tab === 'places' ? 'Places' : 'Logs' },
+                                        ]}
+                                    />
+                                </div>
                                 <Tabs
                                     items={[
                                         { key: 'places', label: 'Places' },

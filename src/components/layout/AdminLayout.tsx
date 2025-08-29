@@ -13,6 +13,7 @@ import {
     XMarkIcon,
 } from '@heroicons/react/24/outline'
 import Image from 'next/image'
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import LogoutButton from '../LogoutButton'
 
@@ -90,10 +91,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                                         <li>
                                             <ul role="list" className="-mx-2 space-y-1">
                                                 {navigation.map((item) => {
-                                                    const isCurrent = item.href === pathname
+                                                    const isCurrent = pathname === item.href || pathname.startsWith(`${item.href}/`)
                                                     return (
                                                         <li key={item.name}>
-                                                            <a
+                                                            <Link
                                                                 href={item.href}
                                                                 className={classNames(
                                                                     isCurrent
@@ -112,7 +113,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                                                                     )}
                                                                 />
                                                                 {item.name}
-                                                            </a>
+                                                            </Link>
                                                         </li>
                                                     )
                                                 })}
@@ -180,10 +181,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                                 <li>
                                     <ul role="list" className="-mx-2 space-y-1">
                                         {navigation.map((item) => {
-                                            const isCurrent = item.href === pathname
+                                            const isCurrent = pathname === item.href || pathname.startsWith(`${item.href}/`)
                                             return (
                                                 <li key={item.name}>
-                                                    <a
+                                                    <Link
                                                         href={item.href}
                                                         className={classNames(
                                                             isCurrent
@@ -202,7 +203,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                                                             )}
                                                         />
                                                         {item.name}
-                                                    </a>
+                                                    </Link>
                                                 </li>
                                             )
                                         })}

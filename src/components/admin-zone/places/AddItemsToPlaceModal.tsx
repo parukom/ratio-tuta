@@ -1,6 +1,8 @@
 'use client'
 import React, { useEffect, useMemo, useState } from 'react'
 import Modal from '@/components/modals/Modal'
+import Input from '@/components/ui/Input'
+
 
 type Item = {
     id: string
@@ -128,7 +130,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
     }
 
     return (
-        <Modal open={open} onClose={onClose}>
+        <Modal size="xl" open={open} onClose={onClose}>
             <div className="text-left">
                 <h3 className="text-base font-semibold text-gray-900 dark:text-white">Add items to place</h3>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Select items to assign to this place.</p>
@@ -165,7 +167,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <div className="flex items-center gap-2">
-                                            <input
+                                            <Input
                                                 type="number"
                                                 min={1}
                                                 max={Math.max(1, it.stockQuantity ?? 1)}
@@ -175,21 +177,23 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                                             />
                                             <span className="text-xs text-gray-600 dark:text-gray-400">{it.unit ?? 'pcs'}</span>
                                         </div>
-                                        <button
-                                            onClick={() => handleAdd(it.id, it.stockQuantity ?? 0)}
-                                            disabled={addingIds.has(it.id) || (it.stockQuantity ?? 0) <= 0}
-                                            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-60 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5"
-                                            title="Add all units from warehouse"
-                                        >
-                                            All
-                                        </button>
-                                        <button
-                                            onClick={() => handleAdd(it.id)}
-                                            disabled={addingIds.has(it.id)}
-                                            className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400"
-                                        >
-                                            {addingIds.has(it.id) ? 'Adding…' : 'Add'}
-                                        </button>
+                                        <div className='flex flex-col'>
+                                            <button
+                                                onClick={() => handleAdd(it.id, it.stockQuantity ?? 0)}
+                                                disabled={addingIds.has(it.id) || (it.stockQuantity ?? 0) <= 0}
+                                                className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-60 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5"
+                                                title="Add all units from warehouse"
+                                            >
+                                                All
+                                            </button>
+                                            <button
+                                                onClick={() => handleAdd(it.id)}
+                                                disabled={addingIds.has(it.id)}
+                                                className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+                                            >
+                                                {addingIds.has(it.id) ? 'Adding…' : 'Add'}
+                                            </button>
+                                        </div>
                                     </div>
                                 </li>
                             ))}
