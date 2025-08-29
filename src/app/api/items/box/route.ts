@@ -23,23 +23,49 @@ export async function POST(req: Request) {
     color?: string | null;
     categoryId?: string | null;
     price: number;
-    taxRateBps?: number;
-    unit?: string;
+  taxRateBps?: number;
+  measurementType?: string; // preferred
+  unit?: string; // legacy alias
     skuPrefix?: string | null;
     sizes: SizeSpec[];
     createMissing?: boolean;
     isActive?: boolean;
+  description?: string | null;
+  brand?: string | null;
+  tags?: string[] | null;
   }>;
 
   const baseName = String(body.baseName || '').trim();
   const color = (body.color ?? '').trim();
   const price = Number(body.price);
   const taxRateBps = Number(body.taxRateBps ?? 0);
-  const unit = (body.unit ?? 'pcs').trim() || 'pcs';
+  // Determine measurement type with legacy unit mapping
+  type MT = 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME';
+  const mtRaw = (body.measurementType || '').toString().toUpperCase();
+  const validMT = new Set<MT>(['PCS', 'WEIGHT', 'LENGTH', 'VOLUME', 'AREA', 'TIME']);
+  let measurementType: MT = 'PCS';
+  if (validMT.has(mtRaw as MT)) measurementType = mtRaw as MT;
+  else if (typeof body.unit === 'string') {
+    const u = body.unit.trim().toLowerCase();
+    const map: Record<string, MT> = {
+      pcs: 'PCS', piece: 'PCS', pieces: 'PCS', unit: 'PCS', units: 'PCS',
+      kg: 'WEIGHT', g: 'WEIGHT', gram: 'WEIGHT', grams: 'WEIGHT', kilo: 'WEIGHT',
+      m: 'LENGTH', cm: 'LENGTH', mm: 'LENGTH', meter: 'LENGTH',
+      l: 'VOLUME', ml: 'VOLUME', litre: 'VOLUME',
+      m2: 'AREA', sqm: 'AREA',
+      h: 'TIME', hr: 'TIME', hour: 'TIME', min: 'TIME', minute: 'TIME', s: 'TIME', sec: 'TIME',
+    };
+    measurementType = map[u] ?? 'PCS';
+  }
   const skuPrefix = (body.skuPrefix ?? '').trim();
   const createMissing = body.createMissing !== false;
   const isActive = body.isActive !== false;
   const sizes = Array.isArray(body.sizes) ? body.sizes : [];
+  const description = (body.description ?? '').trim() || null;
+  const brand = (body.brand ?? '').trim() || null;
+  const tags = Array.isArray(body.tags)
+    ? body.tags.map((t) => String(t).trim()).filter(Boolean)
+    : [];
 
   if (!baseName)
     return NextResponse.json(
@@ -53,8 +79,6 @@ export async function POST(req: Request) {
     );
   if (!Number.isInteger(taxRateBps) || taxRateBps < 0)
     return NextResponse.json({ error: 'Invalid taxRateBps' }, { status: 400 });
-  if (!unit)
-    return NextResponse.json({ error: 'Unit is required' }, { status: 400 });
   if (sizes.length === 0)
     return NextResponse.json({ error: 'sizes is required' }, { status: 400 });
 
@@ -189,7 +213,7 @@ export async function POST(req: Request) {
           );
         }
 
-        const created = await tx.item.create({
+    const created = await tx.item.create({
           data: {
             teamId: targetTeamId!,
             name,
@@ -198,8 +222,13 @@ export async function POST(req: Request) {
             price,
             taxRateBps,
             isActive,
-            unit,
+      measurementType,
             stockQuantity: qty,
+      description,
+      color: color || null,
+      size: sizeStr,
+      brand,
+      tags,
           },
           select: { id: true, name: true },
         });
@@ -241,7 +270,7 @@ export async function POST(req: Request) {
       categoryId,
       price,
       taxRateBps,
-      unit,
+  measurementType,
       count: sizes.length,
       totalAdded: results.reduce((a, r) => a + r.delta, 0),
     },

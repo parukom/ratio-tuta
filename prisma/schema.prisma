@@ -17,8 +17,8 @@ model User {
   createdAt DateTime  @default(now())
   Receipt   Receipt[]
 
-  teams      TeamMember[]
-  ownedTeams Team[]       @relation("OwnedTeams")
+  teams            TeamMember[]
+  ownedTeams       Team[]        @relation("OwnedTeams")
   // Places this user is explicitly registered to work at
   placeMemberships PlaceMember[]
 
@@ -77,7 +77,7 @@ model Place {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
-  team       Team        @relation(fields: [teamId], references: [id])
+  team       Team          @relation(fields: [teamId], references: [id])
   placeItems PlaceItem[]
   Receipt    Receipt[]
   // Users explicitly assigned to this place
@@ -90,29 +90,55 @@ model Place {
 
 // A sellable item scoped to a Team (team-wide catalog / storage)
 model Item {
-  id            String        @id @default(uuid())
-  teamId        String
-  name          String
-  sku           String?
-  categoryId    String?
-  category      ItemCategory? @relation(fields: [categoryId], references: [id])
-  price         Float
-  taxRateBps    Int           @default(0) // basis points (e.g. 2100 = 21.00%)
-  isActive      Boolean       @default(true)
-  // Total stock available at the team level (e.g., warehouse).
-  stockQuantity Int           @default(0)
-  // Display unit for this item (e.g., "pcs", "box", "pack").
-  unit          String        @default("pcs")
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id         String        @id @default(uuid())
+  teamId     String
+  name       String
+  sku        String?
+  categoryId String?
+  category   ItemCategory? @relation(fields: [categoryId], references: [id])
+  price      Float
+  taxRateBps Int           @default(0) // basis points (e.g. 2100 = 21.00%)
+  isActive   Boolean       @default(true)
 
-  team   Team        @relation(fields: [teamId], references: [id])
-  places PlaceItem[]
+  // Total stock available at the team level (e.g., warehouse).
+  // Display unit for this item (e.g., "pcs", "box", "pack").
+  stockQuantity Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  description String?
+  color       String?
+  size        String?
+  brand       String?
+  tags        String[] // paprastas string array, tinka filtravimui
+
+  team            Team            @relation(fields: [teamId], references: [id])
+  places          PlaceItem[]
+  measurementType MeasurementType @default(PCS)
 
   @@unique([teamId, name]) // unique item name within a team
   @@unique([teamId, sku])
   @@index([teamId])
   @@index([categoryId])
+}
+
+// Team-scoped type for Items (user-defined). teamId null means global / shared.
+model ItemCategory {
+  id        String   @id @default(uuid())
+  teamId    String?
+  name      String
+  slug      String
+  color     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  team  Team?  @relation(fields: [teamId], references: [id])
+  items Item[]
+
+  @@unique([teamId, name])
+  @@unique([teamId, slug])
+  @@index([teamId])
 }
 
 // Items assigned to a Place with a quantity in stock
@@ -151,23 +177,18 @@ model PlaceType {
   @@index([teamId])
 }
 
-// Team-scoped type for Items (user-defined). teamId null means global / shared.
-model ItemCategory {
+// Explicit membership of a User to a Place (within a Team)
+model PlaceMember {
   id        String   @id @default(uuid())
-  teamId    String?
-  name      String
-  slug      String
-  color     String?
-  isActive  Boolean  @default(true)
+  placeId   String
+  userId    String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
-  team  Team?  @relation(fields: [teamId], references: [id])
-  items Item[]
+  place Place @relation(fields: [placeId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
 
-  @@unique([teamId, name])
-  @@unique([teamId, slug])
-  @@index([teamId])
+  @@unique([placeId, userId])
+  @@index([userId])
 }
 
 // Audit log for backend actions
@@ -251,16 +272,11 @@ enum ReceiptStatus {
   CANCELLED
 }
 
-// Explicit membership of a User to a Place (within a Team)
-model PlaceMember {
-  id        String   @id @default(uuid())
-  placeId   String
-  userId    String
-  createdAt DateTime @default(now())
-
-  place Place @relation(fields: [placeId], references: [id])
-  user  User  @relation(fields: [userId], references: [id])
-
-  @@unique([placeId, userId])
-  @@index([userId])
+enum MeasurementType {
+  PCS // vienetai
+  WEIGHT // kg, g
+  LENGTH // m, cm
+  VOLUME // l, ml
+  AREA // m2
+  TIME // valandos, minutės
 }

@@ -29,11 +29,15 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
   const [price, setPrice] = useState('')
   const [taxRateBps, setTaxRateBps] = useState('0')
   const [isActive, setIsActive] = useState(true)
-  const [unit, setUnit] = useState('pcs')
+  const [measurementType, setMeasurementType] = useState<'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'>('PCS')
   const [stockQuantity, setStockQuantity] = useState('0')
+  const [description, setDescription] = useState('')
+  const [color, setColor] = useState('')
+  const [brand, setBrand] = useState('')
+  const [tagsCSV, setTagsCSV] = useState('')
 
   function reset() {
-    setName(''); setSku(''); setPrice(''); setTaxRateBps('0'); setIsActive(true); setUnit('pcs'); setStockQuantity('0')
+    setName(''); setSku(''); setPrice(''); setTaxRateBps('0'); setIsActive(true); setMeasurementType('PCS'); setStockQuantity('0'); setDescription(''); setColor(''); setBrand(''); setTagsCSV('')
   }
 
   async function submit(e: React.FormEvent) {
@@ -51,8 +55,15 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
           price: Number(price),
           taxRateBps: Number(taxRateBps) || 0,
           isActive,
-          unit: unit.trim() || 'pcs',
+          measurementType,
           stockQuantity: Number(stockQuantity) || 0,
+          description: description.trim() || null,
+          color: color.trim() || null,
+          brand: brand.trim() || null,
+          tags: tagsCSV
+            .split(',')
+            .map((t) => t.trim())
+            .filter(Boolean),
         }),
       })
       const data = await res.json()
@@ -94,9 +105,46 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
             <Input id="taxRateBps" name="taxRateBps" type="number" className="" placeholder="Tax (bps) e.g. 2100" value={taxRateBps} onChange={(e) => setTaxRateBps(e.target.value)} />
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <Input id="unit" name="unit" type="text" className="" placeholder="Unit (e.g. pcs, box)" value={unit} onChange={(e) => setUnit(e.target.value)} />
-            <Input id="stockQuantity" name="stockQuantity" type="number" className="" placeholder="Initial stock quantity" value={stockQuantity} onChange={(e) => setStockQuantity(e.target.value)} />
+            <div>
+              <label htmlFor="measurementType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Measurement type</label>
+              <select
+                id="measurementType"
+                name="measurementType"
+                value={measurementType}
+                onChange={(e) => setMeasurementType(e.target.value as typeof measurementType)}
+                className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-white/10 dark:bg-white/5 dark:text-white"
+              >
+                <option value="PCS">Pieces</option>
+                <option value="WEIGHT">Weight</option>
+                <option value="LENGTH">Length</option>
+                <option value="VOLUME">Volume</option>
+                <option value="AREA">Area</option>
+                <option value="TIME">Time</option>
+              </select>
+            </div>
+            <Input
+              id="stockQuantity"
+              name="stockQuantity"
+              type="number"
+              className=""
+              placeholder={
+                measurementType === 'PCS' ? 'Initial stock (pcs)'
+                  : measurementType === 'WEIGHT' ? 'Initial stock (kg)'
+                  : measurementType === 'LENGTH' ? 'Initial stock (m)'
+                  : measurementType === 'VOLUME' ? 'Initial stock (l)'
+                  : measurementType === 'AREA' ? 'Initial stock (m2)'
+                  : 'Initial stock (h)'
+              }
+              value={stockQuantity}
+              onChange={(e) => setStockQuantity(e.target.value)}
+            />
           </div>
+          <Input id="description" name="description" type="text" className="" placeholder="Description (optional)" value={description} onChange={(e) => setDescription(e.target.value)} />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Input id="color" name="color" type="text" className="" placeholder="Color (optional)" value={color} onChange={(e) => setColor(e.target.value)} />
+            <Input id="brand" name="brand" type="text" className="" placeholder="Brand (optional)" value={brand} onChange={(e) => setBrand(e.target.value)} />
+          </div>
+          <Input id="tags" name="tags" type="text" className="" placeholder="Tags (comma-separated)" value={tagsCSV} onChange={(e) => setTagsCSV(e.target.value)} />
           <div className="flex items-center gap-2">
             <input id="isActive" name="isActive" type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="size-4" />
             <label htmlFor="isActive" className="text-sm text-gray-700 dark:text-gray-300">Active</label>

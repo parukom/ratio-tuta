@@ -22,12 +22,14 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
     const [taxRateBps, setTaxRateBps] = useState('0')
     const [unit, setUnit] = useState('pcs')
     const [skuPrefix, setSkuPrefix] = useState('')
+    // Safe ID generator that works in browser and during SSR/lint with fallback
+    const genId = () => globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2)
     const [sizes, setSizes] = useState<SizeRow[]>([
-        { id: crypto.randomUUID(), size: '', quantity: '0' },
+        { id: genId(), size: '', quantity: '0' },
     ])
 
     function addRow() {
-        setSizes(prev => [...prev, { id: crypto.randomUUID(), size: '', quantity: '0' }])
+        setSizes(prev => [...prev, { id: genId(), size: '', quantity: '0' }])
     }
     function removeRow(id: string) {
         setSizes(prev => prev.length > 1 ? prev.filter(r => r.id !== id) : prev)
@@ -65,7 +67,7 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
             setOpen(false)
             onDone?.()
             // reset
-            setBaseName(''); setColor(''); setPrice(''); setTaxRateBps('0'); setUnit('pcs'); setSkuPrefix(''); setSizes([{ id: crypto.randomUUID(), size: '', quantity: '0' }])
+            setBaseName(''); setColor(''); setPrice(''); setTaxRateBps('0'); setUnit('pcs'); setSkuPrefix(''); setSizes([{ id: genId(), size: '', quantity: '0' }])
         } catch {
             setMessage('Network error')
         } finally {

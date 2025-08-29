@@ -20,9 +20,14 @@ type ItemRow = {
     taxRateBps: number
     isActive: boolean
     unit?: string
+    measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'
     stockQuantity?: number
     createdAt: string
     currency: string
+    description?: string | null
+    color?: string | null
+    brand?: string | null
+    tags?: string[] | null
 }
 
 const ItemsInner = () => {
@@ -110,7 +115,7 @@ const ItemsInner = () => {
     }
 
     // Edit/Delete helpers
-    async function updateItem(id: string, patch: Partial<Pick<ItemRow, 'name' | 'sku' | 'price' | 'taxRateBps' | 'isActive' | 'unit' | 'stockQuantity'>>) {
+    async function updateItem(id: string, patch: Partial<Pick<ItemRow, 'name' | 'sku' | 'price' | 'taxRateBps' | 'isActive' | 'measurementType' | 'stockQuantity' | 'description' | 'color' | 'brand' | 'tags'>>) {
         const res = await fetch(`/api/items/${id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
@@ -226,7 +231,7 @@ const ItemsInner = () => {
 
 function ItemRowActions({ item, onUpdate, onDelete }: {
     item: ItemRow;
-    onUpdate: (id: string, patch: Partial<Pick<ItemRow, 'name' | 'sku' | 'price' | 'taxRateBps' | 'isActive' | 'unit' | 'stockQuantity'>>) => Promise<void>;
+    onUpdate: (id: string, patch: Partial<Pick<ItemRow, 'name' | 'sku' | 'price' | 'taxRateBps' | 'isActive' | 'measurementType' | 'stockQuantity' | 'description' | 'color' | 'brand' | 'tags'>>) => Promise<void>;
     onDelete: (id: string) => Promise<void>;
 }) {
     const [open, setOpen] = useState(false)
@@ -238,8 +243,23 @@ function ItemRowActions({ item, onUpdate, onDelete }: {
     const [price, setPrice] = useState(String(item.price))
     const [taxRateBps, setTaxRateBps] = useState(String(item.taxRateBps))
     const [isActive, setIsActive] = useState(!!item.isActive)
-    const [unit, setUnit] = useState(item.unit ?? 'pcs')
+    // derive initial measurement type (prefer field, fallback from unit)
+    const mapUnitToMT = (u?: string): ItemRow['measurementType'] => {
+        const m = (u || '').toLowerCase();
+        if (['pcs', 'piece', 'pieces', 'unit', 'units'].includes(m)) return 'PCS'
+        if (['kg', 'g', 'gram', 'grams', 'kilo'].includes(m)) return 'WEIGHT'
+        if (['m', 'cm', 'mm', 'meter', 'metres'].includes(m)) return 'LENGTH'
+        if (['l', 'ml', 'litre', 'liters'].includes(m)) return 'VOLUME'
+        if (['m2', 'sqm', 'sq'].includes(m)) return 'AREA'
+        if (['h', 'hr', 'hour', 'hours', 'min', 'minute', 's', 'sec', 'second'].includes(m)) return 'TIME'
+        return 'PCS'
+    }
+    const [measurementType, setMeasurementType] = useState<ItemRow['measurementType']>(item.measurementType ?? mapUnitToMT(item.unit ?? 'pcs'))
     const [stockQuantity, setStockQuantity] = useState(String(item.stockQuantity ?? 0))
+    const [description, setDescription] = useState(item.description ?? '')
+    const [color, setColor] = useState(item.color ?? '')
+    const [brand, setBrand] = useState(item.brand ?? '')
+    const [tagsCSV, setTagsCSV] = useState((item.tags ?? []).join(', '))
 
     async function submit(e: React.FormEvent) {
         e.preventDefault()
@@ -252,8 +272,12 @@ function ItemRowActions({ item, onUpdate, onDelete }: {
                 price: Number(price),
                 taxRateBps: Number(taxRateBps) || 0,
                 isActive,
-                unit: unit.trim() || 'pcs',
+                measurementType: (measurementType ?? 'PCS'),
                 stockQuantity: Number(stockQuantity) || 0,
+                description: description.trim() || null,
+                color: color.trim() || null,
+                brand: brand.trim() || null,
+                tags: tagsCSV.split(',').map(t => t.trim()).filter(Boolean),
             })
             setMessage('Saved')
             setOpen(false)
@@ -291,9 +315,46 @@ function ItemRowActions({ item, onUpdate, onDelete }: {
                         <Input id={`tax-${item.id}`} name="tax" type="number" className="" placeholder="Tax (bps)" value={taxRateBps} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTaxRateBps(e.target.value)} />
                     </div>
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <Input id={`unit-${item.id}`} name="unit" type="text" className="" placeholder="Unit (e.g. pcs, box)" value={unit} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUnit(e.target.value)} />
-                        <Input id={`stock-${item.id}`} name="stock" type="number" className="" placeholder="Stock quantity" value={stockQuantity} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStockQuantity(e.target.value)} />
+                        <div>
+                            <label htmlFor={`measurementType-${item.id}`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Measurement type</label>
+                            <select
+                                id={`measurementType-${item.id}`}
+                                name="measurementType"
+                                value={measurementType}
+                                onChange={(e) => setMeasurementType(e.target.value as ItemRow['measurementType'])}
+                                className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-white/10 dark:bg-white/5 dark:text-white"
+                            >
+                                <option value="PCS">Pieces</option>
+                                <option value="WEIGHT">Weight</option>
+                                <option value="LENGTH">Length</option>
+                                <option value="VOLUME">Volume</option>
+                                <option value="AREA">Area</option>
+                                <option value="TIME">Time</option>
+                            </select>
+                        </div>
+                        <Input
+                            id={`stock-${item.id}`}
+                            name="stock"
+                            type="number"
+                            className=""
+                            placeholder={
+                                measurementType === 'PCS' ? 'Stock (pcs)'
+                                    : measurementType === 'WEIGHT' ? 'Stock (kg)'
+                                    : measurementType === 'LENGTH' ? 'Stock (m)'
+                                    : measurementType === 'VOLUME' ? 'Stock (l)'
+                                    : measurementType === 'AREA' ? 'Stock (m2)'
+                                    : 'Stock (h)'
+                            }
+                            value={stockQuantity}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStockQuantity(e.target.value)}
+                        />
                     </div>
+                    <Input id={`desc-${item.id}`} name="description" type="text" className="" placeholder="Description (optional)" value={description} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)} />
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <Input id={`color-${item.id}`} name="color" type="text" className="" placeholder="Color (optional)" value={color} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setColor(e.target.value)} />
+                        <Input id={`brand-${item.id}`} name="brand" type="text" className="" placeholder="Brand (optional)" value={brand} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBrand(e.target.value)} />
+                    </div>
+                    <Input id={`tags-${item.id}`} name="tags" type="text" className="" placeholder="Tags (comma-separated)" value={tagsCSV} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTagsCSV(e.target.value)} />
                     <div className="flex items-center gap-2">
                         <input id={`active-${item.id}`} name="isActive" type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="size-4" />
                         <label htmlFor={`active-${item.id}`} className="text-sm text-gray-700 dark:text-gray-300">Active</label>

@@ -28,10 +28,15 @@ export async function GET(
       price: true,
       taxRateBps: true,
       isActive: true,
-      unit: true,
       stockQuantity: true,
       createdAt: true,
       updatedAt: true,
+  measurementType: true,
+  description: true,
+  color: true,
+  size: true,
+  brand: true,
+  tags: true,
     },
   });
   if (!item) return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -50,7 +55,21 @@ export async function GET(
   if (!allowed)
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  return NextResponse.json(item);
+  const unit =
+    item.measurementType === 'PCS'
+      ? 'pcs'
+      : item.measurementType === 'WEIGHT'
+        ? 'kg'
+        : item.measurementType === 'LENGTH'
+          ? 'm'
+          : item.measurementType === 'VOLUME'
+            ? 'l'
+            : item.measurementType === 'AREA'
+              ? 'm2'
+              : item.measurementType === 'TIME'
+                ? 'h'
+                : 'pcs';
+  return NextResponse.json({ ...item, unit });
 }
 
 // PATCH /api/items/[itemId] -> update mutable fields
@@ -93,8 +112,14 @@ export async function PATCH(
     price: number;
     taxRateBps: number;
     isActive: boolean;
-    unit: string;
     stockQuantity: number;
+  measurementType: string;
+  description: string | null;
+  color: string | null;
+  size: string | null;
+  brand: string | null;
+  tags: string[] | null;
+  unit: string; // legacy alias; will attempt to map to measurementType
   }>;
 
   const data: Record<string, unknown> = {};
@@ -125,16 +150,50 @@ export async function PATCH(
   if ('isActive' in body) {
     data.isActive = Boolean(body.isActive);
   }
-  if ('unit' in body) {
-    const v = (body.unit ?? '').trim();
-    if (!v) return NextResponse.json({ error: 'Invalid unit' }, { status: 400 });
-    data.unit = v;
+  // measurementType update (preferred)
+  if ('measurementType' in body && typeof body.measurementType === 'string') {
+    const v = body.measurementType.toUpperCase();
+    const valid = new Set(['PCS', 'WEIGHT', 'LENGTH', 'VOLUME', 'AREA', 'TIME']);
+    if (!valid.has(v))
+      return NextResponse.json({ error: 'Invalid measurementType' }, { status: 400 });
+    (data as { measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME' }).measurementType = v as
+      | 'PCS'
+      | 'WEIGHT'
+      | 'LENGTH'
+      | 'VOLUME'
+      | 'AREA'
+      | 'TIME';
+  }
+  // legacy 'unit' to measurementType mapping
+  if ('unit' in body && typeof body.unit === 'string') {
+    const u = body.unit.trim().toLowerCase();
+    const map: Record<string, 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'> = {
+      pcs: 'PCS', piece: 'PCS', pieces: 'PCS', unit: 'PCS', units: 'PCS',
+      kg: 'WEIGHT', g: 'WEIGHT', gram: 'WEIGHT', grams: 'WEIGHT', kilo: 'WEIGHT',
+      m: 'LENGTH', cm: 'LENGTH', mm: 'LENGTH', meter: 'LENGTH', metres: 'LENGTH',
+      l: 'VOLUME', ml: 'VOLUME', litre: 'VOLUME', liters: 'VOLUME',
+      m2: 'AREA', sqm: 'AREA', sq: 'AREA',
+      h: 'TIME', hr: 'TIME', hour: 'TIME', hours: 'TIME', min: 'TIME', minute: 'TIME', s: 'TIME', sec: 'TIME', second: 'TIME',
+    };
+    const mt = map[u];
+    if (mt)
+      (data as { measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME' }).measurementType = mt;
   }
   if ('stockQuantity' in body) {
     const v = Number(body.stockQuantity);
     if (!Number.isInteger(v) || v < 0)
       return NextResponse.json({ error: 'Invalid stockQuantity' }, { status: 400 });
     data.stockQuantity = v;
+  }
+  if ('description' in body) data.description = body.description ?? null;
+  if ('color' in body) data.color = (body.color ?? null) as string | null;
+  if ('size' in body) data.size = (body.size ?? null) as string | null;
+  if ('brand' in body) data.brand = (body.brand ?? null) as string | null;
+  if ('tags' in body) {
+    const tags = Array.isArray(body.tags)
+      ? body.tags.map((t) => String(t).trim()).filter(Boolean)
+      : [];
+    (data as { tags?: string[] }).tags = tags;
   }
 
   // validate category if set
@@ -160,10 +219,15 @@ export async function PATCH(
         price: true,
         taxRateBps: true,
         isActive: true,
-        unit: true,
         stockQuantity: true,
         createdAt: true,
         updatedAt: true,
+  measurementType: true,
+  description: true,
+  color: true,
+  size: true,
+  brand: true,
+  tags: true,
       },
     });
 
@@ -176,7 +240,21 @@ export async function PATCH(
       metadata: data as Prisma.InputJsonValue,
     });
 
-    return NextResponse.json(updated);
+    const unit =
+      updated.measurementType === 'PCS'
+        ? 'pcs'
+        : updated.measurementType === 'WEIGHT'
+          ? 'kg'
+          : updated.measurementType === 'LENGTH'
+            ? 'm'
+            : updated.measurementType === 'VOLUME'
+              ? 'l'
+              : updated.measurementType === 'AREA'
+                ? 'm2'
+                : updated.measurementType === 'TIME'
+                  ? 'h'
+                  : 'pcs';
+    return NextResponse.json({ ...updated, unit });
   } catch (e) {
     const err = e as { code?: string };
     if (err?.code === 'P2002') {

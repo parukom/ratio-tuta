@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@lib/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
+import type { MeasurementType } from '@/generated/prisma';
 
 export async function GET(req: Request) {
   const session = await getSession();
@@ -86,15 +87,35 @@ export async function GET(req: Request) {
       price: true,
       taxRateBps: true,
       isActive: true,
-      unit: true,
       stockQuantity: true,
       createdAt: true,
+      measurementType: true,
+      description: true,
+      color: true,
+      size: true,
+      brand: true,
+      tags: true,
       category: { select: { name: true } },
     },
     orderBy: { createdAt: 'desc' },
   });
 
-  const shaped = items.map((it) => ({
+  const shaped = items.map((it) => {
+    const displayUnit =
+      it.measurementType === 'PCS'
+        ? 'pcs'
+        : it.measurementType === 'WEIGHT'
+          ? 'kg'
+          : it.measurementType === 'LENGTH'
+            ? 'm'
+            : it.measurementType === 'VOLUME'
+              ? 'l'
+              : it.measurementType === 'AREA'
+                ? 'm2'
+                : it.measurementType === 'TIME'
+                  ? 'h'
+                  : 'pcs';
+    return {
     id: it.id,
     teamId: it.teamId,
     name: it.name,
@@ -104,11 +125,19 @@ export async function GET(req: Request) {
     price: it.price,
     taxRateBps: it.taxRateBps,
     isActive: it.isActive,
-    unit: it.unit,
-    stockQuantity: it.stockQuantity,
+      // backward-compat display field
+      unit: displayUnit,
+      stockQuantity: it.stockQuantity,
     createdAt: it.createdAt,
+    measurementType: it.measurementType,
+    description: it.description ?? null,
+    color: it.color ?? null,
+    size: it.size ?? null,
+    brand: it.brand ?? null,
+    tags: it.tags ?? [],
     currency: 'EUR',
-  }));
+    };
+  });
 
   return NextResponse.json(shaped);
 }
@@ -132,17 +161,46 @@ export async function POST(req: Request) {
     price?: number;
     taxRateBps?: number;
     isActive?: boolean;
-    unit?: string;
     stockQuantity?: number;
+    measurementType?: string;
+  unit?: string; // legacy alias
+    description?: string | null;
+    color?: string | null;
+    size?: string | null;
+    brand?: string | null;
+    tags?: string[] | null;
   };
 
   const name = (body.name || '').trim();
   const price = Number(body.price);
   const taxRateBps = body.taxRateBps ?? 0;
-  const unit = (body.unit ?? 'pcs').trim();
   const stockQuantity = Number(
     typeof body.stockQuantity === 'number' ? body.stockQuantity : 0,
   );
+  // normalize measurement type with legacy unit mapping
+  const fromUnit = (u: string): MeasurementType => {
+    const m = u.trim().toLowerCase();
+    const map: Record<string, MeasurementType> = {
+      pcs: 'PCS', piece: 'PCS', pieces: 'PCS', unit: 'PCS', units: 'PCS',
+      kg: 'WEIGHT', g: 'WEIGHT', gram: 'WEIGHT', grams: 'WEIGHT', kilo: 'WEIGHT',
+      m: 'LENGTH', cm: 'LENGTH', mm: 'LENGTH', meter: 'LENGTH', metres: 'LENGTH',
+      l: 'VOLUME', ml: 'VOLUME', litre: 'VOLUME', liters: 'VOLUME',
+      m2: 'AREA', sqm: 'AREA', sq: 'AREA',
+      h: 'TIME', hr: 'TIME', hour: 'TIME', hours: 'TIME', min: 'TIME', minute: 'TIME', s: 'TIME', sec: 'TIME', second: 'TIME',
+    };
+    return map[m] ?? 'PCS';
+  };
+  const measurementType = (
+    (body.measurementType && body.measurementType.toUpperCase()) ||
+    (typeof body.unit === 'string' ? fromUnit(body.unit) : 'PCS')
+  ) as MeasurementType;
+  const description = (body.description ?? '').trim() || null;
+  const color = (body.color ?? '').trim() || null;
+  const size = (body.size ?? '').trim() || null;
+  const brand = (body.brand ?? '').trim() || null;
+  const tags = Array.isArray(body.tags)
+    ? body.tags.map((t) => String(t).trim()).filter(Boolean)
+    : [];
 
   if (!name)
     return NextResponse.json({ error: 'Name is required' }, { status: 400 });
@@ -153,13 +211,26 @@ export async function POST(req: Request) {
     );
   if (!Number.isInteger(taxRateBps) || taxRateBps < 0)
     return NextResponse.json({ error: 'Invalid taxRateBps' }, { status: 400 });
-  if (!unit)
-    return NextResponse.json({ error: 'Unit is required' }, { status: 400 });
   if (!Number.isInteger(stockQuantity) || stockQuantity < 0)
     return NextResponse.json(
       { error: 'Invalid stockQuantity' },
       { status: 400 },
     );
+  // Validate measurement type against enum values
+  const validMeasurementTypes = new Set<MeasurementType>([
+    'PCS',
+    'WEIGHT',
+    'LENGTH',
+    'VOLUME',
+    'AREA',
+    'TIME',
+  ]);
+  if (!validMeasurementTypes.has(measurementType as MeasurementType)) {
+    return NextResponse.json(
+      { error: 'Invalid measurementType' },
+      { status: 400 },
+    );
+  }
 
   // Resolve team: from provided teamId or infer if user belongs to exactly one
   let targetTeamId: string | undefined = undefined;
@@ -225,7 +296,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const created = await prisma.item.create({
+  const created = await prisma.item.create({
       data: {
         teamId: targetTeamId!,
         name,
@@ -234,8 +305,13 @@ export async function POST(req: Request) {
         price,
         taxRateBps,
         isActive: body.isActive ?? true,
-        unit,
         stockQuantity,
+    measurementType,
+  description,
+  color,
+  size,
+  brand,
+  tags,
       },
       select: {
         id: true,
@@ -246,9 +322,14 @@ export async function POST(req: Request) {
         price: true,
         taxRateBps: true,
         isActive: true,
-        unit: true,
         stockQuantity: true,
         createdAt: true,
+  measurementType: true,
+  description: true,
+  color: true,
+  size: true,
+  brand: true,
+  tags: true,
       },
     });
 
@@ -261,7 +342,21 @@ export async function POST(req: Request) {
       metadata: { name, teamId: targetTeamId },
     });
 
-    return NextResponse.json(created, { status: 201 });
+    const createdUnit =
+      created.measurementType === 'PCS'
+        ? 'pcs'
+        : created.measurementType === 'WEIGHT'
+          ? 'kg'
+          : created.measurementType === 'LENGTH'
+            ? 'm'
+            : created.measurementType === 'VOLUME'
+              ? 'l'
+              : created.measurementType === 'AREA'
+                ? 'm2'
+                : created.measurementType === 'TIME'
+                  ? 'h'
+                  : 'pcs';
+    return NextResponse.json({ ...created, unit: createdUnit }, { status: 201 });
   } catch (e) {
     const err = e as { code?: string };
     if (err?.code === 'P2002') {
