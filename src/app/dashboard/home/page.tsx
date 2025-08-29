@@ -33,7 +33,6 @@ const HomeInner = () => {
                                 <div className="px-4 pt-4 sm:px-6 lg:px-8">
                                     <Breadcrumbs
                                         items={[
-                                            { name: 'Dashboard', href: '/dashboard/home' },
                                             { name: tab === 'places' ? 'Places' : 'Logs' },
                                         ]}
                                     />

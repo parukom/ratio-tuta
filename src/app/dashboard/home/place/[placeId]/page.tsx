@@ -282,17 +282,9 @@ export default function PlaceDetailPage() {
     <AdminLayout>
             <div>
                 <header>
-                    <div className="px-4 pt-4 sm:px-6 lg:px-8">
-                        <Breadcrumbs
-                            items={[
-                                { name: 'Dashboard', href: '/dashboard/home' },
-                                { name: 'Places', href: '/dashboard/home?tab=places' },
-                                { name: place?.name || 'Place' },
-                            ]}
-                        />
-                    </div>
+                   
                     {/* Heading */}
-                    <div className="flex flex-col items-start justify-between gap-x-8 gap-y-4 bg-gray-50 px-4 py-4 sm:flex-row sm:items-center sm:px-6 lg:px-8 dark:bg-gray-700/10">
+                    <div className="-mt-3 flex flex-col items-start justify-between gap-x-8 gap-y-4 bg-gray-50 px-4 py-2 sm:flex-row sm:items-center sm:px-6 lg:px-8 dark:bg-gray-700/10">
                         <div>
                             <div className="flex items-center gap-x-3">
                                 <div className={`flex-none rounded-full p-1 ${place?.isActive ? 'bg-green-500/10 text-green-500 dark:bg-green-400/10 dark:text-green-400' : 'bg-gray-400/10 text-gray-500 dark:bg-gray-500/10 dark:text-gray-400'}`}>
@@ -311,6 +303,14 @@ export default function PlaceDetailPage() {
                         <div className={`order-first flex-none rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset sm:order-0 ${place?.isActive ? 'bg-emerald-50 text-emerald-600 ring-emerald-200 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/30' : 'bg-gray-100 text-gray-600 ring-gray-200 dark:bg-gray-600/10 dark:text-gray-400 dark:ring-gray-500/30'}`}>
                             {place?.isActive ? 'Active' : 'Inactive'}
                         </div>
+                    </div>
+                     <div className="px-4 pt-4 sm:px-6 lg:px-8">
+                        <Breadcrumbs
+                            items={[
+                                { name: 'Places', href: '/dashboard/home?tab=places' },
+                                { name: place?.name || 'Place' },
+                            ]}
+                        />
                     </div>
 
                     {/* Tabs */}

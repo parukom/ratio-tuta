@@ -282,7 +282,6 @@ const DocumentsInner: React.FC = () => {
                 <div className="px-4 pt-4 sm:px-6 lg:px-8">
                     <Breadcrumbs
                         items={[
-                            { name: 'Dashboard', href: '/dashboard/home' },
                             { name: 'Documents', href: '/dashboard/documents' },
                             { name: tab === 'receipts' ? 'Receipts' : 'Other' },
                         ]}
