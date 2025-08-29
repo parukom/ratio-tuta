@@ -94,14 +94,10 @@ model Item {
   teamId     String
   name       String
   sku        String?
-  categoryId String?
-  category   ItemCategory? @relation(fields: [categoryId], references: [id])
   price      Float
   taxRateBps Int           @default(0) // basis points (e.g. 2100 = 21.00%)
   isActive   Boolean       @default(true)
 
-  // Total stock available at the team level (e.g., warehouse).
-  // Display unit for this item (e.g., "pcs", "box", "pack").
   stockQuantity Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -111,6 +107,9 @@ model Item {
   size        String?
   brand       String?
   tags        String[] // paprastas string array, tinka filtravimui
+
+  categoryId String?
+  category   ItemCategory? @relation(fields: [categoryId], references: [id])
 
   team            Team            @relation(fields: [teamId], references: [id])
   places          PlaceItem[]

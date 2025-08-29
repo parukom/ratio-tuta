@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Modal from '@/components/modals/Modal'
 import Input from '@/components/ui/Input'
 
@@ -35,9 +35,30 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
   const [color, setColor] = useState('')
   const [brand, setBrand] = useState('')
   const [tagsCSV, setTagsCSV] = useState('')
+  // categories
+  type Category = { id: string; name: string }
+  const [categories, setCategories] = useState<Category[]>([])
+  const [categoryId, setCategoryId] = useState<string | ''>('')
+  const [creatingCat, setCreatingCat] = useState(false)
+  const [newCatName, setNewCatName] = useState('')
+  const [catLoading, setCatLoading] = useState(false)
+  const [catMsg, setCatMsg] = useState('')
+
+  async function loadCategories() {
+    try {
+      const qs = new URLSearchParams()
+      if (teamId) qs.set('teamId', teamId)
+      qs.set('onlyActive', 'true')
+      const r = await fetch(`/api/item-categories?${qs.toString()}`)
+      if (!r.ok) return setCategories([])
+      const data = (await r.json()) as Array<{ id: string; name: string }>
+      setCategories(Array.isArray(data) ? data.map((c) => ({ id: String(c.id), name: String(c.name) })) : [])
+    } catch { setCategories([]) }
+  }
+  useEffect(() => { if (open) loadCategories() }, [open])
 
   function reset() {
-    setName(''); setSku(''); setPrice(''); setTaxRateBps('0'); setIsActive(true); setMeasurementType('PCS'); setStockQuantity('0'); setDescription(''); setColor(''); setBrand(''); setTagsCSV('')
+  setName(''); setSku(''); setPrice(''); setTaxRateBps('0'); setIsActive(true); setMeasurementType('PCS'); setStockQuantity('0'); setDescription(''); setColor(''); setBrand(''); setTagsCSV(''); setCategoryId(''); setCreatingCat(false); setNewCatName(''); setCatMsg('')
   }
 
   async function submit(e: React.FormEvent) {
@@ -52,6 +73,7 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
           ...(teamId ? { teamId } : {}),
           name,
           sku: sku || null,
+          categoryId: categoryId || null,
           price: Number(price),
           taxRateBps: Number(taxRateBps) || 0,
           isActive,
@@ -79,6 +101,31 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
     }
   }
 
+  async function createCategoryInline() {
+    if (!newCatName.trim()) { setCatMsg('Enter a name'); return }
+    setCatLoading(true); setCatMsg('')
+    try {
+      const r = await fetch('/api/item-categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newCatName.trim(), ...(teamId ? { teamId } : {}) }),
+      })
+      const data = await r.json()
+      if (!r.ok) { setCatMsg(data.error || 'Failed'); return }
+      // refresh list and select created
+      setCategories(prev => {
+        const next = [...prev, { id: data.id, name: data.name }]
+        next.sort((a, b) => a.name.localeCompare(b.name))
+        return next
+      })
+      setCategoryId(data.id)
+      setCreatingCat(false)
+      setNewCatName('')
+    } catch {
+      setCatMsg('Network error')
+    } finally { setCatLoading(false) }
+  }
+
   return (
     <>
       <button
@@ -100,6 +147,34 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
         <form onSubmit={submit} className="mt-4 space-y-3">
           <Input id="name" name="name" type="text" className="" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
           <Input id="sku" name="sku" type="text" className="" placeholder="SKU (optional)" value={sku} onChange={(e) => setSku(e.target.value)} />
+          {/* Category selector with inline create */}
+          <div>
+            <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+            {!creatingCat ? (
+              <div className="flex items-center gap-2">
+                <select
+                  id="category"
+                  name="category"
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(e.target.value)}
+                  className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-white/10 dark:bg-white/5 dark:text-white"
+                >
+                  <option value="">No category</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+                <button type="button" onClick={() => { setCreatingCat(true); setCatMsg('') }} className="whitespace-nowrap rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">+ New</button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Input id="newCategory" name="newCategory" type="text" className="" placeholder="New category name" value={newCatName} onChange={(e) => setNewCatName(e.target.value)} />
+                <button type="button" onClick={() => setCreatingCat(false)} className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Cancel</button>
+                <button type="button" onClick={createCategoryInline} disabled={catLoading} className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400">{catLoading ? 'Saving…' : 'Create'}</button>
+              </div>
+            )}
+            {catMsg && <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">{catMsg}</p>}
+          </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Input id="price" name="price" type="number" className="" placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} />
             <Input id="taxRateBps" name="taxRateBps" type="number" className="" placeholder="Tax (bps) e.g. 2100" value={taxRateBps} onChange={(e) => setTaxRateBps(e.target.value)} />
