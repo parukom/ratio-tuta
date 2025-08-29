@@ -2,6 +2,7 @@
 import AdminLayout from '@/components/layout/AdminLayout';
 import React, { Suspense, useCallback, useEffect, useState } from 'react'
 import CreateItemButton from '@/components/admin-zone/items/CreateItemButton'
+import CreateBoxButton from '@/components/admin-zone/items/CreateBoxButton'
 import TableSkeleton from '@/components/ui/TableSkeleton'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -109,7 +110,7 @@ const ItemsInner = () => {
     }
 
     // Edit/Delete helpers
-    async function updateItem(id: string, patch: Partial<Pick<ItemRow, 'name'|'sku'|'price'|'taxRateBps'|'isActive'|'unit'|'stockQuantity'>>) {
+    async function updateItem(id: string, patch: Partial<Pick<ItemRow, 'name' | 'sku' | 'price' | 'taxRateBps' | 'isActive' | 'unit' | 'stockQuantity'>>) {
         const res = await fetch(`/api/items/${id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
@@ -140,89 +141,92 @@ const ItemsInner = () => {
 
     return (
         <>
-        <AdminLayout>
-            <div className="flex items-center justify-between mb-6">
-                <h1 className="text-base font-semibold text-gray-900 dark:text-white">Items</h1>
-                <CreateItemButton onCreated={onCreated} />
+            <AdminLayout>
+                <div className="flex items-center justify-between mb-6">
+                    <h1 className="text-base font-semibold text-gray-900 dark:text-white">Items</h1>
+                    <div className="flex items-center gap-2">
+                        <CreateBoxButton onDone={fetchItems} />
+                        <CreateItemButton onCreated={onCreated} />
+                    </div>
 
-            </div>
-
-            <div className="sticky top-0 z-10 mb-4 flex items-center gap-3 rounded-md border border-gray-200 bg-white p-3 shadow-xs dark:border-white/10 dark:bg-gray-900">
-                <div className="relative flex-1">
-                    <input
-                        value={q}
-                        onChange={(e) => setQ(e.target.value)}
-                        placeholder="Search by name or SKU"
-                        className="block w-full rounded-md bg-white pl-8 pr-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
-                    />
-                    <MagnifyingGlassIcon className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 size-5 text-gray-400 dark:text-gray-500" />
                 </div>
-                <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                    <input type="checkbox" checked={onlyActive} onChange={(e) => setOnlyActive(e.target.checked)} />
-                    Active only
-                </label>
-            </div>
 
-            <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-white/10">
-                <table className="min-w-full divide-y divide-gray-200 text-sm dark:divide-white/10">
-                    <thead className="bg-gray-50 dark:bg-white/5">
-                        <tr>
-                            <th className="px-4 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">Item</th>
-                            <th className="px-2 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">SKU</th>
-                            <th className="px-2 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">Category</th>
-                            <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Price</th>
-                            <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Tax</th>
-                            <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Unit</th>
-                            <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Stock</th>
-                            <th className="px-4 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Team</th>
-                            <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Actions</th>
-                        </tr>
-                    </thead>
-                    {loading ? (
-                        <TableSkeleton rows={8} columnWidths={["w-56", "w-36", "w-24", "w-24", "w-16", "w-20", "w-20", "w-40", "w-32"]} />
-                    ) : items.length === 0 ? (
-            <tbody>
+                <div className="sticky top-0 z-10 mb-4 flex items-center gap-3 rounded-md border border-gray-200 bg-white p-3 shadow-xs dark:border-white/10 dark:bg-gray-900">
+                    <div className="relative flex-1">
+                        <input
+                            value={q}
+                            onChange={(e) => setQ(e.target.value)}
+                            placeholder="Search by name or SKU"
+                            className="block w-full rounded-md bg-white pl-8 pr-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+                        />
+                        <MagnifyingGlassIcon className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 size-5 text-gray-400 dark:text-gray-500" />
+                    </div>
+                    <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <input type="checkbox" checked={onlyActive} onChange={(e) => setOnlyActive(e.target.checked)} />
+                        Active only
+                    </label>
+                </div>
+
+                <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-white/10">
+                    <table className="min-w-full divide-y divide-gray-200 text-sm dark:divide-white/10">
+                        <thead className="bg-gray-50 dark:bg-white/5">
                             <tr>
-                <td colSpan={9} className="px-4 py-8 text-center text-sm text-gray-600 dark:text-gray-300">
-                                    No items found.
-                                </td>
+                                <th className="px-4 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">Item</th>
+                                <th className="px-2 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">SKU</th>
+                                <th className="px-2 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">Category</th>
+                                <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Price</th>
+                                <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Tax</th>
+                                <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Unit</th>
+                                <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Stock</th>
+                                <th className="px-4 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Team</th>
+                                <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Actions</th>
                             </tr>
-                        </tbody>
-                    ) : (
-                        <tbody className="divide-y divide-gray-200 dark:divide-white/10">
-                            {items.map((it) => (
-                                <tr key={it.id} className={!it.isActive ? 'opacity-60' : ''}>
-                                    <td className="px-4 py-2">
-                                        <div className="font-medium text-gray-900 dark:text-white">{it.name}</div>
-                                        <div className="text-xs text-gray-500 dark:text-gray-400">#{it.id}</div>
-                                    </td>
-                                    <td className="px-2 py-2 text-gray-700 dark:text-gray-300">{it.sku || '—'}</td>
-                                    <td className="px-2 py-2 text-gray-700 dark:text-gray-300">{it.categoryName || '—'}</td>
-                                    <td className="px-2 py-2 text-right text-gray-900 dark:text-white">
-                                        {new Intl.NumberFormat(undefined, { style: 'currency', currency: it.currency || 'EUR' }).format(it.price)}
-                                    </td>
-                                    <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{(it.taxRateBps / 100).toFixed(2)}%</td>
-                                    <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{it.unit || 'pcs'}</td>
-                                    <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{typeof it.stockQuantity === 'number' ? it.stockQuantity : '0'}</td>
-                                    <td className="px-4 py-2 text-right text-gray-700 dark:text-gray-300">Team #{it.teamId}</td>
-                                    <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">
-                                        <ItemRowActions item={it} onUpdate={updateItem} onDelete={deleteItem} />
+                        </thead>
+                        {loading ? (
+                            <TableSkeleton rows={8} columnWidths={["w-56", "w-36", "w-24", "w-24", "w-16", "w-20", "w-20", "w-40", "w-32"]} />
+                        ) : items.length === 0 ? (
+                            <tbody>
+                                <tr>
+                                    <td colSpan={9} className="px-4 py-8 text-center text-sm text-gray-600 dark:text-gray-300">
+                                        No items found.
                                     </td>
                                 </tr>
-                            ))}
-                        </tbody>
-                    )}
-                </table>
-            </div>
-        </AdminLayout>
-        <ConflictModal info={conflictInfo} onClose={() => setConflictInfo(null)} />
+                            </tbody>
+                        ) : (
+                            <tbody className="divide-y divide-gray-200 dark:divide-white/10">
+                                {items.map((it) => (
+                                    <tr key={it.id} className={!it.isActive ? 'opacity-60' : ''}>
+                                        <td className="px-4 py-2">
+                                            <div className="font-medium text-gray-900 dark:text-white">{it.name}</div>
+                                            <div className="text-xs text-gray-500 dark:text-gray-400">#{it.id}</div>
+                                        </td>
+                                        <td className="px-2 py-2 text-gray-700 dark:text-gray-300">{it.sku || '—'}</td>
+                                        <td className="px-2 py-2 text-gray-700 dark:text-gray-300">{it.categoryName || '—'}</td>
+                                        <td className="px-2 py-2 text-right text-gray-900 dark:text-white">
+                                            {new Intl.NumberFormat(undefined, { style: 'currency', currency: it.currency || 'EUR' }).format(it.price)}
+                                        </td>
+                                        <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{(it.taxRateBps / 100).toFixed(2)}%</td>
+                                        <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{it.unit || 'pcs'}</td>
+                                        <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{typeof it.stockQuantity === 'number' ? it.stockQuantity : '0'}</td>
+                                        <td className="px-4 py-2 text-right text-gray-700 dark:text-gray-300">Team #{it.teamId}</td>
+                                        <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">
+                                            <ItemRowActions item={it} onUpdate={updateItem} onDelete={deleteItem} />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        )}
+                    </table>
+                </div>
+            </AdminLayout>
+            <ConflictModal info={conflictInfo} onClose={() => setConflictInfo(null)} />
         </>
-     )
+    )
 }
 
 function ItemRowActions({ item, onUpdate, onDelete }: {
     item: ItemRow;
-    onUpdate: (id: string, patch: Partial<Pick<ItemRow, 'name'|'sku'|'price'|'taxRateBps'|'isActive'|'unit'|'stockQuantity'>>) => Promise<void>;
+    onUpdate: (id: string, patch: Partial<Pick<ItemRow, 'name' | 'sku' | 'price' | 'taxRateBps' | 'isActive' | 'unit' | 'stockQuantity'>>) => Promise<void>;
     onDelete: (id: string) => Promise<void>;
 }) {
     const [open, setOpen] = useState(false)
@@ -265,7 +269,7 @@ function ItemRowActions({ item, onUpdate, onDelete }: {
         try {
             await onDelete(item.id)
             setOpen(false)
-    } catch {
+        } catch {
             setMessage('Failed to delete')
         } finally {
             setLoading(false)

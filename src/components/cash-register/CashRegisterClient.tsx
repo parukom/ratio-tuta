@@ -48,6 +48,7 @@ export default function CashRegisterClient() {
     const [change, setChange] = useState(0);
     const [showChange, setShowChange] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    // const [isAdmin, setIsAdmin] = useState(false);
 
     const activePlace = useMemo(() => places?.find((p) => p.id === activePlaceId) || null, [places, activePlaceId]);
     const currency = activePlace?.currency || 'EUR';
@@ -92,6 +93,27 @@ export default function CashRegisterClient() {
             cancelled = true;
         };
     }, [queryPlaceId]);
+
+    // // Load current user to determine admin role
+    // useEffect(() => {
+    //     let cancelled = false;
+    //     (async () => {
+    //         try {
+    //             const res = await fetch('/api/me');
+    //             if (!res.ok) throw new Error('unauthorized');
+    //             const data: unknown = await res.json();
+    //             if (!cancelled && data && typeof data === 'object' && 'role' in (data as Record<string, unknown>)) {
+    //                 const role = (data as Record<string, unknown>).role;
+    //                 setIsAdmin(role === 'ADMIN');
+    //             }
+    //         } catch {
+    //             if (!cancelled) setIsAdmin(false);
+    //         }
+    //     })();
+    //     return () => {
+    //         cancelled = true;
+    //     };
+    // }, []);
 
     useEffect(() => {
         if (!activePlaceId) return;
@@ -234,23 +256,6 @@ export default function CashRegisterClient() {
                 <div className="flex items-center gap-4">
                     <Image src="/images/cat.jpg" alt="Logo" width={40} height={40} className="rounded" priority />
                     <h1 className="inline-block text-2xl font-bold text-gray-900 dark:text-white">Cash Register</h1>
-                </div>
-                <div className="flex items-center gap-3">
-                    <label htmlFor="place" className="text-sm text-gray-600 dark:text-gray-400">
-                        Place
-                    </label>
-                    <select
-                        id="place"
-                        className="rounded border border-gray-300 bg-white px-2 py-1 text-sm dark:border-white/10 dark:bg-gray-800 dark:text-white"
-                        value={activePlaceId ?? ''}
-                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setActivePlaceId(e.target.value || null)}
-                    >
-                        {(places || []).map((p) => (
-                            <option key={p.id} value={p.id}>
-                                {p.name}
-                            </option>
-                        ))}
-                    </select>
                 </div>
                 <LogoutButton />
             </header>
