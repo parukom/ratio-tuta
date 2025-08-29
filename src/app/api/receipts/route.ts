@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@lib/prisma';
+import type { Prisma } from '@/generated/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
 
@@ -17,6 +18,12 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url);
   const placeId = searchParams.get('placeId') || undefined;
+  const q = (searchParams.get('q') || '').trim();
+  const limitParam = Number(searchParams.get('limit') || '25');
+  const pageParam = Number(searchParams.get('page') || '1');
+  const take = Number.isFinite(limitParam) ? Math.min(Math.max(1, limitParam), 100) : 25;
+  const page = Number.isFinite(pageParam) ? Math.max(1, pageParam) : 1;
+  const skip = (page - 1) * take;
 
   // resolve accessible teamIds for the user
   const [owned, memberOf] = await Promise.all([
@@ -49,36 +56,71 @@ export async function GET(req: Request) {
     filterPlaceId = placeId;
   }
 
-  const receipts = await prisma.receipt.findMany({
-    where: {
-      ...(filterPlaceId ? { placeId: filterPlaceId } : {}),
-      ...(myTeamIds.length > 0 ? { place: { teamId: { in: myTeamIds } } } : {}),
-    },
-    orderBy: { createdAt: 'desc' },
-    select: {
-      id: true,
-      userId: true,
-      placeId: true,
-      totalPrice: true,
-      amountGiven: true,
-      change: true,
-      paymentOption: true,
-      status: true,
-      createdAt: true,
-      items: {
-        select: {
-          id: true,
-          itemId: true,
-          title: true,
-          price: true,
-          quantity: true,
+  // Build search filter
+  let where: Prisma.ReceiptWhereInput = {
+    ...(filterPlaceId ? { placeId: filterPlaceId } : {}),
+    ...(myTeamIds.length > 0 ? { place: { teamId: { in: myTeamIds } } } : {}),
+  };
+
+  if (q) {
+    const qLower = q.toLowerCase();
+    const byPayment = ['cash', 'card', 'refund'].includes(qLower)
+      ? { paymentOption: qLower.toUpperCase() as 'CASH' | 'CARD' | 'REFUND' }
+      : undefined;
+    const qNum = Number(q);
+    const byNumber: Prisma.ReceiptWhereInput | undefined = Number.isFinite(qNum)
+      ? {
+          OR: [
+            { totalPrice: qNum },
+            { amountGiven: qNum },
+            { change: qNum },
+          ],
+        }
+      : undefined;
+  const byItem: Prisma.ReceiptWhereInput = { items: { some: { title: { contains: q, mode: 'insensitive' as Prisma.QueryMode } } } };
+
+  const orClauses: Prisma.ReceiptWhereInput[] = [byItem];
+    if (byPayment) orClauses.push(byPayment);
+    if (byNumber) orClauses.push(byNumber);
+    where = {
+      AND: [
+        where,
+        { OR: orClauses },
+      ],
+    };
+  }
+
+  const [total, receipts] = await Promise.all([
+    prisma.receipt.count({ where }),
+    prisma.receipt.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        userId: true,
+        placeId: true,
+        totalPrice: true,
+        amountGiven: true,
+        change: true,
+        paymentOption: true,
+        status: true,
+        createdAt: true,
+        items: {
+          select: {
+            id: true,
+            itemId: true,
+            title: true,
+            price: true,
+            quantity: true,
+          },
         },
       },
-    },
-    take: 50,
-  });
+      skip,
+      take,
+    }),
+  ]);
 
-  return NextResponse.json(receipts);
+  return NextResponse.json({ data: receipts, total, page, limit: take });
 }
 
 export async function POST(req: Request) {

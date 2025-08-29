@@ -4,7 +4,7 @@ import React from 'react'
 const SearchInput = () => {
     return (
         <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-            <form action="#" method="GET" className="grid flex-1 grid-cols-1">
+            <form method="GET" className="grid flex-1 grid-cols-1">
                 <input
                     name="search"
                     placeholder="Search"

@@ -1,7 +1,7 @@
 'use client'
 import AdminLayout from '@/components/layout/AdminLayout'
 import { useRouter, useSearchParams } from 'next/navigation'
-import SecondaryNav from '@/components/admin-zone/places/SecondaryNav'
+import Tabs from '@/components/ui/Tabs'
 import Logs from '@/components/admin-zone/Logs'
 import Places from '@/components/admin-zone/Places'
 import SearchInput from '@/components/ui/SearchInput'
@@ -29,7 +29,14 @@ const HomeInner = () => {
 
                         <main>
                             <header>
-                                <SecondaryNav tab={tab} setTab={setTab} />
+                                <Tabs
+                                    items={[
+                                        { key: 'places', label: 'Places' },
+                                        { key: 'logs', label: 'Logs' },
+                                    ]}
+                                    activeKey={tab}
+                                    onChange={(k) => setTab(k as 'places' | 'logs')}
+                                />
                             </header>
 
                             {/* Tab content */}

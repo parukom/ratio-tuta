@@ -1,0 +1,199 @@
+"use client";
+import AdminLayout from "@/components/layout/AdminLayout";
+import Tabs from "@/components/ui/Tabs";
+import SearchInput from "@/components/ui/SearchInput";
+import React, { Suspense, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+
+type ReceiptItem = {
+    id: string;
+    itemId: string;
+    title: string;
+    price: number;
+    quantity: number;
+};
+
+type Receipt = {
+    id: string;
+    placeId: string | null;
+    totalPrice: number;
+    amountGiven: number;
+    change: number;
+    paymentOption: 'CASH' | 'CARD' | 'REFUND';
+    status: string;
+    createdAt?: string;
+    timestamp?: string;
+    items: ReceiptItem[];
+};
+
+const ReceiptsTab: React.FC = () => {
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const page = Math.max(1, Number(searchParams.get('page') ?? '1'));
+    const q = searchParams.get('search') ?? '';
+    const [data, setData] = useState<Receipt[]>([]);
+    const [total, setTotal] = useState<number>(0);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const params = new URLSearchParams();
+                params.set('limit', '25');
+                params.set('page', String(page));
+                if (q) params.set('q', q);
+                const res = await fetch(`/api/receipts?${params.toString()}`);
+                if (!res.ok) throw new Error('Failed to load receipts');
+                const json: unknown = await res.json();
+                if (!cancelled && json && typeof json === 'object' && json !== null) {
+                    const obj = json as Record<string, unknown>;
+                    const rows = Array.isArray(obj.data) ? (obj.data as Receipt[]) : Array.isArray(json) ? (json as Receipt[]) : [];
+                    const count = typeof obj.total === 'number' ? obj.total : rows.length;
+                    setData(rows);
+                    setTotal(count);
+                }
+            } catch (e: unknown) {
+                const msg = e instanceof Error ? e.message : 'Error';
+                if (!cancelled) setError(msg);
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [page, q]);
+
+    const totalPages = useMemo(() => Math.max(1, Math.ceil(total / 25)), [total]);
+
+    const setPage = (p: number) => {
+        const params = new URLSearchParams(searchParams?.toString() ?? '');
+        params.set('page', String(p));
+        router.push(`?${params.toString()}`);
+    };
+
+    return (
+        <div>
+            {/* Sticky search header */}
+            <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-6 border-b border-gray-200 bg-white px-4 shadow-xs sm:px-6 lg:px-8 dark:border-white/5 dark:bg-gray-900 dark:shadow-none">
+                <SearchInput />
+            </div>
+            <div className="px-4 sm:px-6 lg:px-8">
+                {error && (
+                    <div className="my-4 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-700/40 dark:bg-red-950/40">
+                        {error}
+                    </div>
+                )}
+                        <div className="mt-4 overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-white/10 dark:bg-gray-800/30">
+                            <table className="min-w-full divide-y divide-gray-200 text-sm dark:divide-white/10">
+                                <thead className="bg-gray-50 text-gray-900 dark:bg-white/5 dark:text-white">
+                            <tr>
+                                        <th className="px-4 py-3 text-left font-semibold">Date</th>
+                                        <th className="px-4 py-3 text-left font-semibold">Payment</th>
+                                        <th className="px-4 py-3 text-left font-semibold">Total</th>
+                                        <th className="px-4 py-3 text-left font-semibold">Items</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200 dark:divide-white/10">
+                            {loading ? (
+                                <tr>
+                                            <td className="px-4 py-3 text-gray-500 dark:text-gray-400" colSpan={4}>Loading…</td>
+                                </tr>
+                            ) : data.length === 0 ? (
+                                <tr>
+                                    <td className="px-4 py-6 text-center text-gray-500" colSpan={4}>No receipts</td>
+                                </tr>
+                            ) : (
+                                data.map((r) => (
+                                    <tr key={r.id} className="hover:bg-gray-50/60 dark:hover:bg-white/5">
+                                                <td className="px-4 py-3 text-gray-900 dark:text-white">
+                                                    <time dateTime={(r.createdAt ?? r.timestamp ?? '') as string}>
+                                                        {new Date(r.createdAt ?? r.timestamp ?? '').toLocaleString()}
+                                                    </time>
+                                                </td>
+                                                <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{r.paymentOption}</td>
+                                                <td className="px-4 py-3 text-gray-900 dark:text-white">EUR {r.totalPrice.toFixed(2)}</td>
+                                                <td className="px-4 py-3 max-w-[480px] truncate text-gray-600 dark:text-gray-400">
+                                            {r.items.map((it) => `${it.title}×${it.quantity}`).join(', ')}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Pagination */}
+                <div className="mt-4 flex items-center justify-between">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                        Page {page} of {totalPages}
+                    </div>
+                      <div className="flex gap-2">
+                        <button
+                          className="rounded border border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/10"
+                            disabled={page <= 1}
+                            onClick={() => setPage(page - 1)}
+                        >
+                            Previous
+                        </button>
+                        <button
+                          className="rounded border border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/10"
+                            disabled={page >= totalPages}
+                            onClick={() => setPage(page + 1)}
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const BlankTab: React.FC = () => {
+    return (
+        <div className="p-4 text-gray-600 dark:text-gray-400">Nothing here yet.</div>
+    );
+};
+
+const DocumentsInner: React.FC = () => {
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const tab = (searchParams.get('tab') ?? 'receipts') as 'receipts' | 'blank';
+    const setTab = (t: 'receipts' | 'blank') => {
+        const params = new URLSearchParams(searchParams?.toString() ?? '');
+        params.set('tab', t);
+        router.push(`?${params.toString()}`);
+    };
+
+    return (
+        <AdminLayout>
+            <main>
+                        <Tabs
+                    items={[
+                        { key: 'receipts', label: 'Receipts' },
+                        { key: 'blank', label: 'Other' },
+                    ]}
+                    activeKey={tab}
+                            onChange={(k) => setTab(k as 'receipts' | 'blank')}
+                />
+
+                {tab === 'receipts' && <ReceiptsTab />}
+                {tab === 'blank' && <BlankTab />}
+            </main>
+        </AdminLayout>
+    );
+};
+
+export default function Page() {
+    return (
+        <Suspense>
+            <DocumentsInner />
+        </Suspense>
+    );
+}
+
