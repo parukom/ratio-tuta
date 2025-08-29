@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import Modal from '@/components/modals/Modal'
 import Input from '@/components/ui/Input'
+import Dropdown from '@/components/ui/Dropdown'
 
 type SizeRow = { id: string; size: string; quantity: string; sku?: string }
 
@@ -141,25 +142,21 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
                     </div>
                     {/* Category selector with inline create */}
                     <div>
-                        <label htmlFor="category-box" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                        <div className="inline-block">
+                            <Dropdown
+                                align="left"
+                                buttonLabel={categoryId ? (categories.find(c => c.id === categoryId)?.name ?? 'Category') : 'No category'}
+                                items={[{ key: '', label: 'No category' }, ...categories.map(c => ({ key: c.id, label: c.name }))]}
+                                onSelect={(key) => setCategoryId(key)}
+                            />
+                        </div>
                         {!creatingCat ? (
-                            <div className="flex items-center gap-2">
-                                <select
-                                    id="category-box"
-                                    name="category"
-                                    value={categoryId}
-                                    onChange={(e) => setCategoryId(e.target.value)}
-                                    className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-white/10 dark:bg-white/5 dark:text-white"
-                                >
-                                    <option value="">No category</option>
-                                    {categories.map((c) => (
-                                        <option key={c.id} value={c.id}>{c.name}</option>
-                                    ))}
-                                </select>
-                                <button type="button" onClick={() => { setCreatingCat(true); setCatMsg('') }} className="whitespace-nowrap rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">+ New</button>
+                            <div className="mt-2">
+                                <button type="button" onClick={() => { setCreatingCat(true); setCatMsg('') }} className="text-xs text-indigo-600 hover:underline dark:text-indigo-400">+ Create new category</button>
                             </div>
                         ) : (
-                            <div className="flex items-center gap-2">
+                            <div className="mt-2 flex items-center gap-2">
                                 <Input id="newCategoryBox" name="newCategoryBox" type="text" className="" placeholder="New category name" value={newCatName} onChange={(e) => setNewCatName(e.target.value)} />
                                 <button type="button" onClick={() => setCreatingCat(false)} className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Cancel</button>
                                 <button type="button" onClick={createCategoryInline} disabled={catLoading} className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400">{catLoading ? 'Saving…' : 'Create'}</button>

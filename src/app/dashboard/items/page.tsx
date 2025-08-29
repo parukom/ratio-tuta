@@ -8,6 +8,7 @@ import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Input from '@/components/ui/Input'
 import Modal from '@/components/modals/Modal'
+import Dropdown from '@/components/ui/Dropdown'
 
 type ItemRow = {
     id: string
@@ -352,25 +353,21 @@ function ItemRowActions({ item, onUpdate, onDelete }: {
                     <Input id={`sku-${item.id}`} name="sku" type="text" className="" placeholder="SKU (optional)" value={sku} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSku(e.target.value)} />
                     {/* Category selector with inline create */}
                     <div>
-                        <label htmlFor={`category-${item.id}`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                        <div className="inline-block">
+                            <Dropdown
+                                align="left"
+                                buttonLabel={categoryId ? (categories.find(c => c.id === categoryId)?.name ?? 'Category') : 'No category'}
+                                items={[{ key: '', label: 'No category' }, ...categories.map(c => ({ key: c.id, label: c.name }))]}
+                                onSelect={(key) => setCategoryId(key)}
+                            />
+                        </div>
                         {!creatingCat ? (
-                            <div className="flex items-center gap-2">
-                                <select
-                                    id={`category-${item.id}`}
-                                    name="category"
-                                    value={categoryId}
-                                    onChange={(e) => setCategoryId(e.target.value)}
-                                    className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-white/10 dark:bg-white/5 dark:text-white"
-                                >
-                                    <option value="">No category</option>
-                                    {categories.map((c) => (
-                                        <option key={c.id} value={c.id}>{c.name}</option>
-                                    ))}
-                                </select>
-                                <button type="button" onClick={() => { setCreatingCat(true); setCatMsg('') }} className="whitespace-nowrap rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">+ New</button>
+                            <div className="mt-2">
+                                <button type="button" onClick={() => { setCreatingCat(true); setCatMsg('') }} className="text-xs text-indigo-600 hover:underline dark:text-indigo-400">+ Create new category</button>
                             </div>
                         ) : (
-                            <div className="flex items-center gap-2">
+                            <div className="mt-2 flex items-center gap-2">
                                 <Input id={`newCategory-${item.id}`} name="newCategory" type="text" className="" placeholder="New category name" value={newCatName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCatName(e.target.value)} />
                                 <button type="button" onClick={() => setCreatingCat(false)} className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Cancel</button>
                                 <button
@@ -405,21 +402,31 @@ function ItemRowActions({ item, onUpdate, onDelete }: {
                     </div>
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <div>
-                            <label htmlFor={`measurementType-${item.id}`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Measurement type</label>
-                            <select
-                                id={`measurementType-${item.id}`}
-                                name="measurementType"
-                                value={measurementType}
-                                onChange={(e) => setMeasurementType(e.target.value as ItemRow['measurementType'])}
-                                className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-white/10 dark:bg-white/5 dark:text-white"
-                            >
-                                <option value="PCS">Pieces</option>
-                                <option value="WEIGHT">Weight</option>
-                                <option value="LENGTH">Length</option>
-                                <option value="VOLUME">Volume</option>
-                                <option value="AREA">Area</option>
-                                <option value="TIME">Time</option>
-                            </select>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Measurement type</label>
+                            <div className="inline-block">
+                                <Dropdown
+                                    align="left"
+                                    buttonLabel={(
+                                        [
+                                            { key: 'PCS', label: 'Pieces' },
+                                            { key: 'WEIGHT', label: 'Weight' },
+                                            { key: 'LENGTH', label: 'Length' },
+                                            { key: 'VOLUME', label: 'Volume' },
+                                            { key: 'AREA', label: 'Area' },
+                                            { key: 'TIME', label: 'Time' },
+                                        ] as Array<{ key: ItemRow['measurementType']; label: string }>
+                                    ).find(o => o.key === measurementType)?.label || 'Select'}
+                                    items={[
+                                        { key: 'PCS', label: 'Pieces' },
+                                        { key: 'WEIGHT', label: 'Weight' },
+                                        { key: 'LENGTH', label: 'Length' },
+                                        { key: 'VOLUME', label: 'Volume' },
+                                        { key: 'AREA', label: 'Area' },
+                                        { key: 'TIME', label: 'Time' },
+                                    ]}
+                                    onSelect={(key) => setMeasurementType(key as ItemRow['measurementType'])}
+                                />
+                            </div>
                         </div>
                         <Input
                             id={`stock-${item.id}`}
