@@ -52,7 +52,7 @@ export default async function Home() {
             </Link>
           </div>
         ) : (
-          <p className="text-gray-600 dark:text-gray-400">Welcome to Pecunia</p>
+          <p className="text-gray-600 dark:text-gray-400">Welcome to Ratio tuta</p>
         )}
       </main>
     </div>
