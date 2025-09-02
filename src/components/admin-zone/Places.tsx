@@ -76,7 +76,6 @@ export default function Places() {
                         ? (
                             <div className="col-span-full flex items-center justify-between rounded-lg border border-dashed border-gray-300 p-6 dark:border-white/10">
                                 <p className="text-sm text-gray-500 dark:text-gray-400">No places yet.</p>
-                                <CreatePlaceButton />
                             </div>
                         )
                         : (

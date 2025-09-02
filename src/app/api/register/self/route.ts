@@ -18,6 +18,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
+    // Password requirements: 8-16 characters
+    if (
+      typeof password !== 'string' ||
+      password.length < 8 ||
+      password.length > 16
+    ) {
+      await logAudit({
+        action: 'user.register.self',
+        status: 'ERROR',
+        message: 'Invalid password length',
+        metadata: { email },
+      });
+      return NextResponse.json(
+        { error: 'Password must be 8-16 characters' },
+        { status: 400 },
+      );
+    }
+
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       await logAudit({

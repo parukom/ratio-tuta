@@ -72,6 +72,10 @@ export default function Auth() {
         }
 
         // register
+        if (password.length < 8 || password.length > 16) {
+            setMessage("Password must be 8-16 characters");
+            return;
+        }
         const res = await fetch("/api/register/self", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -158,11 +162,16 @@ export default function Auth() {
                                     type="password"
                                     required
                                     autoComplete={mode === "login" ? "current-password" : "new-password"}
+                                    minLength={mode === "register" ? 8 : undefined}
+                                    maxLength={mode === "register" ? 16 : undefined}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
                                 />
                             </div>
+                            {mode === "register" && (
+                                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Password must be 8-16 characters.</p>
+                            )}
                         </div>
 
                         {mode === "register" && (

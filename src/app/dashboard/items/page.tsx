@@ -195,7 +195,7 @@ const ItemsInner = () => {
                                 <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Tax</th>
                                 <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Unit</th>
                                 <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Stock</th>
-                                <th className="px-4 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Team</th>
+                                {/* <th className="px-4 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Team</th> */}
                                 <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Actions</th>
                             </tr>
                         </thead>
@@ -225,7 +225,7 @@ const ItemsInner = () => {
                                         <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{(it.taxRateBps / 100).toFixed(2)}%</td>
                                         <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{it.unit || 'pcs'}</td>
                                         <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{typeof it.stockQuantity === 'number' ? it.stockQuantity : '0'}</td>
-                                        <td className="px-4 py-2 text-right text-gray-700 dark:text-gray-300">Team #{it.teamId}</td>
+                                        {/* <td className="px-4 py-2 text-right text-gray-700 dark:text-gray-300">Team #{it.teamId}</td> */}
                                         <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">
                                             <ItemRowActions item={it} onUpdate={updateItem} onDelete={deleteItem} />
                                         </td>
@@ -381,7 +381,7 @@ function ItemRowActions({ item, onUpdate, onDelete }: {
                                             })
                                             const data = await r.json()
                                             if (!r.ok) { setCatMsg(data.error || 'Failed'); return }
-                                            setCategories(prev => { const next = [...prev, { id: data.id, name: data.name }]; next.sort((a,b)=>a.name.localeCompare(b.name)); return next })
+                                            setCategories(prev => { const next = [...prev, { id: data.id, name: data.name }]; next.sort((a, b) => a.name.localeCompare(b.name)); return next })
                                             setCategoryId(data.id)
                                             setCreatingCat(false)
                                             setNewCatName('')
@@ -436,10 +436,10 @@ function ItemRowActions({ item, onUpdate, onDelete }: {
                             placeholder={
                                 measurementType === 'PCS' ? 'Stock (pcs)'
                                     : measurementType === 'WEIGHT' ? 'Stock (kg)'
-                                    : measurementType === 'LENGTH' ? 'Stock (m)'
-                                    : measurementType === 'VOLUME' ? 'Stock (l)'
-                                    : measurementType === 'AREA' ? 'Stock (m2)'
-                                    : 'Stock (h)'
+                                        : measurementType === 'LENGTH' ? 'Stock (m)'
+                                            : measurementType === 'VOLUME' ? 'Stock (l)'
+                                                : measurementType === 'AREA' ? 'Stock (m2)'
+                                                    : 'Stock (h)'
                             }
                             value={stockQuantity}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStockQuantity(e.target.value)}

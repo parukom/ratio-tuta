@@ -123,6 +123,23 @@ export async function POST(req: Request) {
       }
     }
 
+    // If password provided, validate length (8-16). If not, auto-generate.
+    if (
+      typeof password === 'string' &&
+      (password.length < 8 || password.length > 16)
+    ) {
+      await logAudit({
+        action: 'user.register.worker',
+        status: 'ERROR',
+        message: 'Invalid password length',
+        actor: session,
+        metadata: { email },
+      });
+      return NextResponse.json(
+        { error: 'Password must be 8-16 characters' },
+        { status: 400 },
+      );
+    }
     const finalPassword = password ?? randomBytes(12).toString('base64url');
     const userRole: 'USER' | 'ADMIN' = role ?? 'USER';
     const passwordHash = await hashPassword(finalPassword);
