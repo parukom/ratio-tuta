@@ -195,7 +195,6 @@ const ItemsInner = () => {
                                 <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Tax</th>
                                 <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Unit</th>
                                 <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Stock</th>
-                                {/* <th className="px-4 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Team</th> */}
                                 <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Actions</th>
                             </tr>
                         </thead>
@@ -225,7 +224,6 @@ const ItemsInner = () => {
                                         <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{(it.taxRateBps / 100).toFixed(2)}%</td>
                                         <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{it.unit || 'pcs'}</td>
                                         <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{typeof it.stockQuantity === 'number' ? it.stockQuantity : '0'}</td>
-                                        {/* <td className="px-4 py-2 text-right text-gray-700 dark:text-gray-300">Team #{it.teamId}</td> */}
                                         <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">
                                             <ItemRowActions item={it} onUpdate={updateItem} onDelete={deleteItem} />
                                         </td>
