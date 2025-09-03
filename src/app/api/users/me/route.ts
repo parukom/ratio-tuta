@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSession, setSession } from '@lib/session';
+import { getSession, setSession, clearSession } from '@lib/session';
 import { prisma } from '@lib/prisma';
 import { logAudit } from '@lib/logger';
 import { randomBytes } from 'crypto';
@@ -169,6 +169,168 @@ export async function PATCH(req: Request) {
     console.error(e);
     await logAudit({
       action: 'user.update.me',
+      status: 'ERROR',
+      message: 'Server error',
+    });
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+  }
+}
+
+export async function DELETE() {
+  const session = await getSession();
+  if (!session)
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const userId = session.userId;
+
+      // Find teams owned by this user
+      const ownedTeams = await tx.team.findMany({
+        where: { ownerId: userId },
+        select: { id: true },
+      });
+      const teamIds = ownedTeams.map((t) => t.id);
+
+      // Helper to delete all data for given teams
+      async function deleteTeams(ids: string[]) {
+        if (ids.length === 0) return;
+
+        const memberRows = await tx.teamMember.findMany({
+          where: { teamId: { in: ids } },
+          select: { userId: true },
+        });
+        const memberUserIds = Array.from(
+          new Set(memberRows.map((m) => m.userId).concat(userId)),
+        );
+
+        const places = await tx.place.findMany({
+          where: { teamId: { in: ids } },
+          select: { id: true },
+        });
+        const placeIds = places.map((p) => p.id);
+
+        const teamItems = await tx.item.findMany({
+          where: { teamId: { in: ids } },
+          select: { id: true },
+        });
+        const itemIds = teamItems.map((i) => i.id);
+
+        // Delete receipt items for receipts in these places
+        if (placeIds.length) {
+          const placeReceipts = await tx.receipt.findMany({
+            where: { placeId: { in: placeIds } },
+            select: { id: true },
+          });
+          const receiptIds = placeReceipts.map((r) => r.id);
+          if (receiptIds.length) {
+            await tx.receiptItem.deleteMany({
+              where: { receiptId: { in: receiptIds } },
+            });
+            await tx.receipt.deleteMany({ where: { id: { in: receiptIds } } });
+          }
+        }
+
+        // Also delete receipt items referencing team items anywhere (safety)
+        if (itemIds.length) {
+          await tx.receiptItem.deleteMany({
+            where: { itemId: { in: itemIds } },
+          });
+        }
+
+        if (placeIds.length) {
+          await tx.placeMember.deleteMany({
+            where: { placeId: { in: placeIds } },
+          });
+          await tx.placeItem.deleteMany({
+            where: { placeId: { in: placeIds } },
+          });
+          await tx.place.deleteMany({ where: { id: { in: placeIds } } });
+        }
+
+        // Team-scoped taxonomies and catalog
+        if (ids.length) {
+          await tx.item.deleteMany({ where: { teamId: { in: ids } } });
+          await tx.itemCategory.deleteMany({ where: { teamId: { in: ids } } });
+          await tx.placeType.deleteMany({ where: { teamId: { in: ids } } });
+          await tx.teamMember.deleteMany({ where: { teamId: { in: ids } } });
+          await tx.auditLog.deleteMany({ where: { teamId: { in: ids } } });
+          await tx.team.deleteMany({ where: { id: { in: ids } } });
+        }
+
+        // Delete all member users and their personal data
+        if (memberUserIds.length) {
+          // Delete receipts and receipt items by users
+          const userReceipts = await tx.receipt.findMany({
+            where: { userId: { in: memberUserIds } },
+            select: { id: true },
+          });
+          const userReceiptIds = userReceipts.map((r) => r.id);
+          if (userReceiptIds.length) {
+            await tx.receiptItem.deleteMany({
+              where: { receiptId: { in: userReceiptIds } },
+            });
+            await tx.receipt.deleteMany({
+              where: { id: { in: userReceiptIds } },
+            });
+          }
+
+          await tx.emailVerificationToken.deleteMany({
+            where: { userId: { in: memberUserIds } },
+          });
+          await tx.auditLog.deleteMany({
+            where: { actorUserId: { in: memberUserIds } },
+          });
+          await tx.placeMember.deleteMany({
+            where: { userId: { in: memberUserIds } },
+          });
+          await tx.teamMember.deleteMany({
+            where: { userId: { in: memberUserIds } },
+          });
+
+          await tx.user.deleteMany({ where: { id: { in: memberUserIds } } });
+        }
+      }
+
+      if (teamIds.length) {
+        await deleteTeams(teamIds);
+      } else {
+        // User does not own teams: delete their personal data and account
+        const receipts = await tx.receipt.findMany({
+          where: { userId: userId },
+          select: { id: true },
+        });
+        const rIds = receipts.map((r) => r.id);
+        if (rIds.length) {
+          await tx.receiptItem.deleteMany({
+            where: { receiptId: { in: rIds } },
+          });
+          await tx.receipt.deleteMany({ where: { id: { in: rIds } } });
+        }
+        await tx.emailVerificationToken.deleteMany({ where: { userId } });
+        await tx.auditLog.deleteMany({ where: { actorUserId: userId } });
+        await tx.placeMember.deleteMany({ where: { userId } });
+        await tx.teamMember.deleteMany({ where: { userId } });
+        await tx.user.delete({ where: { id: userId } });
+      }
+
+      return { deletedTeams: teamIds.length };
+    });
+
+    await clearSession();
+
+    await logAudit({
+      action: 'user.delete.account',
+      status: 'SUCCESS',
+      actor: session,
+      metadata: { deletedTeams: result.deletedTeams },
+    });
+
+    return NextResponse.json({ message: 'Account deleted' });
+  } catch (e) {
+    console.error(e);
+    await logAudit({
+      action: 'user.delete.account',
       status: 'ERROR',
       message: 'Server error',
     });
