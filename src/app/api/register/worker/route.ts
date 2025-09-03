@@ -4,6 +4,7 @@ import { hashPassword } from '@lib/auth';
 import { getSession } from '@lib/session';
 import { randomBytes } from 'crypto';
 import { logAudit } from '@lib/logger';
+import { sendVerificationEmail } from '@lib/mail';
 
 // Protected endpoint: register someone else (e.g., worker)
 export async function POST(req: Request) {
@@ -143,6 +144,7 @@ export async function POST(req: Request) {
     const finalPassword = password ?? randomBytes(12).toString('base64url');
     const userRole: 'USER' | 'ADMIN' = role ?? 'USER';
     const passwordHash = await hashPassword(finalPassword);
+    let verificationToken: string | null = null;
     const user = await prisma.$transaction(async (tx) => {
       const created = await tx.user.create({
         data: { name, email, password: passwordHash, role: userRole },
@@ -158,6 +160,14 @@ export async function POST(req: Request) {
       await tx.teamMember.create({
         data: { teamId: targetTeamId!, userId: created.id, role: 'MEMBER' },
       });
+      // Create an email verification token (valid for 24h) so the invited user can verify
+      const token = randomBytes(32).toString('hex');
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      await tx.emailVerificationToken.create({
+        data: { userId: created.id, token, expiresAt },
+      });
+      // Pass token outside transaction for emailing
+      verificationToken = token;
       return created;
     });
 
@@ -172,6 +182,26 @@ export async function POST(req: Request) {
     const responseBody: Record<string, unknown> = { user };
     if (!password) {
       responseBody.generatedPassword = finalPassword;
+    }
+
+    // Fire verification email (best-effort)
+    try {
+      if (verificationToken) {
+        await sendVerificationEmail({
+          to: user.email,
+          name: user.name,
+          token: verificationToken,
+        });
+      }
+    } catch {
+      await logAudit({
+        action: 'user.register.worker.sendVerification',
+        status: 'ERROR',
+        actor: session,
+        teamId: targetTeamId!,
+        message: 'Failed to send verification email',
+        metadata: { email },
+      });
     }
     return NextResponse.json(responseBody, { status: 201 });
   } catch (err) {

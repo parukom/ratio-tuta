@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@lib/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
+import { randomBytes } from 'crypto';
+import { sendVerificationEmail } from '@lib/mail';
 
 export async function POST(req: Request) {
   const session = await getSession();
@@ -99,6 +101,31 @@ export async function POST(req: Request) {
       target: { table: 'TeamMember', id: tm.id },
       metadata: { email, role: role ?? 'MEMBER' },
     });
+
+    // If the invited user's email is not verified, send a verification email
+    if (!user.emailVerified) {
+      try {
+        const token = randomBytes(32).toString('hex');
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        await prisma.emailVerificationToken.create({
+          data: { userId: user.id, token, expiresAt },
+        });
+        await sendVerificationEmail({
+          to: user.email,
+          name: user.name,
+          token,
+        });
+      } catch {
+        await logAudit({
+          action: 'team.member.add.auto.sendVerification',
+          status: 'ERROR',
+          actor,
+          teamId,
+          message: 'Failed to send verification email',
+          metadata: { email },
+        });
+      }
+    }
     return NextResponse.json(tm, { status: 201 });
   } catch (e) {
     const err = e as { code?: string };
