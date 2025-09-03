@@ -2,6 +2,7 @@
 
 import React from 'react'
 import Image from 'next/image'
+import toast from 'react-hot-toast'
 
 type Props = {
     firstName: string
@@ -36,12 +37,17 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
             })
             const data = await res.json().catch(() => ({}))
             if (!res.ok) {
-                setMessage(typeof data?.error === 'string' ? data.error : 'Failed to save changes')
+                const err = typeof data?.error === 'string' ? data.error : 'Failed to save changes'
+                setMessage(err)
+                toast.error(err)
                 return
             }
-            setMessage(typeof data?.message === 'string' ? data.message : 'Saved')
+            const msg = typeof data?.message === 'string' ? data.message : 'Saved'
+            setMessage(msg)
+            toast.success(msg)
         } catch {
             setMessage('Network error')
+            toast.error('Network error')
         } finally {
             setSaving(false)
         }

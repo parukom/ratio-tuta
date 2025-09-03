@@ -8,7 +8,11 @@ export default function LogoutButton() {
     async function handleLogout() {
         try {
             setLoading(true);
-            await fetch("/api/logout", { method: "POST" });
+            const res = await fetch("/api/logout", { method: "POST", credentials: 'include' });
+            if (!res.ok) {
+                // Best-effort redirect even if API returns error
+                console.warn('Logout failed', await res.text().catch(() => ''))
+            }
             router.replace("/");
         } finally {
             setLoading(false);

@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import toast from 'react-hot-toast'
 
 export const LogoutOtherSessions = () => {
     const [password, setPassword] = useState('')
@@ -17,13 +18,17 @@ export const LogoutOtherSessions = () => {
             })
             const data = await res.json().catch(() => ({}))
             if (!res.ok) {
-                setMessage(data?.error || 'Failed to log out other sessions')
+                const err = data?.error || 'Failed to log out other sessions'
+                setMessage(err)
+                toast.error(err)
             } else {
                 setMessage('Other sessions have been logged out.')
+                toast.success('Other sessions have been logged out.')
                 setPassword('')
             }
         } catch {
             setMessage('Network error')
+            toast.error('Network error')
         } finally {
             setLoading(false)
         }

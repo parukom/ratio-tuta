@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import toast from 'react-hot-toast'
 
 export const ChangePassword = () => {
     const [currentPassword, setCurrentPassword] = useState('')
@@ -16,15 +17,21 @@ export const ChangePassword = () => {
         const cf = confirmPassword.trim()
 
         if (!cur || !nw || !cf) {
-            setMessage('Please fill in all fields')
+            const msg = 'Please fill in all fields'
+            setMessage(msg)
+            toast.error(msg)
             return
         }
         if (nw.length < 8 || nw.length > 16) {
-            setMessage('Password must be 8-16 characters')
+            const msg = 'Password must be 8-16 characters'
+            setMessage(msg)
+            toast.error(msg)
             return
         }
         if (nw !== cf) {
-            setMessage('Passwords do not match')
+            const msg = 'Passwords do not match'
+            setMessage(msg)
+            toast.error(msg)
             return
         }
 
@@ -37,15 +44,19 @@ export const ChangePassword = () => {
             })
             const data = await res.json().catch(() => ({}))
             if (!res.ok) {
-                setMessage(data?.error || 'Failed to update password')
+                const err = data?.error || 'Failed to update password'
+                setMessage(err)
+                toast.error(err)
                 return
             }
             setMessage('Password updated')
+            toast.success('Password updated')
             setCurrentPassword('')
             setNewPassword('')
             setConfirmPassword('')
         } catch {
             setMessage('Failed to update password')
+            toast.error('Failed to update password')
         } finally {
             setSubmitting(false)
         }
