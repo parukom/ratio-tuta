@@ -1,5 +1,4 @@
 "use client";
-import AdminLayout from "@/components/layout/AdminLayout";
 import Tabs from "@/components/ui/Tabs";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import SearchInput from "@/components/ui/SearchInput";
@@ -277,29 +276,27 @@ const DocumentsInner: React.FC = () => {
     };
 
     return (
-        <AdminLayout>
-            <main>
-                <div className="px-4 pt-4 sm:px-6 lg:px-8">
-                    <Breadcrumbs
-                        items={[
-                            { name: 'Documents', href: '/dashboard/documents' },
-                            { name: tab === 'receipts' ? 'Receipts' : 'Other' },
-                        ]}
-                    />
-                </div>
-                <Tabs
+        <main>
+            <div className="px-4 pt-4 sm:px-6 lg:px-8">
+                <Breadcrumbs
                     items={[
-                        { key: 'receipts', label: 'Receipts' },
-                        { key: 'blank', label: 'Other' },
+                        { name: 'Documents', href: '/dashboard/documents' },
+                        { name: tab === 'receipts' ? 'Receipts' : 'Other' },
                     ]}
-                    activeKey={tab}
-                    onChange={(k) => setTab(k as 'receipts' | 'blank')}
                 />
+            </div>
+            <Tabs
+                items={[
+                    { key: 'receipts', label: 'Receipts' },
+                    { key: 'blank', label: 'Other' },
+                ]}
+                activeKey={tab}
+                onChange={(k) => setTab(k as 'receipts' | 'blank')}
+            />
 
-                {tab === 'receipts' && <ReceiptsTab />}
-                {tab === 'blank' && <BlankTab />}
-            </main>
-        </AdminLayout>
+            {tab === 'receipts' && <ReceiptsTab />}
+            {tab === 'blank' && <BlankTab />}
+        </main>
     );
 };
 

@@ -1,9 +1,9 @@
 'use client'
-import AdminLayout from '@/components/layout/AdminLayout'
 import UserForm from '@/components/settings/UserForm';
 import Tabs from '@/components/ui/Tabs'
 import { useRouter, useSearchParams } from 'next/navigation';
 import React from 'react'
+import { useSession } from '@/components/providers/SessionProvider'
 
 const SettingsPage = () => {
     const searchParams = useSearchParams();
@@ -14,8 +14,9 @@ const SettingsPage = () => {
         params.set('tab', t);
         router.push(`?${params.toString()}`);
     };
+    const session = useSession()
     return (
-        <AdminLayout>
+        <>
             <Tabs
                 items={[
                     { key: 'user', label: 'User' },
@@ -25,10 +26,14 @@ const SettingsPage = () => {
                 onChange={(k) => setTab(k as 'user' | 'blank')}
             />
 
-            {tab === 'user' && (
+            {tab === 'user' && session && (
                 <div>
-                    <UserForm />
+                    <UserForm session={session} />
                 </div>
+            )}
+
+            {tab === 'user' && !session && (
+                <div className="p-4 text-sm text-gray-600 dark:text-gray-300">Loading…</div>
             )}
 
             {tab === 'blank' && (
@@ -36,7 +41,7 @@ const SettingsPage = () => {
                     {/* Other settings content goes here */}
                 </div>
             )}
-        </AdminLayout>
+        </>
     )
 }
 

@@ -1,8 +1,35 @@
-import { ChevronDownIcon } from 'lucide-react';
-import React from 'react'
-import Image from 'next/image';
+'use client'
 
-const UserForm = () => {
+import { ChevronDownIcon } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react'
+import Image from 'next/image';
+import type { SessionData } from '@lib/session'
+
+type Props = { session: SessionData }
+
+function splitName(full: string): { firstName: string; lastName: string } {
+    const parts = (full || '').trim().split(/\s+/)
+    if (parts.length === 0) return { firstName: '', lastName: '' }
+    if (parts.length === 1) return { firstName: parts[0] ?? '', lastName: '' }
+    return { firstName: parts[0] ?? '', lastName: parts.slice(1).join(' ') }
+}
+
+const UserForm: React.FC<Props> = ({ session }) => {
+    const { firstName, lastName } = useMemo(() => splitName(session?.name ?? ''), [session?.name])
+    const [email, setEmail] = useState<string>('')
+    useEffect(() => {
+        let cancelled = false
+        async function load() {
+            try {
+                const res = await fetch('/api/users/me', { credentials: 'include' })
+                if (!res.ok) return
+                const data: { email?: string } = await res.json()
+                if (!cancelled) setEmail(data?.email ?? '')
+            } catch { /* ignore */ }
+        }
+        load()
+        return () => { cancelled = true }
+    }, [])
 
     return (
         <>
@@ -15,7 +42,7 @@ const UserForm = () => {
                         </p>
                     </div>
 
-                    <form className="md:col-span-2">
+                    <form className="md:col-span-2" onSubmit={(e) => e.preventDefault()}>
                         <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:max-w-xl sm:grid-cols-6">
                             <div className="col-span-full flex items-center gap-x-8">
                                 <Image
@@ -46,6 +73,7 @@ const UserForm = () => {
                                         name="first-name"
                                         type="text"
                                         autoComplete="given-name"
+                                        defaultValue={firstName}
                                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
                                     />
                                 </div>
@@ -61,6 +89,7 @@ const UserForm = () => {
                                         name="last-name"
                                         type="text"
                                         autoComplete="family-name"
+                                        defaultValue={lastName}
                                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
                                     />
                                 </div>
@@ -76,6 +105,8 @@ const UserForm = () => {
                                         name="email"
                                         type="email"
                                         autoComplete="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
                                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
                                     />
                                 </div>

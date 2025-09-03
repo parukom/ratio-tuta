@@ -1,6 +1,5 @@
 'use client'
 import React, { useEffect, useMemo, useState } from 'react'
-import AdminLayout from '@/components/layout/AdminLayout'
 import AddItemsToPlaceModal from '@/components/admin-zone/places/AddItemsToPlaceModal'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -76,7 +75,7 @@ export default function PlaceDetailPage() {
             // ignore parse errors
         }
 
-    fetch(`/api/places/${placeId}`)
+        fetch(`/api/places/${placeId}`)
             .then((r) => (r.ok ? r.json() : r.json().then((d) => Promise.reject(d?.error || 'Error'))))
             .then((data: Place) => {
                 if (!cancelled) {
@@ -279,230 +278,228 @@ export default function PlaceDetailPage() {
     }, [place])
 
     return (
-    <AdminLayout>
-            <div>
-                <header>
-                   
-                    {/* Heading */}
-                    <div className="-mt-3 flex flex-col items-start justify-between gap-x-8 gap-y-4 bg-gray-50 px-4 py-2 sm:flex-row sm:items-center sm:px-6 lg:px-8 dark:bg-gray-700/10">
-                        <div>
-                            <div className="flex items-center gap-x-3">
-                                <div className={`flex-none rounded-full p-1 ${place?.isActive ? 'bg-green-500/10 text-green-500 dark:bg-green-400/10 dark:text-green-400' : 'bg-gray-400/10 text-gray-500 dark:bg-gray-500/10 dark:text-gray-400'}`}>
-                                    <div className="size-2 rounded-full bg-current" />
-                                </div>
-                                <h1 className="flex flex-wrap items-center gap-x-3 text-base/7">
-                                    <span className="font-semibold text-gray-900 dark:text-white">{place?.name || 'Place'}</span>
-                                    <span className="text-gray-400 dark:text-gray-600">/</span>
-                                    <button onClick={copyPlaceId} className="inline-flex items-center gap-1 rounded border border-gray-300 px-1.5 py-0.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-300 dark:hover:bg-white/5">
-                                        #{placeId}{copied ? ' · Copied' : ''}
-                                    </button>
-                                </h1>
+        <div>
+            <header>
+
+                {/* Heading */}
+                <div className="-mt-3 flex flex-col items-start justify-between gap-x-8 gap-y-4 bg-gray-50 px-4 py-2 sm:flex-row sm:items-center sm:px-6 lg:px-8 dark:bg-gray-700/10">
+                    <div>
+                        <div className="flex items-center gap-x-3">
+                            <div className={`flex-none rounded-full p-1 ${place?.isActive ? 'bg-green-500/10 text-green-500 dark:bg-green-400/10 dark:text-green-400' : 'bg-gray-400/10 text-gray-500 dark:bg-gray-500/10 dark:text-gray-400'}`}>
+                                <div className="size-2 rounded-full bg-current" />
                             </div>
-                            <p className="mt-2 text-xs/6 text-gray-500 dark:text-gray-400">{place?.description || 'Overview and stats'}</p>
+                            <h1 className="flex flex-wrap items-center gap-x-3 text-base/7">
+                                <span className="font-semibold text-gray-900 dark:text-white">{place?.name || 'Place'}</span>
+                                <span className="text-gray-400 dark:text-gray-600">/</span>
+                                <button onClick={copyPlaceId} className="inline-flex items-center gap-1 rounded border border-gray-300 px-1.5 py-0.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-300 dark:hover:bg-white/5">
+                                    #{placeId}{copied ? ' · Copied' : ''}
+                                </button>
+                            </h1>
                         </div>
-                        <div className={`order-first flex-none rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset sm:order-0 ${place?.isActive ? 'bg-emerald-50 text-emerald-600 ring-emerald-200 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/30' : 'bg-gray-100 text-gray-600 ring-gray-200 dark:bg-gray-600/10 dark:text-gray-400 dark:ring-gray-500/30'}`}>
-                            {place?.isActive ? 'Active' : 'Inactive'}
-                        </div>
+                        <p className="mt-2 text-xs/6 text-gray-500 dark:text-gray-400">{place?.description || 'Overview and stats'}</p>
                     </div>
-                     <div className="px-4 pt-4 sm:px-6 lg:px-8">
-                        <Breadcrumbs
-                            items={[
-                                { name: 'Places', href: '/dashboard/home?tab=places' },
-                                { name: place?.name || 'Place' },
-                            ]}
-                        />
+                    <div className={`order-first flex-none rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset sm:order-0 ${place?.isActive ? 'bg-emerald-50 text-emerald-600 ring-emerald-200 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/30' : 'bg-gray-100 text-gray-600 ring-gray-200 dark:bg-gray-600/10 dark:text-gray-400 dark:ring-gray-500/30'}`}>
+                        {place?.isActive ? 'Active' : 'Inactive'}
                     </div>
-
-                    {/* Tabs */}
-                    <Tabs
+                </div>
+                <div className="px-4 pt-4 sm:px-6 lg:px-8">
+                    <Breadcrumbs
                         items={[
-                            { key: 'overview', label: 'Overview' },
-                            { key: 'items', label: `Items${assignedItems.length ? ` (${assignedItems.length})` : ''}` },
-                            { key: 'members', label: `Members${members.length ? ` (${members.length})` : ''}` },
+                            { name: 'Places', href: '/dashboard/home?tab=places' },
+                            { name: place?.name || 'Place' },
                         ]}
-                        activeKey={tab}
-                        onChange={(k) => setTab(k as typeof tab)}
                     />
+                </div>
 
-                    {/* Overview stats */}
-                    {tab === 'overview' && (
-                        <div className="grid grid-cols-1 bg-gray-50 sm:grid-cols-2 lg:grid-cols-4 dark:bg-gray-700/10">
-                            {stats.map((stat, statIdx) => (
-                                <div
-                                    key={stat.name}
-                                    className={classNames(
-                                        statIdx % 2 === 1 ? 'sm:border-l' : statIdx === 2 ? 'lg:border-l' : '',
-                                        'border-t border-gray-200/50 px-4 py-6 sm:px-6 lg:px-8 dark:border-white/5',
-                                    )}
-                                >
-                                    <p className="text-sm/6 font-medium text-gray-500 dark:text-gray-400">{stat.name}</p>
-                                    <p className="mt-2 flex items-baseline gap-x-2">
-                                        <span className="text-4xl font-semibold tracking-tight text-gray-900 dark:text-white">
-                                            {stat.value}
-                                        </span>
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </header>
+                {/* Tabs */}
+                <Tabs
+                    items={[
+                        { key: 'overview', label: 'Overview' },
+                        { key: 'items', label: `Items${assignedItems.length ? ` (${assignedItems.length})` : ''}` },
+                        { key: 'members', label: `Members${members.length ? ` (${members.length})` : ''}` },
+                    ]}
+                    activeKey={tab}
+                    onChange={(k) => setTab(k as typeof tab)}
+                />
 
-                {/* Content */}
-                <main className="px-4 py-6 sm:px-6 lg:px-8">
-                    <div className="mb-4 flex items-center justify-end gap-3">
-                        <Link
-                            href={`/cash-register?placeId=${encodeURIComponent(String(placeId))}`}
-                            className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800 dark:text-white"
-                        >
-                            Open register
-                        </Link>
-                        {tab === 'items' && (
-                            <button
-                                type="button"
-                                onClick={() => setIsAddItemsOpen(true)}
-                                className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                {/* Overview stats */}
+                {tab === 'overview' && (
+                    <div className="grid grid-cols-1 bg-gray-50 sm:grid-cols-2 lg:grid-cols-4 dark:bg-gray-700/10">
+                        {stats.map((stat, statIdx) => (
+                            <div
+                                key={stat.name}
+                                className={classNames(
+                                    statIdx % 2 === 1 ? 'sm:border-l' : statIdx === 2 ? 'lg:border-l' : '',
+                                    'border-t border-gray-200/50 px-4 py-6 sm:px-6 lg:px-8 dark:border-white/5',
+                                )}
                             >
-                                Add items
-                            </button>
+                                <p className="text-sm/6 font-medium text-gray-500 dark:text-gray-400">{stat.name}</p>
+                                <p className="mt-2 flex items-baseline gap-x-2">
+                                    <span className="text-4xl font-semibold tracking-tight text-gray-900 dark:text-white">
+                                        {stat.value}
+                                    </span>
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </header>
+
+            {/* Content */}
+            <main className="px-4 py-6 sm:px-6 lg:px-8">
+                <div className="mb-4 flex items-center justify-end gap-3">
+                    <Link
+                        href={`/cash-register?placeId=${encodeURIComponent(String(placeId))}`}
+                        className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800 dark:text-white"
+                    >
+                        Open register
+                    </Link>
+                    {tab === 'items' && (
+                        <button
+                            type="button"
+                            onClick={() => setIsAddItemsOpen(true)}
+                            className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                        >
+                            Add items
+                        </button>
+                    )}
+                </div>
+                {loading ? (
+                    <div className="h-32 animate-pulse rounded bg-gray-100 dark:bg-white/5" />
+                ) : error ? (
+                    <div className="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-300">
+                        {error}
+                    </div>
+                ) : (
+                    <div className="space-y-6">
+                        {tab === 'members' && (
+                            <div className="rounded-lg border border-gray-200 p-4 dark:border-white/10">
+                                <h2 className="mb-3 text-sm font-medium text-gray-900 dark:text-white">Members</h2>
+                                <div className="mb-3 flex items-center gap-2">
+                                    {(() => {
+                                        const available = teamMembers.filter(tm => !members.some(m => m.userId === tm.userId))
+                                        const label = teamMembersLoading ? 'Loading…' : available.length ? 'Add member' : 'No available members'
+                                        return (
+                                            <Dropdown
+                                                buttonLabel={label}
+                                                disabled={teamMembersLoading || submitting || available.length === 0}
+                                                align="left"
+                                                items={available.map(tm => ({ key: tm.userId, label: `${tm.name} · ${tm.email}`, onSelect: (key) => addMemberByUserId(key) }))}
+                                            />
+                                        )
+                                    })()}
+                                </div>
+                                {membersError && <p className="mb-2 text-sm text-rose-600 dark:text-rose-400">{membersError}</p>}
+                                <div className="overflow-hidden rounded border border-gray-200 dark:border-white/10">
+                                    {membersLoading ? (
+                                        <div className="p-4 text-sm text-gray-600 dark:text-gray-300">Loading…</div>
+                                    ) : members.length === 0 ? (
+                                        <div className="p-4 text-sm text-gray-600 dark:text-gray-300">No members yet.</div>
+                                    ) : (
+                                        <ul className="divide-y divide-gray-200 dark:divide-white/10">
+                                            {members.map((m) => (
+                                                <li key={m.id} className="flex items-center justify-between px-4 py-3">
+                                                    <div>
+                                                        <div className="text-sm font-medium text-gray-900 dark:text-white">{m.name}</div>
+                                                        <div className="text-xs text-gray-500 dark:text-gray-400">{m.email}</div>
+                                                    </div>
+                                                    <button onClick={() => removeMember(m.userId)} className="text-sm text-rose-600 hover:underline dark:text-rose-400">Remove</button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                        {tab === 'items' && (
+                            <div className="rounded-lg border border-gray-200 dark:border-white/10">
+                                <div className="border-b border-gray-200 px-4 py-3 text-sm font-medium text-gray-900 dark:border-white/10 dark:text-white">Assigned items</div>
+                                <div className="p-4">
+                                    {assignedLoading ? (
+                                        <div className="h-20 animate-pulse rounded bg-gray-100 dark:bg-white/5" />
+                                    ) : assignedError ? (
+                                        <div className="rounded border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-300">{assignedError}</div>
+                                    ) : assignedItems.length === 0 ? (
+                                        <div className="text-sm text-gray-500 dark:text-gray-400">No items assigned yet.</div>
+                                    ) : (
+                                        <table className="w-full text-left">
+                                            <thead className="text-xs text-gray-500 dark:text-gray-400">
+                                                <tr>
+                                                    <th className="py-2">Name</th>
+                                                    <th className="py-2">SKU</th>
+                                                    <th className="py-2 text-right">Price</th>
+                                                    <th className="py-2 text-right">Qty</th>
+                                                    <th className="py-2 text-right">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100 dark:divide-white/5">
+                                                {assignedItems.map((row) => (
+                                                    <tr key={row.id}>
+                                                        <td className="py-2 text-sm">
+                                                            <button
+                                                                className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+                                                                onClick={() => openInfo(row.itemId, row.quantity)}
+                                                            >
+                                                                {row.item?.name ?? `#${row.itemId}`}
+                                                            </button>
+                                                        </td>
+                                                        <td className="py-2 text-sm text-gray-500 dark:text-gray-400">{row.item?.sku ?? '—'}</td>
+                                                        <td className="py-2 text-right text-sm text-gray-900 dark:text-white">
+                                                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: place?.currency || 'EUR' }).format(row.item?.price ?? 0)}
+                                                        </td>
+                                                        <td className="py-2 text-right text-sm text-gray-900 dark:text-white">{row.quantity}</td>
+                                                        <td className="py-2 text-right text-sm">
+                                                            <button onClick={() => removeFromShop(row.itemId)} className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Remove</button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    )}
+                                </div>
+                            </div>
                         )}
                     </div>
-                    {loading ? (
-                        <div className="h-32 animate-pulse rounded bg-gray-100 dark:bg-white/5" />
-                    ) : error ? (
-                        <div className="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-300">
-                            {error}
-                        </div>
-                    ) : (
-                        <div className="space-y-6">
-                            {tab === 'members' && (
-                                <div className="rounded-lg border border-gray-200 p-4 dark:border-white/10">
-                                    <h2 className="mb-3 text-sm font-medium text-gray-900 dark:text-white">Members</h2>
-                                    <div className="mb-3 flex items-center gap-2">
-                                        {(() => {
-                                            const available = teamMembers.filter(tm => !members.some(m => m.userId === tm.userId))
-                                            const label = teamMembersLoading ? 'Loading…' : available.length ? 'Add member' : 'No available members'
-                                            return (
-                                                <Dropdown
-                                                    buttonLabel={label}
-                                                    disabled={teamMembersLoading || submitting || available.length === 0}
-                                                    align="left"
-                                                    items={available.map(tm => ({ key: tm.userId, label: `${tm.name} · ${tm.email}`, onSelect: (key) => addMemberByUserId(key) }))}
-                                                />
-                                            )
-                                        })()}
-                                    </div>
-                                    {membersError && <p className="mb-2 text-sm text-rose-600 dark:text-rose-400">{membersError}</p>}
-                                    <div className="overflow-hidden rounded border border-gray-200 dark:border-white/10">
-                                        {membersLoading ? (
-                                            <div className="p-4 text-sm text-gray-600 dark:text-gray-300">Loading…</div>
-                                        ) : members.length === 0 ? (
-                                            <div className="p-4 text-sm text-gray-600 dark:text-gray-300">No members yet.</div>
-                                        ) : (
-                                            <ul className="divide-y divide-gray-200 dark:divide-white/10">
-                                                {members.map((m) => (
-                                                    <li key={m.id} className="flex items-center justify-between px-4 py-3">
-                                                        <div>
-                                                            <div className="text-sm font-medium text-gray-900 dark:text-white">{m.name}</div>
-                                                            <div className="text-xs text-gray-500 dark:text-gray-400">{m.email}</div>
-                                                        </div>
-                                                        <button onClick={() => removeMember(m.userId)} className="text-sm text-rose-600 hover:underline dark:text-rose-400">Remove</button>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-                            {tab === 'items' && (
-                                <div className="rounded-lg border border-gray-200 dark:border-white/10">
-                                    <div className="border-b border-gray-200 px-4 py-3 text-sm font-medium text-gray-900 dark:border-white/10 dark:text-white">Assigned items</div>
-                                    <div className="p-4">
-                                        {assignedLoading ? (
-                                            <div className="h-20 animate-pulse rounded bg-gray-100 dark:bg-white/5" />
-                                        ) : assignedError ? (
-                                            <div className="rounded border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-300">{assignedError}</div>
-                                        ) : assignedItems.length === 0 ? (
-                                            <div className="text-sm text-gray-500 dark:text-gray-400">No items assigned yet.</div>
-                                        ) : (
-                                            <table className="w-full text-left">
-                                                <thead className="text-xs text-gray-500 dark:text-gray-400">
-                                                    <tr>
-                                                        <th className="py-2">Name</th>
-                                                        <th className="py-2">SKU</th>
-                                                        <th className="py-2 text-right">Price</th>
-                                                        <th className="py-2 text-right">Qty</th>
-                                                        <th className="py-2 text-right">Actions</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-gray-100 dark:divide-white/5">
-                                                    {assignedItems.map((row) => (
-                                                        <tr key={row.id}>
-                                                            <td className="py-2 text-sm">
-                                                                <button
-                                                                    className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
-                                                                    onClick={() => openInfo(row.itemId, row.quantity)}
-                                                                >
-                                                                    {row.item?.name ?? `#${row.itemId}`}
-                                                                </button>
-                                                            </td>
-                                                            <td className="py-2 text-sm text-gray-500 dark:text-gray-400">{row.item?.sku ?? '—'}</td>
-                                                            <td className="py-2 text-right text-sm text-gray-900 dark:text-white">
-                                                                {new Intl.NumberFormat('en-US', { style: 'currency', currency: place?.currency || 'EUR' }).format(row.item?.price ?? 0)}
-                                                            </td>
-                                                            <td className="py-2 text-right text-sm text-gray-900 dark:text-white">{row.quantity}</td>
-                                                            <td className="py-2 text-right text-sm">
-                                                                <button onClick={() => removeFromShop(row.itemId)} className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Remove</button>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </main>
-                <AddItemsToPlaceModal
-                    placeId={String(placeId)}
-                    open={isAddItemsOpen}
-                    onClose={() => setIsAddItemsOpen(false)}
-                    onAdded={() => {
-                        // refresh assigned list
-                        if (!placeId) return
-                        setAssignedLoading(true)
-                        fetch(`/api/places/${placeId}/items`).then((r) => r.json()).then((rows) => setAssignedItems(rows)).finally(() => setAssignedLoading(false))
-                    }}
-                />
-                <Modal open={infoOpen} onClose={() => setInfoOpen(false)} size="md">
-                    <h3 className="text-base font-semibold text-gray-900 dark:text-white">Item info</h3>
-                    {infoLoading ? (
-                        <div className="mt-3 h-16 animate-pulse rounded bg-gray-100 dark:bg-white/5" />
-                    ) : info ? (
-                        <div className="mt-3 space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                            <div><span className="font-medium">Name:</span> {info.name}</div>
-                            <div><span className="font-medium">Item ID:</span> {info.id}</div>
-                            <div><span className="font-medium">Team ID:</span> {info.teamId}</div>
-                            <div><span className="font-medium">SKU:</span> {info.sku || '—'}</div>
-                            <div><span className="font-medium">Category ID:</span> {info.categoryId || '—'}</div>
-                            <div><span className="font-medium">Unit:</span> {info.unit || 'pcs'}</div>
-                            <div><span className="font-medium">Price:</span> {new Intl.NumberFormat('en-US', { style: 'currency', currency: place?.currency || 'EUR' }).format(info.price || 0)}</div>
-                            <div><span className="font-medium">Tax:</span> {(info.taxRateBps / 100).toFixed(2)}%</div>
-                            <div><span className="font-medium">Active:</span> {info.isActive ? 'Yes' : 'No'}</div>
-                            <div><span className="font-medium">Warehouse stock:</span> {info.stockQuantity}</div>
-                            <div><span className="font-medium">Assigned to this place:</span> {info.placeQuantity}</div>
-                            <div><span className="font-medium">Created at:</span> {new Date(info.createdAt).toLocaleString()}</div>
-                            <div><span className="font-medium">Updated at:</span> {new Date(info.updatedAt).toLocaleString()}</div>
-                        </div>
-                    ) : (
-                        <div className="mt-3 text-sm text-gray-600 dark:text-gray-300">Failed to load item details.</div>
-                    )}
-                    <div className="mt-4 flex justify-end">
-                        <button onClick={() => setInfoOpen(false)} className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Close</button>
+                )}
+            </main>
+            <AddItemsToPlaceModal
+                placeId={String(placeId)}
+                open={isAddItemsOpen}
+                onClose={() => setIsAddItemsOpen(false)}
+                onAdded={() => {
+                    // refresh assigned list
+                    if (!placeId) return
+                    setAssignedLoading(true)
+                    fetch(`/api/places/${placeId}/items`).then((r) => r.json()).then((rows) => setAssignedItems(rows)).finally(() => setAssignedLoading(false))
+                }}
+            />
+            <Modal open={infoOpen} onClose={() => setInfoOpen(false)} size="md">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white">Item info</h3>
+                {infoLoading ? (
+                    <div className="mt-3 h-16 animate-pulse rounded bg-gray-100 dark:bg-white/5" />
+                ) : info ? (
+                    <div className="mt-3 space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                        <div><span className="font-medium">Name:</span> {info.name}</div>
+                        <div><span className="font-medium">Item ID:</span> {info.id}</div>
+                        <div><span className="font-medium">Team ID:</span> {info.teamId}</div>
+                        <div><span className="font-medium">SKU:</span> {info.sku || '—'}</div>
+                        <div><span className="font-medium">Category ID:</span> {info.categoryId || '—'}</div>
+                        <div><span className="font-medium">Unit:</span> {info.unit || 'pcs'}</div>
+                        <div><span className="font-medium">Price:</span> {new Intl.NumberFormat('en-US', { style: 'currency', currency: place?.currency || 'EUR' }).format(info.price || 0)}</div>
+                        <div><span className="font-medium">Tax:</span> {(info.taxRateBps / 100).toFixed(2)}%</div>
+                        <div><span className="font-medium">Active:</span> {info.isActive ? 'Yes' : 'No'}</div>
+                        <div><span className="font-medium">Warehouse stock:</span> {info.stockQuantity}</div>
+                        <div><span className="font-medium">Assigned to this place:</span> {info.placeQuantity}</div>
+                        <div><span className="font-medium">Created at:</span> {new Date(info.createdAt).toLocaleString()}</div>
+                        <div><span className="font-medium">Updated at:</span> {new Date(info.updatedAt).toLocaleString()}</div>
                     </div>
-                </Modal>
-            </div>
-        </AdminLayout>
+                ) : (
+                    <div className="mt-3 text-sm text-gray-600 dark:text-gray-300">Failed to load item details.</div>
+                )}
+                <div className="mt-4 flex justify-end">
+                    <button onClick={() => setInfoOpen(false)} className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Close</button>
+                </div>
+            </Modal>
+        </div>
     )
 }
