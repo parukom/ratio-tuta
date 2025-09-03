@@ -1,8 +1,9 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Modal from '@/components/modals/Modal'
 import Input from '@/components/ui/Input'
 import Dropdown from '@/components/ui/Dropdown'
+import toast from 'react-hot-toast'
 
 type Props = {
   teamId?: string
@@ -45,7 +46,7 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
   const [catLoading, setCatLoading] = useState(false)
   const [catMsg, setCatMsg] = useState('')
 
-  async function loadCategories() {
+  const loadCategories = useCallback(async () => {
     try {
       const qs = new URLSearchParams()
       if (teamId) qs.set('teamId', teamId)
@@ -55,11 +56,11 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
       const data = (await r.json()) as Array<{ id: string; name: string }>
       setCategories(Array.isArray(data) ? data.map((c) => ({ id: String(c.id), name: String(c.name) })) : [])
     } catch { setCategories([]) }
-  }
-  useEffect(() => { if (open) loadCategories() }, [open])
+  }, [teamId])
+  useEffect(() => { if (open) loadCategories() }, [open, loadCategories])
 
   function reset() {
-  setName(''); setSku(''); setPrice(''); setTaxRateBps('0'); setIsActive(true); setMeasurementType('PCS'); setStockQuantity('0'); setDescription(''); setColor(''); setBrand(''); setTagsCSV(''); setCategoryId(''); setCreatingCat(false); setNewCatName(''); setCatMsg('')
+    setName(''); setSku(''); setPrice(''); setTaxRateBps('0'); setIsActive(true); setMeasurementType('PCS'); setStockQuantity('0'); setDescription(''); setColor(''); setBrand(''); setTagsCSV(''); setCategoryId(''); setCreatingCat(false); setNewCatName(''); setCatMsg('')
   }
 
   async function submit(e: React.FormEvent) {
@@ -90,20 +91,22 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
         }),
       })
       const data = await res.json()
-      if (!res.ok) { setMessage(data.error || 'Failed to create'); return }
+      if (!res.ok) { const err = data.error || 'Failed to create'; setMessage(err); toast.error(err); return }
       setMessage('Item created')
+      toast.success('Item created')
       onCreated?.(data)
       reset()
       setOpen(false)
     } catch {
       setMessage('Network error')
+      toast.error('Network error')
     } finally {
       setLoading(false)
     }
   }
 
   async function createCategoryInline() {
-    if (!newCatName.trim()) { setCatMsg('Enter a name'); return }
+    if (!newCatName.trim()) { setCatMsg('Enter a name'); toast('Enter a name', { icon: '⚠️' }); return }
     setCatLoading(true); setCatMsg('')
     try {
       const r = await fetch('/api/item-categories', {
@@ -112,7 +115,7 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
         body: JSON.stringify({ name: newCatName.trim(), ...(teamId ? { teamId } : {}) }),
       })
       const data = await r.json()
-      if (!r.ok) { setCatMsg(data.error || 'Failed'); return }
+      if (!r.ok) { const err = data.error || 'Failed'; setCatMsg(err); toast.error(err); return }
       // refresh list and select created
       setCategories(prev => {
         const next = [...prev, { id: data.id, name: data.name }]
@@ -122,8 +125,10 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
       setCategoryId(data.id)
       setCreatingCat(false)
       setNewCatName('')
+      toast.success('Category created')
     } catch {
       setCatMsg('Network error')
+      toast.error('Network error')
     } finally { setCatLoading(false) }
   }
 
@@ -212,10 +217,10 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
               placeholder={
                 measurementType === 'PCS' ? 'Initial stock (pcs)'
                   : measurementType === 'WEIGHT' ? 'Initial stock (kg)'
-                  : measurementType === 'LENGTH' ? 'Initial stock (m)'
-                  : measurementType === 'VOLUME' ? 'Initial stock (l)'
-                  : measurementType === 'AREA' ? 'Initial stock (m2)'
-                  : 'Initial stock (h)'
+                    : measurementType === 'LENGTH' ? 'Initial stock (m)'
+                      : measurementType === 'VOLUME' ? 'Initial stock (l)'
+                        : measurementType === 'AREA' ? 'Initial stock (m2)'
+                          : 'Initial stock (h)'
               }
               value={stockQuantity}
               onChange={(e) => setStockQuantity(e.target.value)}

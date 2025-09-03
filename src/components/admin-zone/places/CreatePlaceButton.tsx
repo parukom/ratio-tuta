@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import Modal from '@/components/modals/Modal'
 import Input from '@/components/ui/Input'
+import toast from 'react-hot-toast'
 
 type Props = {
     teamId?: string
@@ -34,19 +35,28 @@ export default function CreatePlaceButton({ teamId, onCreated }: Props) {
         setMessage('')
         setLoading(true)
         try {
+            if (!name.trim()) {
+                const msg = 'Name is required'
+                setMessage(msg)
+                toast(msg, { icon: '⚠️' })
+                setLoading(false)
+                return
+            }
             const res = await fetch('/api/places', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ teamId, name, placeTypeId, description, address1, address2, city, country, timezone, currency, isActive }),
             })
             const data = await res.json()
-            if (!res.ok) { setMessage(data.error || 'Failed to create'); return }
+            if (!res.ok) { const err = data.error || 'Failed to create'; setMessage(err); toast.error(err); return }
             setMessage('Place created')
+            toast.success('Place created')
             onCreated?.(data)
             reset()
             setOpen(false)
         } catch {
             setMessage('Network error')
+            toast.error('Network error')
         } finally {
             setLoading(false)
         }

@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 import Input from '@/components/ui/Input'
 import Dropdown from '@/components/ui/Dropdown'
 
@@ -42,8 +43,10 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
         try {
             await navigator.clipboard.writeText(password)
             setMessage('Password copied to clipboard')
+            toast.success('Password copied')
         } catch {
             setMessage('Failed to copy password')
+            toast.error('Failed to copy')
         }
     }
 
@@ -55,6 +58,7 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
             const trimmed = password.trim()
             if (trimmed && (trimmed.length < 8 || trimmed.length > 16)) {
                 setMessage('Password must be 8-16 characters')
+                toast.error('Password must be 8-16 characters')
                 setSubmitting(false)
                 return
             }
@@ -68,14 +72,17 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
             const data = await res.json()
             if (!res.ok) {
                 setMessage(data.error || 'Error registering')
+                toast.error(data.error || 'Error registering')
                 return
             }
             if (data.generatedPassword) {
                 setPassword(String(data.generatedPassword))
                 setShowPassword(true)
                 setMessage('Member created. Password generated and shown below.')
+                toast.success('Member created')
             } else {
                 setMessage('Member created and added!')
+                toast.success('Member created and added')
             }
             setName('')
             setEmail('')
@@ -84,6 +91,7 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
             onSuccess?.()
         } catch {
             setMessage('Network error')
+            toast.error('Network error')
         } finally {
             setSubmitting(false)
         }

@@ -1,5 +1,6 @@
 "use client"
 import React, { Suspense, useCallback, useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 import CreateItemButton from '@/components/admin-zone/items/CreateItemButton'
 import CreateBoxButton from '@/components/admin-zone/items/CreateBoxButton'
 import TableSkeleton from '@/components/ui/TableSkeleton'
@@ -65,6 +66,7 @@ const ItemsInner = () => {
             setItems(Array.isArray(data) ? data : [])
         } catch {
             setItems([])
+            toast.error('Failed to fetch items')
         } finally {
             setLoading(false)
         }
@@ -110,6 +112,7 @@ const ItemsInner = () => {
             }
             setItems(prev => [optimistic, ...prev.filter(i => i.id !== optimistic.id)])
         }
+        toast.success('Item created')
         // Background refetch to sync
         fetchItems()
     }
@@ -135,6 +138,7 @@ const ItemsInner = () => {
             }
             return next
         }))
+        toast.success('Item updated')
     }
 
     const [conflictInfo, setConflictInfo] = useState<null | { id: string; places: { placeId: string; placeName: string; quantity: number }[] }>(null)
@@ -149,10 +153,12 @@ const ItemsInner = () => {
             } catch {
                 setConflictInfo({ id, places: [] })
             }
+            toast('Item is assigned to places', { icon: '⚠️' })
             return
         }
         if (!res.ok) throw new Error('Failed to delete')
         setItems(prev => prev.filter(it => it.id !== id))
+        toast.success('Item deleted')
     }
 
     return (
@@ -320,6 +326,7 @@ function ItemRowActions({ item, onUpdate, onDelete }: {
             setOpen(false)
         } catch {
             setMessage('Failed to save')
+            toast.error('Failed to save')
         } finally {
             setLoading(false)
         }
@@ -332,6 +339,7 @@ function ItemRowActions({ item, onUpdate, onDelete }: {
             setOpen(false)
         } catch {
             setMessage('Failed to delete')
+            toast.error('Failed to delete')
         } finally {
             setLoading(false)
         }

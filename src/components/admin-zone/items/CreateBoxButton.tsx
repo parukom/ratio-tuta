@@ -1,8 +1,9 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Modal from '@/components/modals/Modal'
 import Input from '@/components/ui/Input'
 import Dropdown from '@/components/ui/Dropdown'
+import toast from 'react-hot-toast'
 
 type SizeRow = { id: string; size: string; quantity: string; sku?: string }
 
@@ -37,18 +38,18 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
         { id: genId(), size: '', quantity: '0' },
     ])
 
-    async function loadCategories() {
+    const loadCategories = useCallback(async () => {
         try {
             const qs = new URLSearchParams()
             if (teamId) qs.set('teamId', teamId)
             qs.set('onlyActive', 'true')
             const r = await fetch(`/api/item-categories?${qs.toString()}`)
             if (!r.ok) return setCategories([])
-        const data = (await r.json()) as Array<{ id: string; name: string }>
-        setCategories(Array.isArray(data) ? data.map((c) => ({ id: String(c.id), name: String(c.name) })) : [])
+            const data = (await r.json()) as Array<{ id: string; name: string }>
+            setCategories(Array.isArray(data) ? data.map((c) => ({ id: String(c.id), name: String(c.name) })) : [])
         } catch { setCategories([]) }
-    }
-    useEffect(() => { if (open) loadCategories() }, [open])
+    }, [teamId])
+    useEffect(() => { if (open) loadCategories() }, [open, loadCategories])
 
     function addRow() {
         setSizes(prev => [...prev, { id: genId(), size: '', quantity: '0' }])
@@ -84,14 +85,16 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
                 body: JSON.stringify(payload),
             })
             const data = await res.json()
-            if (!res.ok) { setMessage(data.error || 'Failed to add box'); return }
+            if (!res.ok) { const err = data.error || 'Failed to add box'; setMessage(err); toast.error(err); return }
             setMessage('Box added')
+            toast.success('Box added')
             setOpen(false)
             onDone?.()
             // reset
             setBaseName(''); setColor(''); setPrice(''); setTaxRateBps('0'); setUnit('pcs'); setSkuPrefix(''); setSizes([{ id: genId(), size: '', quantity: '0' }])
         } catch {
             setMessage('Network error')
+            toast.error('Network error')
         } finally {
             setLoading(false)
         }
@@ -116,7 +119,7 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
             setCategoryId(data.id)
             setCreatingCat(false)
             setNewCatName('')
-        } catch { setCatMsg('Network error') } finally { setCatLoading(false) }
+        } catch { setCatMsg('Network error'); toast.error('Network error') } finally { setCatLoading(false) }
     }
 
     return (
