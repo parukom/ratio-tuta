@@ -3,10 +3,11 @@
 import Modal from '@/components/modals/Modal'
 import React, { useEffect, useState } from 'react'
 import AddMember from './InviteMemberForm'
+import MemberDrawer, { type Member } from './Drawer'
 import AdminHeader from '@/components/layout/AdminHeader'
 import TableSkeleton from '@/components/ui/TableSkeleton'
 
-type Person = { name: string; email: string; role: string }
+type Person = { id: string; name: string; email: string; role: string }
 type ApiUser = { id: string; name: string; email: string; role: 'USER' | 'ADMIN'; createdAt: string }
 type ApiTeam = { id: string; name: string }
 type Props = { teamId?: string }
@@ -18,6 +19,9 @@ const TeamTable = ({ teamId }: Props) => {
     const [error, setError] = useState<string | null>(null)
     const [teams, setTeams] = useState<ApiTeam[]>([])
     const [activeTeamId, setActiveTeamId] = useState<string | undefined>(teamId)
+    const [drawerOpen, setDrawerOpen] = useState(false)
+    const [selected, setSelected] = useState<Member | null>(null)
+    const [isAdmin, setIsAdmin] = useState(false)
 
     async function loadTeams() {
         try {
@@ -43,7 +47,7 @@ const TeamTable = ({ teamId }: Props) => {
             const res = await fetch(`/api/users?${qs.toString()}`)
             const data: ApiUser[] | { error: string } = await res.json()
             if (!res.ok) throw new Error((data as { error?: string }).error || 'Failed to load team members')
-            setPeople((data as ApiUser[]).map((u) => ({ name: u.name, email: u.email, role: u.role === 'ADMIN' ? 'Admin' : 'Member' })))
+            setPeople((data as ApiUser[]).map((u) => ({ id: u.id, name: u.name, email: u.email, role: u.role === 'ADMIN' ? 'Admin' : 'Member' })))
         } catch (e) {
             const msg = e instanceof Error ? e.message : 'Failed to load team members'
             setError(msg)
@@ -52,9 +56,20 @@ const TeamTable = ({ teamId }: Props) => {
         }
     }
 
+    async function loadMeRole() {
+        try {
+            const res = await fetch('/api/users/me')
+            const me = (await res.json()) as { role?: 'USER' | 'ADMIN' }
+            if (res.ok && me?.role) setIsAdmin(me.role === 'ADMIN')
+        } catch {
+            // ignore
+        }
+    }
+
     useEffect(() => {
         loadTeams()
         loadUsers()
+        loadMeRole()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [teamId])
 
@@ -135,12 +150,24 @@ const TeamTable = ({ teamId }: Props) => {
                                                 {person.role}
                                             </td>
                                             <td className="py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-0">
-                                                <a
-                                                    href="#"
-                                                    className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
-                                                >
-                                                    Edit<span className="sr-only">, {person.name}</span>
-                                                </a>
+                                                {isAdmin && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const m: Member = {
+                                                                id: person.id,
+                                                                name: person.name,
+                                                                email: person.email,
+                                                                role: person.role === 'Admin' ? 'ADMIN' : 'USER',
+                                                            }
+                                                            setSelected(m)
+                                                            setDrawerOpen(true)
+                                                        }}
+                                                        className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                                    >
+                                                        Edit<span className="sr-only">, {person.name}</span>
+                                                    </button>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}
@@ -154,6 +181,17 @@ const TeamTable = ({ teamId }: Props) => {
             <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
                 <AddMember teamId={activeTeamId} onSuccess={() => { setIsModalOpen(false); loadUsers() }} />
             </Modal>
+
+            <MemberDrawer
+                open={drawerOpen}
+                onClose={() => setDrawerOpen(false)}
+                member={selected}
+                isAdmin={isAdmin}
+                onSaved={() => {
+                    // refresh list and keep drawer closed
+                    loadUsers()
+                }}
+            />
         </div>
     )
 }
