@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
-export default function Auth() {
+function AuthContent() {
     const searchParams = useSearchParams();
     const formParam = (searchParams.get("form") || "login").toLowerCase();
-    // Map URL form key to internal mode
     const mode: "login" | "register" = formParam === "signup" ? "register" : "login";
     const verifyParam = (searchParams.get("verify") || "").toLowerCase();
     const verifyMessage = verifyParam === "success"
@@ -130,10 +129,10 @@ export default function Auth() {
                     {verifyMessage && showVerifyBanner && (
                         <div
                             className={`mb-6 rounded-md p-3 text-sm ${verifyStatus === 'success'
-                                    ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-300'
-                                    : verifyStatus === 'warning'
-                                        ? 'bg-yellow-50 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300'
-                                        : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-300'
+                                ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-300'
+                                : verifyStatus === 'warning'
+                                    ? 'bg-yellow-50 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300'
+                                    : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-300'
                                 } flex items-start justify-between gap-3`}
                         >
                             <span>{verifyMessage}</span>
@@ -351,6 +350,14 @@ export default function Auth() {
                 </p>
             </div>
         </div>
+    );
+}
+
+export default function Auth() {
+    return (
+        <Suspense fallback={<div className="py-12" />}>
+            <AuthContent />
+        </Suspense>
     );
 }
 
