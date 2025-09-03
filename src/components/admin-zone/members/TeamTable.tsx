@@ -6,6 +6,7 @@ import AddMember from './InviteMemberForm'
 import MemberDrawer, { type Member } from './Drawer'
 import AdminHeader from '@/components/layout/AdminHeader'
 import TableSkeleton from '@/components/ui/TableSkeleton'
+import { EllipsisVertical } from 'lucide-react'
 
 type Person = { id: string; name: string; email: string; role: string }
 type ApiUser = { id: string; name: string; email: string; role: 'USER' | 'ADMIN'; createdAt: string }
@@ -165,7 +166,7 @@ const TeamTable = ({ teamId }: Props) => {
                                                         }}
                                                         className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
                                                     >
-                                                        Edit<span className="sr-only">, {person.name}</span>
+                                                        <EllipsisVertical /><span className="sr-only">, {person.name}</span>
                                                     </button>
                                                 )}
                                             </td>
