@@ -249,6 +249,18 @@ model ReceiptItem {
   receipt   Receipt @relation(fields: [receiptId], references: [id])
 }
 
+model EmailVerificationToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
 enum TeamRole {
   OWNER
   MEMBER
@@ -285,17 +297,4 @@ enum MeasurementType {
   VOLUME // l, ml
   AREA // m2
   TIME // valandos, minutės
-}
-
-// One-time tokens used to verify user emails
-model EmailVerificationToken {
-  id        String   @id @default(uuid())
-  userId    String
-  token     String   @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id])
-
-  @@index([userId])
 }

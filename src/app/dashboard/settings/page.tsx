@@ -1,5 +1,5 @@
 'use client'
-import UserForm from '@/components/settings/UserForm';
+import UserForm from '@/components/settings/user/UserForm';
 import Tabs from '@/components/ui/Tabs'
 import { useRouter, useSearchParams } from 'next/navigation';
 import React from 'react'
