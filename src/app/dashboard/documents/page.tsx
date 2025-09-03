@@ -91,20 +91,20 @@ const ReceiptsTab: React.FC = () => {
                         {error}
                     </div>
                 )}
-                        <div className="mt-4 overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-white/10 dark:bg-gray-800/30">
-                            <table className="min-w-full divide-y divide-gray-200 text-sm dark:divide-white/10">
-                                <thead className="bg-gray-50 text-gray-900 dark:bg-white/5 dark:text-white">
+                <div className="mt-4 overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-white/10 dark:bg-gray-800/30">
+                    <table className="min-w-full divide-y divide-gray-200 text-sm dark:divide-white/10">
+                        <thead className="bg-gray-50 text-gray-900 dark:bg-white/5 dark:text-white">
                             <tr>
-                                        <th className="px-4 py-3 text-left font-semibold">Date</th>
-                                        <th className="px-4 py-3 text-left font-semibold">Payment</th>
-                                        <th className="px-4 py-3 text-left font-semibold">Total</th>
-                                        <th className="px-4 py-3 text-left font-semibold">Items</th>
+                                <th className="px-4 py-3 text-left font-semibold">Date</th>
+                                <th className="px-4 py-3 text-left font-semibold">Payment</th>
+                                <th className="px-4 py-3 text-left font-semibold">Total</th>
+                                <th className="px-4 py-3 text-left font-semibold">Items</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 dark:divide-white/10">
                             {loading ? (
                                 <tr>
-                                            <td className="px-4 py-3 text-gray-500 dark:text-gray-400" colSpan={4}>Loading…</td>
+                                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400" colSpan={4}>Loading…</td>
                                 </tr>
                             ) : data.length === 0 ? (
                                 <tr>
@@ -126,14 +126,14 @@ const ReceiptsTab: React.FC = () => {
                                         }}
                                         aria-label={`Open receipt ${r.id}`}
                                     >
-                                                <td className="px-4 py-3 text-gray-900 dark:text-white">
-                                                    <time dateTime={(r.createdAt ?? r.timestamp ?? '') as string}>
-                                                        {new Date(r.createdAt ?? r.timestamp ?? '').toLocaleString()}
-                                                    </time>
-                                                </td>
-                                                <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{r.paymentOption}</td>
-                                                <td className="px-4 py-3 text-gray-900 dark:text-white">EUR {r.totalPrice.toFixed(2)}</td>
-                                                <td className="px-4 py-3 max-w-[480px] truncate text-gray-600 dark:text-gray-400">
+                                        <td className="px-4 py-3 text-gray-900 dark:text-white">
+                                            <time dateTime={(r.createdAt ?? r.timestamp ?? '') as string}>
+                                                {new Date(r.createdAt ?? r.timestamp ?? '').toLocaleString()}
+                                            </time>
+                                        </td>
+                                        <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{r.paymentOption}</td>
+                                        <td className="px-4 py-3 text-gray-900 dark:text-white">EUR {r.totalPrice.toFixed(2)}</td>
+                                        <td className="px-4 py-3 max-w-[480px] truncate text-gray-600 dark:text-gray-400">
                                             {r.items.map((it) => `${it.title}×${it.quantity}`).join(', ')}
                                         </td>
                                     </tr>
@@ -238,16 +238,16 @@ const ReceiptsTab: React.FC = () => {
                     <div className="text-sm text-gray-600 dark:text-gray-400">
                         Page {page} of {totalPages}
                     </div>
-                      <div className="flex gap-2">
+                    <div className="flex gap-2">
                         <button
-                          className="rounded border border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/10"
+                            className="rounded border border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/10"
                             disabled={page <= 1}
                             onClick={() => setPage(page - 1)}
                         >
                             Previous
                         </button>
                         <button
-                          className="rounded border border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/10"
+                            className="rounded border border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/10"
                             disabled={page >= totalPages}
                             onClick={() => setPage(page + 1)}
                         >
@@ -287,13 +287,13 @@ const DocumentsInner: React.FC = () => {
                         ]}
                     />
                 </div>
-                        <Tabs
+                <Tabs
                     items={[
                         { key: 'receipts', label: 'Receipts' },
                         { key: 'blank', label: 'Other' },
                     ]}
                     activeKey={tab}
-                            onChange={(k) => setTab(k as 'receipts' | 'blank')}
+                    onChange={(k) => setTab(k as 'receipts' | 'blank')}
                 />
 
                 {tab === 'receipts' && <ReceiptsTab />}

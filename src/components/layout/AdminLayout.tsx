@@ -16,6 +16,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import LogoutButton from '../LogoutButton'
+import { Settings } from 'lucide-react'
 
 const navigation = [
     { name: 'Home', href: '/dashboard/home', icon: HomeIcon },
@@ -24,6 +25,7 @@ const navigation = [
     // { name: 'Calendar', href: '/dashboard/calendar', icon: CalendarIcon },
     { name: 'Documents', href: '/dashboard/documents', icon: DocumentDuplicateIcon },
     { name: 'Reports', href: '/dashboard/reports', icon: ChartPieIcon },
+    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
 const teams = [
     { id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false },
