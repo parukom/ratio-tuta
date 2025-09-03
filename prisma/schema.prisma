@@ -12,14 +12,16 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  name          String
-  email         String    @unique
-  password      String
-  role          UserRole  @default(USER)
-  emailVerified Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  Receipt       Receipt[]
+  id               String    @id @default(uuid())
+  name             String
+  email            String    @unique
+  password         String
+  role             UserRole  @default(USER)
+  emailVerified    Boolean   @default(false)
+  // When set, any sessions issued at or before this timestamp are invalid
+  sessionRevokedAt DateTime?
+  createdAt        DateTime  @default(now())
+  Receipt          Receipt[]
 
   teams            TeamMember[]
   ownedTeams       Team[]        @relation("OwnedTeams")

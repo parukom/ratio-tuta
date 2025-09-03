@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import { createHmac, timingSafeEqual } from 'crypto';
+import { prisma } from '@lib/prisma';
 
 // Signed cookie session with HMAC and expiry. For full-featured auth, consider next-auth or similar.
 
@@ -88,6 +89,23 @@ export async function getSession(): Promise<SessionData | null> {
     ) as Token;
     const nowSec = Math.floor(Date.now() / 1000);
     if (typeof token.exp !== 'number' || nowSec >= token.exp) return null;
+    // Optional server-side invalidation via sessionRevokedAt
+    try {
+      const rows = await prisma.$queryRaw<
+        Array<{ sessionrevokedat: Date | null }>
+      >`
+        SELECT "sessionRevokedAt" as sessionrevokedat FROM "User" WHERE id = ${token.data.userId} LIMIT 1
+      `;
+      const revokedAt = rows[0]?.sessionrevokedat ?? null;
+      if (revokedAt) {
+        const revokedSec = Math.floor(new Date(revokedAt).getTime() / 1000);
+        // Invalidate tokens strictly older than the revoked timestamp
+        if (token.iat < revokedSec) return null;
+      }
+    } catch {
+      // On DB error, fail closed by denying session (safer)
+      return null;
+    }
     return token.data;
   } catch {
     return null;
