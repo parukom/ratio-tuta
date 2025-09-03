@@ -4,7 +4,7 @@ import React, { ReactNode, useState } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel, TransitionChild } from '@headlessui/react'
 import {
     Bars3Icon,
-    CalendarIcon,
+    // CalendarIcon,
     ChartPieIcon,
     DocumentDuplicateIcon,
     FolderIcon,
@@ -21,7 +21,7 @@ const navigation = [
     { name: 'Home', href: '/dashboard/home', icon: HomeIcon },
     { name: 'Team', href: '/dashboard/team', icon: UsersIcon },
     { name: 'Items', href: '/dashboard/items', icon: FolderIcon },
-    { name: 'Calendar', href: '/dashboard/calendar', icon: CalendarIcon },
+    // { name: 'Calendar', href: '/dashboard/calendar', icon: CalendarIcon },
     { name: 'Documents', href: '/dashboard/documents', icon: DocumentDuplicateIcon },
     { name: 'Reports', href: '/dashboard/reports', icon: ChartPieIcon },
 ]

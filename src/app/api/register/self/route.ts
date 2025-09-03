@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@lib/prisma';
 import { hashPassword } from '@lib/auth';
-import { setSession } from '@lib/session';
+// import { setSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
+import { randomBytes } from 'crypto';
+import { sendVerificationEmail } from '@lib/mail';
 
 export async function POST(req: Request) {
   try {
@@ -76,14 +78,21 @@ export async function POST(req: Request) {
         data: { teamId: team.id, userId: createdUser.id, role: 'OWNER' },
       });
 
-      return { createdUser, team };
+      // Create email verification token (valid for 24h)
+      const token = randomBytes(32).toString('hex');
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      await tx.emailVerificationToken.create({
+        data: { userId: createdUser.id, token, expiresAt },
+      });
+
+      return { createdUser, team, token };
     });
 
-    // Create session after successful registration
-    await setSession({
-      userId: result.createdUser.id,
+    // Send verification email (fire-and-forget; let errors bubble to catch for logging)
+    await sendVerificationEmail({
+      to: result.createdUser.email,
       name: result.createdUser.name,
-      role: result.createdUser.role as 'USER' | 'ADMIN',
+      token: result.token,
     });
 
     await logAudit({
@@ -94,9 +103,17 @@ export async function POST(req: Request) {
         name: result.createdUser.name,
         role: result.createdUser.role as 'USER' | 'ADMIN',
       },
-      metadata: { teamId: result.team.id },
+      metadata: { teamId: result.team.id, emailSent: true },
     });
-    return NextResponse.json(result, { status: 201 });
+    return NextResponse.json(
+      {
+        message:
+          'Account created. Please check your email to verify your address before logging in.',
+        user: result.createdUser,
+        team: result.team,
+      },
+      { status: 201 },
+    );
   } catch (err) {
     await logAudit({
       action: 'user.register.self',

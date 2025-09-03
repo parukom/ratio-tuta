@@ -1,17 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
 export default function Auth() {
-    const [mode, setMode] = useState<"login" | "register">("login");
+    const searchParams = useSearchParams();
+    const formParam = (searchParams.get("form") || "login").toLowerCase();
+    // Map URL form key to internal mode
+    const mode: "login" | "register" = formParam === "signup" ? "register" : "login";
+    const verifyParam = (searchParams.get("verify") || "").toLowerCase();
+    const verifyMessage = verifyParam === "success"
+        ? "Email verified. You can now log in."
+        : verifyParam === "invalid"
+            ? "Verification link is invalid or expired."
+            : verifyParam === "error"
+                ? "Something went wrong verifying your email. Please try again."
+                : "";
+    const verifyStatus: "success" | "warning" | "error" | "" =
+        verifyParam === "success" ? "success" : verifyParam === "invalid" ? "warning" : verifyParam === "error" ? "error" : "";
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [teamName, setTeamName] = useState("");
     const [remember, setRemember] = useState(false);
     const [message, setMessage] = useState("");
+    const [showVerifyBanner, setShowVerifyBanner] = useState(true);
     const router = useRouter();
 
     // Redirect if already logged in
@@ -84,7 +98,7 @@ export default function Auth() {
         });
         const data = await res.json();
         if (!res.ok) setMessage(data.error || "Error registering");
-        else router.replace("/");
+        else setMessage(data.message || "Account created. Check your email to verify.");
     }
 
     return (
@@ -113,6 +127,26 @@ export default function Auth() {
 
             <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
                 <div className="bg-white px-6 py-12 shadow-sm sm:rounded-lg sm:px-12 dark:bg-gray-800/50 dark:shadow-none dark:outline dark:-outline-offset-1 dark:outline-white/10">
+                    {verifyMessage && showVerifyBanner && (
+                        <div
+                            className={`mb-6 rounded-md p-3 text-sm ${verifyStatus === 'success'
+                                    ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-300'
+                                    : verifyStatus === 'warning'
+                                        ? 'bg-yellow-50 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300'
+                                        : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-300'
+                                } flex items-start justify-between gap-3`}
+                        >
+                            <span>{verifyMessage}</span>
+                            <button
+                                type="button"
+                                aria-label="Dismiss"
+                                onClick={() => setShowVerifyBanner(false)}
+                                className="shrink-0 rounded p-1/2 hover:opacity-80"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    )}
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {mode === "register" && (
                             <div>
@@ -234,7 +268,10 @@ export default function Auth() {
                             <div className="text-sm/6">
                                 <button
                                     type="button"
-                                    onClick={() => setMode(mode === "login" ? "register" : "login")}
+                                    onClick={() => {
+                                        const next = mode === "login" ? "signup" : "login";
+                                        router.replace(`/auth?form=${next}`);
+                                    }}
                                     className="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
                                 >
                                     {mode === "login" ? "Need an account? Register" : "Already have an account? Sign in"}
@@ -293,7 +330,7 @@ export default function Auth() {
                             Not a member?{' '}
                             <button
                                 type="button"
-                                onClick={() => setMode("register")}
+                                onClick={() => router.replace("/auth?form=signup")}
                                 className="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
                             >
                                 Start a 14 day free trial
@@ -304,7 +341,7 @@ export default function Auth() {
                             Already have an account?{' '}
                             <button
                                 type="button"
-                                onClick={() => setMode("login")}
+                                onClick={() => router.replace("/auth?form=login")}
                                 className="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
                             >
                                 Sign in

@@ -27,7 +27,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        password: true,
+        role: true,
+        createdAt: true,
+        emailVerified: true,
+      },
+    });
     if (!user) {
       await logAudit({
         action: 'auth.login',
@@ -52,6 +63,19 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: 'Invalid credentials' },
         { status: 401 },
+      );
+    }
+
+    if (!user.emailVerified) {
+      await logAudit({
+        action: 'auth.login',
+        status: 'DENIED',
+        message: 'Email not verified',
+        metadata: { email },
+      });
+      return NextResponse.json(
+        { error: 'Please verify your email before logging in.' },
+        { status: 403 },
       );
     }
 
