@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@lib/prisma';
+import { Prisma } from '@/generated/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
 import type { MeasurementType } from '@/generated/prisma';
@@ -20,6 +21,12 @@ export async function GET(req: Request) {
       : onlyActiveParam === 'false'
         ? false
         : undefined;
+  const categoryIdParam = searchParams.get('categoryId');
+  const measurementTypeParam = searchParams.get('measurementType');
+  const inStockParam = searchParams.get('inStock');
+  const minPriceParam = searchParams.get('minPrice');
+  const maxPriceParam = searchParams.get('maxPrice');
+  const sortParam = (searchParams.get('sort') || '').toLowerCase();
 
   // Resolve teams current user belongs to
   const [owned, memberOf] = await Promise.all([
@@ -62,22 +69,84 @@ export async function GET(req: Request) {
     filterPlaceId = pid;
   }
 
-  const items = await prisma.item.findMany({
-    where: {
-      teamId: { in: filterTeamIds },
-      ...(filterPlaceId
-        ? { places: { some: { placeId: filterPlaceId } } }
-        : {}),
-      ...(onlyActive === undefined ? {} : { isActive: onlyActive }),
-      ...(q
-        ? {
+  // Build filters
+  type MT = 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME';
+  const whereClause: Prisma.ItemWhereInput = {
+    teamId: { in: filterTeamIds },
+    ...(filterPlaceId ? { places: { some: { placeId: filterPlaceId } } } : {}),
+    ...(onlyActive === undefined ? {} : { isActive: onlyActive }),
+    ...(q
+      ? {
           OR: [
             { name: { contains: q, mode: 'insensitive' } },
             { sku: { contains: q, mode: 'insensitive' } },
           ],
         }
-        : {}),
-    },
+      : {}),
+    ...(categoryIdParam ? { categoryId: categoryIdParam } : {}),
+    ...(measurementTypeParam &&
+    ['PCS', 'WEIGHT', 'LENGTH', 'VOLUME', 'AREA', 'TIME'].includes(
+      measurementTypeParam.toUpperCase(),
+    )
+      ? { measurementType: measurementTypeParam.toUpperCase() as MT }
+      : {}),
+    ...(inStockParam === '1' || inStockParam === 'true'
+      ? { stockQuantity: { gt: 0 } }
+      : {}),
+    ...(() => {
+      const gte =
+        minPriceParam != null && minPriceParam !== ''
+          ? Number(minPriceParam)
+          : undefined;
+      const lte =
+        maxPriceParam != null && maxPriceParam !== ''
+          ? Number(maxPriceParam)
+          : undefined;
+      const priceRange: Prisma.FloatFilter = {};
+      if (typeof gte === 'number' && Number.isFinite(gte)) priceRange.gte = gte;
+      if (typeof lte === 'number' && Number.isFinite(lte)) priceRange.lte = lte;
+      return priceRange.gte !== undefined || priceRange.lte !== undefined
+        ? { price: priceRange }
+        : {};
+    })(),
+  };
+
+  // Build sorting
+  let orderBy: Prisma.ItemOrderByWithRelationInput = { createdAt: 'desc' };
+  switch (sortParam) {
+    case 'createdat_asc':
+      orderBy = { createdAt: 'asc' };
+      break;
+    case 'name_asc':
+      orderBy = { name: 'asc' };
+      break;
+    case 'name_desc':
+      orderBy = { name: 'desc' };
+      break;
+    case 'price_asc':
+      orderBy = { price: 'asc' };
+      break;
+    case 'price_desc':
+      orderBy = { price: 'desc' };
+      break;
+    case 'stock_asc':
+      orderBy = { stockQuantity: 'asc' };
+      break;
+    case 'stock_desc':
+      orderBy = { stockQuantity: 'desc' };
+      break;
+    case 'tax_asc':
+      orderBy = { taxRateBps: 'asc' };
+      break;
+    case 'tax_desc':
+      orderBy = { taxRateBps: 'desc' };
+      break;
+    default:
+      orderBy = { createdAt: 'desc' };
+  }
+
+  const items = await prisma.item.findMany({
+    where: whereClause,
     select: {
       id: true,
       teamId: true,
@@ -97,7 +166,7 @@ export async function GET(req: Request) {
       tags: true,
       category: { select: { name: true } },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy,
   });
 
   const shaped = items.map((it) => {
@@ -116,26 +185,26 @@ export async function GET(req: Request) {
                   ? 'h'
                   : 'pcs';
     return {
-    id: it.id,
-    teamId: it.teamId,
-    name: it.name,
-    sku: it.sku,
-    categoryId: it.categoryId,
-    categoryName: it.category?.name ?? null,
-    price: it.price,
-    taxRateBps: it.taxRateBps,
-    isActive: it.isActive,
+      id: it.id,
+      teamId: it.teamId,
+      name: it.name,
+      sku: it.sku,
+      categoryId: it.categoryId,
+      categoryName: it.category?.name ?? null,
+      price: it.price,
+      taxRateBps: it.taxRateBps,
+      isActive: it.isActive,
       // backward-compat display field
       unit: displayUnit,
       stockQuantity: it.stockQuantity,
-    createdAt: it.createdAt,
-    measurementType: it.measurementType,
-    description: it.description ?? null,
-    color: it.color ?? null,
-    size: it.size ?? null,
-    brand: it.brand ?? null,
-    tags: it.tags ?? [],
-    currency: 'EUR',
+      createdAt: it.createdAt,
+      measurementType: it.measurementType,
+      description: it.description ?? null,
+      color: it.color ?? null,
+      size: it.size ?? null,
+      brand: it.brand ?? null,
+      tags: it.tags ?? [],
+      currency: 'EUR',
     };
   });
 
@@ -163,7 +232,7 @@ export async function POST(req: Request) {
     isActive?: boolean;
     stockQuantity?: number;
     measurementType?: string;
-  unit?: string; // legacy alias
+    unit?: string; // legacy alias
     description?: string | null;
     color?: string | null;
     size?: string | null;
@@ -181,19 +250,45 @@ export async function POST(req: Request) {
   const fromUnit = (u: string): MeasurementType => {
     const m = u.trim().toLowerCase();
     const map: Record<string, MeasurementType> = {
-      pcs: 'PCS', piece: 'PCS', pieces: 'PCS', unit: 'PCS', units: 'PCS',
-      kg: 'WEIGHT', g: 'WEIGHT', gram: 'WEIGHT', grams: 'WEIGHT', kilo: 'WEIGHT',
-      m: 'LENGTH', cm: 'LENGTH', mm: 'LENGTH', meter: 'LENGTH', metres: 'LENGTH',
-      l: 'VOLUME', ml: 'VOLUME', litre: 'VOLUME', liters: 'VOLUME',
-      m2: 'AREA', sqm: 'AREA', sq: 'AREA',
-      h: 'TIME', hr: 'TIME', hour: 'TIME', hours: 'TIME', min: 'TIME', minute: 'TIME', s: 'TIME', sec: 'TIME', second: 'TIME',
+      pcs: 'PCS',
+      piece: 'PCS',
+      pieces: 'PCS',
+      unit: 'PCS',
+      units: 'PCS',
+      kg: 'WEIGHT',
+      g: 'WEIGHT',
+      gram: 'WEIGHT',
+      grams: 'WEIGHT',
+      kilo: 'WEIGHT',
+      m: 'LENGTH',
+      cm: 'LENGTH',
+      mm: 'LENGTH',
+      meter: 'LENGTH',
+      metres: 'LENGTH',
+      l: 'VOLUME',
+      ml: 'VOLUME',
+      litre: 'VOLUME',
+      liters: 'VOLUME',
+      m2: 'AREA',
+      sqm: 'AREA',
+      sq: 'AREA',
+      h: 'TIME',
+      hr: 'TIME',
+      hour: 'TIME',
+      hours: 'TIME',
+      min: 'TIME',
+      minute: 'TIME',
+      s: 'TIME',
+      sec: 'TIME',
+      second: 'TIME',
     };
     return map[m] ?? 'PCS';
   };
-  const measurementType = (
-    (body.measurementType && body.measurementType.toUpperCase()) ||
-    (typeof body.unit === 'string' ? fromUnit(body.unit) : 'PCS')
-  ) as MeasurementType;
+  const measurementType = ((body.measurementType &&
+    body.measurementType.toUpperCase()) ||
+    (typeof body.unit === 'string'
+      ? fromUnit(body.unit)
+      : 'PCS')) as MeasurementType;
   const description = (body.description ?? '').trim() || null;
   const color = (body.color ?? '').trim() || null;
   const size = (body.size ?? '').trim() || null;
@@ -296,7 +391,7 @@ export async function POST(req: Request) {
   }
 
   try {
-  const created = await prisma.item.create({
+    const created = await prisma.item.create({
       data: {
         teamId: targetTeamId!,
         name,
@@ -306,12 +401,12 @@ export async function POST(req: Request) {
         taxRateBps,
         isActive: body.isActive ?? true,
         stockQuantity,
-    measurementType,
-  description,
-  color,
-  size,
-  brand,
-  tags,
+        measurementType,
+        description,
+        color,
+        size,
+        brand,
+        tags,
       },
       select: {
         id: true,
@@ -324,12 +419,12 @@ export async function POST(req: Request) {
         isActive: true,
         stockQuantity: true,
         createdAt: true,
-  measurementType: true,
-  description: true,
-  color: true,
-  size: true,
-  brand: true,
-  tags: true,
+        measurementType: true,
+        description: true,
+        color: true,
+        size: true,
+        brand: true,
+        tags: true,
       },
     });
 
@@ -356,7 +451,10 @@ export async function POST(req: Request) {
                 : created.measurementType === 'TIME'
                   ? 'h'
                   : 'pcs';
-    return NextResponse.json({ ...created, unit: createdUnit }, { status: 201 });
+    return NextResponse.json(
+      { ...created, unit: createdUnit },
+      { status: 201 },
+    );
   } catch (e) {
     const err = e as { code?: string };
     if (err?.code === 'P2002') {

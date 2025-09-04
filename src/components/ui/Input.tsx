@@ -10,15 +10,18 @@ type Props = {
     max?: number;
     minLength?: number;
     maxLength?: number;
+    hideLabel?: boolean;
 }
 
-const Input = ({ id, name, type, value, placeholder, className, onChange, min, max, minLength, maxLength }: Props) => {
+const Input = ({ id, name, type, value, placeholder, className = '', onChange, min, max, minLength, maxLength, hideLabel = false }: Props) => {
     return (
         <div>
-            <label htmlFor={id} className="block text-sm/6 font-medium text-gray-900 dark:text-white">
-                {placeholder}
-            </label>
-            <div className="mt-2">
+            {!hideLabel && (
+                <label htmlFor={id} className="block text-sm/6 font-medium text-gray-900 dark:text-white">
+                    {placeholder}
+                </label>
+            )}
+            <div className={hideLabel ? '' : 'mt-2'}>
                 <input
                     id={id}
                     name={name}
