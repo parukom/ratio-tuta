@@ -68,7 +68,7 @@ export default function Places() {
                             placeTypeId: null,
                             createdAt: new Date().toISOString(),
                             isActive: true,
-                            teamPeopleCount: 1,
+                            teamPeopleCount: 0,
                             itemsCount: 0,
                             stockUnits: 0,
                             receiptsToday: 0,

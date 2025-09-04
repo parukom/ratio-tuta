@@ -55,12 +55,6 @@ export async function GET(req: Request) {
         placeTypeId: true,
         createdAt: true,
         isActive: true,
-        team: {
-          select: {
-            ownerId: true,
-            _count: { select: { members: true } },
-          },
-        },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -74,72 +68,87 @@ export async function GET(req: Request) {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
     // Query aggregates in parallel
-    const [itemsAgg, receiptsTodayAgg, receipts7dAgg, lastActivityAgg] =
-      await Promise.all([
-        // items per place and total quantity in stock at the place
-        prisma.placeItem
-          .groupBy({
-            by: ['placeId'],
-            where: { placeId: { in: placeIds } },
-            _count: { itemId: true },
-            _sum: { quantity: true },
-          })
-          .catch(
-            () =>
-              [] as Array<{
-                placeId: string;
-                _count: { itemId: number };
-                _sum: { quantity: number | null };
-              }>,
-          ),
-        // receipts today: count and sum(totalPrice)
-        prisma.receipt
-          .groupBy({
-            by: ['placeId'],
-            where: {
-              placeId: { in: placeIds },
-              createdAt: { gte: startOfToday },
-            },
-            _count: { _all: true },
-            _sum: { totalPrice: true },
-          })
-          .catch(
-            () =>
-              [] as Array<{
-                placeId: string | null;
-                _count: { _all: number };
-                _sum: { totalPrice: number | null };
-              }>,
-          ),
-        // receipts last 7 days: count only
-        prisma.receipt
-          .groupBy({
-            by: ['placeId'],
-            where: {
-              placeId: { in: placeIds },
-              createdAt: { gte: sevenDaysAgo },
-            },
-            _count: { _all: true },
-          })
-          .catch(
-            () =>
-              [] as Array<{ placeId: string | null; _count: { _all: number } }>,
-          ),
-        // last activity timestamp per place
-        prisma.receipt
-          .groupBy({
-            by: ['placeId'],
-            where: { placeId: { in: placeIds } },
-            _max: { createdAt: true },
-          })
-          .catch(
-            () =>
-              [] as Array<{
-                placeId: string | null;
-                _max: { createdAt: Date | null };
-              }>,
-          ),
-      ]);
+    const [
+      itemsAgg,
+      receiptsTodayAgg,
+      receipts7dAgg,
+      lastActivityAgg,
+      membersAgg,
+    ] = await Promise.all([
+      // items per place and total quantity in stock at the place
+      prisma.placeItem
+        .groupBy({
+          by: ['placeId'],
+          where: { placeId: { in: placeIds } },
+          _count: { itemId: true },
+          _sum: { quantity: true },
+        })
+        .catch(
+          () =>
+            [] as Array<{
+              placeId: string;
+              _count: { itemId: number };
+              _sum: { quantity: number | null };
+            }>,
+        ),
+      // receipts today: count and sum(totalPrice)
+      prisma.receipt
+        .groupBy({
+          by: ['placeId'],
+          where: {
+            placeId: { in: placeIds },
+            createdAt: { gte: startOfToday },
+          },
+          _count: { _all: true },
+          _sum: { totalPrice: true },
+        })
+        .catch(
+          () =>
+            [] as Array<{
+              placeId: string | null;
+              _count: { _all: number };
+              _sum: { totalPrice: number | null };
+            }>,
+        ),
+      // receipts last 7 days: count only
+      prisma.receipt
+        .groupBy({
+          by: ['placeId'],
+          where: {
+            placeId: { in: placeIds },
+            createdAt: { gte: sevenDaysAgo },
+          },
+          _count: { _all: true },
+        })
+        .catch(
+          () =>
+            [] as Array<{ placeId: string | null; _count: { _all: number } }>,
+        ),
+      // last activity timestamp per place
+      prisma.receipt
+        .groupBy({
+          by: ['placeId'],
+          where: { placeId: { in: placeIds } },
+          _max: { createdAt: true },
+        })
+        .catch(
+          () =>
+            [] as Array<{
+              placeId: string | null;
+              _max: { createdAt: Date | null };
+            }>,
+        ),
+      // members assigned to each place
+      prisma.placeMember
+        .groupBy({
+          by: ['placeId'],
+          where: { placeId: { in: placeIds } },
+          _count: { userId: true },
+        })
+        .catch(
+          () => [] as Array<{ placeId: string; _count: { userId: number } }>,
+        ),
+    ]);
 
     const itemsMap = new Map(
       itemsAgg.map(
@@ -174,6 +183,9 @@ export async function GET(req: Request) {
         .filter((r) => !!r.placeId)
         .map((r) => [r.placeId as string, r._max.createdAt ?? null] as const),
     );
+    const membersMap = new Map(
+      membersAgg.map((r) => [r.placeId, r._count.userId] as const),
+    );
 
     const shaped = places.map((p) => ({
       id: p.id,
@@ -187,7 +199,7 @@ export async function GET(req: Request) {
       placeTypeId: p.placeTypeId,
       createdAt: p.createdAt,
       isActive: p.isActive,
-      teamPeopleCount: (p.team?._count.members ?? 0) + 1, // owner + members
+      teamPeopleCount: membersMap.get(p.id) ?? 0, // number of members assigned to this place
       itemsCount: itemsMap.get(p.id)?.itemsCount ?? 0,
       stockUnits: itemsMap.get(p.id)?.stockUnits ?? 0,
       receiptsToday: todayMap.get(p.id)?.receiptsToday ?? 0,

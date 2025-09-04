@@ -31,9 +31,7 @@ export async function GET(
       placeTypeId: true,
       createdAt: true,
       isActive: true,
-      team: {
-        select: { ownerId: true, _count: { select: { members: true } } },
-      },
+      _count: { select: { members: true } },
     },
   });
   if (!place) return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -64,7 +62,7 @@ export async function GET(
     placeTypeId: place.placeTypeId,
     createdAt: place.createdAt,
     isActive: place.isActive,
-    teamPeopleCount: (place.team?._count.members ?? 0) + 1,
+    teamPeopleCount: place._count.members ?? 0,
   };
 
   return NextResponse.json(shaped);
@@ -96,10 +94,15 @@ export async function DELETE(
   // permission: owner or team admin can delete
   const team = await prisma.team.findUnique({
     where: { id: place.teamId },
-    select: { ownerId: true, members: { select: { userId: true, role: true } } },
+    select: {
+      ownerId: true,
+      members: { select: { userId: true, role: true } },
+    },
   });
   const isOwner = team?.ownerId === session.userId;
-  const isAdmin = team?.members.some((m) => m.userId === session.userId && m.role === 'ADMIN');
+  const isAdmin = team?.members.some(
+    (m) => m.userId === session.userId && m.role === 'ADMIN',
+  );
   if (!isOwner && !isAdmin) {
     await logAudit({
       action: 'place.delete',
@@ -126,7 +129,10 @@ export async function DELETE(
       // Remove explicit place members
       prisma.placeMember.deleteMany({ where: { placeId: place.id } }),
       // Set receipts to no longer point to the place (keep history)
-      prisma.receipt.updateMany({ where: { placeId: place.id }, data: { placeId: null } }),
+      prisma.receipt.updateMany({
+        where: { placeId: place.id },
+        data: { placeId: null },
+      }),
       // Finally, delete the place
       prisma.place.delete({ where: { id: place.id } }),
     ]);
