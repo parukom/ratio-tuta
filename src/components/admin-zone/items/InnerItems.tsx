@@ -470,7 +470,19 @@ export default function InnerItems() {
                         <div className="space-y-4">
                             {groups.map((g) => (
                                 <div key={g.key} className="rounded-xl border border-gray-200 dark:border-white/10">
-                                    <button type="button" onClick={() => setOpenGroups((prev) => ({ ...prev, [g.key]: !prev[g.key] }))} className="w-full px-3 py-2 text-left">
+                                    <div
+                                        role="button"
+                                        tabIndex={0}
+                                        aria-expanded={!!openGroups[g.key]}
+                                        onClick={() => setOpenGroups((prev) => ({ ...prev, [g.key]: !prev[g.key] }))}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter" || e.key === " ") {
+                                                e.preventDefault()
+                                                setOpenGroups((prev) => ({ ...prev, [g.key]: !prev[g.key] }))
+                                            }
+                                        }}
+                                        className="w-full px-3 py-2 text-left"
+                                    >
                                         <div className="flex items-center justify-between gap-3">
                                             <div className="flex min-w-0 items-center gap-3">
                                                 {openGroups[g.key] ? (<ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400" />) : (<ChevronRight className="h-4 w-4 text-gray-500 dark:text-gray-400" />)}
@@ -503,7 +515,7 @@ export default function InnerItems() {
                                                 </button>
                                             </div>
                                         </div>
-                                    </button>
+                                    </div>
                                     {openGroups[g.key] && (
                                         <div className="px-3 pb-3">
                                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
