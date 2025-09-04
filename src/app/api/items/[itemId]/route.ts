@@ -31,12 +31,14 @@ export async function GET(
       stockQuantity: true,
       createdAt: true,
       updatedAt: true,
-  measurementType: true,
-  description: true,
-  color: true,
-  size: true,
-  brand: true,
-  tags: true,
+      measurementType: true,
+      description: true,
+      color: true,
+      size: true,
+      brand: true,
+      tags: true,
+      attributes: true,
+      itemTypeId: true,
     },
   });
   if (!item) return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -113,19 +115,22 @@ export async function PATCH(
     taxRateBps: number;
     isActive: boolean;
     stockQuantity: number;
-  measurementType: string;
-  description: string | null;
-  color: string | null;
-  size: string | null;
-  brand: string | null;
-  tags: string[] | null;
-  unit: string; // legacy alias; will attempt to map to measurementType
+    measurementType: string;
+    description: string | null;
+    color: string | null;
+    size: string | null;
+    brand: string | null;
+    tags: string[] | null;
+    unit: string; // legacy alias; will attempt to map to measurementType
+    itemTypeId: string | null;
+    attributes: Record<string, unknown> | null;
   }>;
 
   const data: Record<string, unknown> = {};
   if (typeof body.name === 'string') {
     const v = body.name.trim();
-    if (!v) return NextResponse.json({ error: 'Invalid name' }, { status: 400 });
+    if (!v)
+      return NextResponse.json({ error: 'Invalid name' }, { status: 400 });
     data.name = v;
   }
   if ('sku' in body) {
@@ -133,7 +138,8 @@ export async function PATCH(
   }
   if ('categoryId' in body) {
     if (body.categoryId === null) data.categoryId = null;
-    else if (typeof body.categoryId === 'string') data.categoryId = body.categoryId;
+    else if (typeof body.categoryId === 'string')
+      data.categoryId = body.categoryId;
   }
   if ('price' in body) {
     const v = Number(body.price);
@@ -144,7 +150,10 @@ export async function PATCH(
   if ('taxRateBps' in body) {
     const v = Number(body.taxRateBps);
     if (!Number.isInteger(v) || v < 0)
-      return NextResponse.json({ error: 'Invalid taxRateBps' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid taxRateBps' },
+        { status: 400 },
+      );
     data.taxRateBps = v;
   }
   if ('isActive' in body) {
@@ -153,10 +162,30 @@ export async function PATCH(
   // measurementType update (preferred)
   if ('measurementType' in body && typeof body.measurementType === 'string') {
     const v = body.measurementType.toUpperCase();
-    const valid = new Set(['PCS', 'WEIGHT', 'LENGTH', 'VOLUME', 'AREA', 'TIME']);
+    const valid = new Set([
+      'PCS',
+      'WEIGHT',
+      'LENGTH',
+      'VOLUME',
+      'AREA',
+      'TIME',
+    ]);
     if (!valid.has(v))
-      return NextResponse.json({ error: 'Invalid measurementType' }, { status: 400 });
-    (data as { measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME' }).measurementType = v as
+      return NextResponse.json(
+        { error: 'Invalid measurementType' },
+        { status: 400 },
+      );
+    (
+      data as {
+        measurementType?:
+          | 'PCS'
+          | 'WEIGHT'
+          | 'LENGTH'
+          | 'VOLUME'
+          | 'AREA'
+          | 'TIME';
+      }
+    ).measurementType = v as
       | 'PCS'
       | 'WEIGHT'
       | 'LENGTH'
@@ -167,22 +196,63 @@ export async function PATCH(
   // legacy 'unit' to measurementType mapping
   if ('unit' in body && typeof body.unit === 'string') {
     const u = body.unit.trim().toLowerCase();
-    const map: Record<string, 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'> = {
-      pcs: 'PCS', piece: 'PCS', pieces: 'PCS', unit: 'PCS', units: 'PCS',
-      kg: 'WEIGHT', g: 'WEIGHT', gram: 'WEIGHT', grams: 'WEIGHT', kilo: 'WEIGHT',
-      m: 'LENGTH', cm: 'LENGTH', mm: 'LENGTH', meter: 'LENGTH', metres: 'LENGTH',
-      l: 'VOLUME', ml: 'VOLUME', litre: 'VOLUME', liters: 'VOLUME',
-      m2: 'AREA', sqm: 'AREA', sq: 'AREA',
-      h: 'TIME', hr: 'TIME', hour: 'TIME', hours: 'TIME', min: 'TIME', minute: 'TIME', s: 'TIME', sec: 'TIME', second: 'TIME',
+    const map: Record<
+      string,
+      'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'
+    > = {
+      pcs: 'PCS',
+      piece: 'PCS',
+      pieces: 'PCS',
+      unit: 'PCS',
+      units: 'PCS',
+      kg: 'WEIGHT',
+      g: 'WEIGHT',
+      gram: 'WEIGHT',
+      grams: 'WEIGHT',
+      kilo: 'WEIGHT',
+      m: 'LENGTH',
+      cm: 'LENGTH',
+      mm: 'LENGTH',
+      meter: 'LENGTH',
+      metres: 'LENGTH',
+      l: 'VOLUME',
+      ml: 'VOLUME',
+      litre: 'VOLUME',
+      liters: 'VOLUME',
+      m2: 'AREA',
+      sqm: 'AREA',
+      sq: 'AREA',
+      h: 'TIME',
+      hr: 'TIME',
+      hour: 'TIME',
+      hours: 'TIME',
+      min: 'TIME',
+      minute: 'TIME',
+      s: 'TIME',
+      sec: 'TIME',
+      second: 'TIME',
     };
     const mt = map[u];
     if (mt)
-      (data as { measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME' }).measurementType = mt;
+      (
+        data as {
+          measurementType?:
+            | 'PCS'
+            | 'WEIGHT'
+            | 'LENGTH'
+            | 'VOLUME'
+            | 'AREA'
+            | 'TIME';
+        }
+      ).measurementType = mt;
   }
   if ('stockQuantity' in body) {
     const v = Number(body.stockQuantity);
     if (!Number.isInteger(v) || v < 0)
-      return NextResponse.json({ error: 'Invalid stockQuantity' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid stockQuantity' },
+        { status: 400 },
+      );
     data.stockQuantity = v;
   }
   if ('description' in body) data.description = body.description ?? null;
@@ -195,15 +265,131 @@ export async function PATCH(
       : [];
     (data as { tags?: string[] }).tags = tags;
   }
+  // itemType/attributes
+  if ('itemTypeId' in body) {
+    const v = body.itemTypeId;
+    (data as { itemTypeId?: string | null }).itemTypeId =
+      v === null ? null : typeof v === 'string' && v ? v : null;
+  }
+  if ('attributes' in body) {
+    const v = body.attributes as unknown;
+    (data as { attributes?: unknown | null }).attributes = v == null ? null : v;
+  }
 
   // validate category if set
   if (data.categoryId) {
     const okCat = await prisma.itemCategory.findFirst({
-      where: { id: data.categoryId as string, OR: [{ teamId: null }, { teamId: existing.teamId }] },
+      where: {
+        id: data.categoryId as string,
+        OR: [{ teamId: null }, { teamId: existing.teamId }],
+      },
       select: { id: true },
     });
     if (!okCat)
-      return NextResponse.json({ error: 'Category not found' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Category not found' },
+        { status: 400 },
+      );
+  }
+  // validate itemType/attributes if set
+  if ('itemTypeId' in data || 'attributes' in data) {
+    const itemTypeId =
+      (data as { itemTypeId?: string | null }).itemTypeId ?? null;
+    if (itemTypeId) {
+      const type = (await prisma.itemType.findFirst({
+        where: { id: itemTypeId, teamId: existing.teamId },
+        select: { fields: true },
+      })) as { fields: unknown } | null;
+      if (!type)
+        return NextResponse.json(
+          { error: 'itemTypeId not found' },
+          { status: 400 },
+        );
+      const fields = Array.isArray(type.fields)
+        ? (type.fields as Array<{
+            key: string;
+            type: string;
+            required?: boolean;
+            options?: string[];
+          }>)
+        : [];
+      const provided =
+        (data as { attributes?: Record<string, unknown> | null }).attributes ??
+        null;
+      if (provided) {
+        const out: Record<string, unknown> = {};
+        for (const f of fields) {
+          const key = String(f.key ?? '').trim();
+          const type = String(f.type ?? '').toLowerCase();
+          const required = Boolean(f.required ?? false);
+          const has = Object.prototype.hasOwnProperty.call(provided, key);
+          const val = (provided as Record<string, unknown>)[key];
+          if (!has) {
+            if (required)
+              return NextResponse.json(
+                { error: `Missing required attribute: ${key}` },
+                { status: 400 },
+              );
+            continue;
+          }
+          if (val == null) {
+            if (required)
+              return NextResponse.json(
+                { error: `Missing required attribute: ${key}` },
+                { status: 400 },
+              );
+            continue;
+          }
+          switch (type) {
+            case 'text':
+              if (typeof val !== 'string')
+                return NextResponse.json(
+                  { error: `Attribute ${key} must be string` },
+                  { status: 400 },
+                );
+              out[key] = String(val);
+              break;
+            case 'number':
+              if (typeof val !== 'number' || !Number.isFinite(val))
+                return NextResponse.json(
+                  { error: `Attribute ${key} must be number` },
+                  { status: 400 },
+                );
+              out[key] = Number(val);
+              break;
+            case 'boolean':
+              if (typeof val !== 'boolean')
+                return NextResponse.json(
+                  { error: `Attribute ${key} must be boolean` },
+                  { status: 400 },
+                );
+              out[key] = Boolean(val);
+              break;
+            case 'select': {
+              const opts = Array.isArray(f.options)
+                ? f.options.map((o) => String(o))
+                : [];
+              if (typeof val !== 'string' || !opts.includes(val))
+                return NextResponse.json(
+                  {
+                    error: `Attribute ${key} must be one of: ${opts.join(', ')}`,
+                  },
+                  { status: 400 },
+                );
+              out[key] = String(val);
+              break;
+            }
+            default:
+              return NextResponse.json(
+                { error: `Unsupported attribute type for ${key}` },
+                { status: 400 },
+              );
+          }
+        }
+        (data as { attributes?: Record<string, unknown> | null }).attributes =
+          out;
+      }
+    }
   }
 
   try {
@@ -222,12 +408,14 @@ export async function PATCH(
         stockQuantity: true,
         createdAt: true,
         updatedAt: true,
-  measurementType: true,
-  description: true,
-  color: true,
-  size: true,
-  brand: true,
-  tags: true,
+        measurementType: true,
+        description: true,
+        color: true,
+        size: true,
+        brand: true,
+        tags: true,
+        attributes: true,
+        itemTypeId: true,
       },
     });
 
@@ -312,7 +500,7 @@ export async function DELETE(
     // If there are dependent PlaceItem rows, deleting the item will fail unless
     // cascade rules exist. We can either soft-delete (isActive=false) or try delete.
     // Here, we perform a hard delete; client should handle 409 on FK constraints if any.
-  const deleted = await prisma.item.delete({
+    const deleted = await prisma.item.delete({
       where: { id: itemId },
       select: { id: true },
     });

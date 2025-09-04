@@ -145,27 +145,32 @@ export async function GET(req: Request) {
       orderBy = { createdAt: 'desc' };
   }
 
-  const items = await prisma.item.findMany({
+  const itemSelect = Prisma.validator<Prisma.ItemSelect>()({
+    id: true,
+    teamId: true,
+    name: true,
+    sku: true,
+    categoryId: true,
+    price: true,
+    taxRateBps: true,
+    isActive: true,
+    stockQuantity: true,
+    createdAt: true,
+    measurementType: true,
+    description: true,
+    color: true,
+    size: true,
+    brand: true,
+    tags: true,
+    attributes: true,
+    itemTypeId: true,
+    itemType: { select: { id: true, name: true } },
+    category: { select: { name: true } },
+  });
+  type ItemWithRelations = Prisma.ItemGetPayload<{ select: typeof itemSelect }>;
+  const items: ItemWithRelations[] = await prisma.item.findMany({
     where: whereClause,
-    select: {
-      id: true,
-      teamId: true,
-      name: true,
-      sku: true,
-      categoryId: true,
-      price: true,
-      taxRateBps: true,
-      isActive: true,
-      stockQuantity: true,
-      createdAt: true,
-      measurementType: true,
-      description: true,
-      color: true,
-      size: true,
-      brand: true,
-      tags: true,
-      category: { select: { name: true } },
-    },
+    select: itemSelect,
     orderBy,
   });
 
@@ -204,6 +209,10 @@ export async function GET(req: Request) {
       size: it.size ?? null,
       brand: it.brand ?? null,
       tags: it.tags ?? [],
+      attributes:
+        (it.attributes as unknown as Record<string, unknown> | null) ?? null,
+      itemTypeId: it.itemTypeId ?? null,
+      itemTypeName: it.itemType?.name ?? null,
       currency: 'EUR',
     };
   });
@@ -238,6 +247,8 @@ export async function POST(req: Request) {
     size?: string | null;
     brand?: string | null;
     tags?: string[] | null;
+    itemTypeId?: string | null;
+    attributes?: unknown;
   };
 
   const name = (body.name || '').trim();
@@ -296,6 +307,10 @@ export async function POST(req: Request) {
   const tags = Array.isArray(body.tags)
     ? body.tags.map((t) => String(t).trim()).filter(Boolean)
     : [];
+  const itemTypeId =
+    typeof body.itemTypeId === 'string' && body.itemTypeId
+      ? body.itemTypeId
+      : null;
 
   if (!name)
     return NextResponse.json({ error: 'Name is required' }, { status: 400 });
@@ -390,6 +405,107 @@ export async function POST(req: Request) {
       );
   }
 
+  // Validate itemType and attributes if provided
+  let attributes: Record<string, unknown> | null = null;
+  if (itemTypeId) {
+    const itemType = (await prisma.itemType.findFirst({
+      where: { id: itemTypeId, teamId: targetTeamId },
+      select: { id: true, fields: true },
+    })) as { id: string; fields: unknown } | null;
+    if (!itemType)
+      return NextResponse.json(
+        { error: 'itemTypeId not found' },
+        { status: 400 },
+      );
+    attributes = (await (async () => {
+      const fields = Array.isArray(itemType.fields as unknown)
+        ? (itemType.fields as Array<{
+            key: string;
+            type: string;
+            required?: boolean;
+            options?: string[];
+          }>)
+        : [];
+      const map = (body.attributes ?? {}) as Record<string, unknown>;
+      if (typeof map !== 'object' || map === null || Array.isArray(map))
+        return NextResponse.json(
+          { error: 'attributes must be an object' },
+          { status: 400 },
+        );
+      const out: Record<string, unknown> = {};
+      for (const f of fields) {
+        const key = String(f.key ?? '').trim();
+        const type = String(f.type ?? '').toLowerCase();
+        const required = Boolean(f.required ?? false);
+        const has = Object.prototype.hasOwnProperty.call(map, key);
+        const val = (map as Record<string, unknown>)[key];
+        if (!has) {
+          if (required)
+            return NextResponse.json(
+              { error: `Missing required attribute: ${key}` },
+              { status: 400 },
+            );
+          continue;
+        }
+        if (val == null) {
+          if (required)
+            return NextResponse.json(
+              { error: `Missing required attribute: ${key}` },
+              { status: 400 },
+            );
+          continue;
+        }
+        switch (type) {
+          case 'text':
+            if (typeof val !== 'string')
+              return NextResponse.json(
+                { error: `Attribute ${key} must be string` },
+                { status: 400 },
+              );
+            out[key] = String(val);
+            break;
+          case 'number':
+            if (typeof val !== 'number' || !Number.isFinite(val))
+              return NextResponse.json(
+                { error: `Attribute ${key} must be number` },
+                { status: 400 },
+              );
+            out[key] = Number(val);
+            break;
+          case 'boolean':
+            if (typeof val !== 'boolean')
+              return NextResponse.json(
+                { error: `Attribute ${key} must be boolean` },
+                { status: 400 },
+              );
+            out[key] = Boolean(val);
+            break;
+          case 'select': {
+            const opts = Array.isArray(f.options)
+              ? f.options.map((o) => String(o))
+              : [];
+            if (typeof val !== 'string' || !opts.includes(val))
+              return NextResponse.json(
+                {
+                  error: `Attribute ${key} must be one of: ${opts.join(', ')}`,
+                },
+                { status: 400 },
+              );
+            out[key] = String(val);
+            break;
+          }
+          default:
+            return NextResponse.json(
+              { error: `Unsupported attribute type for ${key}` },
+              { status: 400 },
+            );
+        }
+      }
+      return out;
+    })()) as unknown as Record<string, unknown> | null;
+    if (attributes instanceof NextResponse) return attributes;
+  }
+
   try {
     const created = await prisma.item.create({
       data: {
@@ -407,6 +523,10 @@ export async function POST(req: Request) {
         size,
         brand,
         tags,
+        itemTypeId,
+        attributes: attributes
+          ? (attributes as unknown as Prisma.InputJsonValue)
+          : Prisma.JsonNull,
       },
       select: {
         id: true,
@@ -425,6 +545,8 @@ export async function POST(req: Request) {
         size: true,
         brand: true,
         tags: true,
+        attributes: true,
+        itemTypeId: true,
       },
     });
 

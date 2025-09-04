@@ -48,6 +48,7 @@ model Team {
   itemCategories ItemCategory[]
   placeTypes     PlaceType[]
   items          Item[]
+  itemTypes      ItemType[]
 
   // Back-reference: audit logs associated with this team
   auditLogsForTeam AuditLog[] @relation("AuditTeam")
@@ -116,6 +117,8 @@ model Item {
   size        String?
   brand       String?
   tags        String[] // paprastas string array, tinka filtravimui
+  // Optional flexible attributes driven by ItemType definition
+  attributes  Json?
 
   categoryId String?
   category   ItemCategory? @relation(fields: [categoryId], references: [id])
@@ -123,11 +126,15 @@ model Item {
   team            Team            @relation(fields: [teamId], references: [id])
   places          PlaceItem[]
   measurementType MeasurementType @default(PCS)
+  // Optional reference to a Team-scoped ItemType which defines dynamic fields
+  itemTypeId      String?
+  itemType        ItemType?       @relation(fields: [itemTypeId], references: [id])
 
   @@unique([teamId, name]) // unique item name within a team
   @@unique([teamId, sku])
   @@index([teamId])
   @@index([categoryId])
+  @@index([itemTypeId])
 }
 
 // Team-scoped type for Items (user-defined). teamId null means global / shared.
@@ -177,12 +184,39 @@ model PlaceType {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  team   Team?   @relation(fields: [teamId], references: [id])
-  places Place[]
+  team      Team?      @relation(fields: [teamId], references: [id])
+  places    Place[]
+  itemTypes ItemType[]
 
   @@unique([teamId, name])
   @@unique([teamId, slug])
   @@index([teamId])
+}
+
+// Team-scoped Item type definitions to allow dynamic item attributes.
+// Optionally associated with a PlaceType to help filter by venue kind.
+model ItemType {
+  id          String     @id @default(uuid())
+  teamId      String
+  name        String
+  slug        String
+  description String?
+  isActive    Boolean    @default(true)
+  // Optional: limit this type to places of a given place type
+  placeTypeId String?
+  placeType   PlaceType? @relation(fields: [placeTypeId], references: [id])
+  // JSON array of field definitions for this type
+  // Example: [{ key: "weight", label: "Weight", type: "number", unit: "kg", required: false }]
+  fields      Json
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  team  Team   @relation(fields: [teamId], references: [id])
+  items Item[]
+
+  @@unique([teamId, slug])
+  @@index([teamId])
+  @@index([placeTypeId])
 }
 
 // Explicit membership of a User to a Place (within a Team)

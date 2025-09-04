@@ -18,6 +18,9 @@ export type ItemRow = {
   size?: string | null;
   brand?: string | null;
   tags?: string[] | null;
+  attributes?: Record<string, unknown> | null;
+  itemTypeId?: string | null;
+  itemTypeName?: string | null;
 };
 
 export type Group = {
@@ -31,4 +34,14 @@ export type Group = {
   brand?: string | null;
   items: ItemRow[];
   totalStock: number;
+};
+
+// Dynamic field definition for ItemType
+export type FieldDef = {
+  key: string;
+  label: string;
+  type: 'text' | 'number' | 'select' | 'boolean';
+  required?: boolean;
+  unit?: string | null;
+  options?: string[];
 };
