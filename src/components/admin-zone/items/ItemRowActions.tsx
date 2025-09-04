@@ -22,6 +22,7 @@ type ItemRow = {
     currency: string
     description?: string | null
     color?: string | null
+    size?: string | null
     brand?: string | null
     tags?: string[] | null
 }
@@ -31,7 +32,7 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
     item: ItemRow;
     onUpdate: (
         id: string,
-        patch: Partial<Pick<ItemRow, 'name' | 'sku' | 'price' | 'taxRateBps' | 'isActive' | 'measurementType' | 'stockQuantity' | 'description' | 'color' | 'brand' | 'tags' | 'categoryId'>>,
+        patch: Partial<Pick<ItemRow, 'name' | 'sku' | 'price' | 'taxRateBps' | 'isActive' | 'measurementType' | 'stockQuantity' | 'description' | 'color' | 'size' | 'brand' | 'tags' | 'categoryId'>>,
         opts?: { categoryName?: string | null }
     ) => Promise<void>;
     onDelete: (id: string) => Promise<void>;
@@ -60,6 +61,7 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
     const [stockQuantity, setStockQuantity] = useState(String(item.stockQuantity ?? 0))
     const [description, setDescription] = useState(item.description ?? '')
     const [color, setColor] = useState(item.color ?? '')
+    const [size, setSize] = useState(item.size ?? '')
     const [brand, setBrand] = useState(item.brand ?? '')
     const [tagsCSV, setTagsCSV] = useState((item.tags ?? []).join(', '))
     // categories state
@@ -102,6 +104,7 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
                 stockQuantity: Number(stockQuantity) || 0,
                 description: description.trim() || null,
                 color: color.trim() || null,
+                size: size.trim() || null,
                 brand: brand.trim() || null,
                 tags: tagsCSV.split(',').map(t => t.trim()).filter(Boolean),
                 categoryId: nextCategoryId,
@@ -275,8 +278,9 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
                         />
                     </div>
                     <Input id={`desc-${item.id}`} name="description" type="text" className="" placeholder="Description (optional)" value={description} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)} />
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                         <Input id={`color-${item.id}`} name="color" type="text" className="" placeholder="Color (optional)" value={color} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setColor(e.target.value)} />
+                        <Input id={`size-${item.id}`} name="size" type="text" className="" placeholder="Size (optional)" value={size} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSize(e.target.value)} />
                         <Input id={`brand-${item.id}`} name="brand" type="text" className="" placeholder="Brand (optional)" value={brand} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBrand(e.target.value)} />
                     </div>
                     <Input id={`tags-${item.id}`} name="tags" type="text" className="" placeholder="Tags (comma-separated)" value={tagsCSV} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTagsCSV(e.target.value)} />
