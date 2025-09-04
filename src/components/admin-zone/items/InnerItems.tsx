@@ -13,6 +13,7 @@ import { ChevronDown, ChevronRight, LayoutGrid, Table as TableIcon, RotateCcw } 
 import Dropdown from "@/components/ui/Dropdown"
 import Input from "@/components/ui/Input"
 import SearchInput from "@/components/ui/SearchInput"
+import Modal from "@/components/modals/Modal"
 
 export type ItemRow = {
     id: string
@@ -95,6 +96,10 @@ export default function InnerItems() {
     const [conflictInfo, setConflictInfo] = useState<null | { id: string; places: { placeId: string; placeName: string; quantity: number }[] }>(null)
     type Category = { id: string; name: string }
     const [categories, setCategories] = useState<Category[]>([])
+    // Deleting a whole box (group)
+    const [confirmBoxKey, setConfirmBoxKey] = useState<string | null>(null)
+    const [deletingBox, setDeletingBox] = useState(false)
+    const [boxMsg, setBoxMsg] = useState("")
 
     useEffect(() => { try { localStorage.setItem("items:view", view) } catch { } }, [view])
     useEffect(() => { try { localStorage.setItem("items:grouped", grouped ? "1" : "0") } catch { } }, [grouped])
@@ -171,6 +176,43 @@ export default function InnerItems() {
             console.error(e)
             toast.error("Failed to load items")
         } finally { setLoading(false) }
+    }
+
+    // Delete a whole box (group)
+    async function deleteBoxByGroupKey(groupKey: string) {
+        // groupKey format: `${teamId}|${baseLabel}|${color || ""}`
+        const [teamId, baseLabel, color] = groupKey.split("|")
+        // Normalize baseName expected by API: strip trailing ` (Color)` if present
+        let baseName = baseLabel
+        if (color && baseLabel.endsWith(` (${color})`)) {
+            baseName = baseLabel.slice(0, -(` (${color})`).length)
+        }
+
+        setDeletingBox(true); setBoxMsg("")
+        try {
+            const res = await fetch(`/api/items/box`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ teamId, baseName, color: color || null }),
+            })
+            const data = await res.json().catch(() => ({}))
+            if (!res.ok) { throw new Error(data?.error || "Failed to delete box") }
+
+            // Optimistically remove items from this group
+            setItems((prev) => prev.filter((it) => {
+                const base = (it.name || "").split(" - ")[0] || it.name
+                const key = `${it.teamId}|${base}|${it.color || ""}`
+                return key !== groupKey
+            }))
+            toast.success("Box deleted")
+            setConfirmBoxKey(null)
+        } catch (e) {
+            console.error(e)
+            setBoxMsg((e as Error)?.message || "Failed to delete box")
+            toast.error("Failed to delete box")
+        } finally {
+            setDeletingBox(false)
+        }
     }
 
     // create callback
@@ -446,9 +488,19 @@ export default function InnerItems() {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="text-right text-xs text-gray-600 dark:text-gray-300">
-                                                <div>Price: {new Intl.NumberFormat(undefined, { style: "currency", currency: g.items[0]?.currency || "EUR" }).format(g.price)}</div>
-                                                <div>Tax: {(g.taxRateBps / 100).toFixed(2)}%</div>
+                                            <div className="flex items-center gap-3">
+                                                <div className="hidden sm:block text-right text-xs text-gray-600 dark:text-gray-300">
+                                                    <div>Price: {new Intl.NumberFormat(undefined, { style: "currency", currency: g.items[0]?.currency || "EUR" }).format(g.price)}</div>
+                                                    <div>Tax: {(g.taxRateBps / 100).toFixed(2)}%</div>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => { e.stopPropagation(); setConfirmBoxKey(g.key) }}
+                                                    className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50 dark:border-red-500/40 dark:text-red-400 dark:hover:bg-red-500/10"
+                                                    title="Delete whole box"
+                                                >
+                                                    Delete box
+                                                </button>
                                             </div>
                                         </div>
                                     </button>
@@ -471,6 +523,40 @@ export default function InnerItems() {
             )}
 
             <ConflictModal info={conflictInfo} onClose={() => setConflictInfo(null)} />
+
+            {/* Confirm delete box modal */}
+            <Modal open={!!confirmBoxKey} onClose={() => (!deletingBox && setConfirmBoxKey(null))} size="sm">
+                <div className="sm:flex sm:items-start">
+                    <div className="mx-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10 dark:bg-red-500/10">
+                        <svg className="h-6 w-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" aria-hidden="true">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                        </svg>
+                    </div>
+                    <div className="mt-3 text-left sm:ml-4 sm:mt-0">
+                        <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">Delete box</h3>
+                        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">This will remove all items in this box from your catalog and from places. Existing receipts remain intact.</p>
+                    </div>
+                </div>
+                <div className="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse">
+                    <button
+                        type="button"
+                        onClick={() => confirmBoxKey && deleteBoxByGroupKey(confirmBoxKey)}
+                        disabled={deletingBox}
+                        className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 disabled:opacity-60 sm:ml-3 sm:w-auto dark:bg-red-500 dark:hover:bg-red-400"
+                    >
+                        {deletingBox ? 'Deleting…' : 'Delete box'}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setConfirmBoxKey(null)}
+                        disabled={deletingBox}
+                        className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto dark:bg-gray-700 dark:text-white dark:ring-white/10 dark:hover:bg-gray-600"
+                    >
+                        Cancel
+                    </button>
+                </div>
+                {boxMsg && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{boxMsg}</p>}
+            </Modal>
         </>
     )
 }
