@@ -6,6 +6,7 @@ export type ItemRow = {
   categoryId?: string | null;
   categoryName?: string | null;
   price: number;
+  pricePaid?: number;
   taxRateBps: number;
   isActive: boolean;
   unit?: string;
@@ -26,6 +27,7 @@ export type Group = {
   color?: string | null;
   categoryName?: string | null;
   price: number;
+  pricePaid?: number;
   taxRateBps: number;
   unit?: string | null;
   brand?: string | null;

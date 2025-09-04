@@ -104,6 +104,8 @@ model Item {
   name       String
   sku        String?
   price      Float
+  // Purchase cost (amount paid per unit) to compare profit = price - pricePaid
+  pricePaid  Float   @default(0)
   taxRateBps Int     @default(0) // basis points (e.g. 2100 = 21.00%)
   isActive   Boolean @default(true)
 

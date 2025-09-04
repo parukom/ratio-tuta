@@ -24,6 +24,7 @@ export async function POST(req: Request) {
     color?: string | null;
     categoryId?: string | null;
     price: number;
+    boxCost?: number; // total cost paid for the whole box
     taxRateBps?: number;
     measurementType?: string; // preferred
     unit?: string; // legacy alias
@@ -39,6 +40,9 @@ export async function POST(req: Request) {
   const baseName = String(body.baseName || '').trim();
   const color = (body.color ?? '').trim();
   const price = Number(body.price);
+  const boxCost = Number(
+    typeof body.boxCost === 'number' ? body.boxCost : 0,
+  );
   const taxRateBps = Number(body.taxRateBps ?? 0);
   // Determine measurement type with legacy unit mapping
   type MT = 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME';
@@ -109,6 +113,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid taxRateBps' }, { status: 400 });
   if (sizes.length === 0)
     return NextResponse.json({ error: 'sizes is required' }, { status: 400 });
+  if (!Number.isFinite(boxCost) || boxCost < 0)
+    return NextResponse.json(
+      { error: 'Invalid boxCost' },
+      { status: 400 },
+    );
 
   // Validate sizes entries
   for (const s of sizes) {
@@ -207,6 +216,9 @@ export async function POST(req: Request) {
 
   try {
     const out = await prisma.$transaction(async (tx) => {
+      // Determine total quantity across all size rows
+      const totalQty = sizes.reduce((acc, s) => acc + Number(s.quantity || 0), 0);
+      const perUnitCost = totalQty > 0 ? boxCost / totalQty : 0;
       for (const spec of sizes) {
         const sizeStr = String(spec.size).trim();
         const qty = Number(spec.quantity);
@@ -216,13 +228,26 @@ export async function POST(req: Request) {
         // Try find by name within team
         const existing = await tx.item.findFirst({
           where: { teamId: targetTeamId!, name },
-          select: { id: true, stockQuantity: true },
+          select: { id: true, stockQuantity: true, pricePaid: true },
         });
 
         if (existing) {
+          // Weighted-average pricePaid using current stock and new qty at perUnitCost
+          const prevQty = existing.stockQuantity;
+          const prevCost = existing.pricePaid ?? 0;
+          const newQtyTotal = prevQty + qty;
+          const newPricePaid =
+            newQtyTotal > 0
+              ? (prevCost * prevQty + perUnitCost * qty) / newQtyTotal
+              : prevCost;
+
           const updated = await tx.item.update({
             where: { id: existing.id },
-            data: { stockQuantity: existing.stockQuantity + qty },
+            data: {
+              stockQuantity: existing.stockQuantity + qty,
+              // Update pricePaid with weighted average by quantity
+              pricePaid: { set: newPricePaid },
+            },
             select: { id: true, name: true },
           });
           results.push({
@@ -248,6 +273,7 @@ export async function POST(req: Request) {
             sku: sku ?? null,
             categoryId,
             price,
+            pricePaid: perUnitCost,
             taxRateBps,
             isActive,
             measurementType,
@@ -297,10 +323,15 @@ export async function POST(req: Request) {
       color: color || null,
       categoryId,
       price,
+      boxCost,
       taxRateBps,
       measurementType,
       count: sizes.length,
       totalAdded: results.reduce((a, r) => a + r.delta, 0),
+      perUnitCost:
+        results.reduce((a, r) => a + r.delta, 0) > 0
+          ? boxCost / results.reduce((a, r) => a + r.delta, 0)
+          : 0,
     },
   });
 

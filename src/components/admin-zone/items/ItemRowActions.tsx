@@ -13,6 +13,7 @@ type ItemRow = {
     categoryId?: string | null
     categoryName?: string | null
     price: number
+    pricePaid?: number
     taxRateBps: number
     isActive: boolean
     unit?: string
@@ -32,7 +33,7 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
     item: ItemRow;
     onUpdate: (
         id: string,
-        patch: Partial<Pick<ItemRow, 'name' | 'sku' | 'price' | 'taxRateBps' | 'isActive' | 'measurementType' | 'stockQuantity' | 'description' | 'color' | 'size' | 'brand' | 'tags' | 'categoryId'>>,
+    patch: Partial<Pick<ItemRow, 'name' | 'sku' | 'price' | 'pricePaid' | 'taxRateBps' | 'isActive' | 'measurementType' | 'stockQuantity' | 'description' | 'color' | 'size' | 'brand' | 'tags' | 'categoryId'>>,
         opts?: { categoryName?: string | null }
     ) => Promise<void>;
     onDelete: (id: string) => Promise<void>;
@@ -45,6 +46,7 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
     const [sku, setSku] = useState(item.sku ?? '')
     const [price, setPrice] = useState(String(item.price))
     const [taxRateBps, setTaxRateBps] = useState(String(item.taxRateBps))
+    const [pricePaid, setPricePaid] = useState(String(item.pricePaid ?? 0))
     const [isActive, setIsActive] = useState(!!item.isActive)
     // derive initial measurement type (prefer field, fallback from unit)
     const mapUnitToMT = (u?: string): ItemRow['measurementType'] => {
@@ -98,6 +100,7 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
                 name: name.trim(),
                 sku: sku.trim() || null,
                 price: Number(price),
+                pricePaid: Number(pricePaid) || 0,
                 taxRateBps: Number(taxRateBps) || 0,
                 isActive,
                 measurementType: (measurementType ?? 'PCS'),
@@ -230,8 +233,9 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
                         )}
                         {catMsg && <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">{catMsg}</p>}
                     </div>
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                         <Input id={`price-${item.id}`} name="price" type="number" className="" placeholder="Price" value={price} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPrice(e.target.value)} />
+                        <Input id={`pricePaid-${item.id}`} name="pricePaid" type="number" className="" placeholder="Price paid (cost)" value={pricePaid} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPricePaid(e.target.value)} />
                         <Input id={`tax-${item.id}`} name="tax" type="number" className="" placeholder="Tax (bps)" value={taxRateBps} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTaxRateBps(e.target.value)} />
                     </div>
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

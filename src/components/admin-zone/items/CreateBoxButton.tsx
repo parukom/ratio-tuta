@@ -21,6 +21,7 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
     const [baseName, setBaseName] = useState('')
     const [color, setColor] = useState('')
     const [price, setPrice] = useState('')
+    const [boxCost, setBoxCost] = useState('')
     const [taxRateBps, setTaxRateBps] = useState('0')
     const [measurementType, setMeasurementType] = useState<'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'>('PCS')
     const [skuPrefix, setSkuPrefix] = useState('')
@@ -137,6 +138,7 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
                 color: color || null,
                 categoryId: (categoryId || undefined),
                 price: Number(price),
+                boxCost: Number(boxCost) || 0,
                 taxRateBps: Number(taxRateBps) || 0,
                 measurementType,
                 skuPrefix: skuPrefix || null,
@@ -156,7 +158,7 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
             setOpen(false)
             onDone?.()
             // reset only non-persisted fields; keep sizes for next box until user resets
-            setBaseName(''); setColor(''); setPrice(''); setSkuPrefix('')
+            setBaseName(''); setColor(''); setPrice(''); setBoxCost(''); setSkuPrefix('')
         } catch {
             setMessage('Network error')
             toast.error('Network error')
@@ -203,9 +205,10 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
 
                 <form onSubmit={submit} className="mt-4 space-y-3">
                     <Input id="baseName" name="baseName" type="text" className="" placeholder="Base name e.g. Shoes" value={baseName} onChange={(e) => setBaseName(e.target.value)} />
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
                         <Input id="color" name="color" type="text" className="" placeholder="Color (optional)" value={color} onChange={(e) => setColor(e.target.value)} />
                         <Input id="price" name="price" type="number" className="" placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} />
+                        <Input id="boxCost" name="boxCost" type="number" className="" placeholder="Box cost (total paid)" value={boxCost} onChange={(e) => setBoxCost(e.target.value)} />
                         <Input id="tax" name="tax" type="number" className="" placeholder="Tax (bps)" value={taxRateBps} onChange={(e) => setTaxRateBps(e.target.value)} />
                     </div>
                     {/* Category selector with inline create */}

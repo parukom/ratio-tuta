@@ -8,7 +8,7 @@ import { ItemRowActions } from './ItemRowActions'
 type Props = {
     items: ItemRow[]
     loading: boolean
-    onUpdate: (id: string, patch: Partial<Pick<ItemRow, 'name' | 'sku' | 'price' | 'taxRateBps' | 'isActive' | 'measurementType' | 'stockQuantity' | 'description' | 'color' | 'size' | 'brand' | 'tags' | 'categoryId'>>, opts?: { categoryName?: string | null }) => Promise<void>
+    onUpdate: (id: string, patch: Partial<Pick<ItemRow, 'name' | 'sku' | 'price' | 'pricePaid' | 'taxRateBps' | 'isActive' | 'measurementType' | 'stockQuantity' | 'description' | 'color' | 'size' | 'brand' | 'tags' | 'categoryId'>>, opts?: { categoryName?: string | null }) => Promise<void>
     onDelete: (id: string) => Promise<void>
 }
 

@@ -14,6 +14,7 @@ type Props = {
     sku?: string | null
     categoryId?: string | null
     price: number
+  pricePaid?: number
     taxRateBps: number
     isActive: boolean
     createdAt: string
@@ -29,6 +30,7 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
   const [name, setName] = useState('')
   const [sku, setSku] = useState('')
   const [price, setPrice] = useState('')
+  const [pricePaid, setPricePaid] = useState('')
   const [taxRateBps, setTaxRateBps] = useState('0')
   const [isActive, setIsActive] = useState(true)
   const [measurementType, setMeasurementType] = useState<'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'>('PCS')
@@ -77,6 +79,7 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
           sku: sku || null,
           categoryId: categoryId || null,
           price: Number(price),
+          pricePaid: Number(pricePaid) || 0,
           taxRateBps: Number(taxRateBps) || 0,
           isActive,
           measurementType,
@@ -179,6 +182,7 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Input id="price" name="price" type="number" className="" placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} />
+            <Input id="pricePaid" name="pricePaid" type="number" className="" placeholder="Price paid (cost)" value={pricePaid} onChange={(e) => setPricePaid(e.target.value)} />
             <Input id="taxRateBps" name="taxRateBps" type="number" className="" placeholder="Tax (bps) e.g. 2100" value={taxRateBps} onChange={(e) => setTaxRateBps(e.target.value)} />
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

@@ -10,6 +10,7 @@ type ItemRow = {
     categoryId?: string | null
     categoryName?: string | null
     price: number
+        pricePaid?: number
     taxRateBps: number
     isActive: boolean
     unit?: string
@@ -61,6 +62,11 @@ export function ItemCard({
         maximumFractionDigits: 2,
     }).format(item.price)
     const taxPct = (item.taxRateBps / 100).toFixed(2)
+    const currencyFmt = (v: number) => new Intl.NumberFormat(undefined, {
+        style: 'currency', currency, maximumFractionDigits: 2,
+    }).format(v)
+    const cost = typeof item.pricePaid === 'number' ? currencyFmt(item.pricePaid) : undefined
+    const profit = typeof item.pricePaid === 'number' ? currencyFmt(item.price - item.pricePaid) : undefined
 
     const colorStyle: React.CSSProperties | undefined = item.color
         ? { backgroundColor: item.color }
@@ -141,6 +147,18 @@ export function ItemCard({
                     <div className="text-[11px] text-gray-500 dark:text-gray-400">Tax</div>
                     <div className="text-sm font-medium text-gray-900 dark:text-white">{taxPct}%</div>
                 </div>
+                {typeof item.pricePaid === 'number' && (
+                    <div>
+                        <div className="text-[11px] text-gray-500 dark:text-gray-400">Cost</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">{cost}</div>
+                    </div>
+                )}
+                {typeof item.pricePaid === 'number' && (
+                    <div className="text-right">
+                        <div className="text-[11px] text-gray-500 dark:text-gray-400">Profit</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">{profit}</div>
+                    </div>
+                )}
                 <div>
                     <div className="text-[11px] text-gray-500 dark:text-gray-400">Unit</div>
                     <div className="text-sm font-medium text-gray-900 dark:text-white">{item.unit || 'pcs'}</div>

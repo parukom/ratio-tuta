@@ -14,7 +14,7 @@ type Props = {
     loading: boolean
     openGroups: Record<string, boolean>
     setOpenGroups: (updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void
-    onUpdate: (id: string, patch: Partial<Pick<ItemRow, 'name' | 'sku' | 'price' | 'taxRateBps' | 'isActive' | 'measurementType' | 'stockQuantity' | 'description' | 'color' | 'size' | 'brand' | 'tags' | 'categoryId'>>, opts?: { categoryName?: string | null }) => Promise<void>
+    onUpdate: (id: string, patch: Partial<Pick<ItemRow, 'name' | 'sku' | 'price' | 'pricePaid' | 'taxRateBps' | 'isActive' | 'measurementType' | 'stockQuantity' | 'description' | 'color' | 'size' | 'brand' | 'tags' | 'categoryId'>>, opts?: { categoryName?: string | null }) => Promise<void>
     onDelete: (id: string) => Promise<void>
     onAskDeleteBox: (groupKey: string) => void
 }
@@ -73,6 +73,9 @@ export default function ItemsCardsView({ items, groups, grouped, loading, openGr
                             <div className="flex items-center gap-3">
                                 <div className="hidden sm:block text-right text-xs text-gray-600 dark:text-gray-300">
                                     <div>Price: {new Intl.NumberFormat(undefined, { style: "currency", currency: g.items[0]?.currency || "EUR" }).format(g.price)}</div>
+                                    {typeof g.pricePaid === 'number' && (
+                                        <div>Cost: {new Intl.NumberFormat(undefined, { style: "currency", currency: g.items[0]?.currency || "EUR" }).format(g.pricePaid)}</div>
+                                    )}
                                     <div>Tax: {(g.taxRateBps / 100).toFixed(2)}%</div>
                                 </div>
                                 <button

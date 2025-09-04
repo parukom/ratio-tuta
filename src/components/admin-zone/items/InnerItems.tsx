@@ -182,7 +182,7 @@ export default function InnerItems() {
     }
 
     // create callback
-    function onCreated(created: Partial<ItemRow> & { id: string; teamId: string; name: string; price: number; taxRateBps: number; isActive: boolean; createdAt: string }) {
+    function onCreated(created: Partial<ItemRow> & { id: string; teamId: string; name: string; price: number; pricePaid?: number; taxRateBps: number; isActive: boolean; createdAt: string }) {
         if (!onlyActive || created.isActive) {
             const optimistic: ItemRow = {
                 id: created.id,
@@ -193,6 +193,7 @@ export default function InnerItems() {
                 categoryName: created.categoryName ?? null,
                 price: created.price,
                 taxRateBps: created.taxRateBps,
+                pricePaid: created.pricePaid ?? 0,
                 isActive: created.isActive,
                 unit: created.unit ?? "pcs",
                 stockQuantity: created.stockQuantity ?? 0,
@@ -212,7 +213,7 @@ export default function InnerItems() {
     }
 
     // update/delete helpers
-    async function updateItem(id: string, patch: Partial<Pick<ItemRow, "name" | "sku" | "price" | "taxRateBps" | "isActive" | "measurementType" | "stockQuantity" | "description" | "color" | "size" | "brand" | "tags" | "categoryId">>, opts?: { categoryName?: string | null }) {
+    async function updateItem(id: string, patch: Partial<Pick<ItemRow, "name" | "sku" | "price" | "pricePaid" | "taxRateBps" | "isActive" | "measurementType" | "stockQuantity" | "description" | "color" | "size" | "brand" | "tags" | "categoryId">>, opts?: { categoryName?: string | null }) {
         const res = await fetch(`/api/items/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(patch) })
         if (!res.ok) throw new Error("Failed to update")
         const updated: ItemRow = await res.json()
@@ -249,7 +250,7 @@ export default function InnerItems() {
             const stock = typeof it.stockQuantity === "number" ? it.stockQuantity : 0
             const existing = map.get(key)
             if (!existing) {
-                map.set(key, { key, label: base, color: it.color ?? null, categoryName: it.categoryName ?? null, price: it.price, taxRateBps: it.taxRateBps, unit: it.unit ?? null, brand: it.brand ?? null, items: [it], totalStock: stock ?? 0 })
+                map.set(key, { key, label: base, color: it.color ?? null, categoryName: it.categoryName ?? null, price: it.price, pricePaid: it.pricePaid ?? 0, taxRateBps: it.taxRateBps, unit: it.unit ?? null, brand: it.brand ?? null, items: [it], totalStock: stock ?? 0 })
             } else {
                 existing.items.push(it)
                 existing.totalStock += stock ?? 0

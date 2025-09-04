@@ -26,6 +26,8 @@ export async function GET(req: Request) {
   const inStockParam = searchParams.get('inStock');
   const minPriceParam = searchParams.get('minPrice');
   const maxPriceParam = searchParams.get('maxPrice');
+  const minPricePaidParam = searchParams.get('minPricePaid');
+  const maxPricePaidParam = searchParams.get('maxPricePaid');
   const sortParam = (searchParams.get('sort') || '').toLowerCase();
 
   // Resolve teams current user belongs to
@@ -109,6 +111,22 @@ export async function GET(req: Request) {
         ? { price: priceRange }
         : {};
     })(),
+    ...(() => {
+      const gte =
+        minPricePaidParam != null && minPricePaidParam !== ''
+          ? Number(minPricePaidParam)
+          : undefined;
+      const lte =
+        maxPricePaidParam != null && maxPricePaidParam !== ''
+          ? Number(maxPricePaidParam)
+          : undefined;
+      const range: Prisma.FloatFilter = {};
+      if (typeof gte === 'number' && Number.isFinite(gte)) range.gte = gte;
+      if (typeof lte === 'number' && Number.isFinite(lte)) range.lte = lte;
+      return range.gte !== undefined || range.lte !== undefined
+        ? { pricePaid: range }
+        : {};
+    })(),
   };
 
   // Build sorting
@@ -129,6 +147,7 @@ export async function GET(req: Request) {
     case 'price_desc':
       orderBy = { price: 'desc' };
       break;
+  // pricePaid sorting becomes available after prisma client regeneration
     case 'stock_asc':
       orderBy = { stockQuantity: 'asc' };
       break;
@@ -154,6 +173,7 @@ export async function GET(req: Request) {
       sku: true,
       categoryId: true,
       price: true,
+      pricePaid: true,
       taxRateBps: true,
       isActive: true,
       stockQuantity: true,
@@ -190,8 +210,9 @@ export async function GET(req: Request) {
       name: it.name,
       sku: it.sku,
       categoryId: it.categoryId,
-      categoryName: it.category?.name ?? null,
+  categoryName: (it as any).category?.name ?? null,
       price: it.price,
+  pricePaid: (it as any).pricePaid ?? 0,
       taxRateBps: it.taxRateBps,
       isActive: it.isActive,
       // backward-compat display field
@@ -228,6 +249,7 @@ export async function POST(req: Request) {
     sku?: string | null;
     categoryId?: string | null;
     price?: number;
+  pricePaid?: number;
     taxRateBps?: number;
     isActive?: boolean;
     stockQuantity?: number;
@@ -242,6 +264,9 @@ export async function POST(req: Request) {
 
   const name = (body.name || '').trim();
   const price = Number(body.price);
+  const pricePaid = Number(
+    typeof body.pricePaid === 'number' ? body.pricePaid : 0,
+  );
   const taxRateBps = body.taxRateBps ?? 0;
   const stockQuantity = Number(
     typeof body.stockQuantity === 'number' ? body.stockQuantity : 0,
@@ -302,6 +327,11 @@ export async function POST(req: Request) {
   if (!Number.isFinite(price) || price < 0)
     return NextResponse.json(
       { error: 'Valid price is required' },
+      { status: 400 },
+    );
+  if (!Number.isFinite(pricePaid) || pricePaid < 0)
+    return NextResponse.json(
+      { error: 'Invalid pricePaid' },
       { status: 400 },
     );
   if (!Number.isInteger(taxRateBps) || taxRateBps < 0)
@@ -398,6 +428,7 @@ export async function POST(req: Request) {
         sku: body.sku ?? null,
         categoryId,
         price,
+  pricePaid,
         taxRateBps,
         isActive: body.isActive ?? true,
         stockQuantity,
@@ -415,6 +446,7 @@ export async function POST(req: Request) {
         sku: true,
         categoryId: true,
         price: true,
+  pricePaid: true,
         taxRateBps: true,
         isActive: true,
         stockQuantity: true,

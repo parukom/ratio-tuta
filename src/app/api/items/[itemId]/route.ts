@@ -26,6 +26,7 @@ export async function GET(
       sku: true,
       categoryId: true,
       price: true,
+  pricePaid: true,
       taxRateBps: true,
       isActive: true,
       stockQuantity: true,
@@ -110,6 +111,7 @@ export async function PATCH(
     sku: string | null;
     categoryId: string | null;
     price: number;
+  pricePaid: number;
     taxRateBps: number;
     isActive: boolean;
     stockQuantity: number;
@@ -140,6 +142,12 @@ export async function PATCH(
     if (!Number.isFinite(v) || v < 0)
       return NextResponse.json({ error: 'Invalid price' }, { status: 400 });
     data.price = v;
+  }
+  if ('pricePaid' in body) {
+    const v = Number(body.pricePaid);
+    if (!Number.isFinite(v) || v < 0)
+      return NextResponse.json({ error: 'Invalid pricePaid' }, { status: 400 });
+    (data as { pricePaid?: number }).pricePaid = v;
   }
   if ('taxRateBps' in body) {
     const v = Number(body.taxRateBps);
@@ -217,6 +225,7 @@ export async function PATCH(
         sku: true,
         categoryId: true,
         price: true,
+  pricePaid: true,
         taxRateBps: true,
         isActive: true,
         stockQuantity: true,
