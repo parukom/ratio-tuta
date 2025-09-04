@@ -218,7 +218,10 @@ export async function POST(req: Request) {
     const out = await prisma.$transaction(async (tx) => {
       // Determine total quantity across all size rows
       const totalQty = sizes.reduce((acc, s) => acc + Number(s.quantity || 0), 0);
-      const perUnitCost = totalQty > 0 ? boxCost / totalQty : 0;
+      if (boxCost > 0 && totalQty <= 0) {
+        throw new Error('boxCost provided but total quantity is zero');
+      }
+      const perUnitCost = totalQty > 0 && boxCost > 0 ? boxCost / totalQty : 0;
       for (const spec of sizes) {
         const sizeStr = String(spec.size).trim();
         const qty = Number(spec.quantity);
@@ -241,12 +244,16 @@ export async function POST(req: Request) {
               ? (prevCost * prevQty + perUnitCost * qty) / newQtyTotal
               : prevCost;
 
-          const updated = await tx.item.update({
+      const updated = await tx.item.update({
             where: { id: existing.id },
             data: {
               stockQuantity: existing.stockQuantity + qty,
               // Update pricePaid with weighted average by quantity
               pricePaid: { set: newPricePaid },
+        // Also keep price/tax/measurementType in sync with the box settings
+        price,
+        taxRateBps,
+        measurementType,
             },
             select: { id: true, name: true },
           });

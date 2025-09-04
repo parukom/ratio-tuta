@@ -66,6 +66,19 @@ export default function InnerItems() {
     const [confirmBoxKey, setConfirmBoxKey] = useState<string | null>(null)
     const [deletingBox, setDeletingBox] = useState(false)
     const [boxMsg, setBoxMsg] = useState("")
+    // Edit box modal
+    const [editBoxKey, setEditBoxKey] = useState<string | null>(null)
+    const [editLoading, setEditLoading] = useState(false)
+    const [editMsg, setEditMsg] = useState("")
+    const [editPrice, setEditPrice] = useState<string>("")
+    const [editBoxCost, setEditBoxCost] = useState<string>("")
+    const [editTaxBps, setEditTaxBps] = useState<string>("")
+    type EditRow = { id: string; size: string; quantity: string; itemId?: string }
+    const genId = () => globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2)
+    const [editRows, setEditRows] = useState<EditRow[]>([])
+    function addEditRow() { setEditRows((p) => [...p, { id: genId(), size: "", quantity: "0" }]) }
+    function removeEditRow(id: string) { setEditRows((p) => p.filter(r => r.id !== id)) }
+    function updateEditRow(id: string, patch: Partial<EditRow>) { setEditRows((p) => p.map(r => r.id === id ? { ...r, ...patch } : r)) }
 
     useEffect(() => { try { localStorage.setItem("items:view", view) } catch { } }, [view])
     useEffect(() => { try { localStorage.setItem("items:grouped", grouped ? "1" : "0") } catch { } }, [grouped])
@@ -393,6 +406,21 @@ export default function InnerItems() {
                     onUpdate={updateItem}
                     onDelete={deleteItem}
                     onAskDeleteBox={(key) => setConfirmBoxKey(key)}
+                    onAskEditBox={(key) => {
+                        setEditMsg("")
+                        setEditBoxKey(key)
+                        // seed with group data
+                        const g = groups.find(g => g.key === key)
+                        if (g) {
+                            setEditPrice(String(g.price))
+                            setEditTaxBps(String(g.taxRateBps))
+                            setEditBoxCost("")
+                            const rows: EditRow[] = g.items.map(it => ({ id: genId(), size: it.size || "", quantity: "0", itemId: it.id }))
+                            setEditRows(rows)
+                        } else {
+                            setEditRows([{ id: genId(), size: "", quantity: "0" }])
+                        }
+                    }}
                 />
             )}
 
@@ -430,6 +458,80 @@ export default function InnerItems() {
                     </button>
                 </div>
                 {boxMsg && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{boxMsg}</p>}
+            </Modal>
+
+            {/* Edit box modal */}
+            <Modal open={!!editBoxKey} onClose={() => (!editLoading && setEditBoxKey(null))} size="lg">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white">Edit box</h3>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Adjust price/tax, add quantities per size, and optionally split a total box cost across added quantities. To remove a size, set a negative quantity to decrease stock or use delete on individual items.</p>
+                <div className="mt-4 space-y-3">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                        <Input type="number" placeholder="Price" value={editPrice} onChange={(e) => setEditPrice(e.target.value)} />
+                        <Input type="number" placeholder="Box cost to split (optional)" value={editBoxCost} onChange={(e) => setEditBoxCost(e.target.value)} />
+                        <Input type="number" placeholder="Tax (bps)" value={editTaxBps} onChange={(e) => setEditTaxBps(e.target.value)} />
+                    </div>
+                    <div>
+                        <div className="mb-1 text-sm font-medium text-gray-800 dark:text-gray-200">Sizes in the box</div>
+                        <div className="space-y-2">
+                            {editRows.map((row, idx) => (
+                                <div key={row.id} className="grid grid-cols-12 items-center gap-2">
+                                    <div className="col-span-6"><Input type="text" placeholder="Variant/Size" value={row.size} onChange={(e) => updateEditRow(row.id, { size: e.target.value })} /></div>
+                                    <div className="col-span-4"><Input type="number" placeholder="Quantity (can be negative)" value={row.quantity} onChange={(e) => updateEditRow(row.id, { quantity: e.target.value })} /></div>
+                                    <div className="col-span-2 flex justify-end"><button type="button" onClick={() => removeEditRow(row.id)} className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-gray-100 dark:ring-white/10">Remove</button></div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="mt-2"><button type="button" onClick={addEditRow} className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-gray-100 dark:ring-white/10">+ Add size</button></div>
+                    </div>
+                </div>
+                <div className="mt-4 flex items-center justify-end gap-2">
+                    <button type="button" onClick={() => setEditBoxKey(null)} disabled={editLoading} className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-gray-100 dark:ring-white/10">Cancel</button>
+                    <button
+                        type="button"
+                        disabled={editLoading}
+                        onClick={async () => {
+                            if (!editBoxKey) return
+                            setEditLoading(true); setEditMsg("")
+                            try {
+                                // Parse groupKey
+                                const [teamId, baseLabel, color] = editBoxKey.split("|")
+                                let baseName = baseLabel
+                                if (color && baseLabel.endsWith(` (${color})`)) {
+                                    baseName = baseLabel.slice(0, -(` (${color})`).length)
+                                }
+                                // Build sizes for API: only positive quantities allowed by API; we’ll send adds via box API
+                                const adds = editRows.filter(r => r.size.trim() && Number(r.quantity) !== 0 && Number(r.quantity) > 0)
+                                    .map(r => ({ size: r.size.trim(), quantity: Number(r.quantity) }))
+                                if (adds.length) {
+                                    const res = await fetch('/api/items/box', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ teamId, baseName, color: color || null, price: Number(editPrice) || 0, boxCost: Number(editBoxCost) || 0, taxRateBps: Number(editTaxBps) || 0, measurementType: 'PCS', skuPrefix: null, sizes: adds, createMissing: true, isActive: true }),
+                                    })
+                                    const data = await res.json().catch(() => ({}))
+                                    if (!res.ok) throw new Error(data?.error || 'Failed to update box')
+                                }
+                                // Handle negative quantities: apply as per-item decrements via PATCH
+                                const negs = editRows.filter(r => r.itemId && r.size.trim() && Number(r.quantity) < 0)
+                                for (const r of negs) {
+                                    const it = items.find(i => i.id === r.itemId)
+                                    if (!it) continue
+                                    const newStock = Math.max(0, (it.stockQuantity || 0) + Number(r.quantity))
+                                    // Note: this does not adjust pricePaid; it's a stock correction
+                                    await updateItem(it.id, { stockQuantity: newStock })
+                                }
+                                toast.success('Box updated')
+                                setEditBoxKey(null)
+                                fetchItems()
+                            } catch (e) {
+                                setEditMsg((e as Error)?.message || 'Failed to update box')
+                                toast.error('Failed to update box')
+                            } finally { setEditLoading(false) }
+                        }}
+                        className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+                    >{editLoading ? 'Saving…' : 'Save changes'}</button>
+                </div>
+                {editMsg && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{editMsg}</p>}
             </Modal>
         </>
     )

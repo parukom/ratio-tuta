@@ -17,9 +17,10 @@ type Props = {
     onUpdate: (id: string, patch: Partial<Pick<ItemRow, 'name' | 'sku' | 'price' | 'pricePaid' | 'taxRateBps' | 'isActive' | 'measurementType' | 'stockQuantity' | 'description' | 'color' | 'size' | 'brand' | 'tags' | 'categoryId'>>, opts?: { categoryName?: string | null }) => Promise<void>
     onDelete: (id: string) => Promise<void>
     onAskDeleteBox: (groupKey: string) => void
+    onAskEditBox: (groupKey: string) => void
 }
 
-export default function ItemsCardsView({ items, groups, grouped, loading, openGroups, setOpenGroups, onUpdate, onDelete, onAskDeleteBox }: Props) {
+export default function ItemsCardsView({ items, groups, grouped, loading, openGroups, setOpenGroups, onUpdate, onDelete, onAskDeleteBox, onAskEditBox }: Props) {
     if (loading) return grouped ? <LoadingGroupedCards className="mt-2" /> : <LoadingCards className="mt-2" />
 
     if (items.length === 0) {
@@ -78,6 +79,14 @@ export default function ItemsCardsView({ items, groups, grouped, loading, openGr
                                     )}
                                     <div>Tax: {(g.taxRateBps / 100).toFixed(2)}%</div>
                                 </div>
+                                <button
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); onAskEditBox(g.key) }}
+                                    className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5"
+                                    title="Edit box"
+                                >
+                                    Edit box
+                                </button>
                                 <button
                                     type="button"
                                     onClick={(e) => { e.stopPropagation(); onAskDeleteBox(g.key) }}
