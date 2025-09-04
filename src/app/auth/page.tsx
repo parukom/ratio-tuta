@@ -289,7 +289,7 @@ function AuthContent() {
                         {message && <p className="text-sm/6 text-center text-red-600 dark:text-red-400">{message}</p>}
                     </form>
 
-                    <div>
+                    {/* <div>
                         <div className="mt-10 flex items-center gap-x-6">
                             <div className="w-full flex-1 border-t border-gray-200 dark:border-white/10" />
                             <p className="text-sm/6 font-medium text-nowrap text-gray-900 dark:text-white">Or continue with</p>
@@ -320,7 +320,7 @@ function AuthContent() {
                                 <span className="text-sm/6 font-semibold">GitHub</span>
                             </a>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
 
                 <p className="mt-10 text-center text-sm/6 text-gray-500 dark:text-gray-400">

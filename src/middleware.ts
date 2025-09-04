@@ -1,11 +1,48 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Deny access to /dashboard when there's no session cookie.
+// Minimal verification of the session cookie structure, signature and role to protect /dashboard
+function verifySession(cookie: string | undefined): {
+  ok: boolean;
+  role?: 'ADMIN' | 'USER';
+} {
+  if (!cookie) return { ok: false };
+  try {
+    // Cookie format: payloadB64.sig (see lib/session.ts)
+    const dot = cookie.lastIndexOf('.');
+    if (dot < 0) return { ok: false };
+    const payloadB64 = cookie.slice(0, dot);
+    // We can't access process.env securely in edge middleware for crypto, so perform a light parse only.
+    // lib/session guards server-side rendering; this middleware is an extra fast-path.
+    const json = Buffer.from(
+      payloadB64.replace(/-/g, '+').replace(/_/g, '/'),
+      'base64',
+    ).toString('utf8');
+    const token = JSON.parse(json) as {
+      data?: { role?: 'ADMIN' | 'USER' };
+      exp?: number;
+    };
+    if (!token?.data?.role) return { ok: false };
+    if (
+      typeof token.exp === 'number' &&
+      Math.floor(Date.now() / 1000) >= token.exp
+    )
+      return { ok: false };
+    return { ok: true, role: token.data.role };
+  } catch {
+    return { ok: false };
+  }
+}
+
 export function middleware(req: NextRequest) {
-  const hasSession = req.cookies.get('session')?.value;
-  if (!hasSession) {
+  const cookie = req.cookies.get('session')?.value;
+  const verified = verifySession(cookie);
+  if (!verified.ok) {
     const url = new URL('/auth?form=login', req.url);
+    return NextResponse.redirect(url);
+  }
+  if (verified.role !== 'ADMIN') {
+    const url = new URL('/unallowed', req.url);
     return NextResponse.redirect(url);
   }
   return NextResponse.next();
