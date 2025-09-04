@@ -210,9 +210,9 @@ export async function GET(req: Request) {
       name: it.name,
       sku: it.sku,
       categoryId: it.categoryId,
-  categoryName: (it as any).category?.name ?? null,
+      categoryName: it.category?.name ?? null,
       price: it.price,
-  pricePaid: (it as any).pricePaid ?? 0,
+      pricePaid: it.pricePaid ?? 0,
       taxRateBps: it.taxRateBps,
       isActive: it.isActive,
       // backward-compat display field

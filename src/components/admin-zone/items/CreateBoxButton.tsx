@@ -5,6 +5,12 @@ import Input from '@/components/ui/Input'
 import Dropdown from '@/components/ui/Dropdown'
 import toast from 'react-hot-toast'
 
+// Stable localStorage keys
+const LS_TAX = 'box:taxRateBps'
+const LS_CATEGORY = 'box:categoryId'
+const LS_MT = 'box:measurementType'
+const LS_SIZES = 'box:sizes'
+
 type SizeRow = { id: string; size: string; quantity: string; sku?: string }
 
 type Props = {
@@ -39,14 +45,6 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
         { id: genId(), size: '', quantity: '0' },
     ])
 
-    // Persisted state keys
-    const LS = {
-        tax: 'box:taxRateBps',
-        category: 'box:categoryId',
-        mt: 'box:measurementType',
-    sizes: 'box:sizes',
-    } as const
-
     const loadCategories = useCallback(async () => {
         try {
             const qs = new URLSearchParams()
@@ -64,18 +62,18 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
     useEffect(() => {
         if (!open) return
         try {
-            const vTax = localStorage.getItem(LS.tax)
+            const vTax = localStorage.getItem(LS_TAX)
             if (vTax != null) setTaxRateBps(vTax)
 
             const allowed = ['PCS', 'WEIGHT', 'LENGTH', 'VOLUME', 'AREA', 'TIME'] as const
-            const vMT = localStorage.getItem(LS.mt) as typeof measurementType | null
+            const vMT = localStorage.getItem(LS_MT) as typeof measurementType | null
             if (vMT && (allowed as readonly string[]).includes(vMT)) setMeasurementType(vMT)
 
-            const vCat = localStorage.getItem(LS.category)
+            const vCat = localStorage.getItem(LS_CATEGORY)
             if (typeof vCat === 'string') setCategoryId(vCat)
 
             // sizes (persisted as array of { size, quantity, sku? })
-            const raw = localStorage.getItem(LS.sizes)
+            const raw = localStorage.getItem(LS_SIZES)
             if (raw) {
                 try {
                     const arr = JSON.parse(raw) as Array<{ size: string; quantity: string | number; sku?: string }>
@@ -86,7 +84,6 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
                 } catch { /* ignore parse */ }
             }
         } catch { /* ignore */ }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open])
 
     // Ensure stored category still exists after categories load
@@ -96,9 +93,9 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
     }, [open, categories, categoryId])
 
     // Persist on changes
-    useEffect(() => { try { localStorage.setItem(LS.tax, taxRateBps || '0') } catch { } }, [taxRateBps])
-    useEffect(() => { try { localStorage.setItem(LS.category, categoryId || '') } catch { } }, [categoryId])
-    useEffect(() => { try { localStorage.setItem(LS.mt, measurementType) } catch { } }, [measurementType])
+    useEffect(() => { try { localStorage.setItem(LS_TAX, taxRateBps || '0') } catch { } }, [taxRateBps])
+    useEffect(() => { try { localStorage.setItem(LS_CATEGORY, categoryId || '') } catch { } }, [categoryId])
+    useEffect(() => { try { localStorage.setItem(LS_MT, measurementType) } catch { } }, [measurementType])
 
     function addRow() {
         setSizes(prev => [...prev, { id: genId(), size: '', quantity: '0' }])
@@ -116,14 +113,13 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
             const compact = sizes
                 .filter(s => (s.size?.trim() || s.quantity?.toString().trim()) )
                 .map(s => ({ size: s.size.trim(), quantity: String(s.quantity || '0'), ...(s.sku ? { sku: s.sku } : {}) }))
-            if (compact.length) localStorage.setItem(LS.sizes, JSON.stringify(compact))
-            else localStorage.removeItem(LS.sizes)
+            if (compact.length) localStorage.setItem(LS_SIZES, JSON.stringify(compact))
+            else localStorage.removeItem(LS_SIZES)
         } catch { /* ignore */ }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sizes])
 
     function resetSizes() {
-        try { localStorage.removeItem(LS.sizes) } catch { }
+    try { localStorage.removeItem(LS_SIZES) } catch { }
         setSizes([{ id: genId(), size: '', quantity: '0' }])
     }
 

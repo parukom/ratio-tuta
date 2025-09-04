@@ -473,7 +473,7 @@ export default function InnerItems() {
                     <div>
                         <div className="mb-1 text-sm font-medium text-gray-800 dark:text-gray-200">Sizes in the box</div>
                         <div className="space-y-2">
-                            {editRows.map((row, idx) => (
+                            {editRows.map((row) => (
                                 <div key={row.id} className="grid grid-cols-12 items-center gap-2">
                                     <div className="col-span-6"><Input type="text" placeholder="Variant/Size" value={row.size} onChange={(e) => updateEditRow(row.id, { size: e.target.value })} /></div>
                                     <div className="col-span-4"><Input type="number" placeholder="Quantity (can be negative)" value={row.quantity} onChange={(e) => updateEditRow(row.id, { quantity: e.target.value })} /></div>
