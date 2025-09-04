@@ -22,7 +22,7 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
     const [color, setColor] = useState('')
     const [price, setPrice] = useState('')
     const [taxRateBps, setTaxRateBps] = useState('0')
-    const [unit, setUnit] = useState('pcs')
+    const [measurementType, setMeasurementType] = useState<'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'>('PCS')
     const [skuPrefix, setSkuPrefix] = useState('')
     // categories
     type Category = { id: string; name: string }
@@ -38,6 +38,13 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
         { id: genId(), size: '', quantity: '0' },
     ])
 
+    // Persisted state keys
+    const LS = {
+        tax: 'box:taxRateBps',
+        category: 'box:categoryId',
+        mt: 'box:measurementType',
+    } as const
+
     const loadCategories = useCallback(async () => {
         try {
             const qs = new URLSearchParams()
@@ -50,6 +57,34 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
         } catch { setCategories([]) }
     }, [teamId])
     useEffect(() => { if (open) loadCategories() }, [open, loadCategories])
+
+    // Load persisted values when opening modal
+    useEffect(() => {
+        if (!open) return
+        try {
+            const vTax = localStorage.getItem(LS.tax)
+            if (vTax != null) setTaxRateBps(vTax)
+
+            const allowed = ['PCS', 'WEIGHT', 'LENGTH', 'VOLUME', 'AREA', 'TIME'] as const
+            const vMT = localStorage.getItem(LS.mt) as typeof measurementType | null
+            if (vMT && (allowed as readonly string[]).includes(vMT)) setMeasurementType(vMT)
+
+            const vCat = localStorage.getItem(LS.category)
+            if (typeof vCat === 'string') setCategoryId(vCat)
+        } catch { /* ignore */ }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [open])
+
+    // Ensure stored category still exists after categories load
+    useEffect(() => {
+        if (!open) return
+        if (categoryId && !categories.some(c => c.id === categoryId)) setCategoryId('')
+    }, [open, categories, categoryId])
+
+    // Persist on changes
+    useEffect(() => { try { localStorage.setItem(LS.tax, taxRateBps || '0') } catch { } }, [taxRateBps])
+    useEffect(() => { try { localStorage.setItem(LS.category, categoryId || '') } catch { } }, [categoryId])
+    useEffect(() => { try { localStorage.setItem(LS.mt, measurementType) } catch { } }, [measurementType])
 
     function addRow() {
         setSizes(prev => [...prev, { id: genId(), size: '', quantity: '0' }])
@@ -73,7 +108,7 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
                 categoryId: (categoryId || undefined),
                 price: Number(price),
                 taxRateBps: Number(taxRateBps) || 0,
-                unit: unit.trim() || 'pcs',
+                measurementType,
                 skuPrefix: skuPrefix || null,
                 sizes: sizes
                     .filter(s => s.size.trim() && Number(s.quantity) > 0)
@@ -91,7 +126,7 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
             setOpen(false)
             onDone?.()
             // reset
-            setBaseName(''); setColor(''); setPrice(''); setTaxRateBps('0'); setUnit('pcs'); setSkuPrefix(''); setSizes([{ id: genId(), size: '', quantity: '0' }])
+            setBaseName(''); setColor(''); setPrice(''); setSkuPrefix(''); setSizes([{ id: genId(), size: '', quantity: '0' }])
         } catch {
             setMessage('Network error')
             toast.error('Network error')
@@ -168,19 +203,54 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
                         {catMsg && <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">{catMsg}</p>}
                     </div>
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                        <Input id="unit" name="unit" type="text" className="" placeholder="Unit (e.g. pcs)" value={unit} onChange={(e) => setUnit(e.target.value)} />
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Measurement type</label>
+                            <div className="inline-block">
+                                <Dropdown
+                                    align="left"
+                                    buttonLabel={(
+                                        [
+                                            { key: 'PCS', label: 'Pieces' },
+                                            { key: 'WEIGHT', label: 'Weight' },
+                                            { key: 'LENGTH', label: 'Length' },
+                                            { key: 'VOLUME', label: 'Volume' },
+                                            { key: 'AREA', label: 'Area' },
+                                            { key: 'TIME', label: 'Time' },
+                                        ] as Array<{ key: typeof measurementType; label: string }>
+                                    ).find(o => o.key === measurementType)?.label || 'Select'}
+                                    items={[
+                                        { key: 'PCS', label: 'Pieces' },
+                                        { key: 'WEIGHT', label: 'Weight' },
+                                        { key: 'LENGTH', label: 'Length' },
+                                        { key: 'VOLUME', label: 'Volume' },
+                                        { key: 'AREA', label: 'Area' },
+                                        { key: 'TIME', label: 'Time' },
+                                    ]}
+                                    onSelect={(key) => setMeasurementType(key as typeof measurementType)}
+                                />
+                            </div>
+                        </div>
                         <Input id="skuPrefix" name="skuPrefix" type="text" className="" placeholder="SKU prefix (optional)" value={skuPrefix} onChange={(e) => setSkuPrefix(e.target.value)} />
                         {/* spacer for layout */}
                         <div />
                     </div>
 
                     <div>
-                        <div className="mb-2 text-sm font-medium text-gray-800 dark:text-gray-200">Sizes in the box</div>
+                        <div className="mb-1 text-sm font-medium text-gray-800 dark:text-gray-200">Sizes in the box</div>
+                        <p className="mb-2 text-xs text-gray-600 dark:text-gray-400">
+                            Each row represents a size/variant (e.g., 35, M). Quantity adds stock per item using the selected measurement
+                            type ({measurementType === 'PCS' ? 'pieces'
+                                : measurementType === 'WEIGHT' ? 'kg'
+                                    : measurementType === 'LENGTH' ? 'm'
+                                        : measurementType === 'VOLUME' ? 'l'
+                                            : measurementType === 'AREA' ? 'm²'
+                                                : 'hours'}).
+                        </p>
                         <div className="space-y-2">
                             {sizes.map((row, idx) => (
                                 <div key={row.id} className="grid grid-cols-12 items-center gap-2">
-                                    <div className="col-span-5"><Input id={`size-${row.id}`} name={`size-${idx}`} type="text" className="" placeholder="Size (e.g. 35)" value={row.size} onChange={(e) => updateRow(row.id, { size: e.target.value })} /></div>
-                                    <div className="col-span-5"><Input id={`qty-${row.id}`} name={`quantity-${idx}`} type="number" className="" placeholder="Quantity" value={row.quantity} onChange={(e) => updateRow(row.id, { quantity: e.target.value })} /></div>
+                                    <div className="col-span-5"><Input id={`size-${row.id}`} name={`size-${idx}`} type="text" className="" placeholder="Variant/Size (e.g. 35, M)" value={row.size} onChange={(e) => updateRow(row.id, { size: e.target.value })} /></div>
+                                    <div className="col-span-5"><Input id={`qty-${row.id}`} name={`quantity-${idx}`} type="number" className="" placeholder={`Quantity (${measurementType === 'PCS' ? 'pcs' : measurementType === 'WEIGHT' ? 'kg' : measurementType === 'LENGTH' ? 'm' : measurementType === 'VOLUME' ? 'l' : measurementType === 'AREA' ? 'm2' : 'h'})`} value={row.quantity} onChange={(e) => updateRow(row.id, { quantity: e.target.value })} /></div>
                                     <div className="col-span-2 flex justify-end gap-2">
                                         <button type="button" onClick={() => removeRow(row.id)} className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-white/10 dark:text-gray-100 dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20 dark:focus-visible:outline-indigo-500">Remove</button>
                                     </div>
