@@ -43,6 +43,7 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
         tax: 'box:taxRateBps',
         category: 'box:categoryId',
         mt: 'box:measurementType',
+    sizes: 'box:sizes',
     } as const
 
     const loadCategories = useCallback(async () => {
@@ -71,6 +72,18 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
 
             const vCat = localStorage.getItem(LS.category)
             if (typeof vCat === 'string') setCategoryId(vCat)
+
+            // sizes (persisted as array of { size, quantity, sku? })
+            const raw = localStorage.getItem(LS.sizes)
+            if (raw) {
+                try {
+                    const arr = JSON.parse(raw) as Array<{ size: string; quantity: string | number; sku?: string }>
+                    if (Array.isArray(arr) && arr.length) {
+                        const mapped = arr.map((r) => ({ id: genId(), size: String(r.size ?? ''), quantity: String(r.quantity ?? '0'), sku: r.sku ? String(r.sku) : undefined }))
+                        setSizes(mapped.length ? mapped : [{ id: genId(), size: '', quantity: '0' }])
+                    }
+                } catch { /* ignore parse */ }
+            }
         } catch { /* ignore */ }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open])
@@ -94,6 +107,23 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
     }
     function updateRow(id: string, patch: Partial<SizeRow>) {
         setSizes(prev => prev.map(r => r.id === id ? { ...r, ...patch } : r))
+    }
+
+    // Persist sizes into localStorage whenever they change (store only shape without ids)
+    useEffect(() => {
+        try {
+            const compact = sizes
+                .filter(s => (s.size?.trim() || s.quantity?.toString().trim()) )
+                .map(s => ({ size: s.size.trim(), quantity: String(s.quantity || '0'), ...(s.sku ? { sku: s.sku } : {}) }))
+            if (compact.length) localStorage.setItem(LS.sizes, JSON.stringify(compact))
+            else localStorage.removeItem(LS.sizes)
+        } catch { /* ignore */ }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [sizes])
+
+    function resetSizes() {
+        try { localStorage.removeItem(LS.sizes) } catch { }
+        setSizes([{ id: genId(), size: '', quantity: '0' }])
     }
 
     async function submit(e: React.FormEvent) {
@@ -125,8 +155,8 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
             toast.success('Box added')
             setOpen(false)
             onDone?.()
-            // reset
-            setBaseName(''); setColor(''); setPrice(''); setSkuPrefix(''); setSizes([{ id: genId(), size: '', quantity: '0' }])
+            // reset only non-persisted fields; keep sizes for next box until user resets
+            setBaseName(''); setColor(''); setPrice(''); setSkuPrefix('')
         } catch {
             setMessage('Network error')
             toast.error('Network error')
@@ -257,8 +287,9 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
                                 </div>
                             ))}
                         </div>
-                        <div className="mt-2">
+                        <div className="mt-2 flex items-center gap-2">
                             <button type="button" onClick={addRow} className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-white/10 dark:text-gray-100 dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20 dark:focus-visible:outline-indigo-500">+ Add size</button>
+                            <button type="button" onClick={resetSizes} className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-700 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-gray-200 dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20">Reset sizes</button>
                         </div>
                     </div>
 
