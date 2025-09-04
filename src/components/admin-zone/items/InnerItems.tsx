@@ -4,51 +4,17 @@ import { useEffect, useMemo, useState } from "react"
 import toast from "react-hot-toast"
 import CreateBoxButton from "./CreateBoxButton"
 import CreateItemButton from "./CreateItemButton"
-import TableSkeleton from "@/components/ui/TableSkeleton"
-import { ItemRowActions } from "./ItemRowActions"
 import { ConflictModal } from "./ConflictModal"
-import LoadingCards from "@/components/ui/LoadingCards"
-import ItemCard from "./ItemCard"
-import { ChevronDown, ChevronRight, LayoutGrid, Table as TableIcon, RotateCcw } from "lucide-react"
+import { LayoutGrid, Table as TableIcon, RotateCcw } from "lucide-react"
 import Dropdown from "@/components/ui/Dropdown"
 import Input from "@/components/ui/Input"
 import SearchInput from "@/components/ui/SearchInput"
 import Modal from "@/components/modals/Modal"
+import ItemsTableView from "./ItemsTableView"
+import ItemsCardsView from "./ItemsCardsView"
+import type { ItemRow, Group } from "./types"
 
-export type ItemRow = {
-    id: string
-    teamId: string
-    name: string
-    sku?: string | null
-    categoryId?: string | null
-    categoryName?: string | null
-    price: number
-    taxRateBps: number
-    isActive: boolean
-    unit?: string
-    measurementType?: "PCS" | "WEIGHT" | "LENGTH" | "VOLUME" | "AREA" | "TIME"
-    stockQuantity?: number
-    createdAt: string
-    currency: string
-    description?: string | null
-    color?: string | null
-    size?: string | null
-    brand?: string | null
-    tags?: string[] | null
-}
-
-type Group = {
-    key: string
-    label: string
-    color?: string | null
-    categoryName?: string | null
-    price: number
-    taxRateBps: number
-    unit?: string | null
-    brand?: string | null
-    items: ItemRow[]
-    totalStock: number
-}
+// ItemRow and Group types moved to ./types for reuse across components
 
 export default function InnerItems() {
     // filters/sort/view
@@ -395,9 +361,6 @@ export default function InnerItems() {
                         </button>
 
                     </footer>
-
-
-
                 </div>
                 <div className="mt-2 flex items-center gap-3">
                     <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" checked={onlyActive} onChange={(e) => setOnlyActive(e.target.checked)} />Active only</label>
@@ -417,121 +380,19 @@ export default function InnerItems() {
 
             {/* Views */}
             {view === "table" ? (
-                <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-white/10">
-                    <table className="min-w-full divide-y divide-gray-200 text-sm dark:divide-white/10">
-                        <thead className="bg-gray-50 dark:bg-white/5">
-                            <tr>
-                                <th className="px-4 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">Item</th>
-                                <th className="px-2 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">SKU</th>
-                                <th className="px-2 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">Category</th>
-                                <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Price</th>
-                                <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Tax</th>
-                                <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Unit</th>
-                                <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Stock</th>
-                                <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Actions</th>
-                            </tr>
-                        </thead>
-                        {loading ? (
-                            <TableSkeleton rows={8} columnWidths={["w-56", "w-36", "w-24", "w-24", "w-16", "w-20", "w-20", "w-40"]} />
-                        ) : items.length === 0 ? (
-                            <tbody>
-                                <tr>
-                                    <td colSpan={8} className="px-4 py-8 text-center text-sm text-gray-600 dark:text-gray-300">No items found.</td>
-                                </tr>
-                            </tbody>
-                        ) : (
-                            <tbody className="divide-y divide-gray-200 dark:divide-white/10">
-                                {items.map((it) => (
-                                    <tr key={it.id} className={!it.isActive ? "opacity-60" : ""}>
-                                        <td className="px-4 py-2">
-                                            <div className="font-medium text-gray-900 dark:text-white">{it.name}</div>
-                                            <div className="text-xs text-gray-500 dark:text-gray-400">#{it.id}</div>
-                                        </td>
-                                        <td className="px-2 py-2 text-gray-700 dark:text-gray-300">{it.sku || "—"}</td>
-                                        <td className="px-2 py-2 text-gray-700 dark:text-gray-300">{it.categoryName || "—"}</td>
-                                        <td className="px-2 py-2 text-right text-gray-900 dark:text-white">{new Intl.NumberFormat(undefined, { style: "currency", currency: it.currency || "EUR" }).format(it.price)}</td>
-                                        <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{(it.taxRateBps / 100).toFixed(2)}%</td>
-                                        <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{it.unit || "pcs"}</td>
-                                        <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{typeof it.stockQuantity === "number" ? it.stockQuantity : "0"}</td>
-                                        <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300"><ItemRowActions item={it} onUpdate={updateItem} onDelete={deleteItem} /></td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        )}
-                    </table>
-                </div>
+                <ItemsTableView items={items} loading={loading} onUpdate={updateItem} onDelete={deleteItem} />
             ) : (
-                <div>
-                    {loading ? (
-                        <LoadingCards className="mt-2" />
-                    ) : items.length === 0 ? (
-                        <div className="rounded-lg border border-gray-200 p-8 text-center text-sm text-gray-600 dark:border-white/10 dark:text-gray-300">No items found.</div>
-                    ) : grouped ? (
-                        <div className="space-y-4">
-                            {groups.map((g) => (
-                                <div key={g.key} className="rounded-xl border border-gray-200 dark:border-white/10">
-                                    <div
-                                        role="button"
-                                        tabIndex={0}
-                                        aria-expanded={!!openGroups[g.key]}
-                                        onClick={() => setOpenGroups((prev) => ({ ...prev, [g.key]: !prev[g.key] }))}
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Enter" || e.key === " ") {
-                                                e.preventDefault()
-                                                setOpenGroups((prev) => ({ ...prev, [g.key]: !prev[g.key] }))
-                                            }
-                                        }}
-                                        className="w-full px-3 py-2 text-left"
-                                    >
-                                        <div className="flex items-center justify-between gap-3">
-                                            <div className="flex min-w-0 items-center gap-3">
-                                                {openGroups[g.key] ? (<ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400" />) : (<ChevronRight className="h-4 w-4 text-gray-500 dark:text-gray-400" />)}
-                                                <div className="h-6 w-6 rounded-md ring-1 ring-inset ring-gray-200 dark:ring-white/10" style={g.color ? { backgroundColor: g.color } : undefined} />
-                                                <div className="min-w-0">
-                                                    <div className="truncate text-sm font-semibold text-gray-900 dark:text-white" title={g.label}>{g.label}</div>
-                                                    <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                                                        {g.categoryName && (<span className="rounded-full bg-indigo-50 px-2 py-0.5 text-indigo-700 ring-1 ring-indigo-600/20 dark:bg-indigo-500/10 dark:text-indigo-300">{g.categoryName}</span>)}
-                                                        {g.brand && <span>• {g.brand}</span>}
-                                                        <span>• {g.items.length} variants</span>
-                                                        <span>• Total stock: {g.totalStock}</span>
-                                                        {!openGroups[g.key] && (
-                                                            <span className="truncate">• sizes: {g.items.map((i) => i.size).filter(Boolean).slice(0, 4).join(", ")}{g.items.filter((i) => i.size).length > 4 ? "…" : ""}</span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <div className="hidden sm:block text-right text-xs text-gray-600 dark:text-gray-300">
-                                                    <div>Price: {new Intl.NumberFormat(undefined, { style: "currency", currency: g.items[0]?.currency || "EUR" }).format(g.price)}</div>
-                                                    <div>Tax: {(g.taxRateBps / 100).toFixed(2)}%</div>
-                                                </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={(e) => { e.stopPropagation(); setConfirmBoxKey(g.key) }}
-                                                    className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50 dark:border-red-500/40 dark:text-red-400 dark:hover:bg-red-500/10"
-                                                    title="Delete whole box"
-                                                >
-                                                    Delete box
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {openGroups[g.key] && (
-                                        <div className="px-3 pb-3">
-                                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                                                {g.items.map((it) => (<ItemCard key={it.id} item={it} onUpdate={updateItem} onDelete={deleteItem} />))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                            {items.map((it) => (<ItemCard key={it.id} item={it} onUpdate={updateItem} onDelete={deleteItem} />))}
-                        </div>
-                    )}
-                </div>
+                <ItemsCardsView
+                    items={items}
+                    groups={groups}
+                    grouped={grouped}
+                    loading={loading}
+                    openGroups={openGroups}
+                    setOpenGroups={(updater) => setOpenGroups(updater(openGroups))}
+                    onUpdate={updateItem}
+                    onDelete={deleteItem}
+                    onAskDeleteBox={(key) => setConfirmBoxKey(key)}
+                />
             )}
 
             <ConflictModal info={conflictInfo} onClose={() => setConflictInfo(null)} />
