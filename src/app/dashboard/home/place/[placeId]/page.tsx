@@ -7,6 +7,8 @@ import Modal from '@/components/modals/Modal'
 import Dropdown from '@/components/ui/Dropdown'
 import Breadcrumbs from '@/components/ui/Breadcrumbs'
 import Tabs from '@/components/ui/Tabs'
+import DeletePlaceButton from '@/components/admin-zone/places/DeletePlaceButton'
+import Input from '@/components/ui/Input'
 
 type Member = { id: string; userId: string; name: string; email: string; createdAt: string }
 
@@ -19,8 +21,11 @@ type Place = {
     teamId: string
     name: string
     description?: string | null
+    address1?: string | null
+    address2?: string | null
     city?: string | null
     country?: string | null
+    timezone?: string | null
     currency?: string | null
     totalEarnings: number
     placeTypeId?: string | null
@@ -34,8 +39,8 @@ export default function PlaceDetailPage() {
     const placeId = params?.placeId
     const searchParams = useSearchParams()
     const router = useRouter()
-    const tab = (searchParams.get('tab') ?? 'overview') as 'overview' | 'items' | 'members'
-    const setTab = (t: 'overview' | 'items' | 'members') => {
+    const tab = (searchParams.get('tab') ?? 'overview') as 'overview' | 'items' | 'members' | 'settings'
+    const setTab = (t: 'overview' | 'items' | 'members' | 'settings') => {
         const params = new URLSearchParams(searchParams?.toString() ?? '')
         params.set('tab', t)
         router.push(`?${params.toString()}`)
@@ -54,6 +59,18 @@ export default function PlaceDetailPage() {
     const [teamMembers, setTeamMembers] = useState<Array<{ userId: string; name: string; email: string }>>([])
     const [teamMembersLoading, setTeamMembersLoading] = useState(true)
     const [submitting, setSubmitting] = useState(false)
+    // Edit form state
+    const [editName, setEditName] = useState('')
+    const [editDescription, setEditDescription] = useState('')
+    const [editAddress1, setEditAddress1] = useState('')
+    const [editAddress2, setEditAddress2] = useState('')
+    const [editCity, setEditCity] = useState('')
+    const [editCountry, setEditCountry] = useState('')
+    const [editTimezone, setEditTimezone] = useState('')
+    const [editCurrency, setEditCurrency] = useState('')
+    const [editActive, setEditActive] = useState(true)
+    const [saveLoading, setSaveLoading] = useState(false)
+    const [saveMessage, setSaveMessage] = useState<string | null>(null)
 
     useEffect(() => {
         let cancelled = false
@@ -80,6 +97,16 @@ export default function PlaceDetailPage() {
             .then((data: Place) => {
                 if (!cancelled) {
                     setPlace(data)
+                    // initialize edit form
+                    setEditName(data.name || '')
+                    setEditDescription(data.description || '')
+                    setEditAddress1(data.address1 || '')
+                    setEditAddress2(data.address2 || '')
+                    setEditCity(data.city || '')
+                    setEditCountry(data.country || '')
+                    setEditTimezone(data.timezone || '')
+                    setEditCurrency(data.currency || 'EUR')
+                    setEditActive(!!data.isActive)
                     // persist to localStorage for next visits
                     try {
                         localStorage.setItem(`place:${placeId}`, JSON.stringify(data))
@@ -99,6 +126,55 @@ export default function PlaceDetailPage() {
             cancelled = true
         }
     }, [placeId])
+
+    // When place changes from cache hydration, sync form as well
+    useEffect(() => {
+        if (!place) return
+        setEditName(place.name || '')
+        setEditDescription(place.description || '')
+        setEditAddress1(place.address1 || '')
+        setEditAddress2(place.address2 || '')
+        setEditCity(place.city || '')
+        setEditCountry(place.country || '')
+        setEditTimezone(place.timezone || '')
+        setEditCurrency(place.currency || 'EUR')
+        setEditActive(!!place.isActive)
+    }, [place])
+
+    async function saveSettings(e: React.FormEvent) {
+        e.preventDefault()
+        if (!placeId) return
+        setSaveLoading(true)
+        setSaveMessage(null)
+        try {
+            const res = await fetch(`/api/places/${placeId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: editName.trim(),
+                    description: editDescription.trim() || null,
+                    address1: editAddress1.trim() || null,
+                    address2: editAddress2.trim() || null,
+                    city: editCity.trim() || null,
+                    country: editCountry.trim() || null,
+                    timezone: editTimezone.trim() || null,
+                    currency: editCurrency.trim() || null,
+                    isActive: !!editActive,
+                }),
+            })
+            const data = await res.json().catch(() => ({}))
+            if (!res.ok) throw new Error(data?.error || 'Failed to save')
+            setPlace(data)
+            try { localStorage.setItem(`place:${placeId}`, JSON.stringify(data)) } catch { }
+            setSaveMessage('Saved')
+            setTimeout(() => setSaveMessage(null), 1500)
+        } catch (e: unknown) {
+            const err = e as { message?: string }
+            setSaveMessage(err?.message || 'Failed to save')
+        } finally {
+            setSaveLoading(false)
+        }
+    }
     async function removeFromShop(itemId: string) {
         if (!placeId) return
         const res = await fetch(`/api/places/${placeId}/items`, {
@@ -282,7 +358,7 @@ export default function PlaceDetailPage() {
             <header>
 
                 {/* Heading */}
-                <div className="-mt-3 flex flex-col items-start justify-between gap-x-8 gap-y-4 bg-gray-50 px-4 py-2 sm:flex-row sm:items-center sm:px-6 lg:px-8 dark:bg-gray-700/10">
+                <header className="-mt-3 flex flex-col items-start justify-between gap-x-8 gap-y-4 bg-gray-50 px-4 py-2 sm:flex-row sm:items-center sm:px-6 lg:px-8 dark:bg-gray-700/10">
                     <div>
                         <div className="flex items-center gap-x-3">
                             <div className={`flex-none rounded-full p-1 ${place?.isActive ? 'bg-green-500/10 text-green-500 dark:bg-green-400/10 dark:text-green-400' : 'bg-gray-400/10 text-gray-500 dark:bg-gray-500/10 dark:text-gray-400'}`}>
@@ -304,7 +380,9 @@ export default function PlaceDetailPage() {
                     >
                         Open register
                     </Link>
-                </div>
+                </header>
+
+                {/* breadcrumbs */}
                 <div className="px-4 pt-4 sm:px-6 lg:px-8">
                     <Breadcrumbs
                         items={[
@@ -320,6 +398,7 @@ export default function PlaceDetailPage() {
                         { key: 'overview', label: 'Overview' },
                         { key: 'items', label: `Items${assignedItems.length ? ` (${assignedItems.length})` : ''}` },
                         { key: 'members', label: `Members${members.length ? ` (${members.length})` : ''}` },
+                        { key: 'settings', label: 'Settings' },
                     ]}
                     activeKey={tab}
                     onChange={(k) => setTab(k as typeof tab)}
@@ -370,6 +449,65 @@ export default function PlaceDetailPage() {
                     </div>
                 ) : (
                     <div className="space-y-6">
+
+                        {tab === 'settings' && (
+                            <>
+                                {/* general settings */}
+                                <div className="rounded-lg border border-gray-200 p-4 dark:border-white/10">
+                                    <h2 className="mb-3 text-sm font-medium text-gray-900 dark:text-white">General</h2>
+                                    <form onSubmit={saveSettings} className="space-y-3">
+                                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                            <Input id="name" name="name" type="text" placeholder="Name" value={editName} onChange={(e) => setEditName(e.target.value)} />
+                                            <Input id="description" name="description" type="text" placeholder="Description (optional)" value={editDescription} onChange={(e) => setEditDescription(e.target.value)} />
+                                        </div>
+                                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                            <Input id="address1" name="address1" type="text" placeholder="Address line 1" value={editAddress1} onChange={(e) => setEditAddress1(e.target.value)} />
+                                            <Input id="address2" name="address2" type="text" placeholder="Address line 2" value={editAddress2} onChange={(e) => setEditAddress2(e.target.value)} />
+                                        </div>
+                                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                            <Input id="city" name="city" type="text" placeholder="City" value={editCity} onChange={(e) => setEditCity(e.target.value)} />
+                                            <Input id="country" name="country" type="text" placeholder="Country" value={editCountry} onChange={(e) => setEditCountry(e.target.value)} />
+                                        </div>
+                                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                            <Input id="timezone" name="timezone" type="text" placeholder="Timezone (e.g. Europe/Vilnius)" value={editTimezone} onChange={(e) => setEditTimezone(e.target.value)} />
+                                            <Input id="currency" name="currency" type="text" placeholder="Currency (e.g. EUR)" value={editCurrency} onChange={(e) => setEditCurrency(e.target.value)} />
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <input id="isActive" name="isActive" type="checkbox" checked={editActive} onChange={(e) => setEditActive(e.target.checked)} className="size-4" />
+                                            <label htmlFor="isActive" className="text-sm text-gray-700 dark:text-gray-300">Active</label>
+                                        </div>
+                                        <div className="flex items-center justify-end gap-2 pt-2">
+                                            {saveMessage && (
+                                                <span className="text-sm text-gray-600 dark:text-gray-400">{saveMessage}</span>
+                                            )}
+                                            <button type="submit" disabled={saveLoading} className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400">
+                                                {saveLoading ? 'Saving…' : 'Save changes'}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                {/* danger zone */}
+                                <div className='divide-y divide-gray-200 dark:divide-white/10'>
+                                    <div className="rounded-lg border border-gray-200 p-4 dark:border-white/10">
+                                        <h2 className="mb-3 text-sm font-medium text-gray-900 dark:text-white">Danger zone</h2>
+                                        <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">Deleting this place will remove all its associations. This cannot be undone.</p>
+                                        {place && (
+                                            <DeletePlaceButton
+                                                placeId={place.id}
+                                                placeName={place.name}
+                                                size="md"
+                                                onDeleted={() => {
+                                                    // After deletion, go back to places list
+                                                    router.push('/dashboard/home?tab=places')
+                                                }}
+                                            />
+                                        )}
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
                         {tab === 'members' && (
                             <div className="rounded-lg border border-gray-200 p-4 dark:border-white/10">
                                 <h2 className="mb-3 text-sm font-medium text-gray-900 dark:text-white">Members</h2>
@@ -409,6 +547,7 @@ export default function PlaceDetailPage() {
                                 </div>
                             </div>
                         )}
+
                         {tab === 'items' && (
                             <div className="rounded-lg border border-gray-200 dark:border-white/10">
                                 <div className="border-b border-gray-200 px-4 py-3 text-sm font-medium text-gray-900 dark:border-white/10 dark:text-white">Assigned items</div>

@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import DeletePlaceButton from './DeletePlaceButton'
 import { MapPinIcon, BoltIcon, ClockIcon, UsersIcon, BanknotesIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline'
 
 type Props = {
@@ -50,7 +49,6 @@ export default function PlaceCard({
   salesToday = 0,
   receipts7d = 0,
   lastActivityAt,
-  onDelete,
 }: Props) {
   const href = id ? `/dashboard/home/place/${id}` : '#'
   const statusColor = isActive
@@ -60,7 +58,9 @@ export default function PlaceCard({
   const fmt = (n: number) => new Intl.NumberFormat(undefined, { style: 'currency', currency: currency || 'EUR' }).format(n)
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 transition-shadow hover:shadow-lg dark:border-white/10 dark:bg-white/5">
+    <Link
+      href={href}
+      className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 hover:shadow-lg dark:border-white/5 dark:bg-white/5 ">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -120,18 +120,8 @@ export default function PlaceCard({
         <div className="flex items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
           <ClockIcon className="h-4 w-4" /> Last activity: {timeAgo(lastActivityAt)}
         </div>
-        <div className="flex items-center gap-2">
-          {id && (
-            <DeletePlaceButton placeId={id} placeName={name} onDeleted={() => onDelete?.(id)} />
-          )}
-          <Link
-            href={href}
-            className="inline-flex items-center rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-black/80 dark:bg-white dark:text-gray-900 dark:hover:bg-white/90"
-          >
-            Open
-          </Link>
-        </div>
+
       </div>
-    </div>
+    </Link>
   )
 }

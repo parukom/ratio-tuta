@@ -15,6 +15,7 @@ export default function DeletePlaceButton({ placeId, placeName, onDeleted, size 
   const [confirmName, setConfirmName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
 
   const disabled = confirmName.trim() !== placeName || loading
 
@@ -66,6 +67,23 @@ export default function DeletePlaceButton({ placeId, placeName, onDeleted, size 
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 This action cannot be undone. To confirm, type the name of the place exactly: <span className="font-semibold">{placeName}</span>
               </p>
+              <div className="mt-2 flex flex-row-reverse gap-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(placeName)
+                      setCopied(true)
+                      setTimeout(() => setCopied(false), 1200)
+                    } catch {
+                      // ignore
+                    }
+                  }}
+                  className="inline-flex items-center rounded-md border border-gray-300 px-2 py-1 text-[11px] font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-300 dark:hover:bg-white/5"
+                >
+                  {copied ? 'Copied' : 'Copy name'}
+                </button>
+              </div>
               <input
                 type="text"
                 value={confirmName}
