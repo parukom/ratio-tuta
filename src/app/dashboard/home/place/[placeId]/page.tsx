@@ -298,9 +298,12 @@ export default function PlaceDetailPage() {
                         </div>
                         <p className="mt-2 text-xs/6 text-gray-500 dark:text-gray-400">{place?.description || 'Overview and stats'}</p>
                     </div>
-                    <div className={`order-first flex-none rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset sm:order-0 ${place?.isActive ? 'bg-emerald-50 text-emerald-600 ring-emerald-200 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/30' : 'bg-gray-100 text-gray-600 ring-gray-200 dark:bg-gray-600/10 dark:text-gray-400 dark:ring-gray-500/30'}`}>
-                        {place?.isActive ? 'Active' : 'Inactive'}
-                    </div>
+                    <Link
+                        href={`/cash-register?placeId=${encodeURIComponent(String(placeId))}`}
+                        className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800 dark:text-white"
+                    >
+                        Open register
+                    </Link>
                 </div>
                 <div className="px-4 pt-4 sm:px-6 lg:px-8">
                     <Breadcrumbs
@@ -348,12 +351,7 @@ export default function PlaceDetailPage() {
             {/* Content */}
             <main className="px-4 py-6 sm:px-6 lg:px-8">
                 <div className="mb-4 flex items-center justify-end gap-3">
-                    <Link
-                        href={`/cash-register?placeId=${encodeURIComponent(String(placeId))}`}
-                        className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800 dark:text-white"
-                    >
-                        Open register
-                    </Link>
+
                     {tab === 'items' && (
                         <button
                             type="button"

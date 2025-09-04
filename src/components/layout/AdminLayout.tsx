@@ -1,6 +1,7 @@
+
 'use client'
 
-import React, { ReactNode, useState } from 'react'
+import React, { ReactNode, useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel, TransitionChild } from '@headlessui/react'
 import {
     Bars3Icon,
@@ -27,11 +28,10 @@ const navigation = [
     { name: 'Reports', href: '/dashboard/reports', icon: ChartPieIcon },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
-const teams = [
-    { id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false },
-    { id: 2, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
-    { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false },
-]
+type UserPlace = {
+    id: string
+    name: string
+}
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ')
@@ -45,7 +45,35 @@ type AdminLayoutProps = {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false)
+    const [places, setPlaces] = useState<UserPlace[]>([])
+    const [loadingPlaces, setLoadingPlaces] = useState(false)
     const pathname = usePathname()
+
+    useEffect(() => {
+        let cancelled = false
+        const load = async () => {
+            try {
+                setLoadingPlaces(true)
+                const res = await fetch('/api/places', { method: 'GET' })
+                if (!res.ok) {
+                    // silently ignore (e.g., 401) and show empty list
+                    return
+                }
+                const data = (await res.json()) as Array<{ id: string; name: string }>
+                if (!cancelled) setPlaces(Array.isArray(data) ? data.map(p => ({ id: p.id, name: p.name })) : [])
+            } catch {
+                // ignore network errors for sidebar list
+            } finally {
+                if (!cancelled) setLoadingPlaces(false)
+            }
+        }
+        load()
+        return () => {
+            cancelled = true
+        }
+    }, [])
+
+    const placeLink = useMemo(() => (placeId: string) => `/dashboard/home/place/${placeId}`, [])
 
     return (
         <>
@@ -92,10 +120,15 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                                     <ul role="list" className="flex flex-1 flex-col gap-y-7">
                                         <li>
                                             <ul role="list" className="-mx-2 space-y-1">
+
                                                 {navigation.map((item) => {
                                                     const isCurrent = pathname === item.href || pathname.startsWith(`${item.href}/`)
                                                     return (
-                                                        <li key={item.name}>
+                                                        <li key={item.name}
+                                                            onClick={() => {
+                                                                setSidebarOpen(false)
+                                                            }}
+                                                        >
                                                             <Link
                                                                 href={item.href}
                                                                 className={classNames(
@@ -122,33 +155,43 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                                             </ul>
                                         </li>
                                         <li>
-                                            <div className="text-xs/6 font-semibold text-gray-400 dark:text-gray-500">Your teams</div>
+                                            <div className="text-xs/6 font-semibold text-gray-400 dark:text-gray-500">Your places</div>
                                             <ul role="list" className="-mx-2 mt-2 space-y-1">
-                                                {teams.map((team) => (
-                                                    <li key={team.name}>
-                                                        <a
-                                                            href={team.href}
-                                                            className={classNames(
-                                                                team.current
-                                                                    ? 'bg-gray-50 text-indigo-600 dark:bg-white/5 dark:text-white'
-                                                                    : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white',
-                                                                'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
-                                                            )}
-                                                        >
-                                                            <span
-                                                                className={classNames(
-                                                                    team.current
-                                                                        ? 'border-indigo-600 text-indigo-600 dark:border-white/20 dark:text-white'
-                                                                        : 'border-gray-200 text-gray-400 group-hover:border-indigo-600 group-hover:text-indigo-600 dark:border-white/10 dark:group-hover:border-white/20 dark:group-hover:text-white',
-                                                                    'flex size-6 shrink-0 items-center justify-center rounded-lg border bg-white text-[0.625rem] font-medium dark:bg-white/5',
-                                                                )}
-                                                            >
-                                                                {team.initial}
-                                                            </span>
-                                                            <span className="truncate">{team.name}</span>
-                                                        </a>
-                                                    </li>
-                                                ))}
+                                                {loadingPlaces && places.length === 0 ? (
+                                                    <li className="px-2 text-sm text-gray-400">Loading…</li>
+                                                ) : places.length === 0 ? (
+                                                    <li className="px-2 text-sm text-gray-400">No places yet</li>
+                                                ) : (
+                                                    places.map((place) => {
+                                                        const isCurrent = pathname === placeLink(place.id) || pathname.startsWith(`${placeLink(place.id)}/`)
+                                                        return (
+                                                            <li key={place.id}>
+                                                                <Link
+                                                                    onClick={() => setSidebarOpen(false)}
+                                                                    href={placeLink(place.id)}
+                                                                    className={classNames(
+                                                                        isCurrent
+                                                                            ? 'bg-gray-50 text-indigo-600 dark:bg-white/5 dark:text-white'
+                                                                            : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white',
+                                                                        'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
+                                                                    )}
+                                                                >
+                                                                    <span
+                                                                        className={classNames(
+                                                                            isCurrent
+                                                                                ? 'border-indigo-600 text-indigo-600 dark:border-white/20 dark:text-white'
+                                                                                : 'border-gray-200 text-gray-400 group-hover:border-indigo-600 group-hover:text-indigo-600 dark:border-white/10 dark:group-hover:border-white/20 dark:group-hover:text-white',
+                                                                            'flex size-6 shrink-0 items-center justify-center rounded-lg border bg-white text-[0.625rem] font-medium dark:bg-white/5',
+                                                                        )}
+                                                                    >
+                                                                        {(place.name?.[0] || '?').toUpperCase()}
+                                                                    </span>
+                                                                    <span className="truncate">{place.name}</span>
+                                                                </Link>
+                                                            </li>
+                                                        )
+                                                    })
+                                                )}
                                             </ul>
                                         </li>
                                         <li className="pb-4 mt-auto">
@@ -217,33 +260,42 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                                     </ul>
                                 </li>
                                 <li>
-                                    <div className="text-xs/6 font-semibold text-gray-400 dark:text-gray-500">Your teams</div>
+                                    <div className="text-xs/6 font-semibold text-gray-400 dark:text-gray-500">Your places</div>
                                     <ul role="list" className="-mx-2 mt-2 space-y-1">
-                                        {teams.map((team) => (
-                                            <li key={team.name}>
-                                                <a
-                                                    href={team.href}
-                                                    className={classNames(
-                                                        team.current
-                                                            ? 'bg-gray-50 text-indigo-600 dark:bg-white/5 dark:text-white'
-                                                            : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white',
-                                                        'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
-                                                    )}
-                                                >
-                                                    <span
-                                                        className={classNames(
-                                                            team.current
-                                                                ? 'border-indigo-600 text-indigo-600 dark:border-white/20 dark:text-white'
-                                                                : 'border-gray-200 text-gray-400 group-hover:border-indigo-600 group-hover:text-indigo-600 dark:border-white/10 dark:group-hover:border-white/20 dark:group-hover:text-white',
-                                                            'flex size-6 shrink-0 items-center justify-center rounded-lg border bg-white text-[0.625rem] font-medium dark:bg-white/5',
-                                                        )}
-                                                    >
-                                                        {team.initial}
-                                                    </span>
-                                                    <span className="truncate">{team.name}</span>
-                                                </a>
-                                            </li>
-                                        ))}
+                                        {loadingPlaces && places.length === 0 ? (
+                                            <li className="px-2 text-sm text-gray-400">Loading…</li>
+                                        ) : places.length === 0 ? (
+                                            <li className="px-2 text-sm text-gray-400">No places yet</li>
+                                        ) : (
+                                            places.map((place) => {
+                                                const isCurrent = pathname === placeLink(place.id) || pathname.startsWith(`${placeLink(place.id)}/`)
+                                                return (
+                                                    <li key={place.id}>
+                                                        <Link
+                                                            href={placeLink(place.id)}
+                                                            className={classNames(
+                                                                isCurrent
+                                                                    ? 'bg-gray-50 text-indigo-600 dark:bg-white/5 dark:text-white'
+                                                                    : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white',
+                                                                'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
+                                                            )}
+                                                        >
+                                                            <span
+                                                                className={classNames(
+                                                                    isCurrent
+                                                                        ? 'border-indigo-600 text-indigo-600 dark:border-white/20 dark:text-white'
+                                                                        : 'border-gray-200 text-gray-400 group-hover:border-indigo-600 group-hover:text-indigo-600 dark:border-white/10 dark:group-hover:border-white/20 dark:group-hover:text-white',
+                                                                    'flex size-6 shrink-0 items-center justify-center rounded-lg border bg-white text-[0.625rem] font-medium dark:bg-white/5',
+                                                                )}
+                                                            >
+                                                                {(place.name?.[0] || '?').toUpperCase()}
+                                                            </span>
+                                                            <span className="truncate">{place.name}</span>
+                                                        </Link>
+                                                    </li>
+                                                )
+                                            })
+                                        )}
                                     </ul>
                                 </li>
                                 <li className="pb-4 mt-auto">
