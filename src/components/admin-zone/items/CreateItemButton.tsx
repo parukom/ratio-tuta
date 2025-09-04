@@ -142,7 +142,7 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
         Create item
       </button>
 
-      <Modal open={open} onClose={() => setOpen(false)}>
+      <Modal open={open} onClose={() => setOpen(false)} size="lg">
         <div className="sm:flex sm:items-start">
           <div className="mt-3 text-left sm:mt-0 sm:text-left w-full">
             <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">Create an item</h3>

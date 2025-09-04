@@ -1,7 +1,7 @@
 'use client'
 import Modal from "@/components/modals/Modal"
 import Dropdown from "@/components/ui/Dropdown"
-import { Input } from "@headlessui/react"
+import Input from "@/components/ui/Input"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 
@@ -116,10 +116,12 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
         }
     }
 
-    async function confirmDelete() {
+    const [confirmOpen, setConfirmOpen] = useState(false)
+    async function doDelete() {
         setLoading(true)
         try {
             await onDelete(item.id)
+            setConfirmOpen(false)
             setOpen(false)
         } catch {
             setMessage('Failed to delete')
@@ -132,10 +134,48 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
     return (
         <div className="flex justify-end gap-2">
             <button onClick={() => setOpen(true)} className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Edit</button>
-            <button onClick={() => confirmDelete()} className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50 dark:border-red-500/40 dark:text-red-400 dark:hover:bg-red-500/10">Delete</button>
+            <button onClick={() => setConfirmOpen(true)} className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50 dark:border-red-500/40 dark:text-red-400 dark:hover:bg-red-500/10">Delete</button>
+
+            {/* Confirm deletion modal */}
+            <Modal open={confirmOpen} onClose={() => (!loading && setConfirmOpen(false))} size="sm">
+                <div className="sm:flex sm:items-start">
+                    <div className="mx-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10 dark:bg-red-500/10">
+                        <svg className="h-6 w-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" aria-hidden="true">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                        </svg>
+                    </div>
+                    <div className="mt-3 text-left sm:ml-4 sm:mt-0">
+                        <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">Delete item</h3>
+                        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Are you sure you want to delete “{item.name}”? This action cannot be undone.</p>
+                    </div>
+                </div>
+                <div className="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse">
+                    <button
+                        type="button"
+                        onClick={doDelete}
+                        disabled={loading}
+                        className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 disabled:opacity-60 sm:ml-3 sm:w-auto dark:bg-red-500 dark:hover:bg-red-400"
+                    >
+                        {loading ? 'Deleting…' : 'Delete'}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setConfirmOpen(false)}
+                        disabled={loading}
+                        className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto dark:bg-gray-700 dark:text-white dark:ring-white/10 dark:hover:bg-gray-600"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </Modal>
 
             <Modal open={open} onClose={() => setOpen(false)} size="lg">
-                <h3 className="text-base font-semibold text-gray-900 dark:text-white">Edit item</h3>
+                <div className="sm:flex sm:items-start">
+                    <div className="mt-3 w-full text-left sm:mt-0 sm:text-left">
+                        <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">Edit item</h3>
+                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Update item details. These settings affect the item across your team.</p>
+                    </div>
+                </div>
                 <form onSubmit={submit} className="mt-4 space-y-3">
                     <Input id={`name-${item.id}`} name="name" type="text" className="" placeholder="Name" value={name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)} />
                     <Input id={`sku-${item.id}`} name="sku" type="text" className="" placeholder="SKU (optional)" value={sku} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSku(e.target.value)} />
