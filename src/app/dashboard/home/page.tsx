@@ -25,7 +25,6 @@ const HomeInner = () => {
                     <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-6 border-b border-gray-200 bg-white px-4 shadow-xs sm:px-6 lg:px-8 dark:border-white/5 dark:bg-gray-900 dark:shadow-none">
                         <SearchInput />
                     </div>
-
                     <main>
                         <header>
                             <div className="px-4 pt-4 sm:px-6 lg:px-8">
@@ -45,7 +44,6 @@ const HomeInner = () => {
                             />
                         </header>
 
-                        {/* Tab content */}
                         {tab === 'logs' && (
                             <Logs />
                         )}

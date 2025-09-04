@@ -41,7 +41,7 @@ export async function GET(req: Request) {
   }
 
   try {
-  const places = await prisma.place.findMany({
+    const places = await prisma.place.findMany({
       where: { teamId: { in: filterTeamIds } },
       select: {
         id: true,
@@ -65,7 +65,117 @@ export async function GET(req: Request) {
       orderBy: { createdAt: 'desc' },
     });
 
-  const shaped = places.map((p) => ({
+    // Aggregate metrics for all returned places
+    const placeIds = places.map((p) => p.id);
+    if (placeIds.length === 0) return NextResponse.json([]);
+
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    // Query aggregates in parallel
+    const [itemsAgg, receiptsTodayAgg, receipts7dAgg, lastActivityAgg] =
+      await Promise.all([
+        // items per place and total quantity in stock at the place
+        prisma.placeItem
+          .groupBy({
+            by: ['placeId'],
+            where: { placeId: { in: placeIds } },
+            _count: { itemId: true },
+            _sum: { quantity: true },
+          })
+          .catch(
+            () =>
+              [] as Array<{
+                placeId: string;
+                _count: { itemId: number };
+                _sum: { quantity: number | null };
+              }>,
+          ),
+        // receipts today: count and sum(totalPrice)
+        prisma.receipt
+          .groupBy({
+            by: ['placeId'],
+            where: {
+              placeId: { in: placeIds },
+              createdAt: { gte: startOfToday },
+            },
+            _count: { _all: true },
+            _sum: { totalPrice: true },
+          })
+          .catch(
+            () =>
+              [] as Array<{
+                placeId: string | null;
+                _count: { _all: number };
+                _sum: { totalPrice: number | null };
+              }>,
+          ),
+        // receipts last 7 days: count only
+        prisma.receipt
+          .groupBy({
+            by: ['placeId'],
+            where: {
+              placeId: { in: placeIds },
+              createdAt: { gte: sevenDaysAgo },
+            },
+            _count: { _all: true },
+          })
+          .catch(
+            () =>
+              [] as Array<{ placeId: string | null; _count: { _all: number } }>,
+          ),
+        // last activity timestamp per place
+        prisma.receipt
+          .groupBy({
+            by: ['placeId'],
+            where: { placeId: { in: placeIds } },
+            _max: { createdAt: true },
+          })
+          .catch(
+            () =>
+              [] as Array<{
+                placeId: string | null;
+                _max: { createdAt: Date | null };
+              }>,
+          ),
+      ]);
+
+    const itemsMap = new Map(
+      itemsAgg.map(
+        (r) =>
+          [
+            r.placeId,
+            { itemsCount: r._count.itemId, stockUnits: r._sum.quantity ?? 0 },
+          ] as const,
+      ),
+    );
+    const todayMap = new Map(
+      receiptsTodayAgg
+        .filter((r) => !!r.placeId)
+        .map(
+          (r) =>
+            [
+              r.placeId as string,
+              {
+                receiptsToday: r._count._all,
+                salesToday: r._sum.totalPrice ?? 0,
+              },
+            ] as const,
+        ),
+    );
+    const weekMap = new Map(
+      receipts7dAgg
+        .filter((r) => !!r.placeId)
+        .map((r) => [r.placeId as string, r._count._all] as const),
+    );
+    const lastActMap = new Map(
+      lastActivityAgg
+        .filter((r) => !!r.placeId)
+        .map((r) => [r.placeId as string, r._max.createdAt ?? null] as const),
+    );
+
+    const shaped = places.map((p) => ({
       id: p.id,
       teamId: p.teamId,
       name: p.name,
@@ -78,6 +188,12 @@ export async function GET(req: Request) {
       createdAt: p.createdAt,
       isActive: p.isActive,
       teamPeopleCount: (p.team?._count.members ?? 0) + 1, // owner + members
+      itemsCount: itemsMap.get(p.id)?.itemsCount ?? 0,
+      stockUnits: itemsMap.get(p.id)?.stockUnits ?? 0,
+      receiptsToday: todayMap.get(p.id)?.receiptsToday ?? 0,
+      salesToday: todayMap.get(p.id)?.salesToday ?? 0,
+      receipts7d: weekMap.get(p.id) ?? 0,
+      lastActivityAt: lastActMap.get(p.id) ?? null,
     }));
 
     return NextResponse.json(shaped);
@@ -90,12 +206,20 @@ export async function GET(req: Request) {
       status: 'ERROR',
       actor: session,
       message: 'Failed to list places',
-      metadata: { code: err?.code || null, message: typeof err?.message === 'string' ? err.message : null } as Prisma.InputJsonValue,
+      metadata: {
+        code: err?.code || null,
+        message: typeof err?.message === 'string' ? err.message : null,
+      } as Prisma.InputJsonValue,
     });
-    const message = typeof err?.message === 'string' ? err.message : 'Server error';
+    const message =
+      typeof err?.message === 'string' ? err.message : 'Server error';
     const code = err?.code || undefined;
     return NextResponse.json(
-      { error: 'Server error', detail: process.env.NODE_ENV !== 'production' ? { message, code } : undefined },
+      {
+        error: 'Server error',
+        detail:
+          process.env.NODE_ENV !== 'production' ? { message, code } : undefined,
+      },
       { status: 500 },
     );
   }
