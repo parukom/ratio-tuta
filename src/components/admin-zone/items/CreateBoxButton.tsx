@@ -4,6 +4,7 @@ import Modal from '@/components/modals/Modal'
 import Input from '@/components/ui/Input'
 import Dropdown from '@/components/ui/Dropdown'
 import toast from 'react-hot-toast'
+import Spinner from '@/components/ui/Spinner'
 
 // Stable localStorage keys
 const LS_TAX = 'box:taxRateBps'
@@ -111,7 +112,7 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
     useEffect(() => {
         try {
             const compact = sizes
-                .filter(s => (s.size?.trim() || s.quantity?.toString().trim()) )
+                .filter(s => (s.size?.trim() || s.quantity?.toString().trim()))
                 .map(s => ({ size: s.size.trim(), quantity: String(s.quantity || '0'), ...(s.sku ? { sku: s.sku } : {}) }))
             if (compact.length) localStorage.setItem(LS_SIZES, JSON.stringify(compact))
             else localStorage.removeItem(LS_SIZES)
@@ -119,7 +120,7 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
     }, [sizes])
 
     function resetSizes() {
-    try { localStorage.removeItem(LS_SIZES) } catch { }
+        try { localStorage.removeItem(LS_SIZES) } catch { }
         setSizes([{ id: genId(), size: '', quantity: '0' }])
     }
 
@@ -226,7 +227,7 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
                             <div className="mt-2 flex items-center gap-2">
                                 <Input id="newCategoryBox" name="newCategoryBox" type="text" className="" placeholder="New category name" value={newCatName} onChange={(e) => setNewCatName(e.target.value)} />
                                 <button type="button" onClick={() => setCreatingCat(false)} className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-white/10 dark:text-gray-100 dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20 dark:focus-visible:outline-indigo-500">Cancel</button>
-                                <button type="button" onClick={createCategoryInline} disabled={catLoading} className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500">{catLoading ? 'Saving…' : 'Create'}</button>
+                                <button type="button" onClick={createCategoryInline} disabled={catLoading} className="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500">{catLoading && <Spinner size={14} className="text-white" />}<span>{catLoading ? 'Saving…' : 'Create'}</span></button>
                             </div>
                         )}
                         {catMsg && <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">{catMsg}</p>}
@@ -296,7 +297,7 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
                         <p className="text-sm text-gray-600 dark:text-gray-400">If an item for a size doesn’t exist, it will be created. Otherwise its stock will be increased.</p>
                         <div className="flex gap-2">
                             <button type="button" onClick={() => setOpen(false)} className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-white/10 dark:text-gray-100 dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20 dark:focus-visible:outline-indigo-500">Cancel</button>
-                            <button type="submit" disabled={loading} className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500">{loading ? 'Saving…' : 'Add box'}</button>
+                            <button type="submit" disabled={loading} aria-busy={loading} className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500">{loading && <Spinner size={16} className="text-white" />}<span>{loading ? 'Saving…' : 'Add box'}</span></button>
                         </div>
                     </div>
                     {message && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{message}</p>}

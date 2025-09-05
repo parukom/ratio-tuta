@@ -3,6 +3,7 @@
 import React from 'react'
 import Image from 'next/image'
 import toast from 'react-hot-toast'
+import Spinner from '@/components/ui/Spinner'
 
 type Props = {
     firstName: string
@@ -18,6 +19,7 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
     const [message, setMessage] = React.useState<string | null>(null)
     const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null)
     const [uploading, setUploading] = React.useState(false)
+    const [removing, setRemoving] = React.useState(false)
 
     React.useEffect(() => {
         setFirst(firstName)
@@ -91,6 +93,7 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
 
     async function handleDeleteAvatar() {
         try {
+            setRemoving(true)
             const res = await fetch('/api/users/me/avatar', { method: 'DELETE', credentials: 'include' })
             const data = await res.json().catch(() => ({}))
             if (!res.ok) {
@@ -101,6 +104,8 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
             toast.success('Avatar removed')
         } catch {
             toast.error('Request failed')
+        } finally {
+            setRemoving(false)
         }
     }
 
@@ -159,17 +164,22 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
                                 type="button"
                                 onClick={handleChangeAvatar}
                                 disabled={uploading}
-                                className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring-1 inset-ring-gray-300 hover:bg-gray-100 disabled:opacity-60 dark:bg-white/10 dark:text-white dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20"
+                                aria-busy={uploading}
+                                className="inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring-1 inset-ring-gray-300 hover:bg-gray-100 disabled:opacity-60 dark:bg-white/10 dark:text-white dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20"
                             >
-                                {uploading ? 'Uploading…' : 'Change avatar'}
+                                {uploading && <Spinner size={16} className="text-gray-700 dark:text-gray-200" />}
+                                <span>{uploading ? 'Uploading…' : 'Change avatar'}</span>
                             </button>
                             {avatarUrl && (
                                 <button
                                     type="button"
                                     onClick={handleDeleteAvatar}
-                                    className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-xs inset-ring-1 inset-ring-gray-300 hover:bg-gray-100 dark:bg-white/10 dark:text-red-400 dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20"
+                                    disabled={removing}
+                                    aria-busy={removing}
+                                    className="inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-xs inset-ring-1 inset-ring-gray-300 hover:bg-gray-100 disabled:opacity-60 dark:bg-white/10 dark:text-red-400 dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20"
                                 >
-                                    Remove
+                                    {removing && <Spinner size={16} className="text-red-600 dark:text-red-400" />}
+                                    <span>{removing ? 'Removing…' : 'Remove'}</span>
                                 </button>
                             )}
                             <p className="mt-2 text-xs/5 text-gray-500 dark:text-gray-400">JPG, PNG, GIF, WEBP. 1MB max.</p>
@@ -238,9 +248,11 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
                     <button
                         type="submit"
                         disabled={saving}
-                        className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
+                        aria-busy={saving}
+                        className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
                     >
-                        {saving ? 'Saving…' : 'Save'}
+                        {saving && <Spinner size={16} className="text-white" />}
+                        <span>{saving ? 'Saving…' : 'Save'}</span>
                     </button>
                 </div>
             </form>

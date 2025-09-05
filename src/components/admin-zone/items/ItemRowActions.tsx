@@ -4,6 +4,7 @@ import Dropdown from "@/components/ui/Dropdown"
 import Input from "@/components/ui/Input"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
+import Spinner from "@/components/ui/Spinner"
 
 type ItemRow = {
     id: string
@@ -33,7 +34,7 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
     item: ItemRow;
     onUpdate: (
         id: string,
-    patch: Partial<Pick<ItemRow, 'name' | 'sku' | 'price' | 'pricePaid' | 'taxRateBps' | 'isActive' | 'measurementType' | 'stockQuantity' | 'description' | 'color' | 'size' | 'brand' | 'tags' | 'categoryId'>>,
+        patch: Partial<Pick<ItemRow, 'name' | 'sku' | 'price' | 'pricePaid' | 'taxRateBps' | 'isActive' | 'measurementType' | 'stockQuantity' | 'description' | 'color' | 'size' | 'brand' | 'tags' | 'categoryId'>>,
         opts?: { categoryName?: string | null }
     ) => Promise<void>;
     onDelete: (id: string) => Promise<void>;
@@ -160,9 +161,11 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
                         type="button"
                         onClick={doDelete}
                         disabled={loading}
-                        className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 disabled:opacity-60 sm:ml-3 sm:w-auto dark:bg-red-500 dark:hover:bg-red-400"
+                        aria-busy={loading}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 disabled:opacity-60 sm:ml-3 sm:w-auto dark:bg-red-500 dark:hover:bg-red-400"
                     >
-                        {loading ? 'Deleting…' : 'Delete'}
+                        {loading && <Spinner size={16} className="text-white" />}
+                        <span>{loading ? 'Deleting…' : 'Delete'}</span>
                     </button>
                     <button
                         type="button"
@@ -296,7 +299,7 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
                         <div className="text-sm text-gray-600 dark:text-gray-400">Name and SKU must be unique per team.</div>
                         <div className="flex gap-2">
                             <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Cancel</button>
-                            <button type="submit" disabled={loading} className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400">{loading ? 'Saving…' : 'Save'}</button>
+                            <button type="submit" disabled={loading} aria-busy={loading} className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400">{loading && <Spinner size={16} className="text-white" />}<span>{loading ? 'Saving…' : 'Save'}</span></button>
                         </div>
                     </div>
                     {message && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{message}</p>}

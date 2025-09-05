@@ -9,6 +9,7 @@ import Breadcrumbs from '@/components/ui/Breadcrumbs'
 import Tabs from '@/components/ui/Tabs'
 import DeletePlaceButton from '@/components/admin-zone/places/DeletePlaceButton'
 import Input from '@/components/ui/Input'
+import Spinner from '@/components/ui/Spinner'
 
 type Member = { id: string; userId: string; name: string; email: string; createdAt: string }
 
@@ -358,7 +359,7 @@ export default function PlaceDetailPage() {
             <header>
 
                 {/* Heading */}
-                <header className="-mt-3 flex flex-col items-start justify-between gap-x-8 gap-y-4 bg-gray-50 px-4 py-2 sm:flex-row sm:items-center sm:px-6 lg:px-8 dark:bg-gray-700/10">
+                <div className="-mt-3 flex flex-col items-start justify-between gap-x-8 gap-y-4 bg-gray-50 px-4 py-2 sm:flex-row sm:items-center sm:px-6 lg:px-8 dark:bg-gray-700/10">
                     <div>
                         <div className="flex items-center gap-x-3">
                             <div className={`flex-none rounded-full p-1 ${place?.isActive ? 'bg-green-500/10 text-green-500 dark:bg-green-400/10 dark:text-green-400' : 'bg-gray-400/10 text-gray-500 dark:bg-gray-500/10 dark:text-gray-400'}`}>
@@ -372,15 +373,16 @@ export default function PlaceDetailPage() {
                                 </button>
                             </h1>
                         </div>
-                        <p className="mt-2 text-xs/6 text-gray-500 dark:text-gray-400">{place?.description || 'Overview and stats'}</p>
                     </div>
-                    <Link
-                        href={`/cash-register?placeId=${encodeURIComponent(String(placeId))}`}
-                        className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800 dark:text-white"
-                    >
-                        Open register
-                    </Link>
-                </header>
+                    <div className="flex items-center gap-2">
+                        <Link
+                            href={`/cash-register?placeId=${encodeURIComponent(String(placeId))}`}
+                            className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800 dark:text-white"
+                        >
+                            Open register
+                        </Link>
+                    </div>
+                </div>
 
                 {/* breadcrumbs */}
                 <div className="px-4 pt-4 sm:px-6 lg:px-8">
@@ -480,8 +482,9 @@ export default function PlaceDetailPage() {
                                             {saveMessage && (
                                                 <span className="text-sm text-gray-600 dark:text-gray-400">{saveMessage}</span>
                                             )}
-                                            <button type="submit" disabled={saveLoading} className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400">
-                                                {saveLoading ? 'Saving…' : 'Save changes'}
+                                            <button type="submit" disabled={saveLoading} aria-busy={saveLoading} className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400">
+                                                {saveLoading && <Spinner size={16} className="text-white" />}
+                                                <span>{saveLoading ? 'Saving…' : 'Save changes'}</span>
                                             </button>
                                         </div>
                                     </form>
@@ -637,6 +640,6 @@ export default function PlaceDetailPage() {
                     <button onClick={() => setInfoOpen(false)} className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Close</button>
                 </div>
             </Modal>
-        </div>
+        </div >
     )
 }

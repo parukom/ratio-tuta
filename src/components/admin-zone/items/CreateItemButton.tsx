@@ -4,6 +4,7 @@ import Modal from '@/components/modals/Modal'
 import Input from '@/components/ui/Input'
 import Dropdown from '@/components/ui/Dropdown'
 import toast from 'react-hot-toast'
+import Spinner from '@/components/ui/Spinner'
 
 type Props = {
   teamId?: string
@@ -14,7 +15,7 @@ type Props = {
     sku?: string | null
     categoryId?: string | null
     price: number
-  pricePaid?: number
+    pricePaid?: number
     taxRateBps: number
     isActive: boolean
     createdAt: string
@@ -175,7 +176,7 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
               <div className="mt-2 flex items-center gap-2">
                 <Input id="newCategory" name="newCategory" type="text" className="" placeholder="New category name" value={newCatName} onChange={(e) => setNewCatName(e.target.value)} />
                 <button type="button" onClick={() => setCreatingCat(false)} className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Cancel</button>
-                <button type="button" onClick={createCategoryInline} disabled={catLoading} className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400">{catLoading ? 'Saving…' : 'Create'}</button>
+                <button type="button" onClick={createCategoryInline} disabled={catLoading} className="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400">{catLoading && <Spinner size={14} className="text-white" />}<span>{catLoading ? 'Saving…' : 'Create'}</span></button>
               </div>
             )}
             {catMsg && <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">{catMsg}</p>}
@@ -245,7 +246,7 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
             <p className="text-sm text-gray-600 dark:text-gray-400">Name and SKU must be unique per team.</p>
             <div className="flex gap-2">
               <button type="button" onClick={() => setOpen(false)} className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-white/10 dark:text-gray-100 dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20 dark:focus-visible:outline-indigo-500">Cancel</button>
-              <button type="submit" disabled={loading} className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500">{loading ? 'Creating…' : 'Create'}</button>
+              <button type="submit" disabled={loading} aria-busy={loading} className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500">{loading && <Spinner size={16} className="text-white" />}<span>{loading ? 'Creating…' : 'Create'}</span></button>
             </div>
           </div>
           {message && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{message}</p>}

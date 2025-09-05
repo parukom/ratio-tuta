@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import Spinner from '@/components/ui/Spinner'
 import toast from 'react-hot-toast'
 
 export const LogoutOtherSessions = () => {
@@ -71,9 +72,11 @@ export const LogoutOtherSessions = () => {
                     <button
                         type="submit"
                         disabled={loading || !password}
-                        className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
+                        aria-busy={loading}
+                        className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
                     >
-                        {loading ? 'Processing…' : 'Log out other sessions'}
+                        {loading && <Spinner size={16} className="text-white" />}
+                        <span>{loading ? 'Processing…' : 'Log out other sessions'}</span>
                     </button>
                 </div>
 

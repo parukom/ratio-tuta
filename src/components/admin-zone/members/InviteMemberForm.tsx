@@ -3,6 +3,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import Input from '@/components/ui/Input'
 import Dropdown from '@/components/ui/Dropdown'
+import Spinner from '@/components/ui/Spinner'
 
 type Props = {
     teamId?: string
@@ -29,7 +30,6 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
         const required = [pick(upp), pick(low), pick(dig), pick(sym)]
         const rest = Array.from({ length: Math.max(0, len - required.length) }, () => pick(all))
         const arr = [...required, ...rest]
-        // shuffle
         for (let i = arr.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1))
                 ;[arr[i], arr[j]] = [arr[j], arr[i]]
@@ -59,7 +59,6 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
             if (trimmed && (trimmed.length < 8 || trimmed.length > 16)) {
                 setMessage('Password must be 8-16 characters')
                 toast.error('Password must be 8-16 characters')
-                setSubmitting(false)
                 return
             }
             const payload: Record<string, unknown> = { name, email, role, teamId }
@@ -187,9 +186,11 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
             <button
                 type="submit"
                 disabled={submitting}
-                className="inline-flex w-full items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
+                aria-busy={submitting}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
             >
-                {submitting ? 'Creating…' : 'Create and add'}
+                {submitting && <Spinner size={16} className="text-white" />}
+                <span>{submitting ? 'Creating…' : 'Create and add'}</span>
             </button>
 
             {message && (

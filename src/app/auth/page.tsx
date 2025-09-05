@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import Spinner from "@/components/ui/Spinner";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
@@ -26,6 +27,7 @@ function AuthContent() {
     const [message, setMessage] = useState("");
     const [showVerifyBanner, setShowVerifyBanner] = useState(true);
     const router = useRouter();
+    const [submitting, setSubmitting] = useState(false);
 
     // Redirect if already logged in
     useEffect(() => {
@@ -44,42 +46,47 @@ function AuthContent() {
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setMessage("");
+        setSubmitting(true);
 
         if (mode === "login") {
-            const res = await fetch("/api/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({ email, password, remember }),
-            });
-            const data = await res.json();
-            if (!res.ok) {
-                setMessage(data.error || "Error logging in");
-            } else {
-                // Decide where to go next based on role and place memberships
-                const role = (data?.role as string) || "USER";
-                if (role === 'ADMIN') {
-                    router.replace('/dashboard/home');
-                    return;
-                }
-                try {
-                    // Check explicit place memberships
-                    const placesRes = await fetch('/api/places', { cache: 'no-store' });
-                    if (!placesRes.ok) {
-                        router.replace('/');
+            try {
+                const res = await fetch("/api/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({ email, password, remember }),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    setMessage(data.error || "Error logging in");
+                } else {
+                    // Decide where to go next based on role and place memberships
+                    const role = (data?.role as string) || "USER";
+                    if (role === 'ADMIN') {
+                        router.replace('/dashboard/home');
                         return;
                     }
-                    const places = (await placesRes.json()) as Array<{ id: string }>;
-                    if (Array.isArray(places)) {
-                        if (places.length === 0) router.replace('/no-events');
-                        else if (places.length === 1) router.replace(`/cash-register?placeId=${places[0].id}`);
-                        else router.replace('/cash-register');
-                    } else {
+                    try {
+                        // Check explicit place memberships
+                        const placesRes = await fetch('/api/places', { cache: 'no-store' });
+                        if (!placesRes.ok) {
+                            router.replace('/');
+                            return;
+                        }
+                        const places = (await placesRes.json()) as Array<{ id: string }>;
+                        if (Array.isArray(places)) {
+                            if (places.length === 0) router.replace('/no-events');
+                            else if (places.length === 1) router.replace(`/cash-register?placeId=${places[0].id}`);
+                            else router.replace('/cash-register');
+                        } else {
+                            router.replace('/');
+                        }
+                    } catch {
                         router.replace('/');
                     }
-                } catch {
-                    router.replace('/');
                 }
+            } finally {
+                setSubmitting(false);
             }
             return;
         }
@@ -89,15 +96,19 @@ function AuthContent() {
             setMessage("Password must be 8-16 characters");
             return;
         }
-        const res = await fetch("/api/register/self", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ name, email, password, teamName }),
-        });
-        const data = await res.json();
-        if (!res.ok) setMessage(data.error || "Error registering");
-        else setMessage(data.message || "Account created. Check your email to verify.");
+        try {
+            const res = await fetch("/api/register/self", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ name, email, password, teamName }),
+            });
+            const data = await res.json();
+            if (!res.ok) setMessage(data.error || "Error registering");
+            else setMessage(data.message || "Account created. Check your email to verify.");
+        } finally {
+            setSubmitting(false);
+        }
     }
 
     return (
@@ -281,9 +292,12 @@ function AuthContent() {
                         <div>
                             <button
                                 type="submit"
-                                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
+                                disabled={submitting}
+                                aria-busy={submitting}
+                                className="flex w-full items-center justify-center gap-2 rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
                             >
-                                {mode === "login" ? "Sign in" : "Create account"}
+                                {submitting && <Spinner size={18} className="text-white" />}
+                                <span>{mode === "login" ? (submitting ? "Signing in…" : "Sign in") : (submitting ? "Creating…" : "Create account")}</span>
                             </button>
                         </div>
                         {message && <p className="text-sm/6 text-center text-red-600 dark:text-red-400">{message}</p>}

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import Modal from '@/components/modals/Modal'
 import Input from '@/components/ui/Input'
 import toast from 'react-hot-toast'
+import Spinner from '@/components/ui/Spinner'
 
 type Props = {
     teamId?: string
@@ -106,7 +107,7 @@ export default function CreatePlaceButton({ teamId, onCreated }: Props) {
                         <p className="text-sm text-gray-600 dark:text-gray-400">Unique per team by name.</p>
                         <div className="flex gap-2">
                             <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Cancel</button>
-                            <button type="submit" disabled={loading} className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400">{loading ? 'Creating…' : 'Create'}</button>
+                            <button type="submit" disabled={loading} aria-busy={loading} className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400">{loading && <Spinner size={16} className="text-white" />}<span>{loading ? 'Creating…' : 'Create'}</span></button>
                         </div>
                     </div>
                     {message && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{message}</p>}
