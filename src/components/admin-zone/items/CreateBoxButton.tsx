@@ -32,6 +32,7 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
     const [taxRateBps, setTaxRateBps] = useState('0')
     const [measurementType, setMeasurementType] = useState<'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'>('PCS')
     const [skuPrefix, setSkuPrefix] = useState('')
+    const [imageFile, setImageFile] = useState<File | null>(null)
     // categories
     type Category = { id: string; name: string }
     const [categories, setCategories] = useState<Category[]>([])
@@ -143,11 +144,20 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
                     .filter(s => s.size.trim() && Number(s.quantity) > 0)
                     .map(s => ({ size: s.size.trim(), quantity: Number(s.quantity), sku: (s.sku || '').trim() || null })),
             }
-            const res = await fetch('/api/items/box', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            })
+            // If image selected, send multipart with payload + file; else JSON
+            let res: Response
+            if (imageFile) {
+                const fd = new FormData()
+                fd.append('payload', JSON.stringify(payload))
+                fd.append('file', imageFile)
+                res = await fetch('/api/items/box', { method: 'POST', body: fd })
+            } else {
+                res = await fetch('/api/items/box', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                })
+            }
             const data = await res.json()
             if (!res.ok) { const err = data.error || 'Failed to add box'; setMessage(err); toast.error(err); return }
             setMessage('Box added')
@@ -155,7 +165,7 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
             setOpen(false)
             onDone?.()
             // reset only non-persisted fields; keep sizes for next box until user resets
-            setBaseName(''); setColor(''); setPrice(''); setBoxCost(''); setSkuPrefix('')
+            setBaseName(''); setColor(''); setPrice(''); setBoxCost(''); setSkuPrefix(''); setImageFile(null)
         } catch {
             setMessage('Network error')
             toast.error('Network error')
@@ -199,6 +209,7 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
             <Modal open={open} onClose={() => setOpen(false)} size="lg">
                 <h3 className="text-base font-semibold text-gray-900 dark:text-white">Add a box to warehouse</h3>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Create or update multiple size items in one go. All items share the same base name, color and price.</p>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Optional: attach a picture and it will be applied to all items in this box.</p>
 
                 <form onSubmit={submit} className="mt-4 space-y-3">
                     <Input id="baseName" name="baseName" type="text" className="" placeholder="Base name e.g. Shoes" value={baseName} onChange={(e) => setBaseName(e.target.value)} />
@@ -263,6 +274,18 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
                         <Input id="skuPrefix" name="skuPrefix" type="text" className="" placeholder="SKU prefix (optional)" value={skuPrefix} onChange={(e) => setSkuPrefix(e.target.value)} />
                         {/* spacer for layout */}
                         <div />
+                    </div>
+
+                    {/* Optional picture for the whole box */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Box picture (applies to all items)</label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+                            className="block w-full text-sm text-gray-900 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:text-gray-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-300"
+                        />
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">JPEG/PNG/WebP up to ~10MB. We&#39;ll resize and compress automatically.</p>
                     </div>
 
                     <div>

@@ -27,6 +27,7 @@ type ItemRow = {
     size?: string | null
     brand?: string | null
     tags?: string[] | null
+    imageUrl?: string | null
 }
 
 
@@ -67,6 +68,8 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
     const [size, setSize] = useState(item.size ?? '')
     const [brand, setBrand] = useState(item.brand ?? '')
     const [tagsCSV, setTagsCSV] = useState((item.tags ?? []).join(', '))
+    const [imageFile, setImageFile] = useState<File | null>(null)
+    const [imageUrl, setImageUrl] = useState<string | null>(item.imageUrl ?? null)
     // categories state
     type Category = { id: string; name: string }
     const [categories, setCategories] = useState<Category[]>([])
@@ -113,6 +116,22 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
                 tags: tagsCSV.split(',').map(t => t.trim()).filter(Boolean),
                 categoryId: nextCategoryId,
             }, { categoryName: nextCategoryName })
+            // If an image file is selected, upload it now
+            if (imageFile) {
+                try {
+                    const fd = new FormData()
+                    fd.append('file', imageFile)
+                    const up = await fetch(`/api/items/${item.id}/image`, { method: 'POST', body: fd })
+                    const upData = await up.json()
+                    if (up.ok) {
+                        setImageUrl(upData.imageUrl)
+                    } else {
+                        toast.error(upData.error || 'Failed to upload image')
+                    }
+                } catch {
+                    toast.error('Failed to upload image')
+                }
+            }
             setMessage('Saved')
             setOpen(false)
         } catch {
@@ -291,6 +310,33 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
                         <Input id={`brand-${item.id}`} name="brand" type="text" className="" placeholder="Brand (optional)" value={brand} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBrand(e.target.value)} />
                     </div>
                     <Input id={`tags-${item.id}`} name="tags" type="text" className="" placeholder="Tags (comma-separated)" value={tagsCSV} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTagsCSV(e.target.value)} />
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Picture</label>
+                        {imageUrl ? (
+                            <div className="mb-2 flex items-center gap-2">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={imageUrl} alt="Item picture" className="h-16 w-16 rounded object-cover ring-1 ring-black/5 dark:ring-white/10" />
+                                <button
+                                    type="button"
+                                    className="text-xs text-red-600 hover:underline dark:text-red-400"
+                                    onClick={async () => {
+                                        try {
+                                            const r = await fetch(`/api/items/${item.id}/image`, { method: 'DELETE' })
+                                            if (r.ok) { setImageUrl(null); setImageFile(null); toast.success('Image removed') }
+                                            else { const d = await r.json(); toast.error(d.error || 'Failed to remove image') }
+                                        } catch { toast.error('Failed to remove image') }
+                                    }}
+                                >Remove</button>
+                            </div>
+                        ) : null}
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+                            className="block w-full text-sm text-gray-900 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:text-gray-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-300"
+                        />
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">JPEG/PNG/WebP up to ~10MB. We&#39;ll resize and compress automatically.</p>
+                    </div>
                     <div className="flex items-center gap-2">
                         <input id={`active-${item.id}`} name="isActive" type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="size-4" />
                         <label htmlFor={`active-${item.id}`} className="text-sm text-gray-700 dark:text-gray-300">Active</label>

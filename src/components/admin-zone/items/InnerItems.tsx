@@ -218,6 +218,7 @@ export default function InnerItems() {
                 size: created.size ?? null,
                 brand: created.brand ?? null,
                 tags: created.tags ?? null,
+                imageUrl: created.imageUrl ?? null,
             }
             setItems((prev) => [optimistic, ...prev.filter((i) => i.id !== optimistic.id)])
         }

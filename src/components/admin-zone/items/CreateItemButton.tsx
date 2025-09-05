@@ -40,6 +40,7 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
   const [color, setColor] = useState('')
   const [brand, setBrand] = useState('')
   const [tagsCSV, setTagsCSV] = useState('')
+  const [imageFile, setImageFile] = useState<File | null>(null)
   // categories
   type Category = { id: string; name: string }
   const [categories, setCategories] = useState<Category[]>([])
@@ -63,7 +64,7 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
   useEffect(() => { if (open) loadCategories() }, [open, loadCategories])
 
   function reset() {
-    setName(''); setSku(''); setPrice(''); setTaxRateBps('0'); setIsActive(true); setMeasurementType('PCS'); setStockQuantity('0'); setDescription(''); setColor(''); setBrand(''); setTagsCSV(''); setCategoryId(''); setCreatingCat(false); setNewCatName(''); setCatMsg('')
+    setName(''); setSku(''); setPrice(''); setTaxRateBps('0'); setIsActive(true); setMeasurementType('PCS'); setStockQuantity('0'); setDescription(''); setColor(''); setBrand(''); setTagsCSV(''); setCategoryId(''); setCreatingCat(false); setNewCatName(''); setCatMsg(''); setImageFile(null)
   }
 
   async function submit(e: React.FormEvent) {
@@ -71,6 +72,12 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
     setMessage('')
     setLoading(true)
     try {
+      if (!imageFile) {
+        setMessage('Please select a picture')
+        toast('Please select a picture', { icon: '📷' })
+        setLoading(false)
+        return
+      }
       const res = await fetch('/api/items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -96,9 +103,26 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
       })
       const data = await res.json()
       if (!res.ok) { const err = data.error || 'Failed to create'; setMessage(err); toast.error(err); return }
+      let created = data
+      // If an image file was selected, upload it now
+      if (imageFile) {
+        try {
+          const fd = new FormData()
+          fd.append('file', imageFile)
+          const up = await fetch(`/api/items/${data.id}/image`, { method: 'POST', body: fd })
+          const upData = await up.json()
+          if (up.ok) {
+            created = { ...data, imageUrl: upData.imageUrl }
+          } else {
+            toast.error(upData.error || 'Failed to upload image')
+          }
+        } catch {
+          toast.error('Failed to upload image')
+        }
+      }
       setMessage('Item created')
       toast.success('Item created')
-      onCreated?.(data)
+      onCreated?.(created)
       reset()
       setOpen(false)
     } catch {
@@ -237,6 +261,16 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
             <Input id="brand" name="brand" type="text" className="" placeholder="Brand (optional)" value={brand} onChange={(e) => setBrand(e.target.value)} />
           </div>
           <Input id="tags" name="tags" type="text" className="" placeholder="Tags (comma-separated)" value={tagsCSV} onChange={(e) => setTagsCSV(e.target.value)} />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Picture <span className="text-red-500">*</span></label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+              className="block w-full text-sm text-gray-900 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:text-gray-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-300"
+            />
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">JPEG/PNG/WebP up to ~10MB. We&#39;ll resize and compress automatically.</p>
+          </div>
           <div className="flex items-center gap-2">
             <input id="isActive" name="isActive" type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="size-4" />
             <label htmlFor="isActive" className="text-sm text-gray-700 dark:text-gray-300">Active</label>

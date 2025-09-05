@@ -122,6 +122,10 @@ model Item {
   brand       String?
   tags        String[] // paprastas string array, tinka filtravimui
 
+  // Item picture stored in S3
+  imageUrl String?
+  imageKey String?
+
   categoryId String?
   category   ItemCategory? @relation(fields: [categoryId], references: [id])
 

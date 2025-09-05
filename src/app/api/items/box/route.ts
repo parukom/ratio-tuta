@@ -3,6 +3,9 @@ import { prisma } from '@lib/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
 import type { Prisma } from '@/generated/prisma';
+import { deleteObjectByKey } from '@lib/s3';
+import { processImageToWebp } from '@lib/image';
+import { putObjectFromBuffer } from '@lib/s3';
 
 type SizeSpec = { size: string; quantity: number; sku?: string | null };
 
@@ -18,7 +21,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = (await req.json()) as Partial<{
+  // Support both JSON and multipart bodies. If multipart, expect fields:
+  // - payload: JSON string of the same shape as the previous JSON body
+  // - file: optional image file
+  const ct = req.headers.get('content-type') || '';
+  let fileBuffer: Buffer | null = null;
+  let body: Partial<{
     teamId: string;
     baseName: string;
     color?: string | null;
@@ -35,14 +43,53 @@ export async function POST(req: Request) {
     description?: string | null;
     brand?: string | null;
     tags?: string[] | null;
-  }>;
+  }> = {};
+
+  if (ct.includes('multipart/form-data')) {
+    const form = await req.formData();
+    const payloadRaw = form.get('payload');
+    if (typeof payloadRaw !== 'string') {
+      return NextResponse.json(
+        { error: 'payload field is required' },
+        { status: 400 },
+      );
+    }
+    try {
+      body = JSON.parse(payloadRaw);
+    } catch {
+      return NextResponse.json(
+        { error: 'Invalid payload JSON' },
+        { status: 400 },
+      );
+    }
+    const f = form.get('file');
+    if (f && typeof f !== 'string') {
+      fileBuffer = Buffer.from(await (f as File).arrayBuffer());
+    }
+  } else if (ct.includes('application/json')) {
+    body = (await req.json()) as typeof body;
+  } else if (ct.includes('application/octet-stream')) {
+    // Raw binary not supported for box; require payload
+    return NextResponse.json(
+      { error: 'Unsupported content-type' },
+      { status: 415 },
+    );
+  } else {
+    // default attempt json
+    try {
+      body = (await req.json()) as typeof body;
+    } catch {
+      return NextResponse.json(
+        { error: 'Unsupported content-type' },
+        { status: 415 },
+      );
+    }
+  }
 
   const baseName = String(body.baseName || '').trim();
-  const color = (body.color ?? '').trim();
+  const color = (body.color ?? '').toString().trim();
   const price = Number(body.price);
-  const boxCost = Number(
-    typeof body.boxCost === 'number' ? body.boxCost : 0,
-  );
+  const boxCost = Number(typeof body.boxCost === 'number' ? body.boxCost : 0);
   const taxRateBps = Number(body.taxRateBps ?? 0);
   // Determine measurement type with legacy unit mapping
   type MT = 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME';
@@ -114,10 +161,7 @@ export async function POST(req: Request) {
   if (sizes.length === 0)
     return NextResponse.json({ error: 'sizes is required' }, { status: 400 });
   if (!Number.isFinite(boxCost) || boxCost < 0)
-    return NextResponse.json(
-      { error: 'Invalid boxCost' },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: 'Invalid boxCost' }, { status: 400 });
 
   // Validate sizes entries
   for (const s of sizes) {
@@ -201,6 +245,7 @@ export async function POST(req: Request) {
   // helper to derive per-size item name and sku
   const colorSuffix = color ? ` (${color})` : '';
   const makeName = (size: string) => `${baseName}${colorSuffix} - ${size}`;
+  const boxNamePrefix = `${baseName}${colorSuffix} - `;
   const makeSku = (size: string, explicit?: string | null) =>
     (explicit && explicit.trim()) ||
     (skuPrefix ? `${skuPrefix}-${size}` : null);
@@ -217,7 +262,10 @@ export async function POST(req: Request) {
   try {
     const out = await prisma.$transaction(async (tx) => {
       // Determine total quantity across all size rows
-      const totalQty = sizes.reduce((acc, s) => acc + Number(s.quantity || 0), 0);
+      const totalQty = sizes.reduce(
+        (acc, s) => acc + Number(s.quantity || 0),
+        0,
+      );
       if (boxCost > 0 && totalQty <= 0) {
         throw new Error('boxCost provided but total quantity is zero');
       }
@@ -244,16 +292,16 @@ export async function POST(req: Request) {
               ? (prevCost * prevQty + perUnitCost * qty) / newQtyTotal
               : prevCost;
 
-      const updated = await tx.item.update({
+          const updated = await tx.item.update({
             where: { id: existing.id },
             data: {
               stockQuantity: existing.stockQuantity + qty,
               // Update pricePaid with weighted average by quantity
               pricePaid: { set: newPricePaid },
-        // Also keep price/tax/measurementType in sync with the box settings
-        price,
-        taxRateBps,
-        measurementType,
+              // Also keep price/tax/measurementType in sync with the box settings
+              price,
+              taxRateBps,
+              measurementType,
             },
             select: { id: true, name: true },
           });
@@ -318,6 +366,39 @@ export async function POST(req: Request) {
       message: msg,
     });
     return NextResponse.json({ error: msg }, { status: 500 });
+  }
+
+  // If an image file was provided, process and upload once, then apply to all items in this box
+  if (fileBuffer && fileBuffer.length > 0) {
+    try {
+      const processed = await processImageToWebp(fileBuffer, {
+        maxSize: 1024,
+        quality: 82,
+      });
+      // Use a stable key per box; include hash-like timestamp to avoid cache collisions
+      const keyBase =
+        `${baseName}${color ? `-${color}` : ''}`
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '') || 'box';
+      const ts = Date.now();
+      const key = `teams/${targetTeamId}/boxes/${keyBase}-${ts}.${processed.ext}`;
+      const publicUrl = await putObjectFromBuffer({
+        key,
+        buffer: processed.data,
+        contentType: processed.contentType,
+        cacheControl: 'public, max-age=31536000, immutable',
+      });
+
+      // Apply the image to all items matching this box prefix
+      await prisma.item.updateMany({
+        where: { teamId: targetTeamId!, name: { startsWith: boxNamePrefix } },
+        data: { imageKey: key, imageUrl: publicUrl },
+      });
+    } catch (e) {
+      console.error('Failed to process/apply box image', e);
+      // Non-fatal: continue without failing the whole request
+    }
   }
 
   await logAudit({
@@ -445,7 +526,7 @@ export async function DELETE(req: Request) {
 
   const items = await prisma.item.findMany({
     where,
-    select: { id: true },
+    select: { id: true, imageKey: true },
   });
 
   if (items.length === 0) {
@@ -458,6 +539,9 @@ export async function DELETE(req: Request) {
   }
 
   const itemIds = items.map((i) => i.id);
+  const imageKeys = Array.from(
+    new Set(items.map((i) => i.imageKey).filter((k): k is string => !!k)),
+  );
 
   try {
     let removedAssignments = 0;
@@ -468,6 +552,18 @@ export async function DELETE(req: Request) {
       removedAssignments = delPI.count;
       await tx.item.deleteMany({ where: { id: { in: itemIds } } });
     });
+
+    // Best-effort: delete images used only by this box (no other items referencing the same key)
+    for (const key of imageKeys) {
+      try {
+        const others = await prisma.item.count({ where: { imageKey: key } });
+        if (others === 0) {
+          await deleteObjectByKey(key);
+        }
+      } catch (e) {
+        console.warn('Failed to cleanup box image', key, e);
+      }
+    }
 
     await logAudit({
       action: 'item.box.delete',

@@ -147,7 +147,7 @@ export async function GET(req: Request) {
     case 'price_desc':
       orderBy = { price: 'desc' };
       break;
-  // pricePaid sorting becomes available after prisma client regeneration
+    // pricePaid sorting becomes available after prisma client regeneration
     case 'stock_asc':
       orderBy = { stockQuantity: 'asc' };
       break;
@@ -184,6 +184,8 @@ export async function GET(req: Request) {
       size: true,
       brand: true,
       tags: true,
+      imageUrl: true,
+      imageKey: true,
       category: { select: { name: true } },
     },
     orderBy,
@@ -225,6 +227,7 @@ export async function GET(req: Request) {
       size: it.size ?? null,
       brand: it.brand ?? null,
       tags: it.tags ?? [],
+      imageUrl: it.imageUrl ?? null,
       currency: 'EUR',
     };
   });
@@ -249,7 +252,7 @@ export async function POST(req: Request) {
     sku?: string | null;
     categoryId?: string | null;
     price?: number;
-  pricePaid?: number;
+    pricePaid?: number;
     taxRateBps?: number;
     isActive?: boolean;
     stockQuantity?: number;
@@ -260,6 +263,8 @@ export async function POST(req: Request) {
     size?: string | null;
     brand?: string | null;
     tags?: string[] | null;
+    imageUrl?: string | null;
+    imageKey?: string | null;
   };
 
   const name = (body.name || '').trim();
@@ -321,6 +326,8 @@ export async function POST(req: Request) {
   const tags = Array.isArray(body.tags)
     ? body.tags.map((t) => String(t).trim()).filter(Boolean)
     : [];
+  const imageUrl = (body.imageUrl ?? '').trim() || null;
+  const imageKey = (body.imageKey ?? '').trim() || null;
 
   if (!name)
     return NextResponse.json({ error: 'Name is required' }, { status: 400 });
@@ -330,10 +337,7 @@ export async function POST(req: Request) {
       { status: 400 },
     );
   if (!Number.isFinite(pricePaid) || pricePaid < 0)
-    return NextResponse.json(
-      { error: 'Invalid pricePaid' },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: 'Invalid pricePaid' }, { status: 400 });
   if (!Number.isInteger(taxRateBps) || taxRateBps < 0)
     return NextResponse.json({ error: 'Invalid taxRateBps' }, { status: 400 });
   if (!Number.isInteger(stockQuantity) || stockQuantity < 0)
@@ -428,7 +432,7 @@ export async function POST(req: Request) {
         sku: body.sku ?? null,
         categoryId,
         price,
-  pricePaid,
+        pricePaid,
         taxRateBps,
         isActive: body.isActive ?? true,
         stockQuantity,
@@ -438,6 +442,8 @@ export async function POST(req: Request) {
         size,
         brand,
         tags,
+        imageUrl,
+        imageKey,
       },
       select: {
         id: true,
@@ -446,7 +452,7 @@ export async function POST(req: Request) {
         sku: true,
         categoryId: true,
         price: true,
-  pricePaid: true,
+        pricePaid: true,
         taxRateBps: true,
         isActive: true,
         stockQuantity: true,
@@ -457,6 +463,8 @@ export async function POST(req: Request) {
         size: true,
         brand: true,
         tags: true,
+        imageUrl: true,
+        imageKey: true,
       },
     });
 

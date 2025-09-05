@@ -19,6 +19,7 @@ export type ItemRow = {
   size?: string | null;
   brand?: string | null;
   tags?: string[] | null;
+  imageUrl?: string | null;
 };
 
 export type Group = {

@@ -26,18 +26,20 @@ export async function GET(
       sku: true,
       categoryId: true,
       price: true,
-  pricePaid: true,
+      pricePaid: true,
       taxRateBps: true,
       isActive: true,
       stockQuantity: true,
       createdAt: true,
       updatedAt: true,
-  measurementType: true,
-  description: true,
-  color: true,
-  size: true,
-  brand: true,
-  tags: true,
+      measurementType: true,
+      description: true,
+      color: true,
+      size: true,
+      brand: true,
+      tags: true,
+      imageUrl: true,
+      imageKey: true,
     },
   });
   if (!item) return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -111,23 +113,26 @@ export async function PATCH(
     sku: string | null;
     categoryId: string | null;
     price: number;
-  pricePaid: number;
+    pricePaid: number;
     taxRateBps: number;
     isActive: boolean;
     stockQuantity: number;
-  measurementType: string;
-  description: string | null;
-  color: string | null;
-  size: string | null;
-  brand: string | null;
-  tags: string[] | null;
-  unit: string; // legacy alias; will attempt to map to measurementType
+    measurementType: string;
+    description: string | null;
+    color: string | null;
+    size: string | null;
+    brand: string | null;
+    tags: string[] | null;
+    unit: string; // legacy alias; will attempt to map to measurementType
+    imageUrl: string | null;
+    imageKey: string | null;
   }>;
 
   const data: Record<string, unknown> = {};
   if (typeof body.name === 'string') {
     const v = body.name.trim();
-    if (!v) return NextResponse.json({ error: 'Invalid name' }, { status: 400 });
+    if (!v)
+      return NextResponse.json({ error: 'Invalid name' }, { status: 400 });
     data.name = v;
   }
   if ('sku' in body) {
@@ -135,7 +140,8 @@ export async function PATCH(
   }
   if ('categoryId' in body) {
     if (body.categoryId === null) data.categoryId = null;
-    else if (typeof body.categoryId === 'string') data.categoryId = body.categoryId;
+    else if (typeof body.categoryId === 'string')
+      data.categoryId = body.categoryId;
   }
   if ('price' in body) {
     const v = Number(body.price);
@@ -152,7 +158,10 @@ export async function PATCH(
   if ('taxRateBps' in body) {
     const v = Number(body.taxRateBps);
     if (!Number.isInteger(v) || v < 0)
-      return NextResponse.json({ error: 'Invalid taxRateBps' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid taxRateBps' },
+        { status: 400 },
+      );
     data.taxRateBps = v;
   }
   if ('isActive' in body) {
@@ -161,10 +170,30 @@ export async function PATCH(
   // measurementType update (preferred)
   if ('measurementType' in body && typeof body.measurementType === 'string') {
     const v = body.measurementType.toUpperCase();
-    const valid = new Set(['PCS', 'WEIGHT', 'LENGTH', 'VOLUME', 'AREA', 'TIME']);
+    const valid = new Set([
+      'PCS',
+      'WEIGHT',
+      'LENGTH',
+      'VOLUME',
+      'AREA',
+      'TIME',
+    ]);
     if (!valid.has(v))
-      return NextResponse.json({ error: 'Invalid measurementType' }, { status: 400 });
-    (data as { measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME' }).measurementType = v as
+      return NextResponse.json(
+        { error: 'Invalid measurementType' },
+        { status: 400 },
+      );
+    (
+      data as {
+        measurementType?:
+          | 'PCS'
+          | 'WEIGHT'
+          | 'LENGTH'
+          | 'VOLUME'
+          | 'AREA'
+          | 'TIME';
+      }
+    ).measurementType = v as
       | 'PCS'
       | 'WEIGHT'
       | 'LENGTH'
@@ -175,22 +204,63 @@ export async function PATCH(
   // legacy 'unit' to measurementType mapping
   if ('unit' in body && typeof body.unit === 'string') {
     const u = body.unit.trim().toLowerCase();
-    const map: Record<string, 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'> = {
-      pcs: 'PCS', piece: 'PCS', pieces: 'PCS', unit: 'PCS', units: 'PCS',
-      kg: 'WEIGHT', g: 'WEIGHT', gram: 'WEIGHT', grams: 'WEIGHT', kilo: 'WEIGHT',
-      m: 'LENGTH', cm: 'LENGTH', mm: 'LENGTH', meter: 'LENGTH', metres: 'LENGTH',
-      l: 'VOLUME', ml: 'VOLUME', litre: 'VOLUME', liters: 'VOLUME',
-      m2: 'AREA', sqm: 'AREA', sq: 'AREA',
-      h: 'TIME', hr: 'TIME', hour: 'TIME', hours: 'TIME', min: 'TIME', minute: 'TIME', s: 'TIME', sec: 'TIME', second: 'TIME',
+    const map: Record<
+      string,
+      'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'
+    > = {
+      pcs: 'PCS',
+      piece: 'PCS',
+      pieces: 'PCS',
+      unit: 'PCS',
+      units: 'PCS',
+      kg: 'WEIGHT',
+      g: 'WEIGHT',
+      gram: 'WEIGHT',
+      grams: 'WEIGHT',
+      kilo: 'WEIGHT',
+      m: 'LENGTH',
+      cm: 'LENGTH',
+      mm: 'LENGTH',
+      meter: 'LENGTH',
+      metres: 'LENGTH',
+      l: 'VOLUME',
+      ml: 'VOLUME',
+      litre: 'VOLUME',
+      liters: 'VOLUME',
+      m2: 'AREA',
+      sqm: 'AREA',
+      sq: 'AREA',
+      h: 'TIME',
+      hr: 'TIME',
+      hour: 'TIME',
+      hours: 'TIME',
+      min: 'TIME',
+      minute: 'TIME',
+      s: 'TIME',
+      sec: 'TIME',
+      second: 'TIME',
     };
     const mt = map[u];
     if (mt)
-      (data as { measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME' }).measurementType = mt;
+      (
+        data as {
+          measurementType?:
+            | 'PCS'
+            | 'WEIGHT'
+            | 'LENGTH'
+            | 'VOLUME'
+            | 'AREA'
+            | 'TIME';
+        }
+      ).measurementType = mt;
   }
   if ('stockQuantity' in body) {
     const v = Number(body.stockQuantity);
     if (!Number.isInteger(v) || v < 0)
-      return NextResponse.json({ error: 'Invalid stockQuantity' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid stockQuantity' },
+        { status: 400 },
+      );
     data.stockQuantity = v;
   }
   if ('description' in body) data.description = body.description ?? null;
@@ -203,15 +273,25 @@ export async function PATCH(
       : [];
     (data as { tags?: string[] }).tags = tags;
   }
+  if ('imageUrl' in body)
+    data.imageUrl = (body.imageUrl ?? null) as string | null;
+  if ('imageKey' in body)
+    data.imageKey = (body.imageKey ?? null) as string | null;
 
   // validate category if set
   if (data.categoryId) {
     const okCat = await prisma.itemCategory.findFirst({
-      where: { id: data.categoryId as string, OR: [{ teamId: null }, { teamId: existing.teamId }] },
+      where: {
+        id: data.categoryId as string,
+        OR: [{ teamId: null }, { teamId: existing.teamId }],
+      },
       select: { id: true },
     });
     if (!okCat)
-      return NextResponse.json({ error: 'Category not found' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Category not found' },
+        { status: 400 },
+      );
   }
 
   try {
@@ -225,18 +305,20 @@ export async function PATCH(
         sku: true,
         categoryId: true,
         price: true,
-  pricePaid: true,
+        pricePaid: true,
         taxRateBps: true,
         isActive: true,
         stockQuantity: true,
         createdAt: true,
         updatedAt: true,
-  measurementType: true,
-  description: true,
-  color: true,
-  size: true,
-  brand: true,
-  tags: true,
+        measurementType: true,
+        description: true,
+        color: true,
+        size: true,
+        brand: true,
+        tags: true,
+        imageUrl: true,
+        imageKey: true,
       },
     });
 
@@ -321,7 +403,7 @@ export async function DELETE(
     // If there are dependent PlaceItem rows, deleting the item will fail unless
     // cascade rules exist. We can either soft-delete (isActive=false) or try delete.
     // Here, we perform a hard delete; client should handle 409 on FK constraints if any.
-  const deleted = await prisma.item.delete({
+    const deleted = await prisma.item.delete({
       where: { id: itemId },
       select: { id: true },
     });

@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import { ItemRowActions } from './ItemRowActions'
 
 type ItemRow = {
@@ -10,7 +10,7 @@ type ItemRow = {
     categoryId?: string | null
     categoryName?: string | null
     price: number
-        pricePaid?: number
+    pricePaid?: number
     taxRateBps: number
     isActive: boolean
     unit?: string
@@ -23,6 +23,7 @@ type ItemRow = {
     size?: string | null
     brand?: string | null
     tags?: string[] | null
+    imageUrl?: string | null
 }
 
 export function ItemCard({
@@ -55,6 +56,7 @@ export function ItemCard({
     ) => Promise<void>
     onDelete: (id: string) => Promise<void>
 }) {
+    const [imgFailed, setImgFailed] = useState(false)
     const currency = item.currency || 'EUR'
     const price = new Intl.NumberFormat(undefined, {
         style: 'currency',
@@ -112,8 +114,17 @@ export function ItemCard({
             {/* header */}
             <div className="flex items-start gap-3">
                 <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg ring-1 ring-inset ring-gray-200 dark:ring-white/10">
-                    {/* color swatch or placeholder */}
-                    {item.color ? (
+                    {item.imageUrl && !imgFailed ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                            src={item.imageUrl}
+                            alt={item.name}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                            onError={() => setImgFailed(true)}
+                        />
+                    ) : item.color ? (
                         <div className="h-full w-full" style={colorStyle} />
                     ) : (
                         <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-xs text-gray-500 dark:from-white/10 dark:to-white/5 dark:text-gray-400">

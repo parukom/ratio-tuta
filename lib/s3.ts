@@ -2,6 +2,7 @@ import {
   S3Client,
   DeleteObjectCommand,
   PutObjectCommand,
+  type PutObjectCommandInput,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
@@ -86,13 +87,23 @@ export async function putObjectFromBuffer(params: {
 }) {
   const client = getS3Client();
   const bucket = getBucketName();
-  const cmd = new PutObjectCommand({
+  const input: PutObjectCommandInput = {
     Bucket: bucket,
     Key: params.key,
     Body: params.buffer,
     ContentType: params.contentType,
     CacheControl: params.cacheControl ?? 'public, max-age=31536000, immutable',
-  });
+  };
+  // Optionally set ACL=public-read if environment allows public objects
+  const aclFlag = (
+    process.env.S3_OBJECT_ACL ||
+    process.env.S3_PUT_PUBLIC_READ ||
+    ''
+  ).toLowerCase();
+  if (aclFlag === 'public-read' || aclFlag === '1' || aclFlag === 'true') {
+    (input as PutObjectCommandInput & { ACL?: string }).ACL = 'public-read';
+  }
+  const cmd = new PutObjectCommand(input);
   await client.send(cmd);
   return getPublicUrlForKey(params.key);
 }
