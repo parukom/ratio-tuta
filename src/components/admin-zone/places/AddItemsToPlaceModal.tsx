@@ -36,6 +36,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [search, setSearch] = useState('')
+    const [inStockOnly, setInStockOnly] = useState(true)
     const [addingIds, setAddingIds] = useState<Set<string>>(new Set())
     const [qtyMap, setQtyMap] = useState<Record<string, string>>({})
 
@@ -45,7 +46,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
         setLoading(true)
         setError(null)
         Promise.all([
-            fetch('/api/items?onlyActive=true').then((r) => (r.ok ? r.json() : r.json().then((d) => Promise.reject(d?.error || 'Error')))) as Promise<Array<Partial<Item> & { id: string; price: number; isActive: boolean }>>,
+            fetch(`/api/items?onlyActive=true${inStockOnly ? '&inStock=1' : ''}`).then((r) => (r.ok ? r.json() : r.json().then((d) => Promise.reject(d?.error || 'Error')))) as Promise<Array<Partial<Item> & { id: string; price: number; isActive: boolean }>>,
             fetch(`/api/places/${placeId}/items`).then((r) => (r.ok ? r.json() : r.json().then((d) => Promise.reject(d?.error || 'Error')))) as Promise<PlaceItem[]>,
         ])
             .then(([allItems, placeItems]) => {
@@ -78,7 +79,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
         return () => {
             cancelled = true
         }
-    }, [open, placeId])
+    }, [open, placeId, inStockOnly])
 
     const assignedIds = useMemo(() => new Set(assigned.map((pi) => pi.itemId)), [assigned])
 
@@ -86,13 +87,14 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
         const q = search.trim().toLowerCase()
         return items
             .filter((it) => !assignedIds.has(it.id))
+            .filter((it) => (inStockOnly ? (it.stockQuantity ?? 0) > 0 : true))
             .filter((it) =>
                 !q
                     ? true
                     : (it.name?.toLowerCase().includes(q) || it.sku?.toLowerCase().includes(q) || it.categoryName?.toLowerCase().includes(q)),
             )
             .slice(0, 100)
-    }, [items, assignedIds, search])
+    }, [items, assignedIds, search, inStockOnly])
 
     const handleAdd = async (itemId: string, quantityOverride?: number) => {
         try {
@@ -136,12 +138,18 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Select items to assign to this place.</p>
 
                 <div className="mt-4">
-                    <input
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search by name, SKU, or category"
-                        className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
-                    />
+                    <div className="flex items-center gap-3">
+                        <input
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder="Search by name, SKU, or category"
+                            className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+                        />
+                        <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                            <input type="checkbox" checked={inStockOnly} onChange={(e) => setInStockOnly(e.target.checked)} className="size-4" />
+                            In stock only
+                        </label>
+                    </div>
                 </div>
 
                 <div className="mt-4 max-h-80 overflow-auto rounded border border-gray-200 dark:border-white/10">
