@@ -1,4 +1,3 @@
-
 'use client'
 
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
@@ -43,11 +42,25 @@ type AdminLayoutProps = {
     secondary?: ReactNode
 }
 
+// Helper to derive initials
+function getInitials(name?: string | null, email?: string | null) {
+    const base = (name && name.trim()) || (email ? email.split('@')[0] : '') || '?'
+    const parts = base.split(/\s+/).filter(Boolean)
+    const initials =
+        parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]) : base.slice(0, 2)
+    return initials.toUpperCase()
+}
+
 const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const [places, setPlaces] = useState<UserPlace[]>([])
     const [loadingPlaces, setLoadingPlaces] = useState(false)
     const pathname = usePathname()
+
+    // NEW: current user info for avatar/initials
+    type CurrentUser = { name?: string | null; email?: string | null; avatarUrl?: string | null }
+    const [me, setMe] = useState<CurrentUser | null>(null)
+    const [avatarError, setAvatarError] = useState(false)
 
     const loadPlaces = useCallback(async () => {
         try {
@@ -76,6 +89,21 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
     }, [loadPlaces])
 
     const placeLink = useMemo(() => (placeId: string) => `/dashboard/home/place/${placeId}`, [])
+
+    useEffect(() => {
+        let ignore = false
+            ; (async () => {
+                try {
+                    const res = await fetch('/api/users/me', { method: 'GET' })
+                    if (!res.ok) return
+                    const data = (await res.json()) as CurrentUser
+                    if (!ignore) setMe(data)
+                } catch {
+                    // ignore
+                }
+            })()
+        return () => { ignore = true }
+    }, [])
 
     return (
         <>
@@ -322,13 +350,26 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                     <div className="relative flex-1 text-sm/6 font-semibold text-gray-900 dark:text-white">{title ?? 'Dashboard'}</div>
                     <a href="#" className="relative">
                         <span className="sr-only">Your profile</span>
-                        <Image
-                            alt=""
-                            src="/images/cat.jpg"
-                            className="size-8 rounded-full bg-gray-50 outline -outline-offset-1 outline-black/5 dark:bg-gray-800 dark:outline-white/10"
-                            width={32}
-                            height={32}
-                        />
+
+                        {/* Avatar or initials */}
+                        {me?.avatarUrl && !avatarError ? (
+                            <Image
+                                alt={me?.name ?? 'User avatar'}
+                                src={me.avatarUrl}
+                                className="size-8 rounded-full bg-gray-50 outline -outline-offset-1 outline-black/5 dark:bg-gray-800 dark:outline-white/10"
+                                width={32}
+                                height={32}
+                                unoptimized
+                                onError={() => setAvatarError(true)}
+                            />
+                        ) : (
+                            <div
+                                className="size-8 rounded-full bg-indigo-600 text-white outline -outline-offset-1 outline-black/5 dark:bg-indigo-500 dark:outline-white/10 flex items-center justify-center text-xs font-semibold"
+                                aria-hidden="true"
+                            >
+                                {getInitials(me?.name ?? null, me?.email ?? null)}
+                            </div>
+                        )}
                     </a>
                 </div>
 

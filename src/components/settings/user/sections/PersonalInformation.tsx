@@ -148,7 +148,7 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
                         <div className="relative">
                             <Image
                                 alt="User avatar"
-                                src={avatarUrl || '/images/cat.jpg'}
+                                src={avatarUrl || '/images/no-image.jpg'}
                                 className="size-24 flex-none rounded-lg bg-gray-100 object-cover outline -outline-offset-1 outline-black/5 dark:bg-gray-800 dark:outline-white/10"
                                 width={96}
                                 height={96}

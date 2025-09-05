@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@lib/session';
-import { prisma } from '@lib/prisma';
-import { deleteObjectByKey } from '@lib/s3';
+import { removeUserAvatarStrict } from '@lib/avatar';
 import { logAudit } from '@lib/logger';
 
 export async function DELETE() {
@@ -10,22 +9,7 @@ export async function DELETE() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: session.userId },
-      select: { avatarKey: true },
-    });
-    const key = user?.avatarKey || null;
-    if (key) {
-      try {
-        await deleteObjectByKey(key);
-      } catch {
-        /* ignore S3 delete errors */
-      }
-    }
-    await prisma.user.update({
-      where: { id: session.userId },
-      data: { avatarKey: null, avatarUrl: null },
-    });
+    await removeUserAvatarStrict(session.userId);
     await logAudit({
       action: 'user.avatar.delete',
       status: 'SUCCESS',
@@ -39,7 +23,11 @@ export async function DELETE() {
       action: 'user.avatar.delete',
       status: 'ERROR',
       actor: session,
+      message: 'Failed to delete avatar from S3',
     });
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to delete avatar' },
+      { status: 500 },
+    );
   }
 }
