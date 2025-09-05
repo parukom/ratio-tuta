@@ -34,6 +34,8 @@ export default function DeletePlaceButton({ placeId, placeName, onDeleted, size 
         throw new Error(data?.error || 'Failed to delete place')
       }
       onDeleted?.(placeId)
+      // notify sidebar/layout to refresh places list
+      try { window.dispatchEvent(new Event('places:changed')) } catch { /* noop */ }
       setOpen(false)
       setConfirmName('')
     } catch (e) {

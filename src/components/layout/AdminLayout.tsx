@@ -1,7 +1,7 @@
 
 'use client'
 
-import React, { ReactNode, useEffect, useMemo, useState } from 'react'
+import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel, TransitionChild } from '@headlessui/react'
 import {
     Bars3Icon,
@@ -49,29 +49,31 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
     const [loadingPlaces, setLoadingPlaces] = useState(false)
     const pathname = usePathname()
 
-    useEffect(() => {
-        let cancelled = false
-        const load = async () => {
-            try {
-                setLoadingPlaces(true)
-                const res = await fetch('/api/places', { method: 'GET' })
-                if (!res.ok) {
-                    // silently ignore (e.g., 401) and show empty list
-                    return
-                }
-                const data = (await res.json()) as Array<{ id: string; name: string }>
-                if (!cancelled) setPlaces(Array.isArray(data) ? data.map(p => ({ id: p.id, name: p.name })) : [])
-            } catch {
-                // ignore network errors for sidebar list
-            } finally {
-                if (!cancelled) setLoadingPlaces(false)
-            }
-        }
-        load()
-        return () => {
-            cancelled = true
+    const loadPlaces = useCallback(async () => {
+        try {
+            setLoadingPlaces(true)
+            const res = await fetch('/api/places', { method: 'GET' })
+            if (!res.ok) return
+            const data = (await res.json()) as Array<{ id: string; name: string }>
+            setPlaces(Array.isArray(data) ? data.map(p => ({ id: p.id, name: p.name })) : [])
+        } catch {
+            // ignore network errors for sidebar list
+        } finally {
+            setLoadingPlaces(false)
         }
     }, [])
+
+    // initial load
+    useEffect(() => { void loadPlaces() }, [loadPlaces])
+
+    // listen for create/delete updates to refresh without full reload
+    useEffect(() => {
+        const handler = () => { void loadPlaces() }
+        window.addEventListener('places:changed', handler as EventListener)
+        return () => {
+            window.removeEventListener('places:changed', handler as EventListener)
+        }
+    }, [loadPlaces])
 
     const placeLink = useMemo(() => (placeId: string) => `/dashboard/home/place/${placeId}`, [])
 

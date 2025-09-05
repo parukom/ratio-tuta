@@ -52,6 +52,8 @@ export default function CreatePlaceButton({ teamId, onCreated }: Props) {
             setMessage('Place created')
             toast.success('Place created')
             onCreated?.(data)
+            // notify sidebar/layout to refresh places list
+            try { window.dispatchEvent(new Event('places:changed')) } catch { /* noop */ }
             reset()
             setOpen(false)
         } catch {
