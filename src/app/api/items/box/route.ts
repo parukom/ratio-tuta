@@ -546,13 +546,51 @@ export async function DELETE(req: Request) {
     new Set(items.map((i) => i.imageKey).filter((k): k is string => !!k)),
   );
 
+  // Preflight: if any items in this box are assigned to places, block deletion and
+  // return a conflict with the list of places and quantities so the UI can guide the user.
+  const assigned = await prisma.placeItem.findMany({
+    where: { itemId: { in: itemIds } },
+    select: { quantity: true, place: { select: { id: true, name: true } } },
+  });
+  if (assigned.length > 0) {
+    const byPlace = new Map<
+      string,
+      { placeId: string; placeName: string; quantity: number }
+    >();
+    for (const row of assigned) {
+      const pid = row.place.id;
+      const name = row.place.name;
+      const prev = byPlace.get(pid) || {
+        placeId: pid,
+        placeName: name,
+        quantity: 0,
+      };
+      prev.quantity += Number(row.quantity || 0);
+      byPlace.set(pid, prev);
+    }
+    const places = Array.from(byPlace.values()).filter((p) => p.quantity > 0);
+    await logAudit({
+      action: 'item.box.delete',
+      status: 'DENIED',
+      actor: session,
+      teamId: targetTeamId!,
+      message: 'Box items are assigned to places',
+    });
+    return NextResponse.json(
+      {
+        error:
+          'Box items are assigned to places. Remove them from shops first.',
+        places,
+      },
+      { status: 409 },
+    );
+  }
+
   try {
-    let removedAssignments = 0;
+    const removedAssignments = 0;
+    // No assignments remain; proceed to delete items.
     await prisma.$transaction(async (tx) => {
-      const delPI = await tx.placeItem.deleteMany({
-        where: { itemId: { in: itemIds } },
-      });
-      removedAssignments = delPI.count;
+      // We intentionally do not auto-remove place links here; they should be gone already.
       await tx.item.deleteMany({ where: { id: { in: itemIds } } });
     });
 

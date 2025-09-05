@@ -1,11 +1,11 @@
 import Modal from "@/components/modals/Modal";
 
 // Conflict modal at page root
-export function ConflictModal({ info, onClose }: { info: { id: string; places: { placeId: string; placeName: string; quantity: number }[] } | null; onClose: () => void }) {
+export function ConflictModal({ info, onClose }: { info: { id: string; places: { placeId: string; placeName: string; quantity: number }[]; kind?: 'item' | 'box' } | null; onClose: () => void }) {
     return (
         <Modal open={!!info} onClose={onClose} size="lg">
-            <h3 className="text-base font-semibold text-gray-900 dark:text-white">Cannot delete item</h3>
-            <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">This item is currently assigned to the following places. To delete it, remove it from these shops first.</p>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white">{info?.kind === 'box' ? 'Cannot delete box' : 'Cannot delete item'}</h3>
+            <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">{info?.kind === 'box' ? 'Some items in this box are currently assigned to the following places. Remove them from these shops first.' : 'This item is currently assigned to the following places. To delete it, remove it from these shops first.'}</p>
             <div className="mt-4 max-h-64 overflow-y-auto rounded border border-gray-200 dark:border-white/10">
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-50 dark:bg-white/5">

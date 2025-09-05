@@ -58,14 +58,14 @@ export default function ItemsCardsView({ items, groups, grouped, loading, openGr
                             <div className="flex min-w-0 items-center gap-3">
                                 {openGroups[g.key] ? (<ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400" />) : (<ChevronRight className="h-4 w-4 text-gray-500 dark:text-gray-400" />)}
                                 <div
-                                    className="h-6 w-6 rounded-md ring-1 ring-inset ring-gray-200 dark:ring-white/10"
+                                    className="h-10 w-10 rounded-md ring-1 ring-inset ring-gray-200 dark:ring-white/10"
                                     style={{
                                         ...(g.color ? { backgroundColor: g.color } : {}),
                                         ...(g.imageUrl ? { backgroundImage: `url(${g.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}),
                                     }}
                                 />
                                 <div className="min-w-0">
-                                    <div className="truncate text-sm font-semibold text-gray-900 dark:text-white" title={g.label}>{g.label}</div>
+                                    <div className="truncate text-sm font-semibold text-gray-900 dark:text-white capitalize" title={g.label}>{g.label}</div>
                                     <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                                         {g.categoryName && (<span className="rounded-full bg-indigo-50 px-2 py-0.5 text-indigo-700 ring-1 ring-indigo-600/20 dark:bg-indigo-500/10 dark:text-indigo-300">{g.categoryName}</span>)}
                                         {g.brand && <span>• {g.brand}</span>}

@@ -59,7 +59,7 @@ export default function InnerItems() {
     // data
     const [items, setItems] = useState<ItemRow[]>([])
     const [loading, setLoading] = useState(false)
-    const [conflictInfo, setConflictInfo] = useState<null | { id: string; places: { placeId: string; placeName: string; quantity: number }[] }>(null)
+    const [conflictInfo, setConflictInfo] = useState<null | { id: string; places: { placeId: string; placeName: string; quantity: number }[]; kind?: 'item' | 'box' }>(null)
     type Category = { id: string; name: string }
     const [categories, setCategories] = useState<Category[]>([])
     // Deleting a whole box (group)
@@ -175,8 +175,22 @@ export default function InnerItems() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ teamId, baseName, color: color || null }),
             })
-            const data = await res.json().catch(() => ({}))
-            if (!res.ok) { throw new Error(data?.error || "Failed to delete box") }
+            const data: unknown = await res.json().catch(() => ({} as unknown))
+            if (res.status === 409) {
+                const places = (typeof data === 'object' && data && Array.isArray((data as { places?: unknown }).places)
+                    ? ((data as { places: { placeId: string; placeName: string; quantity: number }[] }).places)
+                    : [])
+                setConflictInfo({ id: groupKey, places, kind: 'box' })
+                toast('Box items are assigned to places', { icon: '⚠️' })
+                setConfirmBoxKey(null)
+                return
+            }
+            if (!res.ok) {
+                const errMsg = (typeof data === 'object' && data && typeof (data as { error?: unknown }).error === 'string')
+                    ? (data as { error: string }).error
+                    : 'Failed to delete box'
+                throw new Error(errMsg)
+            }
 
             // Optimistically remove items from this group
             setItems((prev) => prev.filter((it) => {
@@ -246,7 +260,7 @@ export default function InnerItems() {
             try {
                 const r2 = await fetch(`/api/items/${id}/places`)
                 const data = await r2.json()
-                setConflictInfo({ id, places: Array.isArray(data) ? data : [] })
+                setConflictInfo({ id, places: Array.isArray(data) ? data : [], kind: 'item' })
             } catch { setConflictInfo({ id, places: [] }) }
             toast("Item is assigned to places", { icon: "⚠️" })
             return

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@lib/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
+import { deleteObjectByKey } from '@lib/s3';
 import type { Prisma } from '@/generated/prisma';
 
 // GET /api/items/[itemId] -> single item details
@@ -90,7 +91,7 @@ export async function PATCH(
 
   const existing = await prisma.item.findUnique({
     where: { id: itemId },
-    select: { id: true, teamId: true },
+    select: { id: true, teamId: true, imageKey: true },
   });
   if (!existing)
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -381,7 +382,7 @@ export async function DELETE(
 
   const existing = await prisma.item.findUnique({
     where: { id: itemId },
-    select: { id: true, teamId: true },
+    select: { id: true, teamId: true, imageKey: true },
   });
   if (!existing)
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -403,6 +404,41 @@ export async function DELETE(
     // If there are dependent PlaceItem rows, deleting the item will fail unless
     // cascade rules exist. We can either soft-delete (isActive=false) or try delete.
     // Here, we perform a hard delete; client should handle 409 on FK constraints if any.
+
+    // Preflight: if the item is assigned to any place, deny before touching S3
+    const placeDeps = await prisma.placeItem.count({ where: { itemId } });
+    if (placeDeps > 0) {
+      await logAudit({
+        action: 'item.delete',
+        status: 'DENIED',
+        actor: session,
+        teamId: existing.teamId,
+        message: 'Item is used in places',
+      });
+      return NextResponse.json(
+        { error: 'Item is used in places. Remove it from places first.' },
+        { status: 409 },
+      );
+    }
+
+    // Best-effort: if this item's imageKey is not referenced by other items,
+    // delete the S3 object BEFORE removing the DB row (as requested).
+    if (existing.imageKey) {
+      const others = await prisma.item.count({
+        where: { imageKey: existing.imageKey, NOT: { id: itemId } },
+      });
+      if (others === 0) {
+        try {
+          await deleteObjectByKey(existing.imageKey);
+        } catch (e) {
+          console.warn(
+            'Failed to delete S3 object for item before DB delete',
+            e,
+          );
+        }
+      }
+    }
+
     const deleted = await prisma.item.delete({
       where: { id: itemId },
       select: { id: true },

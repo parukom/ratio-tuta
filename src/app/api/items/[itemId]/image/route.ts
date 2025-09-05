@@ -80,10 +80,15 @@ export async function POST(
       cacheControl: 'public, max-age=31536000, immutable',
     });
 
-    // If replacing an existing image, try to delete old key
+    // If replacing an existing image, try to delete old key only if unused elsewhere
     if (item.imageKey && item.imageKey !== key) {
       try {
-        await deleteObjectByKey(item.imageKey);
+        const others = await prisma.item.count({
+          where: { imageKey: item.imageKey, NOT: { id: item.id } },
+        });
+        if (others === 0) {
+          await deleteObjectByKey(item.imageKey);
+        }
       } catch (e) {
         console.warn('Failed to delete old item image', e);
       }
