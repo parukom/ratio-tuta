@@ -26,6 +26,7 @@ export type Group = {
   key: string;
   label: string;
   color?: string | null;
+  imageUrl?: string | null;
   categoryName?: string | null;
   price: number;
   pricePaid?: number;

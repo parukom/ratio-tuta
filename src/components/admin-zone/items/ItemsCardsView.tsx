@@ -57,7 +57,13 @@ export default function ItemsCardsView({ items, groups, grouped, loading, openGr
                         <div className="flex items-center justify-between gap-3">
                             <div className="flex min-w-0 items-center gap-3">
                                 {openGroups[g.key] ? (<ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400" />) : (<ChevronRight className="h-4 w-4 text-gray-500 dark:text-gray-400" />)}
-                                <div className="h-6 w-6 rounded-md ring-1 ring-inset ring-gray-200 dark:ring-white/10" style={g.color ? { backgroundColor: g.color } : undefined} />
+                                <div
+                                    className="h-6 w-6 rounded-md ring-1 ring-inset ring-gray-200 dark:ring-white/10"
+                                    style={{
+                                        ...(g.color ? { backgroundColor: g.color } : {}),
+                                        ...(g.imageUrl ? { backgroundImage: `url(${g.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}),
+                                    }}
+                                />
                                 <div className="min-w-0">
                                     <div className="truncate text-sm font-semibold text-gray-900 dark:text-white" title={g.label}>{g.label}</div>
                                     <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">

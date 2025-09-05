@@ -70,6 +70,7 @@ export default function InnerItems() {
     const [editBoxKey, setEditBoxKey] = useState<string | null>(null)
     const [editLoading, setEditLoading] = useState(false)
     const [editMsg, setEditMsg] = useState("")
+    const [editImage, setEditImage] = useState<File | null>(null)
     const [editPrice, setEditPrice] = useState<string>("")
     const [editBoxCost, setEditBoxCost] = useState<string>("")
     const [editTaxBps, setEditTaxBps] = useState<string>("")
@@ -264,10 +265,11 @@ export default function InnerItems() {
             const stock = typeof it.stockQuantity === "number" ? it.stockQuantity : 0
             const existing = map.get(key)
             if (!existing) {
-                map.set(key, { key, label: base, color: it.color ?? null, categoryName: it.categoryName ?? null, price: it.price, pricePaid: it.pricePaid ?? 0, taxRateBps: it.taxRateBps, unit: it.unit ?? null, brand: it.brand ?? null, items: [it], totalStock: stock ?? 0 })
+                map.set(key, { key, label: base, color: it.color ?? null, imageUrl: it.imageUrl ?? null, categoryName: it.categoryName ?? null, price: it.price, pricePaid: it.pricePaid ?? 0, taxRateBps: it.taxRateBps, unit: it.unit ?? null, brand: it.brand ?? null, items: [it], totalStock: stock ?? 0 })
             } else {
                 existing.items.push(it)
                 existing.totalStock += stock ?? 0
+                if (!existing.imageUrl && it.imageUrl) existing.imageUrl = it.imageUrl
             }
         }
         return Array.from(map.values())
@@ -472,6 +474,16 @@ export default function InnerItems() {
                         <Input type="number" placeholder="Tax (bps)" value={editTaxBps} onChange={(e) => setEditTaxBps(e.target.value)} />
                     </div>
                     <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Replace box picture (applies to all items)</label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => setEditImage(e.target.files?.[0] ?? null)}
+                            className="block w-full text-sm text-gray-900 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:text-gray-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-300"
+                        />
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Optional. If provided, the image will be applied to all items in this box.</p>
+                    </div>
+                    <div>
                         <div className="mb-1 text-sm font-medium text-gray-800 dark:text-gray-200">Sizes in the box</div>
                         <div className="space-y-2">
                             {editRows.map((row) => (
@@ -503,12 +515,21 @@ export default function InnerItems() {
                                 // Build sizes for API: only positive quantities allowed by API; we’ll send adds via box API
                                 const adds = editRows.filter(r => r.size.trim() && Number(r.quantity) !== 0 && Number(r.quantity) > 0)
                                     .map(r => ({ size: r.size.trim(), quantity: Number(r.quantity) }))
-                                if (adds.length) {
-                                    const res = await fetch('/api/items/box', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ teamId, baseName, color: color || null, price: Number(editPrice) || 0, boxCost: Number(editBoxCost) || 0, taxRateBps: Number(editTaxBps) || 0, measurementType: 'PCS', skuPrefix: null, sizes: adds, createMissing: true, isActive: true }),
-                                    })
+                                // Send sizes update and/or image replacement
+                                if (adds.length || editImage) {
+                                    let res: Response
+                                    if (editImage) {
+                                        const fd = new FormData()
+                                        fd.append('payload', JSON.stringify({ teamId, baseName, color: color || null, price: Number(editPrice) || 0, boxCost: Number(editBoxCost) || 0, taxRateBps: Number(editTaxBps) || 0, measurementType: 'PCS', skuPrefix: null, sizes: adds, createMissing: true, isActive: true }))
+                                        fd.append('file', editImage)
+                                        res = await fetch('/api/items/box', { method: 'POST', body: fd })
+                                    } else {
+                                        res = await fetch('/api/items/box', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ teamId, baseName, color: color || null, price: Number(editPrice) || 0, boxCost: Number(editBoxCost) || 0, taxRateBps: Number(editTaxBps) || 0, measurementType: 'PCS', skuPrefix: null, sizes: adds, createMissing: true, isActive: true }),
+                                        })
+                                    }
                                     const data = await res.json().catch(() => ({}))
                                     if (!res.ok) throw new Error(data?.error || 'Failed to update box')
                                 }
@@ -523,6 +544,7 @@ export default function InnerItems() {
                                 }
                                 toast.success('Box updated')
                                 setEditBoxKey(null)
+                                setEditImage(null)
                                 fetchItems()
                             } catch (e) {
                                 setEditMsg((e as Error)?.message || 'Failed to update box')

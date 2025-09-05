@@ -158,7 +158,8 @@ export async function POST(req: Request) {
     );
   if (!Number.isInteger(taxRateBps) || taxRateBps < 0)
     return NextResponse.json({ error: 'Invalid taxRateBps' }, { status: 400 });
-  if (sizes.length === 0)
+  // If no sizes provided, allow when an image file is being uploaded (to apply picture across the box)
+  if (sizes.length === 0 && !fileBuffer)
     return NextResponse.json({ error: 'sizes is required' }, { status: 400 });
   if (!Number.isFinite(boxCost) || boxCost < 0)
     return NextResponse.json({ error: 'Invalid boxCost' }, { status: 400 });
@@ -266,8 +267,10 @@ export async function POST(req: Request) {
         (acc, s) => acc + Number(s.quantity || 0),
         0,
       );
-      if (boxCost > 0 && totalQty <= 0) {
-        throw new Error('boxCost provided but total quantity is zero');
+      if (sizes.length > 0) {
+        if (boxCost > 0 && totalQty <= 0) {
+          throw new Error('boxCost provided but total quantity is zero');
+        }
       }
       const perUnitCost = totalQty > 0 && boxCost > 0 ? boxCost / totalQty : 0;
       for (const spec of sizes) {
