@@ -1,3 +1,4 @@
+// Deprecated: client now posts file to /api/users/me/avatar/upload for server-side processing.
 import { NextResponse } from 'next/server';
 import { getSession } from '@lib/session';
 import { extFromContentType, getPresignedPutUrl } from '@lib/s3';

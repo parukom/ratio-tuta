@@ -77,3 +77,22 @@ export function extFromContentType(ct: string): string | null {
       return null;
   }
 }
+
+export async function putObjectFromBuffer(params: {
+  key: string;
+  buffer: Buffer;
+  contentType: string;
+  cacheControl?: string;
+}) {
+  const client = getS3Client();
+  const bucket = getBucketName();
+  const cmd = new PutObjectCommand({
+    Bucket: bucket,
+    Key: params.key,
+    Body: params.buffer,
+    ContentType: params.contentType,
+    CacheControl: params.cacheControl ?? 'public, max-age=31536000, immutable',
+  });
+  await client.send(cmd);
+  return getPublicUrlForKey(params.key);
+}

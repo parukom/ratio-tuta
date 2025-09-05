@@ -51,39 +51,21 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
                 input.click()
             })
             if (!picked) return
-            if (picked.size > 1_000_000) {
-                toast.error('File too large (max 1MB)')
+            if (picked.size > 5_000_000) {
+                toast.error('File too large (max 5MB)')
                 return
             }
             setUploading(true)
-            const pres = await fetch('/api/users/me/avatar/presign', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-                body: JSON.stringify({ contentType: picked.type })
-            })
-            if (!pres.ok) {
-                const e = await pres.json().catch(() => ({}))
-                toast.error(e?.error || 'Failed to start upload')
-                setUploading(false)
+            const fd = new FormData()
+            fd.append('file', picked)
+            const res = await fetch('/api/users/me/avatar/upload', { method: 'POST', body: fd, credentials: 'include' })
+            const data = await res.json().catch(() => ({}))
+            if (!res.ok) {
+                toast.error(data?.error || 'Failed to upload avatar')
                 return
             }
-            const { url, key } = await pres.json()
-            const put = await fetch(url, { method: 'PUT', headers: { 'Content-Type': picked.type }, body: picked })
-            if (!put.ok) {
-                toast.error('Upload failed')
-                setUploading(false)
-                return
-            }
-            const commit = await fetch('/api/users/me/avatar/commit', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-                body: JSON.stringify({ key })
-            })
-            const cdata = await commit.json().catch(() => ({}))
-            if (!commit.ok) {
-                toast.error(cdata?.error || 'Failed to save avatar')
-            } else {
-                setAvatarUrl(cdata?.avatarUrl ?? null)
-                toast.success('Avatar updated')
-            }
+            setAvatarUrl(data?.avatarUrl ?? null)
+            toast.success('Avatar updated')
         } catch {
             toast.error('Upload error')
         } finally {
@@ -182,7 +164,7 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
                                     <span>{removing ? 'Removing…' : 'Remove'}</span>
                                 </button>
                             )}
-                            <p className="mt-2 text-xs/5 text-gray-500 dark:text-gray-400">JPG, PNG, GIF, WEBP. 1MB max.</p>
+                            <p className="mt-2 text-xs/5 text-gray-500 dark:text-gray-400">JPG, PNG, GIF, WEBP. 5MB max. Images are optimized and resized.</p>
                         </div>
                     </div>
 

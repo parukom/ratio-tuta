@@ -23,7 +23,8 @@
     "react-dom": "19.1.0",
     "react-hot-toast": "^2.6.0",
     "react-i18next": "^15.7.2",
-    "resend": "^4.8.0"
+    "resend": "^4.8.0",
+    "sharp": "^0.34.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
