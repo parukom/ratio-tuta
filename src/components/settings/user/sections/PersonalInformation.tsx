@@ -16,6 +16,8 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
     const [last, setLast] = React.useState(lastName)
     const [saving, setSaving] = React.useState(false)
     const [message, setMessage] = React.useState<string | null>(null)
+    const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null)
+    const [uploading, setUploading] = React.useState(false)
 
     React.useEffect(() => {
         setFirst(firstName)
@@ -23,6 +25,84 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
     React.useEffect(() => {
         setLast(lastName)
     }, [lastName])
+
+    React.useEffect(() => {
+        let cancelled = false
+        async function loadAvatar() {
+            try {
+                const res = await fetch('/api/users/me', { credentials: 'include' })
+                const data = await res.json().catch(() => ({}))
+                if (!cancelled) setAvatarUrl(data?.avatarUrl ?? null)
+            } catch { }
+        }
+        loadAvatar()
+        return () => { cancelled = true }
+    }, [])
+
+    async function handleChangeAvatar() {
+        try {
+            const input = document.createElement('input')
+            input.type = 'file'
+            input.accept = 'image/jpeg,image/png,image/gif,image/webp'
+            const picked: File | undefined = await new Promise((resolve) => {
+                input.onchange = () => resolve(input.files?.[0] ?? undefined)
+                input.click()
+            })
+            if (!picked) return
+            if (picked.size > 1_000_000) {
+                toast.error('File too large (max 1MB)')
+                return
+            }
+            setUploading(true)
+            const pres = await fetch('/api/users/me/avatar/presign', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+                body: JSON.stringify({ contentType: picked.type })
+            })
+            if (!pres.ok) {
+                const e = await pres.json().catch(() => ({}))
+                toast.error(e?.error || 'Failed to start upload')
+                setUploading(false)
+                return
+            }
+            const { url, key } = await pres.json()
+            const put = await fetch(url, { method: 'PUT', headers: { 'Content-Type': picked.type }, body: picked })
+            if (!put.ok) {
+                toast.error('Upload failed')
+                setUploading(false)
+                return
+            }
+            const commit = await fetch('/api/users/me/avatar/commit', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+                body: JSON.stringify({ key })
+            })
+            const cdata = await commit.json().catch(() => ({}))
+            if (!commit.ok) {
+                toast.error(cdata?.error || 'Failed to save avatar')
+            } else {
+                setAvatarUrl(cdata?.avatarUrl ?? null)
+                toast.success('Avatar updated')
+            }
+        } catch {
+            toast.error('Upload error')
+        } finally {
+            setUploading(false)
+        }
+    }
+
+    async function handleDeleteAvatar() {
+        try {
+            const res = await fetch('/api/users/me/avatar', { method: 'DELETE', credentials: 'include' })
+            const data = await res.json().catch(() => ({}))
+            if (!res.ok) {
+                toast.error(data?.error || 'Failed to remove avatar')
+                return
+            }
+            setAvatarUrl(null)
+            toast.success('Avatar removed')
+        } catch {
+            toast.error('Request failed')
+        }
+    }
 
     async function onSubmit(e: React.FormEvent) {
         e.preventDefault()
@@ -65,21 +145,34 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
             <form className="md:col-span-2" onSubmit={onSubmit}>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:max-w-xl sm:grid-cols-6">
                     <div className="col-span-full flex items-center gap-x-8">
-                        <Image
-                            alt=""
-                            src="/images/cat.jpg"
-                            className="size-24 flex-none rounded-lg bg-gray-100 object-cover outline -outline-offset-1 outline-black/5 dark:bg-gray-800 dark:outline-white/10"
-                            width={96}
-                            height={96}
-                        />
-                        <div>
+                        <div className="relative">
+                            <Image
+                                alt="User avatar"
+                                src={avatarUrl || '/images/cat.jpg'}
+                                className="size-24 flex-none rounded-lg bg-gray-100 object-cover outline -outline-offset-1 outline-black/5 dark:bg-gray-800 dark:outline-white/10"
+                                width={96}
+                                height={96}
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
                             <button
                                 type="button"
-                                className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring-1 inset-ring-gray-300 hover:bg-gray-100 dark:bg-white/10 dark:text-white dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20"
+                                onClick={handleChangeAvatar}
+                                disabled={uploading}
+                                className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring-1 inset-ring-gray-300 hover:bg-gray-100 disabled:opacity-60 dark:bg-white/10 dark:text-white dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20"
                             >
-                                Change avatar
+                                {uploading ? 'Uploading…' : 'Change avatar'}
                             </button>
-                            <p className="mt-2 text-xs/5 text-gray-500 dark:text-gray-400">JPG, GIF or PNG. 1MB max.</p>
+                            {avatarUrl && (
+                                <button
+                                    type="button"
+                                    onClick={handleDeleteAvatar}
+                                    className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-xs inset-ring-1 inset-ring-gray-300 hover:bg-gray-100 dark:bg-white/10 dark:text-red-400 dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20"
+                                >
+                                    Remove
+                                </button>
+                            )}
+                            <p className="mt-2 text-xs/5 text-gray-500 dark:text-gray-400">JPG, PNG, GIF, WEBP. 1MB max.</p>
                         </div>
                     </div>
 

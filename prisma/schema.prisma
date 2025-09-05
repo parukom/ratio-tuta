@@ -20,6 +20,9 @@ model User {
   emailVerified    Boolean   @default(false)
   // When set, any sessions issued at or before this timestamp are invalid
   sessionRevokedAt DateTime?
+  // Avatar stored in S3
+  avatarUrl        String?
+  avatarKey        String?
   createdAt        DateTime  @default(now())
   Receipt          Receipt[]
 

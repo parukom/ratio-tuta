@@ -60,6 +60,7 @@ export async function GET(req: Request) {
       email: true,
       role: true,
       createdAt: true,
+      avatarUrl: true,
     },
     orderBy: { name: 'asc' },
   });

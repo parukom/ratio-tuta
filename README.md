@@ -34,3 +34,24 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Environment variables for S3 avatars
+
+Add these variables to your `.env`:
+
+```
+# Session
+SESSION_SECRET=replace-me
+
+# AWS S3 (required)
+AWS_REGION=eu-central-1
+AWS_ACCESS_KEY_ID=AKIA...
+AWS_SECRET_ACCESS_KEY=...
+S3_BUCKET_NAME=your-bucket
+
+# Optional: if using a CDN/custom domain for images; must be full base URL without trailing slash
+S3_PUBLIC_BASE_URL=https://your-bucket.s3.eu-central-1.amazonaws.com
+
+# Optional: Next.js image optimization hostname (hostname part of S3_PUBLIC_BASE_URL)
+S3_IMAGE_HOST=your-bucket.s3.eu-central-1.amazonaws.com
+```

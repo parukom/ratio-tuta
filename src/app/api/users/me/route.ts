@@ -19,6 +19,7 @@ export async function GET() {
       role: true,
       createdAt: true,
       emailVerified: true,
+      avatarUrl: true,
     },
   });
   if (!user) return NextResponse.json({ error: 'Not found' }, { status: 404 });
