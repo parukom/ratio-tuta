@@ -13,6 +13,7 @@ import Modal from "@/components/modals/Modal"
 import ItemsTableView from "./ItemsTableView"
 import ItemsCardsView from "./ItemsCardsView"
 import type { ItemRow, Group } from "./types"
+import ItemInfoDrawer from "./ItemInfoDrawer"
 
 // ItemRow and Group types moved to ./types for reuse across components
 
@@ -570,6 +571,8 @@ export default function InnerItems() {
                 </div>
                 {editMsg && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{editMsg}</p>}
             </Modal>
+
+            <ItemInfoDrawer />
         </>
     )
 }
