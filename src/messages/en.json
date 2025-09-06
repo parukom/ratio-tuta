@@ -40,6 +40,91 @@
     "brandAlt": "Your Company",
     "dismiss": "Dismiss"
   },
+  "Settings": {
+    "tabs": {
+      "user": "User",
+      "blank": "Other"
+    },
+    "loading": "Loading…",
+    "language": {
+      "title": "Language",
+      "subtitle": "Choose the app language or use your device language.",
+      "label": "Language",
+      "device": "Device language (auto)",
+      "en": "English",
+      "lt": "Lietuvių",
+      "ru": "Русский",
+      "apply": "Apply",
+      "applying": "Applying…",
+      "note": "\"Device language\" follows your browser's preferred language. Supported: English, Lietuvių, Русский."
+    },
+    "personal": {
+      "title": "Personal Information",
+      "subtitle": "Use a permanent address where you can receive mail.",
+      "avatarAlt": "User avatar",
+      "changeAvatar": "Change avatar",
+      "uploading": "Uploading…",
+      "removing": "Removing…",
+      "uploadNote": "JPG, PNG, GIF, WEBP. 5MB max. Images are optimized and resized.",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email address",
+      "toasts": {
+        "fileTooLarge": "File too large (max 5MB)",
+        "uploadFailed": "Failed to upload avatar",
+        "avatarUpdated": "Avatar updated",
+        "uploadError": "Upload error",
+        "removeFailed": "Failed to remove avatar",
+        "avatarRemoved": "Avatar removed",
+        "networkError": "Network error",
+        "profileUpdated": "Profile updated"
+      }
+    },
+    "password": {
+      "title": "Change password",
+      "subtitle": "Update your password associated with your account.",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Confirm password",
+      "hint": "Password must be 8-16 characters.",
+      "updated": "Password updated",
+      "errors": {
+        "fillAll": "Please fill in all fields",
+        "length": "Password must be 8-16 characters",
+        "mismatch": "Passwords do not match",
+        "failed": "Failed to update password"
+      }
+    },
+    "logoutOthers": {
+      "title": "Log out other sessions",
+      "subtitle": "Enter your password to log out of your other sessions across all your devices.",
+      "label": "Your password",
+      "processing": "Processing…",
+      "action": "Log out other sessions",
+      "success": "Other sessions have been logged out.",
+      "errors": {
+        "failed": "Failed to log out other sessions",
+        "network": "Network error"
+      }
+    },
+    "delete": {
+      "title": "Delete account",
+      "subtitle": "No longer want to use our service? You can delete your account here. This action is not reversible.",
+      "cta": "Yes, delete my account",
+      "confirmTitle": "Confirm account deletion",
+      "confirmBody": "This will permanently delete your account and all related data. To confirm, type the following text exactly:",
+      "confirmLabel": "Confirmation text",
+      "copyTitle": "Copy text",
+      "copyBtn": "Copy",
+      "typeToProceed": "Type the text to proceed",
+      "mismatch": "Text does not match.",
+      "success": "Account deleted. You will be signed out.",
+      "confirmPhrase": "i really want to delete this team and all data related to it",
+      "errors": { "failed": "Failed to delete account" },
+      "copied": "Text copied. Paste it below to confirm.",
+      "copyFailed": "Failed to copy text"
+    }
+  },
   "Admin": {
     "brandAlt": "Your Company",
     "nav": {

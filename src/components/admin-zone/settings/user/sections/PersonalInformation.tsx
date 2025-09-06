@@ -4,6 +4,7 @@ import React from 'react'
 import Image from 'next/image'
 import toast from 'react-hot-toast'
 import Spinner from '@/components/ui/Spinner'
+import { useTranslations } from 'next-intl'
 
 type Props = {
     firstName: string
@@ -13,6 +14,8 @@ type Props = {
 }
 
 export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, email, setEmail }) => {
+    const t = useTranslations('Settings.personal')
+    const tc = useTranslations('Common')
     const [first, setFirst] = React.useState(firstName)
     const [last, setLast] = React.useState(lastName)
     const [saving, setSaving] = React.useState(false)
@@ -52,7 +55,7 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
             })
             if (!picked) return
             if (picked.size > 5_000_000) {
-                toast.error('File too large (max 5MB)')
+                toast.error(t('toasts.fileTooLarge'))
                 return
             }
             setUploading(true)
@@ -61,13 +64,13 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
             const res = await fetch('/api/users/me/avatar/upload', { method: 'POST', body: fd, credentials: 'include' })
             const data = await res.json().catch(() => ({}))
             if (!res.ok) {
-                toast.error(data?.error || 'Failed to upload avatar')
+                toast.error(data?.error || t('toasts.uploadFailed'))
                 return
             }
             setAvatarUrl(data?.avatarUrl ?? null)
-            toast.success('Avatar updated')
+            toast.success(t('toasts.avatarUpdated'))
         } catch {
-            toast.error('Upload error')
+            toast.error(t('toasts.uploadError'))
         } finally {
             setUploading(false)
         }
@@ -79,13 +82,13 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
             const res = await fetch('/api/users/me/avatar', { method: 'DELETE', credentials: 'include' })
             const data = await res.json().catch(() => ({}))
             if (!res.ok) {
-                toast.error(data?.error || 'Failed to remove avatar')
+                toast.error(data?.error || t('toasts.removeFailed'))
                 return
             }
             setAvatarUrl(null)
-            toast.success('Avatar removed')
+            toast.success(t('toasts.avatarRemoved'))
         } catch {
-            toast.error('Request failed')
+            toast.error(tc('errors.failed'))
         } finally {
             setRemoving(false)
         }
@@ -104,17 +107,17 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
             })
             const data = await res.json().catch(() => ({}))
             if (!res.ok) {
-                const err = typeof data?.error === 'string' ? data.error : 'Failed to save changes'
+                const err = typeof data?.error === 'string' ? data.error : tc('errors.failedToSave')
                 setMessage(err)
                 toast.error(err)
                 return
             }
-            const msg = typeof data?.message === 'string' ? data.message : 'Saved'
+            const msg = t('toasts.profileUpdated')
             setMessage(msg)
             toast.success(msg)
         } catch {
-            setMessage('Network error')
-            toast.error('Network error')
+            setMessage(t('toasts.networkError'))
+            toast.error(t('toasts.networkError'))
         } finally {
             setSaving(false)
         }
@@ -123,10 +126,8 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
     return (
         <div className="grid max-w-7xl grid-cols-1 gap-x-8 gap-y-10 px-4 py-16 sm:px-6 md:grid-cols-3 lg:px-8">
             <div>
-                <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">Personal Information</h2>
-                <p className="mt-1 text-sm/6 text-gray-500 dark:text-gray-400">
-                    Use a permanent address where you can receive mail.
-                </p>
+                <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">{t('title')}</h2>
+                <p className="mt-1 text-sm/6 text-gray-500 dark:text-gray-400">{t('subtitle')}</p>
             </div>
 
             <form className="md:col-span-2" onSubmit={onSubmit}>
@@ -134,7 +135,7 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
                     <div className="col-span-full flex items-center gap-x-8">
                         <div className="relative">
                             <Image
-                                alt="User avatar"
+                                alt={t('avatarAlt')}
                                 src={avatarUrl || '/images/no-image.jpg'}
                                 className="size-24 flex-none rounded-lg bg-gray-100 object-cover outline -outline-offset-1 outline-black/5 dark:bg-gray-800 dark:outline-white/10"
                                 width={96}
@@ -150,7 +151,7 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
                                 className="inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring-1 inset-ring-gray-300 hover:bg-gray-100 disabled:opacity-60 dark:bg-white/10 dark:text-white dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20"
                             >
                                 {uploading && <Spinner size={16} className="text-gray-700 dark:text-gray-200" />}
-                                <span>{uploading ? 'Uploading…' : 'Change avatar'}</span>
+                                <span>{uploading ? t('uploading') : t('changeAvatar')}</span>
                             </button>
                             {avatarUrl && (
                                 <button
@@ -161,17 +162,15 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
                                     className="inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-xs inset-ring-1 inset-ring-gray-300 hover:bg-gray-100 disabled:opacity-60 dark:bg-white/10 dark:text-red-400 dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20"
                                 >
                                     {removing && <Spinner size={16} className="text-red-600 dark:text-red-400" />}
-                                    <span>{removing ? 'Removing…' : 'Remove'}</span>
+                                    <span>{removing ? t('removing') : tc('delete')}</span>
                                 </button>
                             )}
-                            <p className="mt-2 text-xs/5 text-gray-500 dark:text-gray-400">JPG, PNG, GIF, WEBP. 5MB max. Images are optimized and resized.</p>
+                            <p className="mt-2 text-xs/5 text-gray-500 dark:text-gray-400">{t('uploadNote')}</p>
                         </div>
                     </div>
 
                     <div className="sm:col-span-3">
-                        <label htmlFor="first-name" className="block text-sm/6 font-medium text-gray-900 dark:text-white">
-                            First name
-                        </label>
+                        <label htmlFor="first-name" className="block text-sm/6 font-medium text-gray-900 dark:text-white">{t('firstName')}</label>
                         <div className="mt-2">
                             <input
                                 id="first-name"
@@ -186,9 +185,7 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
                     </div>
 
                     <div className="sm:col-span-3">
-                        <label htmlFor="last-name" className="block text-sm/6 font-medium text-gray-900 dark:text-white">
-                            Last name
-                        </label>
+                        <label htmlFor="last-name" className="block text-sm/6 font-medium text-gray-900 dark:text-white">{t('lastName')}</label>
                         <div className="mt-2">
                             <input
                                 id="last-name"
@@ -203,9 +200,7 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
                     </div>
 
                     <div className="col-span-full">
-                        <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900 dark:text-white">
-                            Email address
-                        </label>
+                        <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900 dark:text-white">{t('email')}</label>
                         <div className="mt-2">
                             <input
                                 id="email"
@@ -234,7 +229,7 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
                         className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
                     >
                         {saving && <Spinner size={16} className="text-white" />}
-                        <span>{saving ? 'Saving…' : 'Save'}</span>
+                        <span>{saving ? tc('saving') : tc('save')}</span>
                     </button>
                 </div>
             </form>

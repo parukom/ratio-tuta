@@ -40,6 +40,91 @@
     "brandAlt": "Jūsų įmonė",
     "dismiss": "Uždaryti"
   },
+  "Settings": {
+    "tabs": {
+      "user": "Vartotojas",
+      "blank": "Kita"
+    },
+    "loading": "Įkeliama…",
+    "language": {
+      "title": "Kalba",
+      "subtitle": "Pasirinkite programos kalbą arba naudokite įrenginio kalbą.",
+      "label": "Kalba",
+      "device": "Įrenginio kalba (automatiškai)",
+      "en": "English",
+      "lt": "Lietuvių",
+      "ru": "Русский",
+      "apply": "Taikyti",
+      "applying": "Taikoma…",
+      "note": "\"Įrenginio kalba\" seka naršyklės pageidaujamą kalbą. Palaikomos: English, Lietuvių, Русский."
+    },
+    "personal": {
+      "title": "Asmeninė informacija",
+      "subtitle": "Naudokite nuolatinį adresą, kuriuo galite gauti laiškus.",
+      "avatarAlt": "Vartotojo avataras",
+      "changeAvatar": "Keisti avatarą",
+      "uploading": "Įkeliama…",
+      "removing": "Šalinama…",
+      "uploadNote": "JPG, PNG, GIF, WEBP. Daugiausia 5 MB. Paveikslėliai optimizuojami ir keičiami.",
+      "firstName": "Vardas",
+      "lastName": "Pavardė",
+      "email": "El. pašto adresas",
+      "toasts": {
+        "fileTooLarge": "Failas per didelis (daugiausia 5 MB)",
+        "uploadFailed": "Nepavyko įkelti avataro",
+        "avatarUpdated": "Avataras atnaujintas",
+        "uploadError": "Įkėlimo klaida",
+        "removeFailed": "Nepavyko pašalinti avataro",
+        "avatarRemoved": "Avataras pašalintas",
+        "networkError": "Tinklo klaida",
+        "profileUpdated": "Profilis atnaujintas"
+      }
+    },
+    "password": {
+      "title": "Keisti slaptažodį",
+      "subtitle": "Atnaujinkite su paskyra susietą slaptažodį.",
+      "current": "Dabartinis slaptažodis",
+      "new": "Naujas slaptažodis",
+      "confirm": "Patvirtinti slaptažodį",
+      "hint": "Slaptažodis turi būti 8–16 simbolių.",
+      "updated": "Slaptažodis atnaujintas",
+      "errors": {
+        "fillAll": "Užpildykite visus laukus",
+        "length": "Slaptažodis turi būti 8–16 simbolių",
+        "mismatch": "Slaptažodžiai nesutampa",
+        "failed": "Nepavyko atnaujinti slaptažodžio"
+      }
+    },
+    "logoutOthers": {
+      "title": "Atsijungti kituose seansuose",
+      "subtitle": "Įveskite savo slaptažodį, kad atsijungtumėte kituose įrenginiuose.",
+      "label": "Jūsų slaptažodis",
+      "processing": "Apdorojama…",
+      "action": "Atsijungti kituose seansuose",
+      "success": "Kiti seansai buvo atjungti.",
+      "errors": {
+        "failed": "Nepavyko atjungti kitų seansų",
+        "network": "Tinklo klaida"
+      }
+    },
+    "delete": {
+      "title": "Ištrinti paskyrą",
+      "subtitle": "Nebereikia mūsų paslaugos? Čia galite ištrinti paskyrą. Šio veiksmo atšaukti neįmanoma.",
+      "cta": "Taip, ištrinti mano paskyrą",
+      "confirmTitle": "Patvirtinkite paskyros ištrynimą",
+      "confirmBody": "Tai visam laikui ištrins jūsų paskyrą ir visus susijusius duomenis. Patvirtinimui įveskite tiksliai šį tekstą:",
+      "confirmLabel": "Patvirtinimo tekstas",
+      "copyTitle": "Kopijuoti tekstą",
+      "copyBtn": "Kopijuoti",
+      "typeToProceed": "Įveskite tekstą, kad tęstumėte",
+      "mismatch": "Tekstas nesutampa.",
+      "success": "Paskyra ištrinta. Būsite atjungti.",
+      "confirmPhrase": "i really want to delete this team and all data related to it",
+      "errors": { "failed": "Nepavyko ištrinti paskyros" },
+      "copied": "Tekstas nukopijuotas. Įklijuokite jį žemiau patvirtinimui.",
+      "copyFailed": "Nepavyko nukopijuoti teksto"
+    }
+  },
   "Admin": {
     "brandAlt": "Jūsų įmonė",
     "nav": {

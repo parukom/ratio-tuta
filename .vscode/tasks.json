@@ -9,6 +9,18 @@
 				"$tsc"
 			],
 			"group": "build"
+		},
+		{
+			"label": "Typecheck",
+			"type": "shell",
+			"command": "npm run -s build --workspaces=false --if-present",
+			"group": "build"
+		},
+		{
+			"label": "Typecheck",
+			"type": "shell",
+			"command": "npm run -s build --workspaces=false --if-present",
+			"group": "build"
 		}
 	]
 }

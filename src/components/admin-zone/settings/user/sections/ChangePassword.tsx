@@ -1,7 +1,10 @@
 import React, { useState } from 'react'
 import toast from 'react-hot-toast'
+import { useTranslations } from 'next-intl'
 
 export const ChangePassword = () => {
+    const t = useTranslations('Settings.password')
+    const tc = useTranslations('Common')
     const [currentPassword, setCurrentPassword] = useState('')
     const [newPassword, setNewPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
@@ -17,19 +20,19 @@ export const ChangePassword = () => {
         const cf = confirmPassword.trim()
 
         if (!cur || !nw || !cf) {
-            const msg = 'Please fill in all fields'
+            const msg = t('errors.fillAll')
             setMessage(msg)
             toast.error(msg)
             return
         }
         if (nw.length < 8 || nw.length > 16) {
-            const msg = 'Password must be 8-16 characters'
+            const msg = t('errors.length')
             setMessage(msg)
             toast.error(msg)
             return
         }
         if (nw !== cf) {
-            const msg = 'Passwords do not match'
+            const msg = t('errors.mismatch')
             setMessage(msg)
             toast.error(msg)
             return
@@ -44,19 +47,19 @@ export const ChangePassword = () => {
             })
             const data = await res.json().catch(() => ({}))
             if (!res.ok) {
-                const err = data?.error || 'Failed to update password'
+                const err = data?.error || t('errors.failed')
                 setMessage(err)
                 toast.error(err)
                 return
             }
-            setMessage('Password updated')
-            toast.success('Password updated')
+            setMessage(t('updated'))
+            toast.success(t('updated'))
             setCurrentPassword('')
             setNewPassword('')
             setConfirmPassword('')
         } catch {
-            setMessage('Failed to update password')
-            toast.error('Failed to update password')
+            setMessage(t('errors.failed'))
+            toast.error(t('errors.failed'))
         } finally {
             setSubmitting(false)
         }
@@ -65,10 +68,8 @@ export const ChangePassword = () => {
     return (
         <div className="grid max-w-7xl grid-cols-1 gap-x-8 gap-y-10 px-4 py-16 sm:px-6 md:grid-cols-3 lg:px-8">
             <div>
-                <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">Change password</h2>
-                <p className="mt-1 text-sm/6 text-gray-500 dark:text-gray-400">
-                    Update your password associated with your account.
-                </p>
+                <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">{t('title')}</h2>
+                <p className="mt-1 text-sm/6 text-gray-500 dark:text-gray-400">{t('subtitle')}</p>
                 {message && (
                     <p className="mt-4 text-sm text-gray-700 dark:text-gray-300">{message}</p>
                 )}
@@ -81,7 +82,7 @@ export const ChangePassword = () => {
                             htmlFor="current-password"
                             className="block text-sm/6 font-medium text-gray-900 dark:text-white"
                         >
-                            Current password
+                            {t('current')}
                         </label>
                         <div className="mt-2">
                             <input
@@ -101,7 +102,7 @@ export const ChangePassword = () => {
                             htmlFor="new-password"
                             className="block text-sm/6 font-medium text-gray-900 dark:text-white"
                         >
-                            New password
+                            {t('new')}
                         </label>
                         <div className="mt-2">
                             <input
@@ -121,7 +122,7 @@ export const ChangePassword = () => {
                             htmlFor="confirm-password"
                             className="block text-sm/6 font-medium text-gray-900 dark:text-white"
                         >
-                            Confirm password
+                            {t('confirm')}
                         </label>
                         <div className="mt-2">
                             <input
@@ -134,7 +135,7 @@ export const ChangePassword = () => {
                                 className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
                             />
                         </div>
-                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Password must be 8-16 characters.</p>
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('hint')}</p>
                     </div>
                 </div>
 
@@ -144,7 +145,7 @@ export const ChangePassword = () => {
                         disabled={submitting}
                         className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
                     >
-                        {submitting ? 'Saving...' : 'Save'}
+                        {submitting ? tc('saving') : tc('save')}
                     </button>
                 </div>
             </form>

@@ -4,6 +4,7 @@ import Tabs from '@/components/ui/Tabs'
 import { useRouter, useSearchParams } from 'next/navigation';
 import React from 'react'
 import { useSession } from '@/components/providers/SessionProvider'
+import { useTranslations } from 'next-intl'
 
 const SettingsPage = () => {
     const searchParams = useSearchParams();
@@ -15,12 +16,13 @@ const SettingsPage = () => {
         router.push(`?${params.toString()}`);
     };
     const session = useSession()
+    const t = useTranslations('Settings')
     return (
         <>
             <Tabs
                 items={[
-                    { key: 'user', label: 'User' },
-                    { key: 'blank', label: 'Other' },
+                    { key: 'user', label: t('tabs.user') },
+                    { key: 'blank', label: t('tabs.blank') },
                 ]}
                 activeKey={tab}
                 onChange={(k) => setTab(k as 'user' | 'blank')}
@@ -33,7 +35,7 @@ const SettingsPage = () => {
             )}
 
             {tab === 'user' && !session && (
-                <div className="p-4 text-sm text-gray-600 dark:text-gray-300">Loading…</div>
+                <div className="p-4 text-sm text-gray-600 dark:text-gray-300">{t('loading')}</div>
             )}
 
             {tab === 'blank' && (

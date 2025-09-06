@@ -2,20 +2,22 @@
 
 import React from 'react'
 import Dropdown from '@/components/ui/Dropdown'
+import { useTranslations } from 'next-intl'
 
 type LangValue = 'device' | 'en' | 'lt' | 'ru'
 
 export const LanguagePreference: React.FC = () => {
+    const t = useTranslations('Settings.language')
     const [value, setValue] = React.useState<LangValue>('device')
     const [pending, setPending] = React.useState(false)
     const labels = React.useMemo(
         () => ({
-            device: 'Device language (auto)',
-            en: 'English',
-            lt: 'Lietuvių',
-            ru: 'Русский',
+            device: t('device'),
+            en: t('en'),
+            lt: t('lt'),
+            ru: t('ru'),
         } as const),
-        [],
+        [t],
     )
 
     // Detect current selection from cookie; fallback to device
@@ -49,15 +51,11 @@ export const LanguagePreference: React.FC = () => {
     return (
         <div className="grid max-w-7xl grid-cols-1 gap-x-8 gap-y-6 px-4 py-12 sm:px-6 md:grid-cols-3 lg:px-8">
             <div>
-                <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">Language</h2>
-                <p className="mt-1 text-sm/6 text-gray-500 dark:text-gray-400">
-                    Choose the app language or use your device language.
-                </p>
+                <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">{t('title')}</h2>
+                <p className="mt-1 text-sm/6 text-gray-500 dark:text-gray-400">{t('subtitle')}</p>
             </div>
             <div className="md:col-span-2">
-                <label className="block text-sm/6 font-medium text-gray-900 dark:text-white">
-                    Language
-                </label>
+                <label className="block text-sm/6 font-medium text-gray-900 dark:text-white">{t('label')}</label>
                 <div className="mt-2 flex items-center gap-3">
                     <Dropdown
                         buttonLabel={labels[value]}
@@ -78,12 +76,10 @@ export const LanguagePreference: React.FC = () => {
                         aria-busy={pending}
                         className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
                     >
-                        {pending ? 'Applying…' : 'Apply'}
+                        {pending ? t('applying') : t('apply')}
                     </button>
                 </div>
-                <p className="mt-2 text-xs/5 text-gray-500 dark:text-gray-400">
-                    &quot;Device language&quot; follows your browser&apos;s preferred language. Supported: English, Lietuvių, Русский.
-                </p>
+                <p className="mt-2 text-xs/5 text-gray-500 dark:text-gray-400">{t('note')}</p>
             </div>
         </div>
     )

@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import Spinner from '@/components/ui/Spinner'
 import toast from 'react-hot-toast'
+import { useTranslations } from 'next-intl'
 
 export const LogoutOtherSessions = () => {
+    const t = useTranslations('Settings.logoutOthers')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState<string | null>(null)
@@ -19,17 +21,17 @@ export const LogoutOtherSessions = () => {
             })
             const data = await res.json().catch(() => ({}))
             if (!res.ok) {
-                const err = data?.error || 'Failed to log out other sessions'
+                const err = data?.error || t('errors.failed')
                 setMessage(err)
                 toast.error(err)
             } else {
-                setMessage('Other sessions have been logged out.')
-                toast.success('Other sessions have been logged out.')
+                setMessage(t('success'))
+                toast.success(t('success'))
                 setPassword('')
             }
         } catch {
-            setMessage('Network error')
-            toast.error('Network error')
+            setMessage(t('errors.network'))
+            toast.error(t('errors.network'))
         } finally {
             setLoading(false)
         }
@@ -38,11 +40,8 @@ export const LogoutOtherSessions = () => {
     return (
         <div className="grid max-w-7xl grid-cols-1 gap-x-8 gap-y-10 px-4 py-16 sm:px-6 md:grid-cols-3 lg:px-8">
             <div>
-                <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">Log out other sessions</h2>
-                <p className="mt-1 text-sm/6 text-gray-500 dark:text-gray-400">
-                    Please enter your password to confirm you would like to log out of your other sessions across all of
-                    your devices.
-                </p>
+                <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">{t('title')}</h2>
+                <p className="mt-1 text-sm/6 text-gray-500 dark:text-gray-400">{t('subtitle')}</p>
             </div>
 
             <form className="md:col-span-2" onSubmit={onSubmit}>
@@ -52,7 +51,7 @@ export const LogoutOtherSessions = () => {
                             htmlFor="logout-password"
                             className="block text-sm/6 font-medium text-gray-900 dark:text-white"
                         >
-                            Your password
+                            {t('label')}
                         </label>
                         <div className="mt-2">
                             <input
@@ -76,13 +75,11 @@ export const LogoutOtherSessions = () => {
                         className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
                     >
                         {loading && <Spinner size={16} className="text-white" />}
-                        <span>{loading ? 'Processing…' : 'Log out other sessions'}</span>
+                        <span>{loading ? t('processing') : t('action')}</span>
                     </button>
                 </div>
 
-                {message && (
-                    <p className="mt-4 text-sm text-gray-700 dark:text-gray-300">{message}</p>
-                )}
+                {message && (<p className="mt-4 text-sm text-gray-700 dark:text-gray-300">{message}</p>)}
             </form>
         </div>
     )
