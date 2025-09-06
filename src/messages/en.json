@@ -1,0 +1,43 @@
+{
+  "Auth": {
+    "titleLogin": "Sign in to your account",
+    "titleRegister": "Create your account",
+    "verify": {
+      "success": "Email verified. You can now log in.",
+      "invalid": "Verification link is invalid or expired.",
+      "error": "Something went wrong verifying your email. Please try again."
+    },
+    "fields": {
+      "name": "Name",
+      "email": "Email address",
+      "password": "Password",
+      "teamName": "Team name",
+      "passwordRule": "Password must be 8-16 characters."
+    },
+    "rememberMe": "Remember me",
+    "toggle": {
+      "toRegister": "Need an account? Register",
+      "toLogin": "Already have an account? Sign in"
+    },
+    "submit": {
+      "login": "Sign in",
+      "loginProgress": "Signing in…",
+      "register": "Create account",
+      "registerProgress": "Creating…"
+    },
+    "errors": {
+      "login": "Error logging in",
+      "register": "Error registering",
+      "passwordLength": "Password must be 8-16 characters"
+    },
+    "createdCheckEmail": "Account created. Check your email to verify.",
+    "cta": {
+      "notMember": "Not a member?",
+      "startTrial": "Start a 14 day free trial",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in"
+    },
+    "brandAlt": "Your Company",
+    "dismiss": "Dismiss"
+  }
+}

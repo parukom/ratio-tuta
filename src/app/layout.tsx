@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AppToaster from '@/components/ui/Toaster'
+import { NextIntlClientProvider } from "next-intl";
+import { cookies, headers } from "next/headers";
+import { defaultLocale, isLocale, type Locale } from "@/i18n/config";
+import { getMessages } from "@/i18n/getMessages";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,18 +22,30 @@ export const metadata: Metadata = {
   description: "secure account/calculations, management",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
+  // Resolve locale: cookie -> Accept-Language -> default
+  let locale: Locale = defaultLocale;
+  const cookieStore = await cookies();
+  const cookieLocale = cookieStore.get("locale")?.value;
+  if (isLocale(cookieLocale)) locale = cookieLocale;
+  else {
+    const accept = (await headers()).get("accept-language") || "";
+    const preferred = accept.split(",").map(s => s.trim().split(";")[0])[0];
+    const short = preferred?.slice(0, 2).toLowerCase();
+    if (isLocale(short)) locale = short;
+  }
+
+  const messages = await getMessages(locale);
+
   return (
-    <html lang="en" className="h-full bg-gray-50 dark:bg-gray-900">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}
-      >
-        <AppToaster />
-        {children}
+    <html lang={locale} className="h-full bg-gray-50 dark:bg-gray-900">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <AppToaster />
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );

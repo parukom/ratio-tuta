@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import createNextIntlPlugin from 'next-intl/plugin';
 
 // Derive allowed image host for S3/CloudFront from env.
 let s3Host = process.env.S3_IMAGE_HOST;
@@ -28,4 +29,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// Enable next-intl plugin so it can load next-intl.config.ts at runtime
+const withNextIntl = createNextIntlPlugin();
+export default withNextIntl(nextConfig);

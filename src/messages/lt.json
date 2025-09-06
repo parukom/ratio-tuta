@@ -1,0 +1,43 @@
+{
+  "Auth": {
+    "titleLogin": "Prisijunkite prie paskyros",
+    "titleRegister": "Sukurkite paskyrą",
+    "verify": {
+      "success": "El. paštas patvirtintas. Dabar galite prisijungti.",
+      "invalid": "Patvirtinimo nuoroda neteisinga arba nebegalioja.",
+      "error": "Klaida tikrinant el. paštą. Bandykite dar kartą."
+    },
+    "fields": {
+      "name": "Vardas",
+      "email": "El. pašto adresas",
+      "password": "Slaptažodis",
+      "teamName": "Komandos pavadinimas",
+      "passwordRule": "Slaptažodis turi būti 8–16 simbolių."
+    },
+    "rememberMe": "Prisiminti mane",
+    "toggle": {
+      "toRegister": "Neturite paskyros? Registruokitės",
+      "toLogin": "Jau turite paskyrą? Prisijunkite"
+    },
+    "submit": {
+      "login": "Prisijungti",
+      "loginProgress": "Jungiamasi…",
+      "register": "Sukurti paskyrą",
+      "registerProgress": "Kuriama…"
+    },
+    "errors": {
+      "login": "Klaida prisijungiant",
+      "register": "Klaida registruojantis",
+      "passwordLength": "Slaptažodis turi būti 8–16 simbolių"
+    },
+    "createdCheckEmail": "Paskyra sukurta. Patikrinkite el. paštą ir patvirtinkite.",
+    "cta": {
+      "notMember": "Nesate narys?",
+      "startTrial": "Pradėkite 14 dienų bandomąjį laikotarpį",
+      "haveAccount": "Jau turite paskyrą?",
+      "signIn": "Prisijunkite"
+    },
+    "brandAlt": "Jūsų įmonė",
+    "dismiss": "Uždaryti"
+  }
+}

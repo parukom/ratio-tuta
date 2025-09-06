@@ -4,18 +4,20 @@ import { Suspense, useEffect, useState } from "react";
 import Spinner from "@/components/ui/Spinner";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 function AuthContent() {
+    const t = useTranslations("Auth");
     const searchParams = useSearchParams();
     const formParam = (searchParams.get("form") || "login").toLowerCase();
     const mode: "login" | "register" = formParam === "signup" ? "register" : "login";
     const verifyParam = (searchParams.get("verify") || "").toLowerCase();
     const verifyMessage = verifyParam === "success"
-        ? "Email verified. You can now log in."
+        ? t("verify.success")
         : verifyParam === "invalid"
-            ? "Verification link is invalid or expired."
+            ? t("verify.invalid")
             : verifyParam === "error"
-                ? "Something went wrong verifying your email. Please try again."
+                ? t("verify.error")
                 : "";
     const verifyStatus: "success" | "warning" | "error" | "" =
         verifyParam === "success" ? "success" : verifyParam === "invalid" ? "warning" : verifyParam === "error" ? "error" : "";
@@ -58,7 +60,7 @@ function AuthContent() {
                 });
                 const data = await res.json();
                 if (!res.ok) {
-                    setMessage(data.error || "Error logging in");
+                    setMessage(data.error || t("errors.login"));
                 } else {
                     // Decide where to go next based on role and place memberships
                     const role = (data?.role as string) || "USER";
@@ -93,7 +95,7 @@ function AuthContent() {
 
         // register
         if (password.length < 8 || password.length > 16) {
-            setMessage("Password must be 8-16 characters");
+            setMessage(t("errors.passwordLength"));
             return;
         }
         try {
@@ -104,8 +106,8 @@ function AuthContent() {
                 body: JSON.stringify({ name, email, password, teamName }),
             });
             const data = await res.json();
-            if (!res.ok) setMessage(data.error || "Error registering");
-            else setMessage(data.message || "Account created. Check your email to verify.");
+            if (!res.ok) setMessage(data.error || t("errors.register"));
+            else setMessage(data.message || t("createdCheckEmail"));
         } finally {
             setSubmitting(false);
         }
@@ -115,7 +117,7 @@ function AuthContent() {
         <div className="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <Image
-                    alt="Your Company"
+                    alt={t("brandAlt")}
                     src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
                     width={40}
                     height={40}
@@ -123,7 +125,7 @@ function AuthContent() {
                     className="mx-auto h-10 w-auto dark:hidden"
                 />
                 <Image
-                    alt="Your Company"
+                    alt={t("brandAlt")}
                     src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
                     width={40}
                     height={40}
@@ -131,7 +133,7 @@ function AuthContent() {
                     className="mx-auto h-10 w-auto not-dark:hidden"
                 />
                 <h2 className="mt-6 text-center text-2xl/9 font-bold tracking-tight text-gray-900 dark:text-white">
-                    {mode === "login" ? "Sign in to your account" : "Create your account"}
+                    {mode === "login" ? t("titleLogin") : t("titleRegister")}
                 </h2>
             </div>
 
@@ -149,7 +151,7 @@ function AuthContent() {
                             <span>{verifyMessage}</span>
                             <button
                                 type="button"
-                                aria-label="Dismiss"
+                                aria-label={t("dismiss")}
                                 onClick={() => setShowVerifyBanner(false)}
                                 className="shrink-0 rounded p-1/2 hover:opacity-80"
                             >
@@ -161,7 +163,7 @@ function AuthContent() {
                         {mode === "register" && (
                             <div>
                                 <label htmlFor="name" className="block text-sm/6 font-medium text-gray-900 dark:text-white">
-                                    Name
+                                    {t("fields.name")}
                                 </label>
                                 <div className="mt-2">
                                     <input
@@ -179,7 +181,7 @@ function AuthContent() {
 
                         <div>
                             <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900 dark:text-white">
-                                Email address
+                                {t("fields.email")}
                             </label>
                             <div className="mt-2">
                                 <input
@@ -197,7 +199,7 @@ function AuthContent() {
 
                         <div>
                             <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900 dark:text-white">
-                                Password
+                                {t("fields.password")}
                             </label>
                             <div className="mt-2">
                                 <input
@@ -214,14 +216,14 @@ function AuthContent() {
                                 />
                             </div>
                             {mode === "register" && (
-                                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Password must be 8-16 characters.</p>
+                                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("fields.passwordRule")}</p>
                             )}
                         </div>
 
                         {mode === "register" && (
                             <div>
                                 <label htmlFor="teamName" className="block text-sm/6 font-medium text-gray-900 dark:text-white">
-                                    Team name
+                                    {t("fields.teamName")}
                                 </label>
                                 <div className="mt-2">
                                     <input
@@ -272,7 +274,7 @@ function AuthContent() {
                                     </div>
                                 </div>
                                 <label htmlFor="remember-me" className="block text-sm/6 text-gray-900 dark:text-white">
-                                    Remember me
+                                    {t("rememberMe")}
                                 </label>
                             </div>
                             <div className="text-sm/6">
@@ -284,7 +286,7 @@ function AuthContent() {
                                     }}
                                     className="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
                                 >
-                                    {mode === "login" ? "Need an account? Register" : "Already have an account? Sign in"}
+                                    {mode === "login" ? t("toggle.toRegister") : t("toggle.toLogin")}
                                 </button>
                             </div>
                         </div>
@@ -297,7 +299,7 @@ function AuthContent() {
                                 className="flex w-full items-center justify-center gap-2 rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
                             >
                                 {submitting && <Spinner size={18} className="text-white" />}
-                                <span>{mode === "login" ? (submitting ? "Signing in…" : "Sign in") : (submitting ? "Creating…" : "Create account")}</span>
+                                <span>{mode === "login" ? (submitting ? t("submit.loginProgress") : t("submit.login")) : (submitting ? t("submit.registerProgress") : t("submit.register"))}</span>
                             </button>
                         </div>
                         {message && <p className="text-sm/6 text-center text-red-600 dark:text-red-400">{message}</p>}
@@ -340,24 +342,24 @@ function AuthContent() {
                 <p className="mt-10 text-center text-sm/6 text-gray-500 dark:text-gray-400">
                     {mode === "login" ? (
                         <>
-                            Not a member?{' '}
+                            {t("cta.notMember")} {" "}
                             <button
                                 type="button"
                                 onClick={() => router.replace("/auth?form=signup")}
                                 className="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
                             >
-                                Start a 14 day free trial
+                                {t("cta.startTrial")}
                             </button>
                         </>
                     ) : (
                         <>
-                            Already have an account?{' '}
+                            {t("cta.haveAccount")} {" "}
                             <button
                                 type="button"
                                 onClick={() => router.replace("/auth?form=login")}
                                 className="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
                             >
-                                Sign in
+                                {t("cta.signIn")}
                             </button>
                         </>
                     )}

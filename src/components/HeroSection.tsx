@@ -4,6 +4,7 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import Image from "next/image";
 import Link from 'next/link';
 import { useState } from 'react';
+import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 
 const navigation = [
     { name: 'Product', href: '#' },
@@ -55,7 +56,8 @@ const HeroSection = () => {
                             </a>
                         ))}
                     </div>
-                    <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+                    <div className="hidden lg:flex lg:items-center lg:gap-4 lg:flex-1 lg:justify-end">
+                        <LanguageSwitcher />
                         <Link href="/auth" className="text-sm/6 font-semibold text-gray-900 dark:text-white">
                             Log in <span aria-hidden="true">&rarr;</span>
                         </Link>
@@ -105,6 +107,9 @@ const HeroSection = () => {
                                     ))}
                                 </div>
                                 <div className="py-6">
+                                    <div className="px-3 pb-4">
+                                        <LanguageSwitcher className="w-full" />
+                                    </div>
                                     <Link
                                         href="/auth?form=login"
                                         className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
