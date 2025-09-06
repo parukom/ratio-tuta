@@ -9,13 +9,14 @@ import TableSkeleton from '@/components/ui/TableSkeleton'
 import { EllipsisVertical } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
-type Person = { id: string; name: string; email: string; role: string }
+type Person = { id: string; name: string; email: string; role: 'USER' | 'ADMIN' }
 type ApiUser = { id: string; name: string; email: string; role: 'USER' | 'ADMIN'; createdAt: string }
 type ApiTeam = { id: string; name: string }
 type Props = { teamId?: string }
 
 const TeamTable = ({ teamId }: Props) => {
     const t = useTranslations('Common')
+    const tt = useTranslations('Team')
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [people, setPeople] = useState<Person[]>([])
     const [loading, setLoading] = useState(true)
@@ -50,7 +51,7 @@ const TeamTable = ({ teamId }: Props) => {
             const res = await fetch(`/api/users?${qs.toString()}`)
             const data: ApiUser[] | { error: string } = await res.json()
             if (!res.ok) throw new Error((data as { error?: string }).error || 'Failed to load team members')
-            setPeople((data as ApiUser[]).map((u) => ({ id: u.id, name: u.name, email: u.email, role: u.role === 'ADMIN' ? 'Admin' : 'Member' })))
+            setPeople((data as ApiUser[]).map((u) => ({ id: u.id, name: u.name, email: u.email, role: u.role })))
         } catch (e) {
             const msg = e instanceof Error ? e.message : 'Failed to load team members'
             setError(msg)
@@ -79,8 +80,8 @@ const TeamTable = ({ teamId }: Props) => {
     return (
         <div className="mt-8 flow-root h-full">
             <AdminHeader
-                title="Team Management"
-                subtitle={activeTeamId ? 'A list of all the users in your team including their name, email and role.' : 'You are not part of any team yet.'}
+                title={tt('title')}
+                subtitle={activeTeamId ? tt('subtitle') : tt('noTeam')}
                 onAdd={() => setIsModalOpen(true)}
                 addLabel={t('inviteMember')}
             />
@@ -88,7 +89,7 @@ const TeamTable = ({ teamId }: Props) => {
             <div className={` h-full ${loading ? 'flex justify-center items-center' : ''}`}>
                 {teams.length > 1 && (
                     <div className="mt-4">
-                        <label htmlFor="team" className="block text-sm/6 font-medium text-gray-900 dark:text-white">Team</label>
+                        <label htmlFor="team" className="block text-sm/6 font-medium text-gray-900 dark:text-white">{tt('teamLabel')}</label>
                         <div className="mt-2">
                             <select
                                 id="team"
@@ -107,7 +108,7 @@ const TeamTable = ({ teamId }: Props) => {
 
                 {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
                 {!loading && !error && people.length === 0 && (
-                    <p className="mt-4 text-sm text-gray-600 dark:text-gray-300">No members yet.</p>
+                    <p className="mt-4 text-sm text-gray-600 dark:text-gray-300">{tt('noMembers')}</p>
                 )}
                 {loading ? (
                     <div className="w-full -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -125,14 +126,14 @@ const TeamTable = ({ teamId }: Props) => {
                                             scope="col"
                                             className="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 sm:pl-0 dark:text-white"
                                         >
-                                            Name
+                                            {t('name')}
                                         </th>
 
                                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">
-                                            Email
+                                            {tt('email')}
                                         </th>
                                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">
-                                            Role
+                                            {tt('role.label')}
                                         </th>
                                         <th scope="col" className="py-3.5 pr-4 pl-3 sm:pr-0">
                                             <span className="sr-only">{t('edit')}</span>
@@ -150,7 +151,7 @@ const TeamTable = ({ teamId }: Props) => {
                                                 {person.email}
                                             </td>
                                             <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
-                                                {person.role}
+                                                {person.role === 'ADMIN' ? tt('roles.admin') : tt('roles.member')}
                                             </td>
                                             <td className="py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-0">
                                                 {isAdmin && (
@@ -161,7 +162,7 @@ const TeamTable = ({ teamId }: Props) => {
                                                                 id: person.id,
                                                                 name: person.name,
                                                                 email: person.email,
-                                                                role: person.role === 'Admin' ? 'ADMIN' : 'USER',
+                                                                role: person.role,
                                                             }
                                                             setSelected(m)
                                                             setDrawerOpen(true)

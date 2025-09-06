@@ -220,5 +220,46 @@
         }
       }
     }
+  },
+  "Team": {
+    "title": "Komandos valdymas",
+    "subtitle": "Visų jūsų komandos narių sąrašas su vardu, el. paštu ir role.",
+    "noTeam": "Jūs dar nepriklausote jokiai komandai.",
+    "teamLabel": "Komanda",
+    "email": "El. paštas",
+    "role": {
+      "label": "Vaidmuo"
+    },
+    "roles": {
+      "admin": "Administratorius",
+      "member": "Narys",
+      "user": "Vartotojas"
+    },
+    "invite": {
+      "subtitle": "Sukurkite naują paskyrą ir pridėkite prie savo komandos."
+    },
+    "password": {
+      "setOptional": "Nustatyti slaptažodį (nebūtina)",
+      "leaveBlank": "Palikite tuščią, kad sugeneruotų automatiškai",
+      "hint": "Jei nurodysite, slaptažodis turi būti 8–16 simbolių. Palikite tuščią, kad būtų sugeneruotas saugus."
+    },
+    "drawer": {
+      "title": "Redaguoti narį",
+      "subtitle": "Atnaujinkite pagrindinę informaciją. El. pašto keitimas reikalaus pakartotinio patvirtinimo.",
+      "saveChanges": "Išsaugoti pakeitimus"
+    },
+    "toasts": {
+      "passwordCopied": "Slaptažodis nukopijuotas",
+      "copyFailed": "Nepavyko nukopijuoti",
+      "passwordRule": "Slaptažodis turi būti 8–16 simbolių",
+      "errorRegistering": "Klaida registruojant",
+      "memberCreated": "Narys sukurtas",
+      "memberCreatedAndAdded": "Narys sukurtas ir pridėtas",
+      "memberCreatedWithPassword": "Narys sukurtas. Slaptažodis sugeneruotas ir parodytas žemiau.",
+      "networkError": "Tinklo klaida",
+      "userUpdated": "Vartotojas atnaujintas",
+      "updateFailed": "Nepavyko atnaujinti vartotojo"
+    },
+    "noMembers": "Narių kol kas nėra."
   }
 }

@@ -220,5 +220,46 @@
         }
       }
     }
+  },
+  "Team": {
+    "title": "Team Management",
+    "subtitle": "A list of all the users in your team including their name, email and role.",
+    "noTeam": "You are not part of any team yet.",
+    "teamLabel": "Team",
+    "email": "Email",
+    "role": {
+      "label": "Role"
+    },
+    "roles": {
+      "admin": "Admin",
+      "member": "Member",
+      "user": "User"
+    },
+    "invite": {
+      "subtitle": "Create a new account and add them to your team."
+    },
+    "password": {
+      "setOptional": "Set password (optional)",
+      "leaveBlank": "Leave blank to auto-generate",
+      "hint": "If provided, password must be 8-16 characters. Leave blank to auto-generate a secure one."
+    },
+    "drawer": {
+      "title": "Edit member",
+      "subtitle": "Update basic information. Email changes will require re-verification.",
+      "saveChanges": "Save changes"
+    },
+    "toasts": {
+      "passwordCopied": "Password copied to clipboard",
+      "copyFailed": "Failed to copy",
+      "passwordRule": "Password must be 8-16 characters",
+      "errorRegistering": "Error registering",
+      "memberCreated": "Member created",
+      "memberCreatedAndAdded": "Member created and added",
+      "memberCreatedWithPassword": "Member created. Password generated and shown below.",
+      "networkError": "Network error",
+      "userUpdated": "User updated",
+      "updateFailed": "Failed to update user"
+    },
+    "noMembers": "No members yet."
   }
 }

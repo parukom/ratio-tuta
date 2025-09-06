@@ -13,6 +13,7 @@ type Props = {
 
 const AddMember = ({ teamId, onSuccess }: Props) => {
     const t = useTranslations('Common')
+    const tt = useTranslations('Team')
     const [name, setName] = useState<string>('')
     const [email, setEmail] = useState<string>('')
     const [role, setRole] = useState<'USER' | 'ADMIN'>('USER')
@@ -44,11 +45,11 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
         if (!password) return
         try {
             await navigator.clipboard.writeText(password)
-            setMessage('Password copied to clipboard')
+            setMessage(tt('toasts.passwordCopied'))
             toast.success(t('copy'))
         } catch {
-            setMessage('Failed to copy password')
-            toast.error('Failed to copy')
+            setMessage(tt('toasts.copyFailed'))
+            toast.error(tt('toasts.copyFailed'))
         }
     }
 
@@ -59,8 +60,8 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
         try {
             const trimmed = password.trim()
             if (trimmed && (trimmed.length < 8 || trimmed.length > 16)) {
-                setMessage('Password must be 8-16 characters')
-                toast.error('Password must be 8-16 characters')
+                setMessage(tt('toasts.passwordRule'))
+                toast.error(tt('toasts.passwordRule'))
                 return
             }
             const payload: Record<string, unknown> = { name, email, role, teamId }
@@ -70,20 +71,20 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             })
-            const data = await res.json()
+            const data: { error?: string; generatedPassword?: string } = await res.json()
             if (!res.ok) {
-                setMessage(data.error || 'Error registering')
-                toast.error(data.error || 'Error registering')
+                setMessage(data.error || tt('toasts.errorRegistering'))
+                toast.error(data.error || tt('toasts.errorRegistering'))
                 return
             }
             if (data.generatedPassword) {
                 setPassword(String(data.generatedPassword))
                 setShowPassword(true)
-                setMessage('Member created. Password generated and shown below.')
-                toast.success('Member created')
+                setMessage(tt('toasts.memberCreatedWithPassword'))
+                toast.success(tt('toasts.memberCreated'))
             } else {
-                setMessage('Member created and added!')
-                toast.success('Member created and added')
+                setMessage(tt('toasts.memberCreatedAndAdded'))
+                toast.success(tt('toasts.memberCreatedAndAdded'))
             }
             setName('')
             setEmail('')
@@ -91,8 +92,8 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
             setPassword('')
             onSuccess?.()
         } catch {
-            setMessage('Network error')
-            toast.error('Network error')
+            setMessage(tt('toasts.networkError'))
+            toast.error(tt('toasts.networkError'))
         } finally {
             setSubmitting(false)
         }
@@ -102,7 +103,7 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
         <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1">
                 <h2 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">{t('inviteMember')}</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Create a new account and add them to your team.</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{tt('invite.subtitle')}</p>
             </div>
 
             <Input
@@ -110,7 +111,7 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
                 name="name"
                 type="text"
                 value={name}
-                placeholder="Name"
+                placeholder={t('name')}
                 className=""
                 onChange={(e) => setName(e.target.value)}
             />
@@ -120,20 +121,20 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
                 name="email"
                 type="email"
                 value={email}
-                placeholder="Email"
+                placeholder={tt('email')}
                 className=""
                 onChange={(e) => setEmail(e.target.value)}
             />
 
             <div>
-                <label className="block text-sm/6 font-medium text-gray-900 dark:text-white">User role</label>
+                <label className="block text-sm/6 font-medium text-gray-900 dark:text-white">{tt('role.label')}</label>
                 <div className="mt-2">
                     <Dropdown
-                        buttonLabel={role === 'ADMIN' ? 'Admin' : 'User'}
+                        buttonLabel={role === 'ADMIN' ? tt('roles.admin') : tt('roles.member')}
                         disabled={submitting}
                         items={[
-                            { key: 'USER', label: 'User', onSelect: () => setRole('USER') },
-                            { key: 'ADMIN', label: 'Admin', onSelect: () => setRole('ADMIN') },
+                            { key: 'USER', label: tt('roles.member'), onSelect: () => setRole('USER') },
+                            { key: 'ADMIN', label: tt('roles.admin'), onSelect: () => setRole('ADMIN') },
                         ]}
                         onSelect={(key) => setRole(key as 'USER' | 'ADMIN')}
                         align="left"
@@ -142,14 +143,14 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
             </div>
 
             <div>
-                <label className="block text-sm/6 font-medium text-gray-900 dark:text-white">Set password (optional)</label>
+                <label className="block text-sm/6 font-medium text-gray-900 dark:text-white">{tt('password.setOptional')}</label>
                 <div className="mt-2 flex gap-2">
                     <Input
                         id="password"
                         name="password"
                         type={showPassword ? 'text' : 'password'}
                         value={password}
-                        placeholder="Leave blank to auto-generate"
+                        placeholder={tt('password.leaveBlank')}
                         className="flex-1"
                         minLength={8}
                         maxLength={16}
@@ -182,7 +183,7 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
                         {t('copy')}
                     </button>
                 </div>
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">If provided, password must be 8-16 characters. Leave blank to auto-generate a secure one.</p>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{tt('password.hint')}</p>
             </div>
 
             <button
