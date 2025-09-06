@@ -6,6 +6,7 @@ import { PersonalInformation } from './sections/PersonalInformation';
 import { ChangePassword } from './sections/ChangePassword';
 import { LogoutOtherSessions } from './sections/LogoutOtherSessions';
 import { DeleteAccount } from './sections/DeleteAccount';
+import { LanguagePreference } from './sections/LanguagePreference';
 
 type Props = { session: SessionData }
 
@@ -41,6 +42,8 @@ const UserForm: React.FC<Props> = ({ session }) => {
                 email={email}
                 setEmail={setEmail}
             />
+
+            <LanguagePreference />
 
             <ChangePassword />
 
