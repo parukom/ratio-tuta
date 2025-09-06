@@ -307,7 +307,7 @@ export default function InnerItems() {
                 <h1 className="text-base font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
                 <div className="flex items-center gap-2">
                     <CreateBoxButton onDone={fetchItems} />
-                    <CreateItemButton onCreated={onCreated} />
+                    <CreateItemButton onCreated={onCreated} suppressToast />
                 </div>
             </div>
 

@@ -21,9 +21,12 @@ type Props = {
     isActive: boolean
     createdAt: string
   }) => void
+  // When true, this component will not fire a success toast on create.
+  // Useful when the parent also shows a toast to avoid duplicates.
+  suppressToast?: boolean
 }
 
-export default function CreateItemButton({ teamId, onCreated }: Props) {
+export default function CreateItemButton({ teamId, onCreated, suppressToast }: Props) {
   const t = useTranslations('Items')
   const tc = useTranslations('Common')
   const [open, setOpen] = useState(false)
@@ -124,7 +127,7 @@ export default function CreateItemButton({ teamId, onCreated }: Props) {
         }
       }
       setMessage(t('toasts.created'))
-      toast.success(t('toasts.created'))
+      if (!suppressToast) toast.success(t('toasts.created'))
       onCreated?.(created)
       reset()
       setOpen(false)
