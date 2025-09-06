@@ -151,12 +151,6 @@ const ReceiptsTab: React.FC = () => {
                                     <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Receipt</h2>
                                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">ID: {selected.id}</p>
                                 </div>
-                                <button
-                                    className="rounded-md border border-gray-300 px-2 py-1 text-sm text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/10"
-                                    onClick={() => setSelected(null)}
-                                >
-                                    Close
-                                </button>
                             </div>
 
                             <div className="grid grid-cols-2 gap-3 text-sm">
