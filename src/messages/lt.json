@@ -261,5 +261,211 @@
       "updateFailed": "Nepavyko atnaujinti vartotojo"
     },
     "noMembers": "Narių kol kas nėra."
+  },
+  "Items": {
+    "title": "Prekės",
+    "header": {
+      "searchPlaceholder": "Ieškoti pagal pavadinimą ar SKU",
+      "allCategories": "Visos kategorijos",
+      "inStock": "Yra sandėlyje",
+      "minPrice": "Min €",
+      "maxPrice": "Maks €",
+      "activeOnly": "Tik aktyvios",
+      "groupByBox": "Grupuoti pagal dėžę",
+      "expandAll": "Išplėsti visas",
+      "collapseAll": "Sutraukti visas",
+      "reset": "Atstatyti",
+      "view": { "cards": "Kortelės", "table": "Lentelė" },
+      "sort": {
+        "label": "Rūšiuoti",
+        "newest": "Naujausios",
+        "oldest": "Seniausios",
+        "nameAsc": "Pavadinimas A–Ž",
+        "nameDesc": "Pavadinimas Ž–A",
+        "priceAsc": "Kaina ↑",
+        "priceDesc": "Kaina ↓",
+        "stockAsc": "Likutis ↑",
+        "stockDesc": "Likutis ↓",
+        "taxAsc": "Mokestis ↑",
+        "taxDesc": "Mokestis ↓"
+      }
+    },
+    "buttons": {
+      "addBox": "Pridėti dėžę",
+      "editBox": "Redaguoti dėžę",
+      "deleteBox": "Ištrinti dėžę"
+    },
+    "table": {
+      "noItems": "Prekių nerasta.",
+      "headers": {
+        "item": "Prekė",
+        "sku": "SKU",
+        "category": "Kategorija",
+        "price": "Kaina",
+        "tax": "Mokestis",
+        "unit": "Vnt.",
+        "stock": "Likutis",
+        "actions": "Veiksmai"
+      }
+    },
+    "cards": {
+      "variants": "variantai",
+      "totalStock": "Iš viso likutis",
+      "sizes": "dydžiai",
+      "price": "Kaina",
+      "cost": "Kaina sav.",
+      "tax": "Mokestis"
+    },
+    "card": {
+      "active": "Aktyvi",
+      "inactive": "Neaktyvi",
+      "sku": "SKU",
+      "price": "Kaina",
+      "tax": "Mokestis",
+      "cost": "Savikaina",
+      "profit": "Pelnas",
+      "unit": "Vnt.",
+      "stock": "Likutis",
+      "more": "+{count} daugiau"
+    },
+    "modals": {
+      "deleteBox": {
+        "title": "Ištrinti dėžę",
+        "body": "Tai pašalins visas šios dėžės prekes iš katalogo ir iš vietų. Esami kvitai liks nepakitę.",
+        "submit": "Ištrinti dėžę",
+        "deleting": "Trinama…",
+        "cancel": "Atšaukti"
+      },
+      "editBox": {
+        "title": "Redaguoti dėžę",
+        "subtitle": "Pakoreguokite kainą/mokestį, pridėkite kiekius pagal dydžius ir, jei reikia, paskirstykite bendrą dėžės kainą. Norėdami sumažinti, nurodykite neigiamą kiekį arba trinkite atskiras prekes.",
+        "price": "Kaina",
+        "boxCost": "Dėžės kaina paskirstymui (pasirinktinai)",
+        "taxBps": "Mokestis (bps)",
+        "replacePicture": "Pakeisti dėžės nuotrauką (taikoma visoms)",
+        "pictureHint": "Pasirinktinai. Jei pateikta, nuotrauka bus pritaikyta visoms šios dėžės prekėms.",
+        "sizesTitle": "Dydžiai dėžėje",
+        "variantSize": "Variantas/Dydis",
+        "quantity": "Kiekis (gali būti neigiamas)",
+        "remove": "Pašalinti",
+        "addSize": "+ Pridėti dydį",
+        "cancel": "Atšaukti",
+        "save": "Išsaugoti pakeitimus",
+        "saving": "Saugoma…"
+      },
+      "conflict": {
+        "cannotDeleteBox": "Negalima ištrinti dėžės",
+        "cannotDeleteItem": "Negalima ištrinti prekės",
+        "boxAssigned": "Kai kurios šios dėžės prekės priskirtos šioms vietoms. Pirmiausia pašalinkite iš šių vietų.",
+        "itemAssigned": "Prekė priskirta šioms vietoms. Norėdami ištrinti, pirmiausia pašalinkite iš šių vietų.",
+        "place": "Vieta",
+        "quantity": "Kiekis",
+        "noUsage": "Nėra detalesnės informacijos.",
+        "close": "Uždaryti"
+      },
+      "deleteItem": {
+        "title": "Ištrinti prekę",
+        "confirm": "Ar tikrai norite ištrinti „{name}“? Veiksmo atšaukti negalima."
+      },
+      "editItem": {
+        "title": "Redaguoti prekę",
+        "subtitle": "Atnaujinkite prekės informaciją. Nustatymai galioja visai komandai."
+      },
+      "image": {
+        "remove": "Pašalinti",
+        "removed": "Nuotrauka pašalinta",
+        "removeFailed": "Nepavyko pašalinti nuotraukos"
+      }
+    },
+    "forms": {
+      "category": "Kategorija",
+      "noCategory": "Be kategorijos",
+      "newCategoryName": "Naujos kategorijos pavadinimas",
+      "measurementType": "Matavimo tipas",
+      "measurementOptions": {
+        "PCS": "Vnt.",
+        "WEIGHT": "Svoris",
+        "LENGTH": "Ilgis",
+        "VOLUME": "Tūris",
+        "AREA": "Plotas",
+        "TIME": "Laikas"
+      },
+      "select": "Pasirinkti",
+      "initialStock": {
+        "PCS": "Pradinis likutis (vnt)",
+        "WEIGHT": "Pradinis likutis (kg)",
+        "LENGTH": "Pradinis likutis (m)",
+        "VOLUME": "Pradinis likutis (l)",
+        "AREA": "Pradinis likutis (m2)",
+        "TIME": "Pradinis likutis (val)"
+      },
+      "stock": {
+        "PCS": "Likutis (vnt)",
+        "WEIGHT": "Likutis (kg)",
+        "LENGTH": "Likutis (m)",
+        "VOLUME": "Likutis (l)",
+        "AREA": "Likutis (m2)",
+        "TIME": "Likutis (val)"
+      },
+      "descriptionOptional": "Aprašymas (pasirinktinai)",
+      "colorOptional": "Spalva (pasirinktinai)",
+      "brandOptional": "Prekės ženklas (pasirinktinai)",
+      "sizeOptional": "Dydis (pasirinktinai)",
+      "tagsComma": "Žymos (atskirti kableliais)",
+      "picture": "Nuotrauka",
+      "pictureRequired": "Pasirinkite nuotrauką",
+      "pictureHint": "JPEG/PNG/WebP iki ~10MB. Pakeisime dydį ir suspausime automatiškai.",
+      "active": "Aktyvi",
+      "uniqueNote": "Pavadinimas ir SKU turi būti unikalūs komandoje.",
+      "sku": "SKU (pasirinktinai)",
+      "skuPrefix": "SKU prefiksas (pasirinktinai)",
+      "baseName": "Bazinis pavadinimas, pvz., Batai",
+      "boxPicture": "Dėžės nuotrauka (taikoma visoms)",
+      "sizesInBox": "Dydžiai dėžėje",
+      "resetSizes": "Atstatyti dydžius",
+      "stockAddsNote": "Jei dydžio prekės nėra, ji bus sukurta. Priešingu atveju likutis bus padidintas.",
+      "enterName": "Įveskite pavadinimą"
+    },
+    "drawer": {
+      "close": "Uždaryti skydelį",
+      "itemPictureAlt": "Prekės nuotrauka",
+      "description": "Aprašymas",
+      "info": "Informacija",
+      "noDescription": "Nėra aprašymo.",
+      "tags": "Žymos",
+      "noTags": "Nėra žymų."
+    },
+    "labels": {
+      "status": "Būsena",
+      "sku": "SKU",
+      "price": "Kaina",
+      "cost": "Savikaina",
+      "profit": "Pelnas",
+      "tax": "Mokestis",
+      "stock": "Likutis",
+      "unit": "Vnt.",
+      "measurement": "Matavimas",
+      "brand": "Prekės ženklas",
+      "size": "Dydis",
+      "color": "Spalva",
+      "currency": "Valiuta",
+      "created": "Sukurta",
+      "team": "Komanda",
+      "id": "ID",
+      "active": "Aktyvi",
+      "inactive": "Neaktyvi"
+    },
+    "toasts": {
+      "loadFailed": "Nepavyko įkelti prekių",
+      "boxAdded": "Dėžė pridėta",
+      "boxDeleted": "Dėžė ištrinta",
+      "boxDeleteFailed": "Nepavyko ištrinti dėžės",
+      "created": "Prekė sukurta",
+      "updated": "Prekė atnaujinta",
+      "deleted": "Prekė ištrinta",
+      "networkError": "Tinklo klaida",
+      "categoryCreated": "Kategorija sukurta",
+      "failedToUploadImage": "Nepavyko įkelti nuotraukos"
+    }
   }
 }

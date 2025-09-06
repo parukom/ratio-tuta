@@ -4,6 +4,7 @@ import React from 'react'
 import { ItemRow } from './types'
 import LoadingRows from '@/components/ui/LoadingRows'
 import { ItemRowActions } from './ItemRowActions'
+import { useTranslations } from 'next-intl'
 
 type Props = {
     items: ItemRow[]
@@ -16,6 +17,7 @@ type Props = {
 const columnWidths = ["w-56", "w-36", "w-24", "w-24", "w-16", "w-20", "w-20", "w-40"]
 
 export default function ItemsTableView({ items, loading, onUpdate, onDelete, onSelectItem }: Props) {
+    const t = useTranslations('Items')
     const lastDownRef = React.useRef<EventTarget | null>(null)
     function handleRowMouseDown(e: React.MouseEvent) {
         lastDownRef.current = e.target
@@ -39,14 +41,14 @@ export default function ItemsTableView({ items, loading, onUpdate, onDelete, onS
             <table className="min-w-full divide-y divide-gray-200 text-sm dark:divide-white/10">
                 <thead className="bg-gray-50 dark:bg-white/5">
                     <tr>
-                        <th className="px-4 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">Item</th>
-                        <th className="px-2 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">SKU</th>
-                        <th className="px-2 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">Category</th>
-                        <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Price</th>
-                        <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Tax</th>
-                        <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Unit</th>
-                        <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Stock</th>
-                        <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">Actions</th>
+                        <th className="px-4 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">{t('table.headers.item')}</th>
+                        <th className="px-2 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">{t('table.headers.sku')}</th>
+                        <th className="px-2 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">{t('table.headers.category')}</th>
+                        <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">{t('table.headers.price')}</th>
+                        <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">{t('table.headers.tax')}</th>
+                        <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">{t('table.headers.unit')}</th>
+                        <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">{t('table.headers.stock')}</th>
+                        <th className="px-2 py-2 text-right font-semibold text-gray-700 dark:text-gray-200">{t('table.headers.actions')}</th>
                     </tr>
                 </thead>
                 {loading ? (
@@ -54,7 +56,7 @@ export default function ItemsTableView({ items, loading, onUpdate, onDelete, onS
                 ) : items.length === 0 ? (
                     <tbody>
                         <tr>
-                            <td colSpan={8} className="px-4 py-8 text-center text-sm text-gray-600 dark:text-gray-300">No items found.</td>
+                            <td colSpan={8} className="px-4 py-8 text-center text-sm text-gray-600 dark:text-gray-300">{t('table.noItems')}</td>
                         </tr>
                     </tbody>
                 ) : (

@@ -1,6 +1,7 @@
 'use client'
 import React, { useRef, useState } from 'react'
 import { ItemRowActions } from './ItemRowActions'
+import { useTranslations } from 'next-intl'
 
 type ItemRow = {
     id: string
@@ -58,6 +59,7 @@ export function ItemCard({
     onDelete: (id: string) => Promise<void>
     onSelect?: (item: ItemRow) => void
 }) {
+    const t = useTranslations('Items')
     const [imgFailed, setImgFailed] = useState(false)
     const currency = item.currency || 'EUR'
     const price = new Intl.NumberFormat(undefined, {
@@ -121,7 +123,7 @@ export function ItemCard({
                                 ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-300'
                                 : 'bg-gray-50 text-gray-600 ring-1 ring-gray-600/10 dark:bg-white/10 dark:text-gray-300')
                         }
-                        title={item.isActive ? 'Active' : 'Inactive'}
+                        title={item.isActive ? t('card.active') : t('card.inactive')}
                     >
                         <span
                             className={
@@ -129,7 +131,7 @@ export function ItemCard({
                                 (item.isActive ? 'bg-emerald-500' : 'bg-gray-400')
                             }
                         />
-                        {item.isActive ? 'Active' : 'Inactive'}
+                        {item.isActive ? t('card.active') : t('card.inactive')}
                     </span>
                     {item.categoryName && (
                         <span className="hidden sm:inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs text-indigo-700 ring-1 ring-indigo-600/20 dark:bg-indigo-500/10 dark:text-indigo-300">
@@ -173,7 +175,7 @@ export function ItemCard({
                         {item.name}
                     </div>
                     <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
-                        {item.sku && <span className="truncate">SKU: {item.sku}</span>}
+                        {item.sku && <span className="truncate">{t('card.sku')}: {item.sku}</span>}
                         {item.brand && <span className="truncate">• {item.brand}</span>}
                     </div>
                 </div>
@@ -182,31 +184,31 @@ export function ItemCard({
             {/* details */}
             <div className="mt-4 grid grid-cols-2 gap-3">
                 <div>
-                    <div className="text-[11px] text-gray-500 dark:text-gray-400">Price</div>
+                    <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.price')}</div>
                     <div className="text-sm font-medium text-gray-900 dark:text-white">{price}</div>
                 </div>
                 <div className="text-right">
-                    <div className="text-[11px] text-gray-500 dark:text-gray-400">Tax</div>
+                    <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.tax')}</div>
                     <div className="text-sm font-medium text-gray-900 dark:text-white">{taxPct}%</div>
                 </div>
                 {typeof item.pricePaid === 'number' && (
                     <div>
-                        <div className="text-[11px] text-gray-500 dark:text-gray-400">Cost</div>
+                        <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.cost')}</div>
                         <div className="text-sm font-medium text-gray-900 dark:text-white">{cost}</div>
                     </div>
                 )}
                 {typeof item.pricePaid === 'number' && (
                     <div className="text-right">
-                        <div className="text-[11px] text-gray-500 dark:text-gray-400">Profit</div>
+                        <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.profit')}</div>
                         <div className="text-sm font-medium text-gray-900 dark:text-white">{profit}</div>
                     </div>
                 )}
                 <div>
-                    <div className="text-[11px] text-gray-500 dark:text-gray-400">Unit</div>
+                    <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.unit')}</div>
                     <div className="text-sm font-medium text-gray-900 dark:text-white">{item.unit || 'pcs'}</div>
                 </div>
                 <div className="text-right">
-                    <div className="text-[11px] text-gray-500 dark:text-gray-400">Stock</div>
+                    <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.stock')}</div>
                     <div className="text-sm font-medium text-gray-900 dark:text-white">{typeof item.stockQuantity === 'number' ? item.stockQuantity : 0}</div>
                 </div>
             </div>
@@ -225,7 +227,7 @@ export function ItemCard({
                                 </span>
                             ))}
                             {item.tags.length > 4 && (
-                                <span className="text-[11px] text-gray-500 dark:text-gray-400">+{item.tags.length - 4} more</span>
+                                <span className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.more', { count: item.tags.length - 4 })}</span>
                             )}
                         </div>
                     )}

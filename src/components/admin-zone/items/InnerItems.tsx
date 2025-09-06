@@ -14,10 +14,12 @@ import ItemsTableView from "./ItemsTableView"
 import ItemsCardsView from "./ItemsCardsView"
 import type { ItemRow, Group } from "./types"
 import ItemInfoDrawer from "./ItemInfoDrawer"
+import { useTranslations } from 'next-intl'
 
 // ItemRow and Group types moved to ./types for reuse across components
 
 export default function InnerItems() {
+    const t = useTranslations('Items')
     // filters/sort/view
     // Stable SSR-safe defaults to prevent hydration mismatches; load persisted values on mount
     const [q, setQ] = useState("")
@@ -157,12 +159,12 @@ export default function InnerItems() {
             }
             params.set("sort", sortMap[sort] || "createdat_desc")
             const res = await fetch(`/api/items?${params.toString()}`)
-            if (!res.ok) throw new Error("Failed to fetch items")
+            if (!res.ok) throw new Error(t('toasts.loadFailed'))
             const data: ItemRow[] = await res.json()
             setItems(data)
         } catch (e) {
             console.error(e)
-            toast.error("Failed to load items")
+            toast.error(t('toasts.loadFailed'))
         } finally { setLoading(false) }
     }
 
@@ -189,14 +191,14 @@ export default function InnerItems() {
                     ? ((data as { places: { placeId: string; placeName: string; quantity: number }[] }).places)
                     : [])
                 setConflictInfo({ id: groupKey, places, kind: 'box' })
-                toast('Box items are assigned to places', { icon: '⚠️' })
+                toast(t('modals.conflict.boxAssigned'), { icon: '⚠️' })
                 setConfirmBoxKey(null)
                 return
             }
             if (!res.ok) {
                 const errMsg = (typeof data === 'object' && data && typeof (data as { error?: unknown }).error === 'string')
                     ? (data as { error: string }).error
-                    : 'Failed to delete box'
+                    : t('toasts.boxDeleteFailed')
                 throw new Error(errMsg)
             }
 
@@ -206,12 +208,12 @@ export default function InnerItems() {
                 const key = `${it.teamId}|${base}|${it.color || ""}`
                 return key !== groupKey
             }))
-            toast.success("Box deleted")
+            toast.success(t('toasts.boxDeleted'))
             setConfirmBoxKey(null)
         } catch (e) {
             console.error(e)
-            setBoxMsg((e as Error)?.message || "Failed to delete box")
-            toast.error("Failed to delete box")
+            setBoxMsg((e as Error)?.message || t('toasts.boxDeleteFailed'))
+            toast.error(t('toasts.boxDeleteFailed'))
         } finally {
             setDeletingBox(false)
         }
@@ -245,7 +247,7 @@ export default function InnerItems() {
             }
             setItems((prev) => [optimistic, ...prev.filter((i) => i.id !== optimistic.id)])
         }
-        toast.success("Item created")
+        toast.success(t('toasts.created'))
         fetchItems()
     }
 
@@ -260,7 +262,7 @@ export default function InnerItems() {
             if (opts && "categoryName" in (opts || {})) next.categoryName = opts.categoryName ?? null
             return next
         }))
-        toast.success("Item updated")
+        toast.success(t('toasts.updated'))
     }
     async function deleteItem(id: string) {
         const res = await fetch(`/api/items/${id}`, { method: "DELETE" })
@@ -270,12 +272,12 @@ export default function InnerItems() {
                 const data = await r2.json()
                 setConflictInfo({ id, places: Array.isArray(data) ? data : [], kind: 'item' })
             } catch { setConflictInfo({ id, places: [] }) }
-            toast("Item is assigned to places", { icon: "⚠️" })
+            toast(t('modals.conflict.itemAssigned'), { icon: "⚠️" })
             return
         }
         if (!res.ok) throw new Error("Failed to delete")
         setItems((prev) => prev.filter((it) => it.id !== id))
-        toast.success("Item deleted")
+        toast.success(t('toasts.deleted'))
     }
 
     // grouping
@@ -302,7 +304,7 @@ export default function InnerItems() {
     return (
         <>
             <div className="mb-6 flex items-center justify-between">
-                <h1 className="text-base font-semibold text-gray-900 dark:text-white">Items</h1>
+                <h1 className="text-base font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
                 <div className="flex items-center gap-2">
                     <CreateBoxButton onDone={fetchItems} />
                     <CreateItemButton onCreated={onCreated} />
@@ -314,15 +316,15 @@ export default function InnerItems() {
                     <header className="w-full flex gap-4 flex-wrap">
 
                         <div className="ml-auto flex items-center gap-1 rounded-md bg-gray-50 p-1 ring-1 ring-gray-200 dark:bg-white/5 dark:ring-white/10">
-                            <button type="button" onClick={() => setView("cards")} className={`inline-flex items-center gap-1 rounded px-2 py-1 text-xs ${view === "cards" ? "bg-white text-gray-900 ring-1 ring-gray-200 dark:bg-gray-800 dark:text-white dark:ring-white/10" : "text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"}`} title="Cards view"><LayoutGrid className="size-3.5" /> </button>
-                            <button type="button" onClick={() => setView("table")} className={`inline-flex items-center gap-1 rounded px-2 py-1 text-xs ${view === "table" ? "bg-white text-gray-900 ring-1 ring-gray-200 dark:bg-gray-800 dark:text-white dark:ring-white/10" : "text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"}`} title="Table view"><TableIcon className="size-3.5" /> </button>
+                            <button type="button" onClick={() => setView("cards")} className={`inline-flex items-center gap-1 rounded px-2 py-1 text-xs ${view === "cards" ? "bg-white text-gray-900 ring-1 ring-gray-200 dark:bg-gray-800 dark:text-white dark:ring-white/10" : "text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"}`} title={t('header.view.cards')}><LayoutGrid className="size-3.5" /> </button>
+                            <button type="button" onClick={() => setView("table")} className={`inline-flex items-center gap-1 rounded px-2 py-1 text-xs ${view === "table" ? "bg-white text-gray-900 ring-1 ring-gray-200 dark:bg-gray-800 dark:text-white dark:ring-white/10" : "text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"}`} title={t('header.view.table')}><TableIcon className="size-3.5" /> </button>
                         </div>
 
                         <div className="relative min-w-56 flex-1">
                             <SearchInput
                                 value={q}
                                 onChange={(e) => setQ(e.target.value)}
-                                placeholder="Search by name or SKU"
+                                placeholder={t('header.searchPlaceholder')}
                                 containerClassName=""
                                 inputClassName="block w-full rounded-md bg-white py-1.5 pl-8 pr-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500 sm:text-sm/6"
                             />
@@ -331,15 +333,15 @@ export default function InnerItems() {
                         <div className="inline-block">
                             <Dropdown
                                 align="left"
-                                buttonLabel={categoryId ? (categories.find(c => c.id === categoryId)?.name ?? "All categories") : "All categories"}
-                                items={[{ key: "", label: "All categories" }, ...categories.map(c => ({ key: c.id, label: c.name }))]}
+                                buttonLabel={categoryId ? (categories.find(c => c.id === categoryId)?.name ?? t('header.allCategories')) : t('header.allCategories')}
+                                items={[{ key: "", label: t('header.allCategories') }, ...categories.map(c => ({ key: c.id, label: c.name }))]}
                                 onSelect={(key) => setCategoryId(key)}
                             />
                         </div>
 
                         <label className="flex items-center gap-2 rounded-md px-2 py-1 text-sm text-gray-700 ring-1 ring-inset ring-gray-300 dark:text-gray-300 dark:ring-white/10">
                             <input type="checkbox" checked={inStock} onChange={(e) => setInStock(e.target.checked)} />
-                            In stock
+                            {t('header.inStock')}
                         </label>
                     </header>
 
@@ -353,7 +355,7 @@ export default function InnerItems() {
                                     type="number"
                                     value={minPrice}
                                     onChange={(e) => setMinPrice(e.target.value)}
-                                    placeholder="Min €"
+                                    placeholder={t('header.minPrice')}
                                     className="px-2"
                                     hideLabel
                                 />
@@ -364,7 +366,7 @@ export default function InnerItems() {
                                     type="number"
                                     value={maxPrice}
                                     onChange={(e) => setMaxPrice(e.target.value)}
-                                    placeholder="Max €"
+                                    placeholder={t('header.maxPrice')}
                                     className="px-2"
                                     hideLabel
                                 />
@@ -372,20 +374,20 @@ export default function InnerItems() {
                         </div>
                         {(() => {
                             const sortOptions = [
-                                { key: "createdAt_desc", label: "Newest" },
-                                { key: "createdAt_asc", label: "Oldest" },
-                                { key: "name_asc", label: "Name A-Z" },
-                                { key: "name_desc", label: "Name Z-A" },
-                                { key: "price_asc", label: "Price ↑" },
-                                { key: "price_desc", label: "Price ↓" },
-                                { key: "stock_asc", label: "Stock ↑" },
-                                { key: "stock_desc", label: "Stock ↓" },
-                                { key: "tax_asc", label: "Tax ↑" },
-                                { key: "tax_desc", label: "Tax ↓" },
+                                { key: "createdAt_desc", label: t('header.sort.newest') },
+                                { key: "createdAt_asc", label: t('header.sort.oldest') },
+                                { key: "name_asc", label: t('header.sort.nameAsc') },
+                                { key: "name_desc", label: t('header.sort.nameDesc') },
+                                { key: "price_asc", label: t('header.sort.priceAsc') },
+                                { key: "price_desc", label: t('header.sort.priceDesc') },
+                                { key: "stock_asc", label: t('header.sort.stockAsc') },
+                                { key: "stock_desc", label: t('header.sort.stockDesc') },
+                                { key: "tax_asc", label: t('header.sort.taxAsc') },
+                                { key: "tax_desc", label: t('header.sort.taxDesc') },
                             ]
-                            const current = sortOptions.find(o => o.key === sort)?.label ?? "Sort"
+                            const current = sortOptions.find(o => o.key === sort)?.label ?? t('header.sort.label')
                             return (
-                                <div className="inline-block" title="Sort">
+                                <div className="inline-block" title={t('header.sort.label')}>
                                     <Dropdown
                                         align="left"
                                         buttonLabel={current}
@@ -395,21 +397,21 @@ export default function InnerItems() {
                                 </div>
                             )
                         })()}
-                        <button type="button" onClick={() => { setQ(""); setOnlyActive(false); setCategoryId(""); setMeasurementType(""); setInStock(false); setMinPrice(""); setMaxPrice(""); setSort("createdAt_desc") }} className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:text-gray-200 dark:ring-white/10 dark:hover:bg-white/5" title="Reset filters">
-                            <RotateCcw className="size-3.5" /> Reset
+                        <button type="button" onClick={() => { setQ(""); setOnlyActive(false); setCategoryId(""); setMeasurementType(""); setInStock(false); setMinPrice(""); setMaxPrice(""); setSort("createdAt_desc") }} className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:text-gray-200 dark:ring-white/10 dark:hover:bg-white/5" title={t('header.reset')}>
+                            <RotateCcw className="size-3.5" /> {t('header.reset')}
                         </button>
 
                     </footer>
                 </div>
                 <div className="mt-2 flex items-center gap-3">
-                    <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" checked={onlyActive} onChange={(e) => setOnlyActive(e.target.checked)} />Active only</label>
+                    <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" checked={onlyActive} onChange={(e) => setOnlyActive(e.target.checked)} />{t('header.activeOnly')}</label>
                     {view === "cards" && (
                         <div className="ml-2 flex items-center gap-2">
-                            <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" checked={grouped} onChange={(e) => setGrouped(e.target.checked)} />Group by box</label>
+                            <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" checked={grouped} onChange={(e) => setGrouped(e.target.checked)} />{t('header.groupByBox')}</label>
                             {grouped && (
                                 <div className="flex items-center gap-1">
-                                    <button type="button" onClick={expandAllGroups} className="rounded px-2 py-1 text-xs text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:text-gray-200 dark:ring-white/10 dark:hover:bg-white/5">Expand all</button>
-                                    <button type="button" onClick={collapseAllGroups} className="rounded px-2 py-1 text-xs text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:text-gray-200 dark:ring-white/10 dark:hover:bg-white/5">Collapse all</button>
+                                    <button type="button" onClick={expandAllGroups} className="rounded px-2 py-1 text-xs text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:text-gray-200 dark:ring-white/10 dark:hover:bg-white/5">{t('header.expandAll')}</button>
+                                    <button type="button" onClick={collapseAllGroups} className="rounded px-2 py-1 text-xs text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:text-gray-200 dark:ring-white/10 dark:hover:bg-white/5">{t('header.collapseAll')}</button>
                                 </div>
                             )}
                         </div>
@@ -467,8 +469,8 @@ export default function InnerItems() {
                         </svg>
                     </div>
                     <div className="mt-3 text-left sm:ml-4 sm:mt-0">
-                        <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">Delete box</h3>
-                        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">This will remove all items in this box from your catalog and from places. Existing receipts remain intact.</p>
+                        <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">{t('modals.deleteBox.title')}</h3>
+                        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{t('modals.deleteBox.body')}</p>
                     </div>
                 </div>
                 <div className="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse">
@@ -478,7 +480,7 @@ export default function InnerItems() {
                         disabled={deletingBox}
                         className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 disabled:opacity-60 sm:ml-3 sm:w-auto dark:bg-red-500 dark:hover:bg-red-400"
                     >
-                        {deletingBox ? 'Deleting…' : 'Delete box'}
+                        {deletingBox ? t('modals.deleteBox.deleting') : t('modals.deleteBox.submit')}
                     </button>
                     <button
                         type="button"
@@ -486,7 +488,7 @@ export default function InnerItems() {
                         disabled={deletingBox}
                         className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto dark:bg-gray-700 dark:text-white dark:ring-white/10 dark:hover:bg-gray-600"
                     >
-                        Cancel
+                        {t('modals.deleteBox.cancel')}
                     </button>
                 </div>
                 {boxMsg && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{boxMsg}</p>}
@@ -494,40 +496,40 @@ export default function InnerItems() {
 
             {/* Edit box modal */}
             <Modal open={!!editBoxKey} onClose={() => (!editLoading && setEditBoxKey(null))} size="lg">
-                <h3 className="text-base font-semibold text-gray-900 dark:text-white">Edit box</h3>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Adjust price/tax, add quantities per size, and optionally split a total box cost across added quantities. To remove a size, set a negative quantity to decrease stock or use delete on individual items.</p>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white">{t('modals.editBox.title')}</h3>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t('modals.editBox.subtitle')}</p>
                 <div className="mt-4 space-y-3">
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                        <Input type="number" placeholder="Price" value={editPrice} onChange={(e) => setEditPrice(e.target.value)} />
-                        <Input type="number" placeholder="Box cost to split (optional)" value={editBoxCost} onChange={(e) => setEditBoxCost(e.target.value)} />
-                        <Input type="number" placeholder="Tax (bps)" value={editTaxBps} onChange={(e) => setEditTaxBps(e.target.value)} />
+                        <Input type="number" placeholder={t('modals.editBox.price')} value={editPrice} onChange={(e) => setEditPrice(e.target.value)} />
+                        <Input type="number" placeholder={t('modals.editBox.boxCost')} value={editBoxCost} onChange={(e) => setEditBoxCost(e.target.value)} />
+                        <Input type="number" placeholder={t('modals.editBox.taxBps')} value={editTaxBps} onChange={(e) => setEditTaxBps(e.target.value)} />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Replace box picture (applies to all items)</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('modals.editBox.replacePicture')}</label>
                         <input
                             type="file"
                             accept="image/*"
                             onChange={(e) => setEditImage(e.target.files?.[0] ?? null)}
                             className="block w-full text-sm text-gray-900 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:text-gray-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-300"
                         />
-                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Optional. If provided, the image will be applied to all items in this box.</p>
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('modals.editBox.pictureHint')}</p>
                     </div>
                     <div>
-                        <div className="mb-1 text-sm font-medium text-gray-800 dark:text-gray-200">Sizes in the box</div>
+                        <div className="mb-1 text-sm font-medium text-gray-800 dark:text-gray-200">{t('modals.editBox.sizesTitle')}</div>
                         <div className="space-y-2">
                             {editRows.map((row) => (
                                 <div key={row.id} className="grid grid-cols-12 items-center gap-2">
-                                    <div className="col-span-6"><Input type="text" placeholder="Variant/Size" value={row.size} onChange={(e) => updateEditRow(row.id, { size: e.target.value })} /></div>
-                                    <div className="col-span-4"><Input type="number" placeholder="Quantity (can be negative)" value={row.quantity} onChange={(e) => updateEditRow(row.id, { quantity: e.target.value })} /></div>
-                                    <div className="col-span-2 flex justify-end"><button type="button" onClick={() => removeEditRow(row.id)} className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-gray-100 dark:ring-white/10">Remove</button></div>
+                                    <div className="col-span-6"><Input type="text" placeholder={t('modals.editBox.variantSize')} value={row.size} onChange={(e) => updateEditRow(row.id, { size: e.target.value })} /></div>
+                                    <div className="col-span-4"><Input type="number" placeholder={t('modals.editBox.quantity')} value={row.quantity} onChange={(e) => updateEditRow(row.id, { quantity: e.target.value })} /></div>
+                                    <div className="col-span-2 flex justify-end"><button type="button" onClick={() => removeEditRow(row.id)} className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-gray-100 dark:ring-white/10">{t('modals.editBox.remove')}</button></div>
                                 </div>
                             ))}
                         </div>
-                        <div className="mt-2"><button type="button" onClick={addEditRow} className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-gray-100 dark:ring-white/10">+ Add size</button></div>
+                        <div className="mt-2"><button type="button" onClick={addEditRow} className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-gray-100 dark:ring-white/10">{t('modals.editBox.addSize')}</button></div>
                     </div>
                 </div>
                 <div className="mt-4 flex items-center justify-end gap-2">
-                    <button type="button" onClick={() => setEditBoxKey(null)} disabled={editLoading} className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-gray-100 dark:ring-white/10">Cancel</button>
+                    <button type="button" onClick={() => setEditBoxKey(null)} disabled={editLoading} className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-gray-100 dark:ring-white/10">{t('modals.editBox.cancel')}</button>
                     <button
                         type="button"
                         disabled={editLoading}
@@ -571,17 +573,17 @@ export default function InnerItems() {
                                     // Note: this does not adjust pricePaid; it's a stock correction
                                     await updateItem(it.id, { stockQuantity: newStock })
                                 }
-                                toast.success('Box updated')
+                                toast.success(t('toasts.updated'))
                                 setEditBoxKey(null)
                                 setEditImage(null)
                                 fetchItems()
                             } catch (e) {
-                                setEditMsg((e as Error)?.message || 'Failed to update box')
-                                toast.error('Failed to update box')
+                                setEditMsg((e as Error)?.message || t('Common.errors.failedToSave'))
+                                toast.error(t('Common.errors.failedToSave'))
                             } finally { setEditLoading(false) }
                         }}
                         className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400"
-                    >{editLoading ? 'Saving…' : 'Save changes'}</button>
+                    >{editLoading ? t('modals.editBox.saving') : t('modals.editBox.save')}</button>
                 </div>
                 {editMsg && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{editMsg}</p>}
             </Modal>

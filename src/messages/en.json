@@ -261,5 +261,211 @@
       "updateFailed": "Failed to update user"
     },
     "noMembers": "No members yet."
+  },
+  "Items": {
+    "title": "Items",
+    "header": {
+      "searchPlaceholder": "Search by name or SKU",
+      "allCategories": "All categories",
+      "inStock": "In stock",
+      "minPrice": "Min €",
+      "maxPrice": "Max €",
+      "activeOnly": "Active only",
+      "groupByBox": "Group by box",
+      "expandAll": "Expand all",
+      "collapseAll": "Collapse all",
+      "reset": "Reset",
+      "view": { "cards": "Cards view", "table": "Table view" },
+      "sort": {
+        "label": "Sort",
+        "newest": "Newest",
+        "oldest": "Oldest",
+        "nameAsc": "Name A-Z",
+        "nameDesc": "Name Z-A",
+        "priceAsc": "Price ↑",
+        "priceDesc": "Price ↓",
+        "stockAsc": "Stock ↑",
+        "stockDesc": "Stock ↓",
+        "taxAsc": "Tax ↑",
+        "taxDesc": "Tax ↓"
+      }
+    },
+    "buttons": {
+      "addBox": "Add box",
+      "editBox": "Edit box",
+      "deleteBox": "Delete box"
+    },
+    "table": {
+      "noItems": "No items found.",
+      "headers": {
+        "item": "Item",
+        "sku": "SKU",
+        "category": "Category",
+        "price": "Price",
+        "tax": "Tax",
+        "unit": "Unit",
+        "stock": "Stock",
+        "actions": "Actions"
+      }
+    },
+    "cards": {
+      "variants": "variants",
+      "totalStock": "Total stock",
+      "sizes": "sizes",
+      "price": "Price",
+      "cost": "Cost",
+      "tax": "Tax"
+    },
+    "card": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "sku": "SKU",
+      "price": "Price",
+      "tax": "Tax",
+      "cost": "Cost",
+      "profit": "Profit",
+      "unit": "Unit",
+      "stock": "Stock",
+      "more": "+{count} more"
+    },
+    "modals": {
+      "deleteBox": {
+        "title": "Delete box",
+        "body": "This will remove all items in this box from your catalog and from places. Existing receipts remain intact.",
+        "submit": "Delete box",
+        "deleting": "Deleting…",
+        "cancel": "Cancel"
+      },
+      "editBox": {
+        "title": "Edit box",
+        "subtitle": "Adjust price/tax, add quantities per size, and optionally split a total box cost across added quantities. To remove a size, set a negative quantity to decrease stock or use delete on individual items.",
+        "price": "Price",
+        "boxCost": "Box cost to split (optional)",
+        "taxBps": "Tax (bps)",
+        "replacePicture": "Replace box picture (applies to all items)",
+        "pictureHint": "Optional. If provided, the image will be applied to all items in this box.",
+        "sizesTitle": "Sizes in the box",
+        "variantSize": "Variant/Size",
+        "quantity": "Quantity (can be negative)",
+        "remove": "Remove",
+        "addSize": "+ Add size",
+        "cancel": "Cancel",
+        "save": "Save changes",
+        "saving": "Saving…"
+      },
+      "conflict": {
+        "cannotDeleteBox": "Cannot delete box",
+        "cannotDeleteItem": "Cannot delete item",
+        "boxAssigned": "Some items in this box are currently assigned to the following places. Remove them from these shops first.",
+        "itemAssigned": "This item is currently assigned to the following places. To delete it, remove it from these shops first.",
+        "place": "Place",
+        "quantity": "Quantity",
+        "noUsage": "No detailed usage available.",
+        "close": "Close"
+      },
+      "deleteItem": {
+        "title": "Delete item",
+        "confirm": "Are you sure you want to delete “{name}”? This action cannot be undone."
+      },
+      "editItem": {
+        "title": "Edit item",
+        "subtitle": "Update item details. These settings affect the item across your team."
+      },
+      "image": {
+        "remove": "Remove",
+        "removed": "Image removed",
+        "removeFailed": "Failed to remove image"
+      }
+    },
+    "forms": {
+      "category": "Category",
+      "noCategory": "No category",
+      "newCategoryName": "New category name",
+      "measurementType": "Measurement type",
+      "measurementOptions": {
+        "PCS": "Pieces",
+        "WEIGHT": "Weight",
+        "LENGTH": "Length",
+        "VOLUME": "Volume",
+        "AREA": "Area",
+        "TIME": "Time"
+      },
+      "select": "Select",
+      "initialStock": {
+        "PCS": "Initial stock (pcs)",
+        "WEIGHT": "Initial stock (kg)",
+        "LENGTH": "Initial stock (m)",
+        "VOLUME": "Initial stock (l)",
+        "AREA": "Initial stock (m2)",
+        "TIME": "Initial stock (h)"
+      },
+      "stock": {
+        "PCS": "Stock (pcs)",
+        "WEIGHT": "Stock (kg)",
+        "LENGTH": "Stock (m)",
+        "VOLUME": "Stock (l)",
+        "AREA": "Stock (m2)",
+        "TIME": "Stock (h)"
+      },
+      "descriptionOptional": "Description (optional)",
+      "colorOptional": "Color (optional)",
+      "brandOptional": "Brand (optional)",
+      "sizeOptional": "Size (optional)",
+      "tagsComma": "Tags (comma-separated)",
+      "picture": "Picture",
+      "pictureRequired": "Please select a picture",
+      "pictureHint": "JPEG/PNG/WebP up to ~10MB. We'll resize and compress automatically.",
+      "active": "Active",
+      "uniqueNote": "Name and SKU must be unique per team.",
+      "sku": "SKU (optional)",
+      "skuPrefix": "SKU prefix (optional)",
+      "baseName": "Base name e.g. Shoes",
+      "boxPicture": "Box picture (applies to all items)",
+      "sizesInBox": "Sizes in the box",
+      "resetSizes": "Reset sizes",
+      "stockAddsNote": "If an item for a size doesn’t exist, it will be created. Otherwise its stock will be increased.",
+      "enterName": "Enter a name"
+    },
+    "drawer": {
+      "close": "Close panel",
+      "itemPictureAlt": "Item picture",
+      "description": "Description",
+      "info": "Information",
+      "noDescription": "No description.",
+      "tags": "Tags",
+      "noTags": "No tags."
+    },
+    "labels": {
+      "status": "Status",
+      "sku": "SKU",
+      "price": "Price",
+      "cost": "Cost",
+      "profit": "Profit",
+      "tax": "Tax",
+      "stock": "Stock",
+      "unit": "Unit",
+      "measurement": "Measurement",
+      "brand": "Brand",
+      "size": "Size",
+      "color": "Color",
+      "currency": "Currency",
+      "created": "Created",
+      "team": "Team",
+      "id": "ID",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "toasts": {
+      "loadFailed": "Failed to load items",
+      "boxAdded": "Box added",
+      "boxDeleted": "Box deleted",
+      "boxDeleteFailed": "Failed to delete box",
+      "created": "Item created",
+      "updated": "Item updated",
+      "deleted": "Item deleted",
+      "networkError": "Network error",
+      "categoryCreated": "Category created",
+      "failedToUploadImage": "Failed to upload image"
+    }
   }
 }

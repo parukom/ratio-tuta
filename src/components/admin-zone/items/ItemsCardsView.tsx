@@ -6,6 +6,7 @@ import ItemCard from './ItemCard'
 import LoadingCards from '@/components/ui/LoadingCards'
 import LoadingGroupedCards from '@/components/ui/LoadingGroupedCards'
 import { ChevronDown, ChevronRight } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 type Props = {
     items: ItemRow[]
@@ -22,11 +23,12 @@ type Props = {
 }
 
 export default function ItemsCardsView({ items, groups, grouped, loading, openGroups, setOpenGroups, onUpdate, onDelete, onAskDeleteBox, onAskEditBox, onSelectItem }: Props) {
+    const t = useTranslations('Items')
     if (loading) return grouped ? <LoadingGroupedCards className="mt-2" /> : <LoadingCards className="mt-2" />
 
     if (items.length === 0) {
         return (
-            <div className="rounded-lg border border-gray-200 p-8 text-center text-sm text-gray-600 dark:border-white/10 dark:text-gray-300">No items found.</div>
+            <div className="rounded-lg border border-gray-200 p-8 text-center text-sm text-gray-600 dark:border-white/10 dark:text-gray-300">{t('table.noItems')}</div>
         )
     }
 
@@ -70,37 +72,37 @@ export default function ItemsCardsView({ items, groups, grouped, loading, openGr
                                     <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                                         {g.categoryName && (<span className="rounded-full bg-indigo-50 px-2 py-0.5 text-indigo-700 ring-1 ring-indigo-600/20 dark:bg-indigo-500/10 dark:text-indigo-300">{g.categoryName}</span>)}
                                         {g.brand && <span>• {g.brand}</span>}
-                                        <span>• {g.items.length} variants</span>
-                                        <span>• Total stock: {g.totalStock}</span>
+                                        <span>• {g.items.length} {t('cards.variants')}</span>
+                                        <span>• {t('cards.totalStock')}: {g.totalStock}</span>
                                         {!openGroups[g.key] && (
-                                            <span className="truncate">• sizes: {g.items.map((i) => i.size).filter(Boolean).slice(0, 4).join(", ")}{g.items.filter((i) => i.size).length > 4 ? "…" : ""}</span>
+                                            <span className="truncate">• {t('cards.sizes')}: {g.items.map((i) => i.size).filter(Boolean).slice(0, 4).join(", ")}{g.items.filter((i) => i.size).length > 4 ? "…" : ""}</span>
                                         )}
                                     </div>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
                                 <div className="hidden sm:block text-right text-xs text-gray-600 dark:text-gray-300">
-                                    <div>Price: {new Intl.NumberFormat(undefined, { style: "currency", currency: g.items[0]?.currency || "EUR" }).format(g.price)}</div>
+                                    <div>{t('cards.price')}: {new Intl.NumberFormat(undefined, { style: "currency", currency: g.items[0]?.currency || "EUR" }).format(g.price)}</div>
                                     {typeof g.pricePaid === 'number' && (
-                                        <div>Cost: {new Intl.NumberFormat(undefined, { style: "currency", currency: g.items[0]?.currency || "EUR" }).format(g.pricePaid)}</div>
+                                        <div>{t('cards.cost')}: {new Intl.NumberFormat(undefined, { style: "currency", currency: g.items[0]?.currency || "EUR" }).format(g.pricePaid)}</div>
                                     )}
-                                    <div>Tax: {(g.taxRateBps / 100).toFixed(2)}%</div>
+                                    <div>{t('cards.tax')}: {(g.taxRateBps / 100).toFixed(2)}%</div>
                                 </div>
                                 <button
                                     type="button"
                                     onClick={(e) => { e.stopPropagation(); onAskEditBox(g.key) }}
                                     className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5"
-                                    title="Edit box"
+                                    title={t('buttons.editBox')}
                                 >
-                                    Edit box
+                                    {t('buttons.editBox')}
                                 </button>
                                 <button
                                     type="button"
                                     onClick={(e) => { e.stopPropagation(); onAskDeleteBox(g.key) }}
                                     className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50 dark:border-red-500/40 dark:text-red-400 dark:hover:bg-red-500/10"
-                                    title="Delete whole box"
+                                    title={t('buttons.deleteBox')}
                                 >
-                                    Delete box
+                                    {t('buttons.deleteBox')}
                                 </button>
                             </div>
                         </div>

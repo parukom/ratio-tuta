@@ -42,6 +42,7 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
     onDelete: (id: string) => Promise<void>;
 }) {
     const t = useTranslations('Common')
+    const ti = useTranslations('Items')
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState('')
@@ -173,8 +174,8 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
                         </svg>
                     </div>
                     <div className="mt-3 text-left sm:ml-4 sm:mt-0">
-                        <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">{t('delete')} item</h3>
-                        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Are you sure you want to delete “{item.name}”? This action cannot be undone.</p>
+                        <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">{ti('modals.deleteItem.title')}</h3>
+                        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{ti('modals.deleteItem.confirm', { name: item.name })}</p>
                     </div>
                 </div>
                 <div className="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse">
@@ -202,51 +203,51 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
             <Modal open={open} onClose={() => setOpen(false)} size="lg">
                 <div className="sm:flex sm:items-start">
                     <div className="mt-3 w-full text-left sm:mt-0 sm:text-left">
-                        <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">{t('edit')} item</h3>
-                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Update item details. These settings affect the item across your team.</p>
+                        <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">{ti('modals.editItem.title')}</h3>
+                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{ti('modals.editItem.subtitle')}</p>
                     </div>
                 </div>
                 <form onSubmit={submit} className="mt-4 space-y-3">
-                    <Input id={`name-${item.id}`} name="name" type="text" className="" placeholder="Name" value={name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)} />
-                    <Input id={`sku-${item.id}`} name="sku" type="text" className="" placeholder="SKU (optional)" value={sku} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSku(e.target.value)} />
+                    <Input id={`name-${item.id}`} name="name" type="text" className="" placeholder={t('name')} value={name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)} />
+                    <Input id={`sku-${item.id}`} name="sku" type="text" className="" placeholder={ti('forms.sku')} value={sku} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSku(e.target.value)} />
                     {/* Category selector with inline create */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{ti('forms.category')}</label>
                         <div className="inline-block">
                             <Dropdown
                                 align="left"
                                 buttonLabel={([
-                                    { key: 'NONE', label: 'No category' },
+                                    { key: 'NONE', label: ti('forms.noCategory') },
                                     ...categories.map(c => ({ key: c.id, label: c.name }))
-                                ] as Array<{ key: string; label: string }>).find(o => o.key === (categoryId || 'NONE'))?.label || 'No category'}
-                                items={[{ key: '', label: 'No category' }, ...categories.map(c => ({ key: c.id, label: c.name }))]}
+                                ] as Array<{ key: string; label: string }>).find(o => o.key === (categoryId || 'NONE'))?.label || ti('forms.noCategory')}
+                                items={[{ key: '', label: ti('forms.noCategory') }, ...categories.map(c => ({ key: c.id, label: c.name }))]}
                                 onSelect={(key) => setCategoryId(key)}
                             />
                         </div>
                         {!creatingCat ? (
                             <div className="mt-2">
-                                <button type="button" onClick={() => { setCreatingCat(true); setCatMsg('') }} className="text-xs text-indigo-600 hover:underline dark:text-indigo-400">+ Create new category</button>
+                                <button type="button" onClick={() => { setCreatingCat(true); setCatMsg('') }} className="text-xs text-indigo-600 hover:underline dark:text-indigo-400">+ {t('createNewCategory')}</button>
                             </div>
                         ) : (
                             <div className="mt-2 flex items-center gap-2">
-                                <Input id={`newCategory-${item.id}`} name="newCategory" type="text" className="" placeholder="New category name" value={newCatName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCatName(e.target.value)} />
-                                <button type="button" onClick={() => setCreatingCat(false)} className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Cancel</button>
+                                <Input id={`newCategory-${item.id}`} name="newCategory" type="text" className="" placeholder={ti('forms.newCategoryName')} value={newCatName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCatName(e.target.value)} />
+                                <button type="button" onClick={() => setCreatingCat(false)} className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">{t('cancel')}</button>
                                 <button
                                     type="button"
                                     onClick={async () => {
-                                        if (!newCatName.trim()) { setCatMsg('Enter a name'); return }
+                                        if (!newCatName.trim()) { setCatMsg(ti('forms.enterName')); return }
                                         setCatLoading(true); setCatMsg('')
                                         try {
                                             const r = await fetch('/api/item-categories', {
                                                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: newCatName.trim() })
                                             })
                                             const data = await r.json()
-                                            if (!r.ok) { setCatMsg(data.error || 'Failed'); return }
+                                            if (!r.ok) { setCatMsg(data.error || t('errors.failed')); return }
                                             setCategories(prev => { const next = [...prev, { id: data.id, name: data.name }]; next.sort((a, b) => a.name.localeCompare(b.name)); return next })
                                             setCategoryId(data.id)
                                             setCreatingCat(false)
                                             setNewCatName('')
-                                        } catch { setCatMsg('Network error') } finally { setCatLoading(false) }
+                                        } catch { setCatMsg(ti('toasts.networkError')) } finally { setCatLoading(false) }
                                     }}
                                     disabled={catLoading}
                                     className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400"
@@ -258,31 +259,31 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
                         {catMsg && <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">{catMsg}</p>}
                     </div>
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                        <Input id={`price-${item.id}`} name="price" type="number" className="" placeholder="Price" value={price} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPrice(e.target.value)} />
-                        <Input id={`pricePaid-${item.id}`} name="pricePaid" type="number" className="" placeholder="Price paid (cost)" value={pricePaid} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPricePaid(e.target.value)} />
-                        <Input id={`tax-${item.id}`} name="tax" type="number" className="" placeholder="Tax (bps)" value={taxRateBps} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTaxRateBps(e.target.value)} />
+                        <Input id={`price-${item.id}`} name="price" type="number" className="" placeholder={ti('labels.price')} value={price} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPrice(e.target.value)} />
+                        <Input id={`pricePaid-${item.id}`} name="pricePaid" type="number" className="" placeholder={ti('labels.cost')} value={pricePaid} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPricePaid(e.target.value)} />
+                        <Input id={`tax-${item.id}`} name="tax" type="number" className="" placeholder={`${ti('labels.tax')} (bps)`} value={taxRateBps} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTaxRateBps(e.target.value)} />
                     </div>
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Measurement type</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{ti('forms.measurementType')}</label>
                             <div className="inline-block">
                                 <Dropdown
                                     align="left"
                                     buttonLabel={([
-                                        { key: 'PCS', label: 'Pieces' },
-                                        { key: 'WEIGHT', label: 'Weight' },
-                                        { key: 'LENGTH', label: 'Length' },
-                                        { key: 'VOLUME', label: 'Volume' },
-                                        { key: 'AREA', label: 'Area' },
-                                        { key: 'TIME', label: 'Time' },
-                                    ] as Array<{ key: ItemRow['measurementType']; label: string }>).find(o => o.key === measurementType)?.label || 'Select'}
+                                        { key: 'PCS', label: ti('forms.measurementOptions.PCS') },
+                                        { key: 'WEIGHT', label: ti('forms.measurementOptions.WEIGHT') },
+                                        { key: 'LENGTH', label: ti('forms.measurementOptions.LENGTH') },
+                                        { key: 'VOLUME', label: ti('forms.measurementOptions.VOLUME') },
+                                        { key: 'AREA', label: ti('forms.measurementOptions.AREA') },
+                                        { key: 'TIME', label: ti('forms.measurementOptions.TIME') },
+                                    ] as Array<{ key: ItemRow['measurementType']; label: string }>).find(o => o.key === measurementType)?.label || ti('forms.select')}
                                     items={[
-                                        { key: 'PCS', label: 'Pieces' },
-                                        { key: 'WEIGHT', label: 'Weight' },
-                                        { key: 'LENGTH', label: 'Length' },
-                                        { key: 'VOLUME', label: 'Volume' },
-                                        { key: 'AREA', label: 'Area' },
-                                        { key: 'TIME', label: 'Time' },
+                                        { key: 'PCS', label: ti('forms.measurementOptions.PCS') },
+                                        { key: 'WEIGHT', label: ti('forms.measurementOptions.WEIGHT') },
+                                        { key: 'LENGTH', label: ti('forms.measurementOptions.LENGTH') },
+                                        { key: 'VOLUME', label: ti('forms.measurementOptions.VOLUME') },
+                                        { key: 'AREA', label: ti('forms.measurementOptions.AREA') },
+                                        { key: 'TIME', label: ti('forms.measurementOptions.TIME') },
                                     ]}
                                     onSelect={(key) => setMeasurementType(key as ItemRow['measurementType'])}
                                 />
@@ -294,41 +295,41 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
                             type="number"
                             className=""
                             placeholder={
-                                measurementType === 'PCS' ? 'Stock (pcs)'
-                                    : measurementType === 'WEIGHT' ? 'Stock (kg)'
-                                        : measurementType === 'LENGTH' ? 'Stock (m)'
-                                            : measurementType === 'VOLUME' ? 'Stock (l)'
-                                                : measurementType === 'AREA' ? 'Stock (m2)'
-                                                    : 'Stock (h)'
+                                measurementType === 'PCS' ? ti('forms.stock.PCS')
+                                    : measurementType === 'WEIGHT' ? ti('forms.stock.WEIGHT')
+                                        : measurementType === 'LENGTH' ? ti('forms.stock.LENGTH')
+                                            : measurementType === 'VOLUME' ? ti('forms.stock.VOLUME')
+                                                : measurementType === 'AREA' ? ti('forms.stock.AREA')
+                                                    : ti('forms.stock.TIME')
                             }
                             value={stockQuantity}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStockQuantity(e.target.value)}
                         />
                     </div>
-                    <Input id={`desc-${item.id}`} name="description" type="text" className="" placeholder="Description (optional)" value={description} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)} />
+                    <Input id={`desc-${item.id}`} name="description" type="text" className="" placeholder={ti('forms.descriptionOptional')} value={description} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)} />
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                        <Input id={`color-${item.id}`} name="color" type="text" className="" placeholder="Color (optional)" value={color} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setColor(e.target.value)} />
-                        <Input id={`size-${item.id}`} name="size" type="text" className="" placeholder="Size (optional)" value={size} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSize(e.target.value)} />
-                        <Input id={`brand-${item.id}`} name="brand" type="text" className="" placeholder="Brand (optional)" value={brand} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBrand(e.target.value)} />
+                        <Input id={`color-${item.id}`} name="color" type="text" className="" placeholder={ti('forms.colorOptional')} value={color} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setColor(e.target.value)} />
+                        <Input id={`size-${item.id}`} name="size" type="text" className="" placeholder={ti('forms.sizeOptional')} value={size} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSize(e.target.value)} />
+                        <Input id={`brand-${item.id}`} name="brand" type="text" className="" placeholder={ti('forms.brandOptional')} value={brand} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBrand(e.target.value)} />
                     </div>
-                    <Input id={`tags-${item.id}`} name="tags" type="text" className="" placeholder="Tags (comma-separated)" value={tagsCSV} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTagsCSV(e.target.value)} />
+                    <Input id={`tags-${item.id}`} name="tags" type="text" className="" placeholder={ti('forms.tagsComma')} value={tagsCSV} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTagsCSV(e.target.value)} />
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Picture</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{ti('forms.picture')}</label>
                         {imageUrl ? (
                             <div className="mb-2 flex items-center gap-2">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={imageUrl} alt="Item picture" className="h-16 w-16 rounded object-cover ring-1 ring-black/5 dark:ring-white/10" />
+                                <img src={imageUrl} alt={ti('drawer.itemPictureAlt')} className="h-16 w-16 rounded object-cover ring-1 ring-black/5 dark:ring-white/10" />
                                 <button
                                     type="button"
                                     className="text-xs text-red-600 hover:underline dark:text-red-400"
                                     onClick={async () => {
                                         try {
                                             const r = await fetch(`/api/items/${item.id}/image`, { method: 'DELETE' })
-                                            if (r.ok) { setImageUrl(null); setImageFile(null); toast.success('Image removed') }
-                                            else { const d = await r.json(); toast.error(d.error || 'Failed to remove image') }
-                                        } catch { toast.error('Failed to remove image') }
+                                            if (r.ok) { setImageUrl(null); setImageFile(null); toast.success(ti('modals.image.removed')) }
+                                            else { const d = await r.json(); toast.error(d.error || ti('modals.image.removeFailed')) }
+                                        } catch { toast.error(ti('modals.image.removeFailed')) }
                                     }}
-                                >Remove</button>
+                                >{ti('modals.image.remove')}</button>
                             </div>
                         ) : null}
                         <input
@@ -337,17 +338,17 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
                             onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
                             className="block w-full text-sm text-gray-900 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:text-gray-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-300"
                         />
-                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">JPEG/PNG/WebP up to ~10MB. We&#39;ll resize and compress automatically.</p>
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{ti('forms.pictureHint')}</p>
                     </div>
                     <div className="flex items-center gap-2">
                         <input id={`active-${item.id}`} name="isActive" type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="size-4" />
-                        <label htmlFor={`active-${item.id}`} className="text-sm text-gray-700 dark:text-gray-300">Active</label>
+                        <label htmlFor={`active-${item.id}`} className="text-sm text-gray-700 dark:text-gray-300">{ti('forms.active')}</label>
                     </div>
                     <div className="mt-4 flex items-center justify-between">
-                        <div className="text-sm text-gray-600 dark:text-gray-400">Name and SKU must be unique per team.</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">{ti('forms.uniqueNote')}</div>
                         <div className="flex gap-2">
-                            <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Cancel</button>
-                            <button type="submit" disabled={loading} aria-busy={loading} className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400">{loading && <Spinner size={16} className="text-white" />}<span>{loading ? 'Saving…' : 'Save'}</span></button>
+                            <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">{t('cancel')}</button>
+                            <button type="submit" disabled={loading} aria-busy={loading} className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400">{loading && <Spinner size={16} className="text-white" />}<span>{loading ? t('saving') : t('save')}</span></button>
                         </div>
                     </div>
                     {message && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{message}</p>}
