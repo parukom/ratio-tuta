@@ -1,5 +1,6 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/16/solid'
 import React from 'react'
+import { useTranslations } from 'next-intl'
 
 type Props = {
     value?: string
@@ -20,6 +21,7 @@ const SearchInput = ({
     inputClassName = 'col-start-1 row-start-1 block size-full bg-transparent pl-8 text-base text-gray-900 outline-hidden placeholder:text-gray-400 sm:text-sm/6 dark:text-white dark:placeholder:text-gray-500',
     showIcon = true,
 }: Props) => {
+    const t = useTranslations('Common')
     const controlled = typeof onChange === 'function'
     return (
         <div className={containerClassName}>
@@ -27,7 +29,7 @@ const SearchInput = ({
                 <input
                     name={name}
                     placeholder={placeholder}
-                    aria-label="Search"
+                    aria-label={t('search', { default: 'Search' })}
                     className={inputClassName}
                     {...(controlled ? { value, onChange } : {})}
                 />

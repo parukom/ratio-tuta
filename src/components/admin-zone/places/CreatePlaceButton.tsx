@@ -4,6 +4,7 @@ import Modal from '@/components/modals/Modal'
 import Input from '@/components/ui/Input'
 import toast from 'react-hot-toast'
 import Spinner from '@/components/ui/Spinner'
+import { useTranslations } from 'next-intl'
 
 type Props = {
     teamId?: string
@@ -11,6 +12,7 @@ type Props = {
 }
 
 export default function CreatePlaceButton({ teamId, onCreated }: Props) {
+    const t = useTranslations('Common')
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState('')
@@ -72,20 +74,19 @@ export default function CreatePlaceButton({ teamId, onCreated }: Props) {
                 onClick={() => setOpen(true)}
                 className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
             >
-                Create place
+                {t('createPlace')}
             </button>
 
             <Modal open={open} onClose={() => setOpen(false)}>
                 <div className="sm:flex sm:items-start">
                     <div className="mt-3 text-left sm:mt-0 sm:text-left w-full">
-                        <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">Create a place</h3>
+                        <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">{t('createPlace')}</h3>
                         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Fill in details for the new venue.</p>
                     </div>
                 </div>
 
                 <form onSubmit={submit} className="mt-4 space-y-3">
                     <Input id="name" name="name" type="text" className="" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
-                    <Input id="description" name="description" type="text" className="" placeholder="Description (optional)" value={description} onChange={(e) => setDescription(e.target.value)} />
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <Input id="address1" name="address1" type="text" className="" placeholder="Address line 1" value={address1} onChange={(e) => setAddress1(e.target.value)} />
                         <Input id="address2" name="address2" type="text" className="" placeholder="Address line 2" value={address2} onChange={(e) => setAddress2(e.target.value)} />
@@ -106,8 +107,8 @@ export default function CreatePlaceButton({ teamId, onCreated }: Props) {
                     <div className="mt-4 flex items-center justify-between">
                         <p className="text-sm text-gray-600 dark:text-gray-400">Unique per team by name.</p>
                         <div className="flex gap-2">
-                            <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Cancel</button>
-                            <button type="submit" disabled={loading} aria-busy={loading} className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400">{loading && <Spinner size={16} className="text-white" />}<span>{loading ? 'Creating…' : 'Create'}</span></button>
+                            <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">{t('cancel')}</button>
+                            <button type="submit" disabled={loading} aria-busy={loading} className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400">{loading && <Spinner size={16} className="text-white" />}<span>{loading ? t('creating') : t('create')}</span></button>
                         </div>
                     </div>
                     {message && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{message}</p>}

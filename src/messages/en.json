@@ -39,5 +39,49 @@
     },
     "brandAlt": "Your Company",
     "dismiss": "Dismiss"
+  },
+  "Admin": {
+    "brandAlt": "Your Company",
+    "nav": {
+      "home": "Home",
+      "team": "Team",
+      "items": "Items",
+      "documents": "Documents",
+      "reports": "Reports",
+      "settings": "Settings"
+    },
+    "yourPlaces": "Your places",
+    "loading": "Loading…",
+    "noPlaces": "No places yet",
+    "openSidebar": "Open sidebar",
+    "closeSidebar": "Close sidebar",
+    "dashboard": "Dashboard",
+    "yourProfile": "Your profile"
+  },
+  "Common": {
+    "logout": "Logout",
+    "loggingOut": "Logging out…",
+    "cancel": "Cancel",
+    "create": "Create",
+    "creating": "Creating…",
+    "save": "Save",
+    "saving": "Saving…",
+    "delete": "Delete",
+    "deleting": "Deleting…",
+    "edit": "Edit",
+    "inviteMember": "Invite member",
+    "createAndAdd": "Create and add",
+    "createItem": "Create item",
+    "createPlace": "Create place",
+    "createNewCategory": "Create new category",
+    "show": "Show",
+    "hide": "Hide",
+    "generatePassword": "Generate password",
+    "copy": "Copy",
+    "search": "Search",
+    "home": "Home",
+    "accountSettings": "Account settings",
+    "support": "Support",
+    "license": "License"
   }
 }

@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import Input from '@/components/ui/Input'
 import Dropdown from '@/components/ui/Dropdown'
 import Spinner from '@/components/ui/Spinner'
+import { useTranslations } from 'next-intl'
 
 type Props = {
     teamId?: string
@@ -11,6 +12,7 @@ type Props = {
 }
 
 const AddMember = ({ teamId, onSuccess }: Props) => {
+    const t = useTranslations('Common')
     const [name, setName] = useState<string>('')
     const [email, setEmail] = useState<string>('')
     const [role, setRole] = useState<'USER' | 'ADMIN'>('USER')
@@ -43,7 +45,7 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
         try {
             await navigator.clipboard.writeText(password)
             setMessage('Password copied to clipboard')
-            toast.success('Password copied')
+            toast.success(t('copy'))
         } catch {
             setMessage('Failed to copy password')
             toast.error('Failed to copy')
@@ -99,7 +101,7 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1">
-                <h2 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">Add member</h2>
+                <h2 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">{t('inviteMember')}</h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Create a new account and add them to your team.</p>
             </div>
 
@@ -159,7 +161,7 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
                         onClick={() => setShowPassword((v) => !v)}
                         className="inline-flex items-center justify-center rounded-md border border-gray-300 px-3 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5"
                     >
-                        {showPassword ? 'Hide' : 'Show'}
+                        {showPassword ? t('hide') : t('show')}
                     </button>
                 </div>
                 <div className="mt-2 flex gap-2">
@@ -169,7 +171,7 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
                         onClick={() => generatePassword()}
                         className="inline-flex items-center justify-center rounded-md bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-800 hover:bg-gray-200 dark:bg-white/10 dark:text-gray-200 dark:hover:bg-white/5"
                     >
-                        Generate password
+                        {t('generatePassword')}
                     </button>
                     <button
                         type="button"
@@ -177,7 +179,7 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
                         onClick={copyPassword}
                         className="inline-flex items-center justify-center rounded-md bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-800 hover:bg-gray-200 disabled:opacity-60 dark:bg-white/10 dark:text-gray-200 dark:hover:bg-white/5"
                     >
-                        Copy
+                        {t('copy')}
                     </button>
                 </div>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">If provided, password must be 8-16 characters. Leave blank to auto-generate a secure one.</p>
@@ -190,7 +192,7 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
                 className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
             >
                 {submitting && <Spinner size={16} className="text-white" />}
-                <span>{submitting ? 'Creating…' : 'Create and add'}</span>
+                <span>{submitting ? t('creating') : t('createAndAdd')}</span>
             </button>
 
             {message && (

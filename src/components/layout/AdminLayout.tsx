@@ -17,15 +17,17 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import LogoutButton from '../LogoutButton'
 import { Settings } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
-const navigation = [
-    { name: 'Home', href: '/dashboard/home', icon: HomeIcon },
-    { name: 'Team', href: '/dashboard/team', icon: UsersIcon },
-    { name: 'Items', href: '/dashboard/items', icon: FolderIcon },
-    // { name: 'Calendar', href: '/dashboard/calendar', icon: CalendarIcon },
-    { name: 'Documents', href: '/dashboard/documents', icon: DocumentDuplicateIcon },
-    { name: 'Reports', href: '/dashboard/reports', icon: ChartPieIcon },
-    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+type NavKey = 'home' | 'team' | 'items' | 'documents' | 'reports' | 'settings'
+const navigation: Array<{ key: NavKey; href: string; icon: React.ComponentType<React.ComponentProps<'svg'>> }> = [
+    { key: 'home', href: '/dashboard/home', icon: HomeIcon },
+    { key: 'team', href: '/dashboard/team', icon: UsersIcon },
+    { key: 'items', href: '/dashboard/items', icon: FolderIcon },
+    // { key: 'calendar', href: '/dashboard/calendar', icon: CalendarIcon },
+    { key: 'documents', href: '/dashboard/documents', icon: DocumentDuplicateIcon },
+    { key: 'reports', href: '/dashboard/reports', icon: ChartPieIcon },
+    { key: 'settings', href: '/dashboard/settings', icon: Settings },
 ]
 type UserPlace = {
     id: string
@@ -52,6 +54,7 @@ function getInitials(name?: string | null, email?: string | null) {
 }
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
+    const t = useTranslations('Admin')
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const [places, setPlaces] = useState<UserPlace[]>([])
     const [loadingPlaces, setLoadingPlaces] = useState(false)
@@ -122,7 +125,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                             <TransitionChild>
                                 <div className="absolute top-0 left-full flex w-16 justify-center pt-5 duration-300 ease-in-out data-closed:opacity-0">
                                     <button type="button" onClick={() => setSidebarOpen(false)} className="-m-2.5 p-2.5">
-                                        <span className="sr-only">Close sidebar</span>
+                                        <span className="sr-only">{t('closeSidebar')}</span>
                                         <XMarkIcon aria-hidden="true" className="size-6 text-white" />
                                     </button>
                                 </div>
@@ -132,14 +135,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                             <div className="relative flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-2 dark:bg-gray-900 dark:before:pointer-events-none dark:before:absolute dark:before:inset-0 dark:before:border-r dark:before:border-white/10 dark:before:bg-black/10">
                                 <div className="relative flex h-16 shrink-0 items-center">
                                     <Image
-                                        alt="Your Company"
+                                        alt={t('brandAlt')}
                                         src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
                                         className="h-8 w-8 dark:hidden"
                                         width={32}
                                         height={32}
                                     />
                                     <Image
-                                        alt="Your Company"
+                                        alt={t('brandAlt')}
                                         src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=400"
                                         className="h-8 w-8 not-dark:hidden"
                                         width={32}
@@ -154,7 +157,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                                                 {navigation.map((item) => {
                                                     const isCurrent = pathname === item.href || pathname.startsWith(`${item.href}/`)
                                                     return (
-                                                        <li key={item.name}
+                                                        <li key={item.key}
                                                             onClick={() => {
                                                                 setSidebarOpen(false)
                                                             }}
@@ -177,7 +180,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                                                                         'size-6 shrink-0',
                                                                     )}
                                                                 />
-                                                                {item.name}
+                                                                {t(`nav.${item.key}`)}
                                                             </Link>
                                                         </li>
                                                     )
@@ -185,12 +188,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                                             </ul>
                                         </li>
                                         <li>
-                                            <div className="text-xs/6 font-semibold text-gray-400 dark:text-gray-500">Your places</div>
+                                            <div className="text-xs/6 font-semibold text-gray-400 dark:text-gray-500">{t('yourPlaces')}</div>
                                             <ul role="list" className="-mx-2 mt-2 space-y-1">
                                                 {loadingPlaces && places.length === 0 ? (
-                                                    <li className="px-2 text-sm text-gray-400">Loading…</li>
+                                                    <li className="px-2 text-sm text-gray-400">{t('loading')}</li>
                                                 ) : places.length === 0 ? (
-                                                    <li className="px-2 text-sm text-gray-400">No places yet</li>
+                                                    <li className="px-2 text-sm text-gray-400">{t('noPlaces')}</li>
                                                 ) : (
                                                     places.map((place) => {
                                                         const isCurrent = pathname === placeLink(place.id) || pathname.startsWith(`${placeLink(place.id)}/`)
@@ -242,14 +245,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                     <div className="relative flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 dark:border-white/10 dark:bg-gray-900 dark:before:pointer-events-none dark:before:absolute dark:before:inset-0 dark:before:bg-black/10">
                         <div className="relative flex h-16 shrink-0 items-center">
                             <Image
-                                alt="Your Company"
+                                alt={t('brandAlt')}
                                 src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
                                 className="h-8 w-8 dark:hidden"
                                 width={32}
                                 height={32}
                             />
                             <Image
-                                alt="Your Company"
+                                alt={t('brandAlt')}
                                 src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
                                 className="h-8 w-8 not-dark:hidden"
                                 width={32}
@@ -263,7 +266,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                                         {navigation.map((item) => {
                                             const isCurrent = pathname === item.href || pathname.startsWith(`${item.href}/`)
                                             return (
-                                                <li key={item.name}>
+                                                <li key={item.key}>
                                                     <Link
                                                         href={item.href}
                                                         className={classNames(
@@ -282,7 +285,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                                                                 'size-6 shrink-0',
                                                             )}
                                                         />
-                                                        {item.name}
+                                                        {t(`nav.${item.key}`)}
                                                     </Link>
                                                 </li>
                                             )
@@ -290,12 +293,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                                     </ul>
                                 </li>
                                 <li>
-                                    <div className="text-xs/6 font-semibold text-gray-400 dark:text-gray-500">Your places</div>
+                                    <div className="text-xs/6 font-semibold text-gray-400 dark:text-gray-500">{t('yourPlaces')}</div>
                                     <ul role="list" className="-mx-2 mt-2 space-y-1">
                                         {loadingPlaces && places.length === 0 ? (
-                                            <li className="px-2 text-sm text-gray-400">Loading…</li>
+                                            <li className="px-2 text-sm text-gray-400">{t('loading')}</li>
                                         ) : places.length === 0 ? (
-                                            <li className="px-2 text-sm text-gray-400">No places yet</li>
+                                            <li className="px-2 text-sm text-gray-400">{t('noPlaces')}</li>
                                         ) : (
                                             places.map((place) => {
                                                 const isCurrent = pathname === placeLink(place.id) || pathname.startsWith(`${placeLink(place.id)}/`)
@@ -344,12 +347,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                         onClick={() => setSidebarOpen(true)}
                         className="relative -m-2.5 p-2.5 text-gray-700 lg:hidden dark:text-gray-400"
                     >
-                        <span className="sr-only">Open sidebar</span>
+                        <span className="sr-only">{t('openSidebar')}</span>
                         <Bars3Icon aria-hidden="true" className="size-6" />
                     </button>
-                    <div className="relative flex-1 text-sm/6 font-semibold text-gray-900 dark:text-white">{title ?? 'Dashboard'}</div>
+                    <div className="relative flex-1 text-sm/6 font-semibold text-gray-900 dark:text-white">{title ?? t('dashboard')}</div>
                     <a href="#" className="relative">
-                        <span className="sr-only">Your profile</span>
+                        <span className="sr-only">{t('yourProfile')}</span>
 
                         {/* Avatar or initials */}
                         {me?.avatarUrl && !avatarError ? (

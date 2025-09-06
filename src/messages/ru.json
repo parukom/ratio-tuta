@@ -39,5 +39,49 @@
     },
     "brandAlt": "Ваша компания",
     "dismiss": "Закрыть"
+  },
+  "Admin": {
+    "brandAlt": "Ваша компания",
+    "nav": {
+      "home": "Главная",
+      "team": "Команда",
+      "items": "Товары",
+      "documents": "Документы",
+      "reports": "Отчёты",
+      "settings": "Настройки"
+    },
+    "yourPlaces": "Ваши площадки",
+    "loading": "Загрузка…",
+    "noPlaces": "Площадок пока нет",
+    "openSidebar": "Открыть боковую панель",
+    "closeSidebar": "Закрыть боковую панель",
+    "dashboard": "Панель",
+    "yourProfile": "Ваш профиль"
+  },
+  "Common": {
+    "logout": "Выйти",
+    "loggingOut": "Выход…",
+    "cancel": "Отмена",
+    "create": "Создать",
+    "creating": "Создание…",
+    "save": "Сохранить",
+    "saving": "Сохранение…",
+    "delete": "Удалить",
+    "deleting": "Удаление…",
+    "edit": "Редактировать",
+    "inviteMember": "Пригласить участника",
+    "createAndAdd": "Создать и добавить",
+    "createItem": "Создать товар",
+    "createPlace": "Создать площадку",
+    "createNewCategory": "Создать новую категорию",
+    "show": "Показать",
+    "hide": "Скрыть",
+    "generatePassword": "Сгенерировать пароль",
+    "copy": "Копировать",
+    "search": "Поиск",
+    "home": "Главная",
+    "accountSettings": "Настройки аккаунта",
+    "support": "Поддержка",
+    "license": "Лицензия"
   }
 }

@@ -39,5 +39,49 @@
     },
     "brandAlt": "Jūsų įmonė",
     "dismiss": "Uždaryti"
+  },
+  "Admin": {
+    "brandAlt": "Jūsų įmonė",
+    "nav": {
+      "home": "Pagrindinis",
+      "team": "Komanda",
+      "items": "Prekės",
+      "documents": "Dokumentai",
+      "reports": "Ataskaitos",
+      "settings": "Nustatymai"
+    },
+    "yourPlaces": "Jūsų vietos",
+    "loading": "Įkeliama…",
+    "noPlaces": "Kol kas nėra vietų",
+    "openSidebar": "Atidaryti šoninę juostą",
+    "closeSidebar": "Uždaryti šoninę juostą",
+    "dashboard": "Skydelis",
+    "yourProfile": "Jūsų profilis"
+  },
+  "Common": {
+    "logout": "Atsijungti",
+    "loggingOut": "Atsijungiama…",
+    "cancel": "Atšaukti",
+    "create": "Sukurti",
+    "creating": "Kuriama…",
+    "save": "Išsaugoti",
+    "saving": "Saugoma…",
+    "delete": "Ištrinti",
+    "deleting": "Trinama…",
+    "edit": "Redaguoti",
+    "inviteMember": "Pakviesti narį",
+    "createAndAdd": "Sukurti ir pridėti",
+    "createItem": "Sukurti prekę",
+    "createPlace": "Sukurti vietą",
+    "createNewCategory": "Sukurti naują kategoriją",
+    "show": "Rodyti",
+    "hide": "Slėpti",
+    "generatePassword": "Sugeneruoti slaptažodį",
+    "copy": "Kopijuoti",
+    "search": "Paieška",
+    "home": "Pradžia",
+    "accountSettings": "Paskyros nustatymai",
+    "support": "Pagalba",
+    "license": "Licencija"
   }
 }

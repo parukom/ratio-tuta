@@ -5,6 +5,7 @@ import Input from "@/components/ui/Input"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import Spinner from "@/components/ui/Spinner"
+import { useTranslations } from 'next-intl'
 
 type ItemRow = {
     id: string
@@ -40,6 +41,7 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
     ) => Promise<void>;
     onDelete: (id: string) => Promise<void>;
 }) {
+    const t = useTranslations('Common')
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState('')
@@ -159,8 +161,8 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
 
     return (
         <div className="flex justify-end gap-2">
-            <button onClick={() => setOpen(true)} className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Edit</button>
-            <button onClick={() => setConfirmOpen(true)} className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50 dark:border-red-500/40 dark:text-red-400 dark:hover:bg-red-500/10">Delete</button>
+            <button onClick={() => setOpen(true)} className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">{t('edit')}</button>
+            <button onClick={() => setConfirmOpen(true)} className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50 dark:border-red-500/40 dark:text-red-400 dark:hover:bg-red-500/10">{t('delete')}</button>
 
             {/* Confirm deletion modal */}
             <Modal open={confirmOpen} onClose={() => (!loading && setConfirmOpen(false))} size="sm">
@@ -171,7 +173,7 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
                         </svg>
                     </div>
                     <div className="mt-3 text-left sm:ml-4 sm:mt-0">
-                        <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">Delete item</h3>
+                        <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">{t('delete')} item</h3>
                         <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Are you sure you want to delete “{item.name}”? This action cannot be undone.</p>
                     </div>
                 </div>
@@ -184,7 +186,7 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
                         className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 disabled:opacity-60 sm:ml-3 sm:w-auto dark:bg-red-500 dark:hover:bg-red-400"
                     >
                         {loading && <Spinner size={16} className="text-white" />}
-                        <span>{loading ? 'Deleting…' : 'Delete'}</span>
+                        <span>{loading ? t('deleting') : t('delete')}</span>
                     </button>
                     <button
                         type="button"
@@ -192,7 +194,7 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
                         disabled={loading}
                         className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto dark:bg-gray-700 dark:text-white dark:ring-white/10 dark:hover:bg-gray-600"
                     >
-                        Cancel
+                        {t('cancel')}
                     </button>
                 </div>
             </Modal>
@@ -200,7 +202,7 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
             <Modal open={open} onClose={() => setOpen(false)} size="lg">
                 <div className="sm:flex sm:items-start">
                     <div className="mt-3 w-full text-left sm:mt-0 sm:text-left">
-                        <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">Edit item</h3>
+                        <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">{t('edit')} item</h3>
                         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Update item details. These settings affect the item across your team.</p>
                     </div>
                 </div>
@@ -249,7 +251,7 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
                                     disabled={catLoading}
                                     className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400"
                                 >
-                                    {catLoading ? 'Saving…' : 'Create'}
+                                    {catLoading ? t('saving') : t('create')}
                                 </button>
                             </div>
                         )}

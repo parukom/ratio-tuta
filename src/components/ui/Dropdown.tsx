@@ -2,6 +2,7 @@
 
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
+import { useTranslations } from 'next-intl'
 
 type DropdownItem = {
     key: string
@@ -25,13 +26,14 @@ export default function Dropdown({
     align = 'right',
     disabled = false,
 }: Props) {
+    const t = useTranslations('Common')
     const menuAlign = align === 'right' ? 'right-0 origin-top-right' : 'left-0 origin-top-left'
 
     const defaultItems: DropdownItem[] = [
-        { key: 'account', label: 'Account settings' },
-        { key: 'support', label: 'Support' },
-        { key: 'license', label: 'License' },
-        { key: 'signout', label: 'Sign out' },
+        { key: 'account', label: t('accountSettings', { default: 'Account settings' }) },
+        { key: 'support', label: t('support', { default: 'Support' }) },
+        { key: 'license', label: t('license', { default: 'License' }) },
+        { key: 'signout', label: t('logout') },
     ]
 
     const list = items && items.length > 0 ? items : defaultItems

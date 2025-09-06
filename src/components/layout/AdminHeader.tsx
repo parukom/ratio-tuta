@@ -5,7 +5,7 @@ type Props = {
     addLabel?: string
 }
 
-const AdminHeader = ({ title, subtitle, onAdd, addLabel = 'Add user' }: Props) => {
+const AdminHeader = ({ title, subtitle, onAdd, addLabel = 'Add' }: Props) => {
     return (
         <div className="sm:flex sm:items-center">
             <div className="sm:flex-auto">

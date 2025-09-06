@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ChevronRightIcon, HomeIcon } from '@heroicons/react/20/solid'
+import { useTranslations } from 'next-intl'
 
 export type BreadcrumbItem = {
   name: string
@@ -13,6 +14,7 @@ export default function Breadcrumbs({
   items: BreadcrumbItem[]
   homeHref?: string
 }) {
+  const t = useTranslations('Common')
   return (
     <nav aria-label="Breadcrumb" className="flex">
       <ol role="list" className="flex items-center space-x-4">
@@ -20,7 +22,7 @@ export default function Breadcrumbs({
           <div>
             <Link href={homeHref} className="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-300">
               <HomeIcon aria-hidden="true" className="size-5 shrink-0" />
-              <span className="sr-only">Home</span>
+              <span className="sr-only">{t('home', { default: 'Home' })}</span>
             </Link>
           </div>
         </li>

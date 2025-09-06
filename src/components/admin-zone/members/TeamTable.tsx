@@ -7,6 +7,7 @@ import MemberDrawer, { type Member } from './Drawer'
 import AdminHeader from '@/components/layout/AdminHeader'
 import TableSkeleton from '@/components/ui/TableSkeleton'
 import { EllipsisVertical } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 type Person = { id: string; name: string; email: string; role: string }
 type ApiUser = { id: string; name: string; email: string; role: 'USER' | 'ADMIN'; createdAt: string }
@@ -14,6 +15,7 @@ type ApiTeam = { id: string; name: string }
 type Props = { teamId?: string }
 
 const TeamTable = ({ teamId }: Props) => {
+    const t = useTranslations('Common')
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [people, setPeople] = useState<Person[]>([])
     const [loading, setLoading] = useState(true)
@@ -80,7 +82,7 @@ const TeamTable = ({ teamId }: Props) => {
                 title="Team Management"
                 subtitle={activeTeamId ? 'A list of all the users in your team including their name, email and role.' : 'You are not part of any team yet.'}
                 onAdd={() => setIsModalOpen(true)}
-                addLabel="Invite member"
+                addLabel={t('inviteMember')}
             />
 
             <div className={` h-full ${loading ? 'flex justify-center items-center' : ''}`}>
@@ -133,7 +135,7 @@ const TeamTable = ({ teamId }: Props) => {
                                             Role
                                         </th>
                                         <th scope="col" className="py-3.5 pr-4 pl-3 sm:pr-0">
-                                            <span className="sr-only">Edit</span>
+                                            <span className="sr-only">{t('edit')}</span>
                                         </th>
                                     </tr>
                                 </thead>

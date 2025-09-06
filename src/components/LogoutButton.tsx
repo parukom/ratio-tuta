@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Spinner from "@/components/ui/Spinner";
+import { useTranslations } from "next-intl";
 
 type Props = {
     widthFull?: boolean
@@ -10,6 +11,7 @@ type Props = {
 export default function LogoutButton({ widthFull }: Props) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const t = useTranslations('Common');
     async function handleLogout() {
         try {
             setLoading(true);
@@ -29,15 +31,15 @@ export default function LogoutButton({ widthFull }: Props) {
             onClick={handleLogout}
             disabled={loading}
             aria-busy={loading}
-            aria-label="Logout"
-            title="Logout"
+            aria-label={t('logout')}
+            title={t('logout')}
             className={`flex items-center gap-3 px-4 py-2 rounded-md transition-transform duration-150 bg-white text-gray-800 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700 ${widthFull ? 'w-full' : ''} disabled:opacity-60 disabled:cursor-not-allowed`}
         >
             {loading ? (
                 <>
                     <Spinner size={20} className="text-indigo-600 dark:text-indigo-400" />
-                    <span className="sr-only">Logging out</span>
-                    <span>Logging out…</span>
+                    <span className="sr-only">{t('loggingOut')}</span>
+                    <span>{t('loggingOut')}</span>
                 </>
             ) : (
                 <>
@@ -51,7 +53,7 @@ export default function LogoutButton({ widthFull }: Props) {
                         <path d="M16 13v-2H7V8l-5 4 5 4v-3z" />
                         <path d="M20 3H10a2 2 0 00-2 2v3h2V5h10v14H10v-3H8v3a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2z" />
                     </svg>
-                    <span>Logout</span>
+                    <span>{t('logout')}</span>
                 </>
             )}
         </button>
