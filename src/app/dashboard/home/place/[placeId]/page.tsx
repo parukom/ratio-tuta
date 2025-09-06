@@ -12,7 +12,7 @@ import Input from '@/components/ui/Input'
 import Spinner from '@/components/ui/Spinner'
 import { useTranslations } from 'next-intl'
 
-type Member = { id: string; userId: string; name: string; email: string; createdAt: string }
+type Member = { id: string; userId: string; name: string; createdAt: string }
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ')
@@ -60,7 +60,7 @@ export default function PlaceDetailPage() {
     const [members, setMembers] = useState<Member[]>([])
     const [membersLoading, setMembersLoading] = useState(true)
     const [membersError, setMembersError] = useState<string | null>(null)
-    const [teamMembers, setTeamMembers] = useState<Array<{ userId: string; name: string; email: string }>>([])
+    const [teamMembers, setTeamMembers] = useState<Array<{ userId: string; name: string }>>([])
     const [teamMembersLoading, setTeamMembersLoading] = useState(true)
     const [submitting, setSubmitting] = useState(false)
     // Remove member modal state
@@ -292,9 +292,9 @@ export default function PlaceDetailPage() {
         setTeamMembersLoading(true)
         fetch(`/api/teams/${place.teamId}/members`, { credentials: 'include' })
             .then((r) => (r.ok ? r.json() : r.json().then((d) => Promise.reject(d?.error || 'Failed'))))
-            .then((rows: Array<{ userId: string; name: string; email: string }>) => {
+            .then((rows: Array<{ userId: string; name: string; email?: string | null }>) => {
                 if (cancelled) return
-                setTeamMembers(rows.map(r => ({ userId: r.userId, name: r.name, email: r.email })))
+                setTeamMembers(rows.map(r => ({ userId: r.userId, name: r.name })))
             })
             .catch(() => { if (!cancelled) setTeamMembers([]) })
             .finally(() => { if (!cancelled) setTeamMembersLoading(false) })
@@ -537,7 +537,7 @@ export default function PlaceDetailPage() {
                                                 buttonLabel={label}
                                                 disabled={teamMembersLoading || submitting || available.length === 0}
                                                 align="left"
-                                                items={available.map(tm => ({ key: tm.userId, label: `${tm.name} · ${tm.email}`, onSelect: (key) => addMemberByUserId(key) }))}
+                                                items={available.map(tm => ({ key: tm.userId, label: tm.name, onSelect: (key) => addMemberByUserId(key) }))}
                                             />
                                         )
                                     })()}
@@ -552,10 +552,7 @@ export default function PlaceDetailPage() {
                                         <ul className="divide-y divide-gray-200 dark:divide-white/10">
                                             {members.map((m) => (
                                                 <li key={m.id} className="flex items-center justify-between px-4 py-3">
-                                                    <div>
-                                                        <div className="text-sm font-medium text-gray-900 dark:text-white">{m.name}</div>
-                                                        <div className="text-xs text-gray-500 dark:text-gray-400">{m.email}</div>
-                                                    </div>
+                                                    <div className="text-sm font-medium text-gray-900 dark:text-white">{m.name}</div>
                                                     <button onClick={() => { setRemoveTarget(m); setRemoveOpen(true); }} className="text-sm text-rose-600 hover:underline dark:text-rose-400">{tc('delete')}</button>
                                                 </li>
                                             ))}
@@ -633,7 +630,7 @@ export default function PlaceDetailPage() {
                 <div className="mt-2 text-sm text-gray-700 dark:text-gray-300">
                     <p>{t('place.members.confirmRemove')}</p>
                     {removeTarget && (
-                        <p className="mt-2"><span className="font-medium">{removeTarget.name}</span> · <span className="text-gray-500 dark:text-gray-400">{removeTarget.email}</span></p>
+                        <p className="mt-2"><span className="font-medium">{removeTarget.name}</span></p>
                     )}
                     {removeError && <p className="mt-2 text-rose-600 dark:text-rose-400">{removeError}</p>}
                 </div>

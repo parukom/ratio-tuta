@@ -9,11 +9,9 @@ import { useTranslations } from 'next-intl'
 type Props = {
     firstName: string
     lastName: string
-    email: string
-    setEmail: React.Dispatch<React.SetStateAction<string>>
 }
 
-export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, email, setEmail }) => {
+export const PersonalInformation: React.FC<Props> = ({ firstName, lastName }) => {
     const t = useTranslations('Settings.personal')
     const tc = useTranslations('Common')
     const [first, setFirst] = React.useState(firstName)
@@ -103,7 +101,7 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ firstName: first, lastName: last, email }),
+                body: JSON.stringify({ firstName: first, lastName: last }),
             })
             const data = await res.json().catch(() => ({}))
             if (!res.ok) {
@@ -199,20 +197,7 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName, emai
                         </div>
                     </div>
 
-                    <div className="col-span-full">
-                        <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900 dark:text-white">{t('email')}</label>
-                        <div className="mt-2">
-                            <input
-                                id="email"
-                                name="email"
-                                type="email"
-                                autoComplete="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
-                            />
-                        </div>
-                    </div>
+                    
 
 
                 </div>

@@ -9,7 +9,7 @@ import TableSkeleton from '@/components/ui/TableSkeleton'
 import { EllipsisVertical } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
-type Person = { id: string; name: string; email: string; role: 'USER' | 'ADMIN' }
+type Person = { id: string; name: string; role: 'USER' | 'ADMIN' }
 type ApiUser = { id: string; name: string; email: string; role: 'USER' | 'ADMIN'; createdAt: string }
 type ApiTeam = { id: string; name: string }
 type Props = { teamId?: string }
@@ -51,7 +51,7 @@ const TeamTable = ({ teamId }: Props) => {
             const res = await fetch(`/api/users?${qs.toString()}`)
             const data: ApiUser[] | { error: string } = await res.json()
             if (!res.ok) throw new Error((data as { error?: string }).error || 'Failed to load team members')
-            setPeople((data as ApiUser[]).map((u) => ({ id: u.id, name: u.name, email: u.email, role: u.role })))
+            setPeople((data as ApiUser[]).map((u) => ({ id: u.id, name: u.name, role: u.role })))
         } catch (e) {
             const msg = e instanceof Error ? e.message : 'Failed to load team members'
             setError(msg)
@@ -113,7 +113,7 @@ const TeamTable = ({ teamId }: Props) => {
                 {loading ? (
                     <div className="w-full -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
                         <table className="relative min-w-full divide-y divide-gray-300 dark:divide-white/15">
-                            <TableSkeleton rows={8} columnWidths={["w-40", "w-64", "w-28", "w-10"]} />
+                            <TableSkeleton rows={8} columnWidths={["w-40", "w-28", "w-10"]} />
                         </table>
                     </div>
                 ) : (
@@ -128,10 +128,6 @@ const TeamTable = ({ teamId }: Props) => {
                                         >
                                             {t('name')}
                                         </th>
-
-                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">
-                                            {tt('email')}
-                                        </th>
                                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">
                                             {tt('role.label')}
                                         </th>
@@ -142,13 +138,9 @@ const TeamTable = ({ teamId }: Props) => {
                                 </thead>
                                 <tbody className="divide-y divide-gray-200 dark:divide-white/10">
                                     {people.map((person) => (
-                                        <tr key={person.email}>
+                                        <tr key={person.id}>
                                             <td className="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900 sm:pl-0 dark:text-white">
                                                 {person.name}
-                                            </td>
-
-                                            <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
-                                                {person.email}
                                             </td>
                                             <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
                                                 {person.role === 'ADMIN' ? tt('roles.admin') : tt('roles.member')}
@@ -161,7 +153,6 @@ const TeamTable = ({ teamId }: Props) => {
                                                             const m: Member = {
                                                                 id: person.id,
                                                                 name: person.name,
-                                                                email: person.email,
                                                                 role: person.role,
                                                             }
                                                             setSelected(m)

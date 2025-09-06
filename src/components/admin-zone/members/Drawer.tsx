@@ -12,7 +12,6 @@ import { useTranslations } from 'next-intl'
 export type Member = {
     id: string
     name: string
-    email: string
     role: 'USER' | 'ADMIN'
 }
 
@@ -28,7 +27,6 @@ export default function MemberDrawer({ open, onClose, member, isAdmin, onSaved }
     const t = useTranslations('Common')
     const tt = useTranslations('Team')
     const [name, setName] = useState('')
-    const [email, setEmail] = useState('')
     const [role, setRole] = useState<Member['role']>('USER')
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -37,11 +35,9 @@ export default function MemberDrawer({ open, onClose, member, isAdmin, onSaved }
     useEffect(() => {
         if (member) {
             setName(member.name || '')
-            setEmail(member.email || '')
             setRole(member.role)
         } else {
             setName('')
-            setEmail('')
             setRole('USER')
         }
         setError(null)
@@ -58,7 +54,7 @@ export default function MemberDrawer({ open, onClose, member, isAdmin, onSaved }
                     const res = await fetch(`/api/users/${member.id}`, {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name, email, role }),
+                        body: JSON.stringify({ name, role }),
                     })
                     const json = await res.json()
                     if (!res.ok) throw new Error(json?.error || tt('toasts.updateFailed'))
@@ -123,9 +119,7 @@ export default function MemberDrawer({ open, onClose, member, isAdmin, onSaved }
                                                 <Input id="name" name="name" type="text" value={name} placeholder={t('name')} onChange={(e) => setName(e.target.value)} />
                                             </div>
 
-                                            <div className="space-y-2 px-4 sm:px-6 sm:py-5">
-                                                <Input id="email" name="email" type="email" value={email} placeholder={tt('email')} onChange={(e) => setEmail(e.target.value)} />
-                                            </div>
+                                            
 
                                             <div className="space-y-2 px-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:space-y-0 sm:px-6 sm:py-5">
                                                 <div>
