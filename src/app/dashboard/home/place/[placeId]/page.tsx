@@ -10,6 +10,7 @@ import Tabs from '@/components/ui/Tabs'
 import DeletePlaceButton from '@/components/admin-zone/places/DeletePlaceButton'
 import Input from '@/components/ui/Input'
 import Spinner from '@/components/ui/Spinner'
+import { useTranslations } from 'next-intl'
 
 type Member = { id: string; userId: string; name: string; email: string; createdAt: string }
 
@@ -36,6 +37,8 @@ type Place = {
 }
 
 export default function PlaceDetailPage() {
+    const t = useTranslations('Home')
+    const tc = useTranslations('Common')
     const params = useParams<{ placeId: string }>()
     const placeId = params?.placeId
     const searchParams = useSearchParams()
@@ -60,6 +63,11 @@ export default function PlaceDetailPage() {
     const [teamMembers, setTeamMembers] = useState<Array<{ userId: string; name: string; email: string }>>([])
     const [teamMembersLoading, setTeamMembersLoading] = useState(true)
     const [submitting, setSubmitting] = useState(false)
+    // Remove member modal state
+    const [removeOpen, setRemoveOpen] = useState(false)
+    const [removeTarget, setRemoveTarget] = useState<Member | null>(null)
+    const [removeLoading, setRemoveLoading] = useState(false)
+    const [removeError, setRemoveError] = useState<string | null>(null)
     // Edit form state
     const [editName, setEditName] = useState('')
     const [editDescription, setEditDescription] = useState('')
@@ -117,7 +125,7 @@ export default function PlaceDetailPage() {
                 }
             })
             .catch((e) => {
-                if (!cancelled) setError(typeof e === 'string' ? e : 'Failed to load place')
+                if (!cancelled) setError(typeof e === 'string' ? e : t('place.errors.load'))
             })
             .finally(() => {
                 if (!cancelled) setLoading(false)
@@ -126,7 +134,7 @@ export default function PlaceDetailPage() {
         return () => {
             cancelled = true
         }
-    }, [placeId])
+    }, [placeId, t])
 
     // When place changes from cache hydration, sync form as well
     useEffect(() => {
@@ -164,14 +172,14 @@ export default function PlaceDetailPage() {
                 }),
             })
             const data = await res.json().catch(() => ({}))
-            if (!res.ok) throw new Error(data?.error || 'Failed to save')
+            if (!res.ok) throw new Error(data?.error || tc('errors.failedToSave'))
             setPlace(data)
             try { localStorage.setItem(`place:${placeId}`, JSON.stringify(data)) } catch { }
-            setSaveMessage('Saved')
+            setSaveMessage(tc('saved'))
             setTimeout(() => setSaveMessage(null), 1500)
         } catch (e: unknown) {
             const err = e as { message?: string }
-            setSaveMessage(err?.message || 'Failed to save')
+            setSaveMessage(err?.message || tc('errors.failedToSave'))
         } finally {
             setSaveLoading(false)
         }
@@ -185,7 +193,7 @@ export default function PlaceDetailPage() {
         })
         if (!res.ok) {
             const data = await res.json().catch(() => ({}))
-            alert(data?.error || 'Failed to remove')
+            alert(data?.error || tc('errors.failedToRemove'))
             return
         }
         setAssignedItems(prev => prev.filter(r => r.itemId !== itemId))
@@ -214,7 +222,7 @@ export default function PlaceDetailPage() {
         setInfoLoading(true)
         try {
             const res = await fetch(`/api/items/${itemId}`)
-            if (!res.ok) throw new Error('Failed to load')
+            if (!res.ok) throw new Error(tc('errors.failedToLoad'))
             const data = await res.json()
             setInfo({
                 id: data.id,
@@ -258,7 +266,7 @@ export default function PlaceDetailPage() {
         return () => {
             cancelled = true
         }
-    }, [placeId])
+    }, [placeId, t])
 
     // Load members for this place
     useEffect(() => {
@@ -275,7 +283,7 @@ export default function PlaceDetailPage() {
             })
             .finally(() => { if (!cancelled) setMembersLoading(false) })
         return () => { cancelled = true }
-    }, [placeId])
+    }, [placeId, t, tc])
 
     // Load team members for this place's team (when place is known)
     useEffect(() => {
@@ -291,7 +299,7 @@ export default function PlaceDetailPage() {
             .catch(() => { if (!cancelled) setTeamMembers([]) })
             .finally(() => { if (!cancelled) setTeamMembersLoading(false) })
         return () => { cancelled = true }
-    }, [place?.teamId])
+    }, [place?.teamId, tc])
 
     async function addMemberByUserId(userId: string) {
         if (!userId) return
@@ -313,20 +321,26 @@ export default function PlaceDetailPage() {
         }
     }
 
-    async function removeMember(userId: string) {
-        if (!confirm('Remove this member from the place?')) return
+    async function confirmRemoveMember() {
+        if (!removeTarget || !placeId) return
+        setRemoveLoading(true)
+        setRemoveError(null)
         try {
             const res = await fetch(`/api/places/${placeId}/members`, {
-                method: 'DELETE', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ userId })
+                method: 'DELETE', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ userId: removeTarget.userId })
             })
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}))
-                throw new Error(data?.error || 'Failed to remove')
+                throw new Error(data?.error || tc('errors.failedToRemove'))
             }
-            setMembers((prev) => prev.filter((m) => m.userId !== userId))
+            setMembers((prev) => prev.filter((m) => m.userId !== removeTarget.userId))
+            setRemoveOpen(false)
+            setRemoveTarget(null)
         } catch (e: unknown) {
-            const err = e as { message?: string };
-            alert(err?.message || 'Failed to remove')
+            const err = e as { message?: string }
+            setRemoveError(err?.message || tc('errors.failedToRemove'))
+        } finally {
+            setRemoveLoading(false)
         }
     }
 
@@ -366,10 +380,10 @@ export default function PlaceDetailPage() {
                                 <div className="size-2 rounded-full bg-current" />
                             </div>
                             <h1 className="flex flex-wrap items-center gap-x-3 text-base/7">
-                                <span className="font-semibold text-gray-900 dark:text-white">{place?.name || 'Place'}</span>
+                                <span className="font-semibold text-gray-900 dark:text-white">{place?.name || t('place.title')}</span>
                                 <span className="text-gray-400 dark:text-gray-600">/</span>
                                 <button onClick={copyPlaceId} className="inline-flex items-center gap-1 rounded border border-gray-300 px-1.5 py-0.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-300 dark:hover:bg-white/5">
-                                    #{placeId}{copied ? ' · Copied' : ''}
+                                    #{placeId}{copied ? ` · ${tc('copied')}` : ''}
                                 </button>
                             </h1>
                         </div>
@@ -379,7 +393,7 @@ export default function PlaceDetailPage() {
                             href={`/cash-register?placeId=${encodeURIComponent(String(placeId))}`}
                             className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800 dark:text-white"
                         >
-                            Open register
+                            {t('place.openRegister')}
                         </Link>
                     </div>
                 </div>
@@ -388,8 +402,8 @@ export default function PlaceDetailPage() {
                 <div className="px-4 pt-4 sm:px-6 lg:px-8">
                     <Breadcrumbs
                         items={[
-                            { name: 'Places', href: '/dashboard/home?tab=places' },
-                            { name: place?.name || 'Place' },
+                            { name: t('breadcrumbs.places'), href: '/dashboard/home?tab=places' },
+                            { name: place?.name || t('place.title') },
                         ]}
                     />
                 </div>
@@ -397,10 +411,10 @@ export default function PlaceDetailPage() {
                 {/* Tabs */}
                 <Tabs
                     items={[
-                        { key: 'overview', label: 'Overview' },
-                        { key: 'items', label: `Items${assignedItems.length ? ` (${assignedItems.length})` : ''}` },
-                        { key: 'members', label: `Members${members.length ? ` (${members.length})` : ''}` },
-                        { key: 'settings', label: 'Settings' },
+                        { key: 'overview', label: t('place.tabs.overview') },
+                        { key: 'items', label: `${t('place.tabs.items')}${assignedItems.length ? ` (${assignedItems.length})` : ''}` },
+                        { key: 'members', label: `${t('place.tabs.members')}${members.length ? ` (${members.length})` : ''}` },
+                        { key: 'settings', label: t('place.tabs.settings') },
                     ]}
                     activeKey={tab}
                     onChange={(k) => setTab(k as typeof tab)}
@@ -439,7 +453,7 @@ export default function PlaceDetailPage() {
                             onClick={() => setIsAddItemsOpen(true)}
                             className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                         >
-                            Add items
+                            {t('place.items.addItems')}
                         </button>
                     )}
                 </div>
@@ -456,27 +470,27 @@ export default function PlaceDetailPage() {
                             <>
                                 {/* general settings */}
                                 <div className="rounded-lg border border-gray-200 p-4 dark:border-white/10">
-                                    <h2 className="mb-3 text-sm font-medium text-gray-900 dark:text-white">General</h2>
+                                    <h2 className="mb-3 text-sm font-medium text-gray-900 dark:text-white">{t('place.settings.general')}</h2>
                                     <form onSubmit={saveSettings} className="space-y-3">
                                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                            <Input id="name" name="name" type="text" placeholder="Name" value={editName} onChange={(e) => setEditName(e.target.value)} />
-                                            <Input id="description" name="description" type="text" placeholder="Description (optional)" value={editDescription} onChange={(e) => setEditDescription(e.target.value)} />
+                                            <Input id="name" name="name" type="text" placeholder={t('place.form.name')} value={editName} onChange={(e) => setEditName(e.target.value)} />
+                                            <Input id="description" name="description" type="text" placeholder={t('place.form.descriptionOptional')} value={editDescription} onChange={(e) => setEditDescription(e.target.value)} />
                                         </div>
                                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                            <Input id="address1" name="address1" type="text" placeholder="Address line 1" value={editAddress1} onChange={(e) => setEditAddress1(e.target.value)} />
-                                            <Input id="address2" name="address2" type="text" placeholder="Address line 2" value={editAddress2} onChange={(e) => setEditAddress2(e.target.value)} />
+                                            <Input id="address1" name="address1" type="text" placeholder={t('place.form.address1')} value={editAddress1} onChange={(e) => setEditAddress1(e.target.value)} />
+                                            <Input id="address2" name="address2" type="text" placeholder={t('place.form.address2')} value={editAddress2} onChange={(e) => setEditAddress2(e.target.value)} />
                                         </div>
                                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                            <Input id="city" name="city" type="text" placeholder="City" value={editCity} onChange={(e) => setEditCity(e.target.value)} />
-                                            <Input id="country" name="country" type="text" placeholder="Country" value={editCountry} onChange={(e) => setEditCountry(e.target.value)} />
+                                            <Input id="city" name="city" type="text" placeholder={t('place.form.city')} value={editCity} onChange={(e) => setEditCity(e.target.value)} />
+                                            <Input id="country" name="country" type="text" placeholder={t('place.form.country')} value={editCountry} onChange={(e) => setEditCountry(e.target.value)} />
                                         </div>
                                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                            <Input id="timezone" name="timezone" type="text" placeholder="Timezone (e.g. Europe/Vilnius)" value={editTimezone} onChange={(e) => setEditTimezone(e.target.value)} />
-                                            <Input id="currency" name="currency" type="text" placeholder="Currency (e.g. EUR)" value={editCurrency} onChange={(e) => setEditCurrency(e.target.value)} />
+                                            <Input id="timezone" name="timezone" type="text" placeholder={t('place.form.timezone')} value={editTimezone} onChange={(e) => setEditTimezone(e.target.value)} />
+                                            <Input id="currency" name="currency" type="text" placeholder={t('place.form.currency')} value={editCurrency} onChange={(e) => setEditCurrency(e.target.value)} />
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <input id="isActive" name="isActive" type="checkbox" checked={editActive} onChange={(e) => setEditActive(e.target.checked)} className="size-4" />
-                                            <label htmlFor="isActive" className="text-sm text-gray-700 dark:text-gray-300">Active</label>
+                                            <label htmlFor="isActive" className="text-sm text-gray-700 dark:text-gray-300">{t('place.form.active')}</label>
                                         </div>
                                         <div className="flex items-center justify-end gap-2 pt-2">
                                             {saveMessage && (
@@ -484,7 +498,7 @@ export default function PlaceDetailPage() {
                                             )}
                                             <button type="submit" disabled={saveLoading} aria-busy={saveLoading} className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400">
                                                 {saveLoading && <Spinner size={16} className="text-white" />}
-                                                <span>{saveLoading ? 'Saving…' : 'Save changes'}</span>
+                                                <span>{saveLoading ? tc('saving') : t('place.actions.saveChanges')}</span>
                                             </button>
                                         </div>
                                     </form>
@@ -493,8 +507,8 @@ export default function PlaceDetailPage() {
                                 {/* danger zone */}
                                 <div className='divide-y divide-gray-200 dark:divide-white/10'>
                                     <div className="rounded-lg border border-gray-200 p-4 dark:border-white/10">
-                                        <h2 className="mb-3 text-sm font-medium text-gray-900 dark:text-white">Danger zone</h2>
-                                        <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">Deleting this place will remove all its associations. This cannot be undone.</p>
+                                        <h2 className="mb-3 text-sm font-medium text-gray-900 dark:text-white">{t('place.settings.danger.title')}</h2>
+                                        <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">{t('place.settings.danger.note')}</p>
                                         {place && (
                                             <DeletePlaceButton
                                                 placeId={place.id}
@@ -513,11 +527,11 @@ export default function PlaceDetailPage() {
 
                         {tab === 'members' && (
                             <div className="rounded-lg border border-gray-200 p-4 dark:border-white/10">
-                                <h2 className="mb-3 text-sm font-medium text-gray-900 dark:text-white">Members</h2>
+                                <h2 className="mb-3 text-sm font-medium text-gray-900 dark:text-white">{t('place.tabs.members')}</h2>
                                 <div className="mb-3 flex items-center gap-2">
                                     {(() => {
                                         const available = teamMembers.filter(tm => !members.some(m => m.userId === tm.userId))
-                                        const label = teamMembersLoading ? 'Loading…' : available.length ? 'Add member' : 'No available members'
+                                        const label = teamMembersLoading ? tc('loading') : available.length ? t('place.members.addMember') : t('place.members.noneAvailable')
                                         return (
                                             <Dropdown
                                                 buttonLabel={label}
@@ -531,9 +545,9 @@ export default function PlaceDetailPage() {
                                 {membersError && <p className="mb-2 text-sm text-rose-600 dark:text-rose-400">{membersError}</p>}
                                 <div className="overflow-hidden rounded border border-gray-200 dark:border-white/10">
                                     {membersLoading ? (
-                                        <div className="p-4 text-sm text-gray-600 dark:text-gray-300">Loading…</div>
+                                        <div className="p-4 text-sm text-gray-600 dark:text-gray-300">{tc('loading')}</div>
                                     ) : members.length === 0 ? (
-                                        <div className="p-4 text-sm text-gray-600 dark:text-gray-300">No members yet.</div>
+                                        <div className="p-4 text-sm text-gray-600 dark:text-gray-300">{t('place.members.empty')}</div>
                                     ) : (
                                         <ul className="divide-y divide-gray-200 dark:divide-white/10">
                                             {members.map((m) => (
@@ -542,7 +556,7 @@ export default function PlaceDetailPage() {
                                                         <div className="text-sm font-medium text-gray-900 dark:text-white">{m.name}</div>
                                                         <div className="text-xs text-gray-500 dark:text-gray-400">{m.email}</div>
                                                     </div>
-                                                    <button onClick={() => removeMember(m.userId)} className="text-sm text-rose-600 hover:underline dark:text-rose-400">Remove</button>
+                                                    <button onClick={() => { setRemoveTarget(m); setRemoveOpen(true); }} className="text-sm text-rose-600 hover:underline dark:text-rose-400">{tc('delete')}</button>
                                                 </li>
                                             ))}
                                         </ul>
@@ -553,23 +567,23 @@ export default function PlaceDetailPage() {
 
                         {tab === 'items' && (
                             <div className="rounded-lg border border-gray-200 dark:border-white/10">
-                                <div className="border-b border-gray-200 px-4 py-3 text-sm font-medium text-gray-900 dark:border-white/10 dark:text-white">Assigned items</div>
+                                <div className="border-b border-gray-200 px-4 py-3 text-sm font-medium text-gray-900 dark:border-white/10 dark:text-white">{t('place.items.assigned')}</div>
                                 <div className="p-4">
                                     {assignedLoading ? (
                                         <div className="h-20 animate-pulse rounded bg-gray-100 dark:bg-white/5" />
                                     ) : assignedError ? (
                                         <div className="rounded border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-300">{assignedError}</div>
                                     ) : assignedItems.length === 0 ? (
-                                        <div className="text-sm text-gray-500 dark:text-gray-400">No items assigned yet.</div>
+                                        <div className="text-sm text-gray-500 dark:text-gray-400">{t('place.items.empty')}</div>
                                     ) : (
                                         <table className="w-full text-left">
                                             <thead className="text-xs text-gray-500 dark:text-gray-400">
                                                 <tr>
-                                                    <th className="py-2">Name</th>
+                                                    <th className="py-2">{tc('name')}</th>
                                                     <th className="py-2">SKU</th>
-                                                    <th className="py-2 text-right">Price</th>
-                                                    <th className="py-2 text-right">Qty</th>
-                                                    <th className="py-2 text-right">Actions</th>
+                                                    <th className="py-2 text-right">{t('place.items.price')}</th>
+                                                    <th className="py-2 text-right">{t('place.items.qty')}</th>
+                                                    <th className="py-2 text-right">{t('place.items.actions')}</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-100 dark:divide-white/5">
@@ -589,7 +603,7 @@ export default function PlaceDetailPage() {
                                                         </td>
                                                         <td className="py-2 text-right text-sm text-gray-900 dark:text-white">{row.quantity}</td>
                                                         <td className="py-2 text-right text-sm">
-                                                            <button onClick={() => removeFromShop(row.itemId)} className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Remove</button>
+                                                            <button onClick={() => removeFromShop(row.itemId)} className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">{tc('delete')}</button>
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -613,31 +627,48 @@ export default function PlaceDetailPage() {
                     fetch(`/api/places/${placeId}/items`).then((r) => r.json()).then((rows) => setAssignedItems(rows)).finally(() => setAssignedLoading(false))
                 }}
             />
+            {/* Remove member confirmation modal */}
+            <Modal open={removeOpen} onClose={() => { if (!removeLoading) { setRemoveOpen(false); setRemoveError(null) } }} size="sm">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white">{t('place.members.removeTitle')}</h3>
+                <div className="mt-2 text-sm text-gray-700 dark:text-gray-300">
+                    <p>{t('place.members.confirmRemove')}</p>
+                    {removeTarget && (
+                        <p className="mt-2"><span className="font-medium">{removeTarget.name}</span> · <span className="text-gray-500 dark:text-gray-400">{removeTarget.email}</span></p>
+                    )}
+                    {removeError && <p className="mt-2 text-rose-600 dark:text-rose-400">{removeError}</p>}
+                </div>
+                <div className="mt-4 flex justify-end gap-2">
+                    <button type="button" disabled={removeLoading} onClick={() => setRemoveOpen(false)} className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">{tc('cancel')}</button>
+                    <button type="button" disabled={removeLoading} onClick={confirmRemoveMember} className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold shadow-sm ${removeLoading ? 'bg-rose-600/70 text-white' : 'bg-rose-600 text-white hover:bg-rose-500'}`}>
+                        {removeLoading ? tc('deleting') : tc('delete')}
+                    </button>
+                </div>
+            </Modal>
             <Modal open={infoOpen} onClose={() => setInfoOpen(false)} size="md">
-                <h3 className="text-base font-semibold text-gray-900 dark:text-white">Item info</h3>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white">{t('place.items.infoTitle')}</h3>
                 {infoLoading ? (
                     <div className="mt-3 h-16 animate-pulse rounded bg-gray-100 dark:bg-white/5" />
                 ) : info ? (
                     <div className="mt-3 space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                        <div><span className="font-medium">Name:</span> {info.name}</div>
-                        <div><span className="font-medium">Item ID:</span> {info.id}</div>
-                        <div><span className="font-medium">Team ID:</span> {info.teamId}</div>
+                        <div><span className="font-medium">{tc('name')}:</span> {info.name}</div>
+                        <div><span className="font-medium">{t('place.items.itemId')}:</span> {info.id}</div>
+                        <div><span className="font-medium">{t('place.items.teamId')}:</span> {info.teamId}</div>
                         <div><span className="font-medium">SKU:</span> {info.sku || '—'}</div>
-                        <div><span className="font-medium">Category ID:</span> {info.categoryId || '—'}</div>
-                        <div><span className="font-medium">Unit:</span> {info.unit || 'pcs'}</div>
-                        <div><span className="font-medium">Price:</span> {new Intl.NumberFormat('en-US', { style: 'currency', currency: place?.currency || 'EUR' }).format(info.price || 0)}</div>
-                        <div><span className="font-medium">Tax:</span> {(info.taxRateBps / 100).toFixed(2)}%</div>
-                        <div><span className="font-medium">Active:</span> {info.isActive ? 'Yes' : 'No'}</div>
-                        <div><span className="font-medium">Warehouse stock:</span> {info.stockQuantity}</div>
-                        <div><span className="font-medium">Assigned to this place:</span> {info.placeQuantity}</div>
-                        <div><span className="font-medium">Created at:</span> {new Date(info.createdAt).toLocaleString()}</div>
-                        <div><span className="font-medium">Updated at:</span> {new Date(info.updatedAt).toLocaleString()}</div>
+                        <div><span className="font-medium">{t('place.items.categoryId')}:</span> {info.categoryId || '—'}</div>
+                        <div><span className="font-medium">{t('place.items.unit')}:</span> {info.unit || 'pcs'}</div>
+                        <div><span className="font-medium">{t('place.items.price')}:</span> {new Intl.NumberFormat('en-US', { style: 'currency', currency: place?.currency || 'EUR' }).format(info.price || 0)}</div>
+                        <div><span className="font-medium">{t('place.items.tax')}:</span> {(info.taxRateBps / 100).toFixed(2)}%</div>
+                        <div><span className="font-medium">{t('place.items.active')}:</span> {info.isActive ? tc('yes') : tc('no')}</div>
+                        <div><span className="font-medium">{t('place.items.warehouseStock')}:</span> {info.stockQuantity}</div>
+                        <div><span className="font-medium">{t('place.items.assignedHere')}:</span> {info.placeQuantity}</div>
+                        <div><span className="font-medium">{t('place.items.createdAt')}:</span> {new Date(info.createdAt).toLocaleString()}</div>
+                        <div><span className="font-medium">{t('place.items.updatedAt')}:</span> {new Date(info.updatedAt).toLocaleString()}</div>
                     </div>
                 ) : (
-                    <div className="mt-3 text-sm text-gray-600 dark:text-gray-300">Failed to load item details.</div>
+                    <div className="mt-3 text-sm text-gray-600 dark:text-gray-300">{t('place.items.errors.loadDetails')}</div>
                 )}
                 <div className="mt-4 flex justify-end">
-                    <button onClick={() => setInfoOpen(false)} className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">Close</button>
+                    <button onClick={() => setInfoOpen(false)} className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">{tc('close')}</button>
                 </div>
             </Modal>
         </div >

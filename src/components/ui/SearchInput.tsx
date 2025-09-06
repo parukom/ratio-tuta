@@ -15,7 +15,7 @@ type Props = {
 const SearchInput = ({
     value,
     onChange,
-    placeholder = 'Search',
+    placeholder,
     name = 'search',
     containerClassName = 'flex flex-1 gap-x-4 self-stretch lg:gap-x-6',
     inputClassName = 'col-start-1 row-start-1 block size-full bg-transparent pl-8 text-base text-gray-900 outline-hidden placeholder:text-gray-400 sm:text-sm/6 dark:text-white dark:placeholder:text-gray-500',
@@ -28,7 +28,7 @@ const SearchInput = ({
             <div className="grid flex-1 grid-cols-1 relative">
                 <input
                     name={name}
-                    placeholder={placeholder}
+                    placeholder={placeholder ?? t('search', { default: 'Search' })}
                     aria-label={t('search', { default: 'Search' })}
                     className={inputClassName}
                     {...(controlled ? { value, onChange } : {})}

@@ -82,6 +82,143 @@
     "home": "Home",
     "accountSettings": "Account settings",
     "support": "Support",
-    "license": "License"
+    "license": "License",
+    "saved": "Saved",
+    "loading": "Loading…",
+    "close": "Close",
+    "copied": "Copied",
+    "name": "Name",
+    "yes": "Yes",
+    "no": "No",
+    "errors": {
+      "failed": "Failed",
+      "failedToSave": "Failed to save",
+      "failedToRemove": "Failed to remove",
+      "failedToLoad": "Failed to load",
+      "failedToAdd": "Failed to add"
+    }
+  },
+  "Home": {
+    "breadcrumbs": {
+      "places": "Places",
+      "logs": "Logs"
+    },
+    "tabs": {
+      "places": "Places",
+      "logs": "Logs"
+    },
+    "places": {
+      "empty": "No places yet."
+    },
+    "logs": {
+      "latestActivity": "Latest activity",
+      "user": "User",
+      "action": "Action",
+      "status": "Status",
+      "details": "Details",
+      "when": "When",
+      "empty": "No activity yet."
+    },
+    "place": {
+      "title": "Place",
+      "openRegister": "Open register",
+      "tabs": {
+        "overview": "Overview",
+        "items": "Items",
+        "members": "Members",
+        "settings": "Settings"
+      },
+      "stats": {
+        "totalEarnings": "Total earnings",
+        "averageTicket": "Average ticket",
+        "itemsSold": "Items sold",
+        "activeItems": "Active items"
+      },
+      "form": {
+        "name": "Name",
+        "descriptionOptional": "Description (optional)",
+        "address1": "Address line 1",
+        "address2": "Address line 2",
+        "city": "City",
+        "country": "Country",
+        "timezone": "Timezone (e.g. Europe/Vilnius)",
+        "currency": "Currency (e.g. EUR)",
+        "active": "Active"
+      },
+      "actions": {
+        "saveChanges": "Save changes"
+      },
+      "settings": {
+        "general": "General",
+        "danger": {
+          "title": "Danger zone",
+          "note": "Deleting this place will remove all its associations. This cannot be undone."
+        }
+      },
+      "members": {
+        "addMember": "Add member",
+        "noneAvailable": "No available members",
+        "removeTitle": "Remove member",
+        "confirmRemove": "Remove this member from the place?",
+        "errors": {
+          "load": "Failed to load members"
+        },
+        "empty": "No members yet."
+      },
+      "items": {
+        "addItems": "Add items",
+        "assigned": "Assigned items",
+        "empty": "No items assigned yet.",
+        "price": "Price",
+        "qty": "Qty",
+        "actions": "Actions",
+        "infoTitle": "Item info",
+        "itemId": "Item ID",
+        "teamId": "Team ID",
+        "categoryId": "Category ID",
+        "unit": "Unit",
+        "tax": "Tax",
+        "active": "Active",
+        "warehouseStock": "Warehouse stock",
+        "assignedHere": "Assigned to this place",
+        "createdAt": "Created at",
+        "updatedAt": "Updated at",
+        "errors": {
+          "load": "Failed to load assigned items",
+          "loadDetails": "Failed to load item details"
+        }
+      },
+      "errors": {
+        "load": "Failed to load place"
+      },
+      "create": {
+        "subtitle": "Fill in details for the new place.",
+        "uniqueNote": "Unique per team by name.",
+        "messages": {
+          "nameRequired": "Name is required",
+          "failedCreate": "Failed to create",
+          "created": "Place created",
+          "networkError": "Network error"
+        }
+      },
+      "delete": {
+        "title": "Delete place",
+        "warning": "This action cannot be undone. To confirm, type the name of the place exactly",
+        "failed": "Failed to delete place"
+      },
+      "card": {
+        "active": "Active",
+        "paused": "Paused",
+        "today": "Today",
+        "receiptsToday": "{count} receipts",
+        "lastActivity": "Last activity",
+        "time": {
+          "seconds": "{s}s ago",
+          "minutes": "{m}m ago",
+          "hours": "{h}h ago",
+          "days": "{d}d ago"
+        }
+      }
+    }
   }
 }

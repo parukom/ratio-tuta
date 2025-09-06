@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 const statuses: Record<'SUCCESS' | 'ERROR' | 'DENIED', string> = {
     SUCCESS: 'text-green-500 bg-green-500/10 dark:text-green-400 dark:bg-green-400/10',
@@ -23,6 +24,7 @@ type AuditRow = {
 
 
 const Logs = () => {
+    const t = useTranslations('Home')
 
     const [activityItems, setActivityItems] = useState<AuditRow[]>([])
     const [activityLoading, setActivityLoading] = useState(true)
@@ -51,7 +53,7 @@ const Logs = () => {
 
     return (
         <div className="border-t border-gray-200 pt-4 dark:border-white/10">
-            <h2 className="px-4 text-base/7 font-semibold text-gray-900 sm:px-6 lg:px-8 dark:text-white">Latest activity</h2>
+            <h2 className="px-4 text-base/7 font-semibold text-gray-900 sm:px-6 lg:px-8 dark:text-white">{t('logs.latestActivity')}</h2>
             <table className="mt-6 w-full text-left whitespace-nowrap">
                 <colgroup>
                     <col className="w-full sm:w-4/12" />
@@ -63,22 +65,22 @@ const Logs = () => {
                 <thead className="border-b border-gray-200 text-sm/6 text-gray-900 dark:border-white/10 dark:text-white">
                     <tr>
                         <th scope="col" className="py-2 pr-8 pl-4 font-semibold sm:pl-6 lg:pl-8">
-                            User
+                            {t('logs.user')}
                         </th>
                         <th scope="col" className="hidden py-2 pr-8 pl-0 font-semibold sm:table-cell">
-                            Action
+                            {t('logs.action')}
                         </th>
                         <th scope="col" className="py-2 pr-4 pl-0 text-right font-semibold sm:pr-8 sm:text-left lg:pr-20">
-                            Status
+                            {t('logs.status')}
                         </th>
                         <th scope="col" className="hidden py-2 pr-8 pl-0 font-semibold md:table-cell lg:pr-20">
-                            Details
+                            {t('logs.details')}
                         </th>
                         <th
                             scope="col"
                             className="hidden py-2 pr-4 pl-0 text-right font-semibold sm:table-cell sm:pr-6 lg:pr-8"
                         >
-                            When
+                            {t('logs.when')}
                         </th>
                     </tr>
                 </thead>
@@ -94,7 +96,7 @@ const Logs = () => {
                     ) : activityItems.length === 0 ? (
                         <tr>
                             <td className="py-4 pr-8 pl-4 text-sm text-gray-500 sm:pl-6 lg:pl-8" colSpan={5}>
-                                No activity yet.
+                                {t('logs.empty')}
                             </td>
                         </tr>
                     ) : (

@@ -6,9 +6,11 @@ import Logs from '@/components/admin-zone/Logs'
 import Places from '@/components/admin-zone/Places'
 import SearchInput from '@/components/ui/SearchInput'
 import { Suspense } from 'react'
+import { useTranslations } from 'next-intl'
 
 const HomeInner = () => {
     const router = useRouter()
+    const t = useTranslations('Home')
     const searchParams = useSearchParams()
     const tab = (searchParams.get('tab') ?? 'places') as 'places' | 'logs'
     const setTab = (t: 'logs' | 'places') => {
@@ -30,14 +32,14 @@ const HomeInner = () => {
                             <div className="px-4 pt-4 sm:px-6 lg:px-8">
                                 <Breadcrumbs
                                     items={[
-                                        { name: tab === 'places' ? 'Places' : 'Logs' },
+                                        { name: tab === 'places' ? t('breadcrumbs.places') : t('breadcrumbs.logs') },
                                     ]}
                                 />
                             </div>
                             <Tabs
                                 items={[
-                                    { key: 'places', label: 'Places' },
-                                    { key: 'logs', label: 'Logs' },
+                                    { key: 'places', label: t('tabs.places') },
+                                    { key: 'logs', label: t('tabs.logs') },
                                 ]}
                                 activeKey={tab}
                                 onChange={(k) => setTab(k as 'places' | 'logs')}

@@ -82,6 +82,143 @@
     "home": "Pradžia",
     "accountSettings": "Paskyros nustatymai",
     "support": "Pagalba",
-    "license": "Licencija"
+    "license": "Licencija",
+    "saved": "Išsaugota",
+    "loading": "Įkeliama…",
+    "close": "Uždaryti",
+    "copied": "Nukopijuota",
+    "name": "Pavadinimas",
+    "yes": "Taip",
+    "no": "Ne",
+    "errors": {
+      "failed": "Nepavyko",
+      "failedToSave": "Nepavyko išsaugoti",
+      "failedToRemove": "Nepavyko pašalinti",
+      "failedToLoad": "Nepavyko įkelti",
+      "failedToAdd": "Nepavyko pridėti"
+    }
+  },
+  "Home": {
+    "breadcrumbs": {
+      "places": "Vietos",
+      "logs": "Įrašai"
+    },
+    "tabs": {
+      "places": "Vietos",
+      "logs": "Įrašai"
+    },
+    "places": {
+      "empty": "Kol kas nėra vietų."
+    },
+    "logs": {
+      "latestActivity": "Naujausia veikla",
+      "user": "Vartotojas",
+      "action": "Veiksmas",
+      "status": "Būsena",
+      "details": "Išsami informacija",
+      "when": "Laikas",
+      "empty": "Dar nėra veiklos."
+    },
+    "place": {
+      "title": "Vieta",
+      "openRegister": "Atidaryti kasą",
+      "tabs": {
+        "overview": "Apžvalga",
+        "items": "Prekės",
+        "members": "Nariai",
+        "settings": "Nustatymai"
+      },
+      "stats": {
+        "totalEarnings": "Iš viso uždirbta",
+        "averageTicket": "Vidutinė suma",
+        "itemsSold": "Parduota prekių",
+        "activeItems": "Aktyvios prekės"
+      },
+      "form": {
+        "name": "Pavadinimas",
+        "descriptionOptional": "Aprašymas (pasirinktinai)",
+        "address1": "Adresas 1",
+        "address2": "Adresas 2",
+        "city": "Miestas",
+        "country": "Šalis",
+        "timezone": "Laiko juosta (pvz., Europe/Vilnius)",
+        "currency": "Valiuta (pvz., EUR)",
+        "active": "Aktyvi"
+      },
+      "actions": {
+        "saveChanges": "Išsaugoti pakeitimus"
+      },
+      "settings": {
+        "general": "Bendra",
+        "danger": {
+          "title": "Pavojaus zona",
+          "note": "Ištrinant šią vietą bus pašalintos visos jos sąsajos. Atšaukti neįmanoma."
+        }
+      },
+      "members": {
+        "addMember": "Pridėti narį",
+        "noneAvailable": "Nėra galimų narių",
+        "removeTitle": "Pašalinti narį",
+        "confirmRemove": "Pašalinti šį narį iš vietos?",
+        "errors": {
+          "load": "Nepavyko įkelti narių"
+        },
+        "empty": "Narių kol kas nėra."
+      },
+      "items": {
+        "addItems": "Pridėti prekes",
+        "assigned": "Priskirtos prekės",
+        "empty": "Dar nėra priskirtų prekių.",
+        "price": "Kaina",
+        "qty": "Kiekis",
+        "actions": "Veiksmai",
+        "infoTitle": "Prekės informacija",
+        "itemId": "Prekės ID",
+        "teamId": "Komandos ID",
+        "categoryId": "Kategorijos ID",
+        "unit": "Vnt.",
+        "tax": "Mokestis",
+        "active": "Aktyvi",
+        "warehouseStock": "Sandėlio likutis",
+        "assignedHere": "Priskirta šiai vietai",
+        "createdAt": "Sukurta",
+        "updatedAt": "Atnaujinta",
+        "errors": {
+          "load": "Nepavyko įkelti priskirtų prekių",
+          "loadDetails": "Nepavyko įkelti prekės detalių"
+        }
+      },
+      "errors": {
+        "load": "Nepavyko įkelti vietos"
+      },
+      "create": {
+        "subtitle": "Užpildykite naujos vietos informaciją.",
+        "uniqueNote": "Komandoje unikali pagal pavadinimą.",
+        "messages": {
+          "nameRequired": "Pavadinimas privalomas",
+          "failedCreate": "Nepavyko sukurti",
+          "created": "Vieta sukurta",
+          "networkError": "Tinklo klaida"
+        }
+      },
+      "delete": {
+        "title": "Ištrinti vietą",
+        "warning": "Šio veiksmo anuliuoti neįmanoma. Patvirtinimui įveskite vietos pavadinimą tiksliai",
+        "failed": "Nepavyko ištrinti vietos"
+      },
+      "card": {
+        "active": "Aktyvi",
+        "paused": "Pristabdyta",
+        "today": "Šiandien",
+        "receiptsToday": "{count} kvitai",
+        "lastActivity": "Paskutinė veikla",
+        "time": {
+          "seconds": "prieš {s}s",
+          "minutes": "prieš {m}min",
+          "hours": "prieš {h}val",
+          "days": "prieš {d} d."
+        }
+      }
+    }
   }
 }

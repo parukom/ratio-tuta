@@ -1,5 +1,8 @@
 import Link from 'next/link'
 import { MapPinIcon, BoltIcon, ClockIcon, UsersIcon, BanknotesIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline'
+import { useTranslations } from 'next-intl'
+
+type SimpleT = (key: string, values?: Record<string, string | number>) => string
 
 type Props = {
   id?: string
@@ -21,18 +24,18 @@ type Props = {
   onDelete?: (id: string) => void
 }
 
-function timeAgo(iso?: string | null): string {
+function timeAgo(iso?: string | null, t?: SimpleT): string {
   if (!iso) return '—'
   const d = new Date(iso)
   const diff = Date.now() - d.getTime()
   const sec = Math.floor(diff / 1000)
-  if (sec < 60) return `${sec}s ago`
+  if (sec < 60) return t ? t('place.card.time.seconds', { s: sec }) : `${sec}s ago`
   const min = Math.floor(sec / 60)
-  if (min < 60) return `${min}m ago`
+  if (min < 60) return t ? t('place.card.time.minutes', { m: min }) : `${min}m ago`
   const hr = Math.floor(min / 60)
-  if (hr < 24) return `${hr}h ago`
+  if (hr < 24) return t ? t('place.card.time.hours', { h: hr }) : `${hr}h ago`
   const days = Math.floor(hr / 24)
-  return `${days}d ago`
+  return t ? t('place.card.time.days', { d: days }) : `${days}d ago`
 }
 
 export default function PlaceCard({
@@ -50,6 +53,7 @@ export default function PlaceCard({
   receipts7d = 0,
   lastActivityAt,
 }: Props) {
+  const t = useTranslations('Home')
   const href = id ? `/dashboard/home/place/${id}` : '#'
   const statusColor = isActive
     ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-300/20'
@@ -73,14 +77,14 @@ export default function PlaceCard({
               </span>
             )}
             <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-medium ring-1 ring-inset ${statusColor}`}>
-              <BoltIcon className="h-3 w-3" /> {isActive ? 'Active' : 'Paused'}
+              <BoltIcon className="h-3 w-3" /> {isActive ? t('place.card.active') : t('place.card.paused')}
             </span>
           </div>
         </div>
         <div className="text-right">
-          <span className="text-xs text-gray-500 dark:text-gray-400">Today</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400">{t('place.card.today')}</span>
           <div className="mt-1 text-xl font-bold tracking-tight text-gray-900 dark:text-white">{fmt(salesToday)}</div>
-          <div className="text-[11px] text-gray-500 dark:text-gray-400">{receiptsToday} receipts</div>
+          <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('place.card.receiptsToday', { count: receiptsToday })}</div>
         </div>
       </div>
 
@@ -118,7 +122,7 @@ export default function PlaceCard({
       {/* Footer */}
       <div className="mt-5 flex items-center justify-between">
         <div className="flex items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
-          <ClockIcon className="h-4 w-4" /> Last activity: {timeAgo(lastActivityAt)}
+          <ClockIcon className="h-4 w-4" /> {t('place.card.lastActivity')}: {timeAgo(lastActivityAt, t)}
         </div>
 
       </div>

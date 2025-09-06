@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import PlaceCard from './places/PlaceCard'
 import CreatePlaceButton from './places/CreatePlaceButton'
 
@@ -26,6 +27,7 @@ type Place = {
 
 
 export default function Places() {
+    const t = useTranslations('Home')
     const [places, setPlaces] = useState<Place[]>([])
     const [placesLoading, setPlacesLoading] = useState(true)
 
@@ -88,7 +90,7 @@ export default function Places() {
                     : places.length === 0
                         ? (
                             <div className="col-span-full flex items-center justify-between rounded-lg border border-dashed border-gray-300 p-6 dark:border-white/10">
-                                <p className="text-sm text-gray-500 dark:text-gray-400">No places yet.</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">{t('places.empty')}</p>
                             </div>
                         )
                         : (
