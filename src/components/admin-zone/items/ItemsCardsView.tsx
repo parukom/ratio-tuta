@@ -5,7 +5,7 @@ import { Group, ItemRow } from './types'
 import ItemCard from './ItemCard'
 import LoadingCards from '@/components/ui/LoadingCards'
 import LoadingGroupedCards from '@/components/ui/LoadingGroupedCards'
-import { ChevronDown, ChevronRight } from 'lucide-react'
+import { ChevronDown, ChevronRight, Edit3, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 type Props = {
@@ -98,21 +98,27 @@ export default function ItemsCardsView({ items, groups, grouped, loading, openGr
                                     )}
                                     <div>{t('cards.tax')}: {(g.taxRateBps / 100).toFixed(2)}%</div>
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={(e) => { e.stopPropagation(); onAskEditBox(g.key) }}
-                                    className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5"
-                                    title={t('buttons.editBox')}
-                                >
-                                    {t('buttons.editBox')}
-                                </button>
+                                {g.items.length > 1 ? (
+                                    <button
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); onAskEditBox(g.key) }}
+                                        className="rounded-md border border-gray-300 p-2 text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5"
+                                        title={t('buttons.editBox')}
+                                        aria-label={t('buttons.editBox')}
+                                    >
+                                        <Edit3 className="h-4 w-4" />
+                                    </button>
+                                ): (
+                                    <span className='h-4 w-4 m-2'></span>
+                                )}
                                 <button
                                     type="button"
                                     onClick={(e) => { e.stopPropagation(); onAskDeleteBox(g.key) }}
-                                    className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50 dark:border-red-500/40 dark:text-red-400 dark:hover:bg-red-500/10"
+                                    className="rounded-md border border-red-300 p-2 text-red-700 hover:bg-red-50 dark:border-red-500/40 dark:text-red-400 dark:hover:bg-red-500/10"
                                     title={t('buttons.deleteBox')}
+                                    aria-label={t('buttons.deleteBox')}
                                 >
-                                    {t('buttons.deleteBox')}
+                                    <Trash2 className="h-4 w-4" />
                                 </button>
                             </div>
                         </div>

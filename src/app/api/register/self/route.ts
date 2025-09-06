@@ -5,17 +5,19 @@ import { hashPassword } from '@lib/auth';
 import { logAudit } from '@lib/logger';
 import { randomBytes } from 'crypto';
 import { sendVerificationEmail } from '@lib/mail';
+import { hmacEmail, encryptEmail, normalizeEmail, redactEmail } from '@lib/crypto';
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password, teamName } = await req.json();
+  const { name, email, password, teamName } = await req.json();
+  const normEmail = email ? normalizeEmail(email) : '';
 
     if (!name || !email || !password || !teamName) {
       await logAudit({
         action: 'user.register.self',
         status: 'ERROR',
         message: 'Missing fields',
-        metadata: { name, email, teamName: teamName ?? null },
+        metadata: { name, email: email ? redactEmail(normEmail) : null, teamName: teamName ?? null },
       });
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
@@ -30,7 +32,7 @@ export async function POST(req: Request) {
         action: 'user.register.self',
         status: 'ERROR',
         message: 'Invalid password length',
-        metadata: { email },
+        metadata: { email: redactEmail(normEmail) },
       });
       return NextResponse.json(
         { error: 'Password must be 8-16 characters' },
@@ -38,13 +40,22 @@ export async function POST(req: Request) {
       );
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          // new path (after backfill)
+          { emailHmac: hmacEmail(normEmail) },
+          // fallback to plaintext unique (case-insensitive)
+          { email: { equals: normEmail, mode: 'insensitive' } },
+        ],
+      },
+    });
     if (existingUser) {
       await logAudit({
         action: 'user.register.self',
         status: 'DENIED',
         message: 'User already exists',
-        metadata: { email },
+        metadata: { email: redactEmail(normEmail) },
       });
       return NextResponse.json(
         { error: 'User already exists' },
@@ -54,14 +65,22 @@ export async function POST(req: Request) {
 
     const passwordHash = await hashPassword(password);
 
-    const result = await prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
       // Create user
       const createdUser = await tx.user.create({
-        data: { name, email, password: passwordHash, role: 'ADMIN' },
+        data: {
+          name,
+          // explicitly omit plaintext email
+          email: undefined,
+          emailHmac: hmacEmail(normEmail),
+          emailEnc: encryptEmail(normEmail),
+          password: passwordHash,
+          role: 'ADMIN',
+        },
         select: {
           id: true,
           name: true,
-          email: true,
+      // do not select plaintext email
           role: true,
           createdAt: true,
         },
@@ -88,12 +107,21 @@ export async function POST(req: Request) {
       return { createdUser, team, token };
     });
 
-    // Send verification email (fire-and-forget; let errors bubble to catch for logging)
-    await sendVerificationEmail({
-      to: result.createdUser.email,
-      name: result.createdUser.name,
-      token: result.token,
-    });
+    // Send verification email (best-effort)
+    try {
+      await sendVerificationEmail({
+        to: normEmail,
+        name: result.createdUser.name,
+        token: result.token,
+      });
+    } catch {
+      await logAudit({
+        action: 'user.register.self.sendVerification',
+        status: 'ERROR',
+        message: 'Failed to send verification email',
+        metadata: { email: redactEmail(normEmail) },
+      });
+    }
 
     await logAudit({
       action: 'user.register.self',
@@ -109,7 +137,13 @@ export async function POST(req: Request) {
       {
         message:
           'Account created. Please check your email to verify your address before logging in.',
-        user: result.createdUser,
+        user: {
+          id: result.createdUser.id,
+          name: result.createdUser.name,
+          email: normEmail, // returned for display only, not read from DB
+          role: result.createdUser.role,
+          createdAt: result.createdUser.createdAt,
+        },
         team: result.team,
       },
       { status: 201 },

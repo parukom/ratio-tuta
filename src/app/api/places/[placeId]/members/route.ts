@@ -3,6 +3,7 @@ import { prisma } from '@lib/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
 import type { Prisma } from '@/generated/prisma';
+import { hmacEmail, normalizeEmail, redactEmail } from '@lib/crypto';
 
 // GET /api/places/[placeId]/members -> list assigned users
 export async function GET(
@@ -110,8 +111,8 @@ export async function POST(
     if (!allowed)
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-    const body = (await req.json().catch(() => null)) as { email?: string; userId?: string } | null;
-    const email = body?.email;
+  const body = (await req.json().catch(() => null)) as { email?: string; userId?: string } | null;
+  const email = body?.email;
     const userId = body?.userId;
     if (!email && !userId)
       return NextResponse.json({ error: 'email or userId required' }, { status: 400 });
@@ -119,7 +120,14 @@ export async function POST(
     // resolve target user
     const user = userId
       ? await prisma.user.findUnique({ where: { id: userId } })
-      : await prisma.user.findUnique({ where: { email: String(email) } });
+      : await prisma.user.findFirst({
+          where: {
+            OR: [
+              { emailHmac: hmacEmail(normalizeEmail(String(email))) },
+              { email: { equals: normalizeEmail(String(email)), mode: 'insensitive' } },
+            ],
+          },
+        });
     if (!user)
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
@@ -152,7 +160,7 @@ export async function POST(
         actor: session,
         teamId: place.teamId,
         target: { table: 'PlaceMember', id: pm.id },
-        metadata: { placeId, userId: user.id, email: user.email },
+  metadata: { placeId, userId: user.id, email: redactEmail(user.email) },
       });
       return NextResponse.json(pm, { status: 201 });
     } catch (e: unknown) {

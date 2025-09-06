@@ -4,6 +4,7 @@ import { prisma } from '@lib/prisma';
 import { logAudit } from '@lib/logger';
 import { randomBytes } from 'crypto';
 import { sendVerificationEmail } from '@lib/mail';
+import { hmacEmail, encryptEmail, normalizeEmail, redactEmail } from '@lib/crypto';
 
 export async function GET() {
   const session = await getSession();
@@ -39,11 +40,12 @@ export async function PATCH(req: Request) {
       typeof body.lastName === 'string' ? body.lastName.trim() : undefined;
     const email =
       typeof body.email === 'string' ? body.email.trim() : undefined;
+    const normEmail = email ? normalizeEmail(email) : undefined;
 
     // Load current user to compare changes
     const current = await prisma.user.findUnique({
       where: { id: session.userId },
-      select: { id: true, name: true, email: true, role: true },
+  select: { id: true, name: true, email: true, role: true },
     });
     if (!current)
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -60,8 +62,8 @@ export async function PATCH(req: Request) {
     }
 
     const emailChanged =
-      email !== undefined &&
-      email.toLowerCase() !== current.email.toLowerCase();
+      normEmail !== undefined &&
+      normEmail !== (current.email ? current.email.toLowerCase() : '');
 
     // If nothing to update
     if (!nextName && !emailChanged) {
@@ -82,7 +84,15 @@ export async function PATCH(req: Request) {
         where: { id: current.id },
         data: {
           ...(nextName ? { name: nextName } : {}),
-          ...(emailChanged ? { email, emailVerified: false } : {}),
+          ...(emailChanged
+            ? {
+                // clear any legacy plaintext email and update privacy-preserving fields
+                email: null,
+                emailHmac: hmacEmail(normEmail!),
+                emailEnc: encryptEmail(normEmail!),
+                emailVerified: false,
+              }
+            : {}),
         },
         select: {
           id: true,
@@ -95,7 +105,7 @@ export async function PATCH(req: Request) {
       });
 
       let token: string | null = null;
-      if (emailChanged && email) {
+  if (emailChanged && normEmail) {
         token = randomBytes(32).toString('hex');
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
         await tx.emailVerificationToken.create({
@@ -106,10 +116,10 @@ export async function PATCH(req: Request) {
     });
 
     // Fire verification email outside transaction
-    if (emailChanged && result.token) {
+  if (emailChanged && result.token) {
       try {
         await sendVerificationEmail({
-          to: email!,
+      to: normEmail!,
           name: nextName ?? current.name,
           token: result.token,
         });
@@ -141,7 +151,7 @@ export async function PATCH(req: Request) {
         name: result.updated.name,
         role: result.updated.role as 'USER' | 'ADMIN',
       },
-      metadata: { nameChanged: Boolean(nextName), emailChanged },
+  metadata: { nameChanged: Boolean(nextName), emailChanged, email: emailChanged && normEmail ? redactEmail(normEmail) : undefined },
     });
 
     return NextResponse.json({

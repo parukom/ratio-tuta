@@ -4,6 +4,7 @@ import { getSession } from '@lib/session';
 import { randomBytes } from 'crypto';
 import { sendVerificationEmail } from '@lib/mail';
 import { logAudit } from '@lib/logger';
+import { hmacEmail, encryptEmail, normalizeEmail, redactEmail } from '@lib/crypto';
 
 // Admin-only: update another user's basic info (name, email, role)
 // Guards:
@@ -38,6 +39,7 @@ export async function PATCH(
 
   const name = typeof body.name === 'string' ? body.name.trim() : undefined;
   const email = typeof body.email === 'string' ? body.email.trim() : undefined;
+  const normEmail = email ? normalizeEmail(email) : undefined;
   const role =
     body.role === 'USER' || body.role === 'ADMIN' ? body.role : undefined;
 
@@ -92,9 +94,9 @@ export async function PATCH(
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const emailChanged =
-    typeof email === 'string' &&
-    email.length > 0 &&
-    email.toLowerCase() !== current.email.toLowerCase();
+    typeof normEmail === 'string' &&
+    normEmail.length > 0 &&
+    normEmail !== (current.email ? current.email.toLowerCase() : '');
 
   try {
     const result = await prisma.$transaction(async (tx) => {
@@ -102,7 +104,15 @@ export async function PATCH(
         where: { id: current.id },
         data: {
           ...(name ? { name } : {}),
-          ...(emailChanged ? { email, emailVerified: false } : {}),
+          ...(emailChanged
+            ? {
+                // clear plaintext email and set privacy-preserving fields
+                email: null,
+                emailHmac: hmacEmail(normEmail!),
+                emailEnc: encryptEmail(normEmail!),
+                emailVerified: false,
+              }
+            : {}),
           ...(role ? { role } : {}),
         },
         select: {
@@ -127,10 +137,10 @@ export async function PATCH(
       return { updated, token };
     });
 
-    if (emailChanged && result.token && email) {
+  if (emailChanged && result.token && normEmail) {
       try {
         await sendVerificationEmail({
-          to: email,
+      to: normEmail,
           name: name ?? current.name,
           token: result.token,
         });
@@ -152,6 +162,7 @@ export async function PATCH(
         targetUserId: current.id,
         nameChanged: Boolean(name && name !== current.name),
         emailChanged,
+        email: emailChanged && normEmail ? redactEmail(normEmail) : undefined,
         roleChanged: Boolean(role && role !== current.role),
       },
     });

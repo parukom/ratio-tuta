@@ -5,6 +5,7 @@ import { getSession } from '@lib/session';
 import { randomBytes } from 'crypto';
 import { logAudit } from '@lib/logger';
 import { sendVerificationEmail } from '@lib/mail';
+import { hmacEmail, encryptEmail, normalizeEmail, redactEmail } from '@lib/crypto';
 
 // Protected endpoint: register someone else (e.g., worker)
 export async function POST(req: Request) {
@@ -19,13 +20,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { name, email, password, role, teamId } = (await req.json()) as {
+  const { name, email, password, role, teamId } = (await req.json()) as {
       name: string;
       email: string;
       password?: string;
       role?: 'USER' | 'ADMIN';
       teamId?: string;
     };
+  const normEmail = email ? normalizeEmail(email) : '';
 
     if (!name || !email) {
       await logAudit({
@@ -37,14 +39,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { emailHmac: hmacEmail(normEmail) },
+          { email: { equals: normEmail, mode: 'insensitive' } },
+        ],
+      },
+    });
     if (existingUser) {
       await logAudit({
         action: 'user.register.worker',
         status: 'DENIED',
         message: 'User already exists',
         actor: session,
-        metadata: { email },
+        metadata: { email: redactEmail(normEmail) },
       });
       return NextResponse.json(
         { error: 'User already exists' },
@@ -134,7 +143,7 @@ export async function POST(req: Request) {
         status: 'ERROR',
         message: 'Invalid password length',
         actor: session,
-        metadata: { email },
+        metadata: { email: redactEmail(normEmail) },
       });
       return NextResponse.json(
         { error: 'Password must be 8-16 characters' },
@@ -145,13 +154,21 @@ export async function POST(req: Request) {
     const userRole: 'USER' | 'ADMIN' = role ?? 'USER';
     const passwordHash = await hashPassword(finalPassword);
     let verificationToken: string | null = null;
-    const user = await prisma.$transaction(async (tx) => {
+  const user = await prisma.$transaction(async (tx) => {
       const created = await tx.user.create({
-        data: { name, email, password: passwordHash, role: userRole },
+        data: {
+          name,
+      // no plaintext email stored
+          email: undefined,
+          emailHmac: hmacEmail(normEmail),
+          emailEnc: encryptEmail(normEmail),
+          password: passwordHash,
+          role: userRole,
+        },
         select: {
           id: true,
           name: true,
-          email: true,
+      // do not select plaintext email
           role: true,
           createdAt: true,
         },
@@ -177,9 +194,11 @@ export async function POST(req: Request) {
       actor: session,
       teamId: targetTeamId!,
       target: { table: 'User', id: user.id },
-      metadata: { email },
+  metadata: { email: redactEmail(normEmail) },
     });
-    const responseBody: Record<string, unknown> = { user };
+    const responseBody: Record<string, unknown> = {
+      user: { ...user, email: normEmail }, // include email from input for display only
+    };
     if (!password) {
       responseBody.generatedPassword = finalPassword;
     }
@@ -188,7 +207,7 @@ export async function POST(req: Request) {
     try {
       if (verificationToken) {
         await sendVerificationEmail({
-          to: user.email,
+          to: normEmail,
           name: user.name,
           token: verificationToken,
         });
@@ -200,7 +219,7 @@ export async function POST(req: Request) {
         actor: session,
         teamId: targetTeamId!,
         message: 'Failed to send verification email',
-        metadata: { email },
+        metadata: { email: redactEmail(normEmail) },
       });
     }
     return NextResponse.json(responseBody, { status: 201 });

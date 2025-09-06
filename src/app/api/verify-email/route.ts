@@ -44,7 +44,7 @@ export async function GET(req: Request) {
     }
 
     // mark user as verified and delete token
-    const user = await prisma.user.update({
+  const user = await prisma.user.update({
       where: { id: record.userId },
       data: { emailVerified: true },
       select: { id: true, email: true, name: true },

@@ -14,7 +14,12 @@ datasource db {
 model User {
   id               String    @id @default(uuid())
   name             String
-  email            String    @unique
+  email            String?   @unique
+  // Privacy-preserving email storage
+  // emailHmac is a deterministic HMAC of the normalized email used for lookups and uniqueness
+  emailHmac        String?   @unique
+  // emailEnc is the AES-GCM encrypted normalized email for display and mailing
+  emailEnc         String?
   password         String
   role             UserRole  @default(USER)
   emailVerified    Boolean   @default(false)
