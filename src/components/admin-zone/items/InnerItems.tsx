@@ -31,6 +31,9 @@ export default function InnerItems() {
     const [view, setView] = useState<"cards" | "table">("cards")
     const [grouped, setGrouped] = useState<boolean>(true)
     const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({})
+    // Item info drawer
+    const [infoOpen, setInfoOpen] = useState(false)
+    const [selectedItem, setSelectedItem] = useState<ItemRow | null>(null)
 
     // Load persisted state from localStorage after mount (client-only)
     useEffect(() => {
@@ -75,6 +78,10 @@ export default function InnerItems() {
     const [editPrice, setEditPrice] = useState<string>("")
     const [editBoxCost, setEditBoxCost] = useState<string>("")
     const [editTaxBps, setEditTaxBps] = useState<string>("")
+    // If edit modal opens, ensure drawer is closed and selection cleared
+    useEffect(() => {
+        if (editBoxKey) { setInfoOpen(false); setSelectedItem(null) }
+    }, [editBoxKey])
     type EditRow = { id: string; size: string; quantity: string; itemId?: string }
     const genId = () => globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2)
     const [editRows, setEditRows] = useState<EditRow[]>([])
@@ -412,7 +419,13 @@ export default function InnerItems() {
 
             {/* Views */}
             {view === "table" ? (
-                <ItemsTableView items={items} loading={loading} onUpdate={updateItem} onDelete={deleteItem} />
+                <ItemsTableView
+                    items={items}
+                    loading={loading}
+                    onUpdate={updateItem}
+                    onDelete={deleteItem}
+                    onSelectItem={(it) => { setSelectedItem(it); setInfoOpen(true) }}
+                />
             ) : (
                 <ItemsCardsView
                     items={items}
@@ -439,6 +452,7 @@ export default function InnerItems() {
                             setEditRows([{ id: genId(), size: "", quantity: "0" }])
                         }
                     }}
+                    onSelectItem={(it) => { setSelectedItem(it); setInfoOpen(true) }}
                 />
             )}
 
@@ -572,7 +586,7 @@ export default function InnerItems() {
                 {editMsg && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{editMsg}</p>}
             </Modal>
 
-            <ItemInfoDrawer />
+            <ItemInfoDrawer open={infoOpen} onClose={() => setInfoOpen(false)} item={selectedItem} />
         </>
     )
 }

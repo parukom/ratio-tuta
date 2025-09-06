@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { ItemRowActions } from './ItemRowActions'
 
 type ItemRow = {
@@ -30,6 +30,7 @@ export function ItemCard({
     item,
     onUpdate,
     onDelete,
+    onSelect,
 }: {
     item: ItemRow
     onUpdate: (
@@ -55,6 +56,7 @@ export function ItemCard({
         opts?: { categoryName?: string | null }
     ) => Promise<void>
     onDelete: (id: string) => Promise<void>
+    onSelect?: (item: ItemRow) => void
 }) {
     const [imgFailed, setImgFailed] = useState(false)
     const currency = item.currency || 'EUR'
@@ -74,11 +76,40 @@ export function ItemCard({
         ? { backgroundColor: item.color }
         : undefined
 
+    const lastDownRef = useRef<EventTarget | null>(null)
+    function handleMouseDown(e: React.MouseEvent<HTMLDivElement>) {
+        lastDownRef.current = e.target
+    }
+    function handleCardClick(e: React.MouseEvent<HTMLDivElement>) {
+        if (!onSelect) return
+        const down = lastDownRef.current as HTMLElement | null
+        if (!down) return
+        // ensure the mousedown happened inside this card and not on excluded controls
+        const container = e.currentTarget as HTMLElement
+        if (!container.contains(down)) return
+        if (down.closest('button, a, input, textarea, [data-no-open]')) return
+        lastDownRef.current = null
+        onSelect(item)
+    }
+
+    function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+        if (!onSelect) return
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            onSelect(item)
+        }
+    }
+
     return (
         <div
             className={
                 'group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md dark:border-white/10 dark:bg-white/5'
             }
+            role={onSelect ? 'button' : undefined}
+            tabIndex={onSelect ? 0 : -1}
+            onMouseDown={handleMouseDown}
+            onClick={handleCardClick}
+            onKeyDown={handleKeyDown}
         >
             {/* status and actions */}
             <div className="mb-3 flex items-start justify-between gap-3">
@@ -106,7 +137,7 @@ export function ItemCard({
                         </span>
                     )}
                 </div>
-                <div className="hidden sm:flex items-center gap-2 opacity-0 group-hover:opacity-100 transition">
+                <div className="hidden sm:flex items-center gap-2 opacity-0 group-hover:opacity-100 transition" data-no-open>
                     <ItemRowActions item={item} onUpdate={onUpdate} onDelete={onDelete} />
                 </div>
             </div>

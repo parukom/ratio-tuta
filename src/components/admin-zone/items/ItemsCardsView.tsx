@@ -18,9 +18,10 @@ type Props = {
     onDelete: (id: string) => Promise<void>
     onAskDeleteBox: (groupKey: string) => void
     onAskEditBox: (groupKey: string) => void
+    onSelectItem?: (item: ItemRow) => void
 }
 
-export default function ItemsCardsView({ items, groups, grouped, loading, openGroups, setOpenGroups, onUpdate, onDelete, onAskDeleteBox, onAskEditBox }: Props) {
+export default function ItemsCardsView({ items, groups, grouped, loading, openGroups, setOpenGroups, onUpdate, onDelete, onAskDeleteBox, onAskEditBox, onSelectItem }: Props) {
     if (loading) return grouped ? <LoadingGroupedCards className="mt-2" /> : <LoadingCards className="mt-2" />
 
     if (items.length === 0) {
@@ -32,7 +33,7 @@ export default function ItemsCardsView({ items, groups, grouped, loading, openGr
     if (!grouped) {
         return (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                {items.map((it) => (<ItemCard key={it.id} item={it} onUpdate={onUpdate} onDelete={onDelete} />))}
+                {items.map((it) => (<ItemCard key={it.id} item={it} onUpdate={onUpdate} onDelete={onDelete} onSelect={onSelectItem} />))}
             </div>
         )
     }
@@ -107,7 +108,7 @@ export default function ItemsCardsView({ items, groups, grouped, loading, openGr
                     {openGroups[g.key] && (
                         <div className="px-3 pb-3">
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                                {g.items.map((it) => (<ItemCard key={it.id} item={it} onUpdate={onUpdate} onDelete={onDelete} />))}
+                                {g.items.map((it) => (<ItemCard key={it.id} item={it} onUpdate={onUpdate} onDelete={onDelete} onSelect={onSelectItem} />))}
                             </div>
                         </div>
                     )}
