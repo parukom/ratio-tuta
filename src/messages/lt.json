@@ -262,6 +262,55 @@
     },
     "noMembers": "Narių kol kas nėra."
   },
+  "Documents": {
+    "breadcrumbs": {
+      "documents": "Dokumentai"
+    },
+    "tabs": {
+      "receipts": "Kvitai",
+      "blank": "Kita"
+    },
+    "table": {
+      "headers": {
+        "date": "Data",
+        "payment": "Atsiskaitymas",
+        "total": "Suma",
+        "items": "Prekės"
+      }
+    },
+    "list": {
+      "empty": "Nėra kvitų",
+      "openReceipt": "Atidaryti kvitą {id}"
+    },
+    "payments": {
+      "CASH": "Grynais",
+      "CARD": "Kortele",
+      "REFUND": "Grąžinimas"
+    },
+    "modal": {
+      "receipt": "Kvitas",
+      "id": "ID",
+      "date": "Data",
+      "status": "Būsena",
+      "payment": "Atsiskaitymas",
+      "place": "Vieta",
+      "item": "Prekė",
+      "price": "Kaina",
+      "qty": "Kiekis",
+      "total": "Suma",
+      "subtotal": "Tarpinė suma",
+      "amountGiven": "Pateikta suma",
+      "change": "Grąža"
+    },
+    "pagination": {
+      "pageOf": "Puslapis {page} iš {total}",
+      "prev": "Atgal",
+      "next": "Pirmyn"
+    },
+    "blank": {
+      "empty": "Čia kol kas tuščia."
+    }
+  },
   "Items": {
     "title": "Prekės",
     "header": {

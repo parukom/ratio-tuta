@@ -262,6 +262,55 @@
     },
     "noMembers": "Участников пока нет."
   },
+  "Documents": {
+    "breadcrumbs": {
+      "documents": "Документы"
+    },
+    "tabs": {
+      "receipts": "Чеки",
+      "blank": "Другое"
+    },
+    "table": {
+      "headers": {
+        "date": "Дата",
+        "payment": "Оплата",
+        "total": "Итого",
+        "items": "Товары"
+      }
+    },
+    "list": {
+      "empty": "Чеков нет",
+      "openReceipt": "Открыть чек {id}"
+    },
+    "payments": {
+      "CASH": "Наличные",
+      "CARD": "Карта",
+      "REFUND": "Возврат"
+    },
+    "modal": {
+      "receipt": "Чек",
+      "id": "ID",
+      "date": "Дата",
+      "status": "Статус",
+      "payment": "Оплата",
+      "place": "Площадка",
+      "item": "Товар",
+      "price": "Цена",
+      "qty": "Кол-во",
+      "total": "Итого",
+      "subtotal": "Промежуточный итог",
+      "amountGiven": "Внесено",
+      "change": "Сдача"
+    },
+    "pagination": {
+      "pageOf": "Стр. {page} из {total}",
+      "prev": "Назад",
+      "next": "Вперёд"
+    },
+    "blank": {
+      "empty": "Здесь пока пусто."
+    }
+  },
   "Items": {
     "title": "Товары",
     "header": {

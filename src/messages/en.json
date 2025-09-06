@@ -262,6 +262,55 @@
     },
     "noMembers": "No members yet."
   },
+  "Documents": {
+    "breadcrumbs": {
+      "documents": "Documents"
+    },
+    "tabs": {
+      "receipts": "Receipts",
+      "blank": "Other"
+    },
+    "table": {
+      "headers": {
+        "date": "Date",
+        "payment": "Payment",
+        "total": "Total",
+        "items": "Items"
+      }
+    },
+    "list": {
+      "empty": "No receipts",
+      "openReceipt": "Open receipt {id}"
+    },
+    "payments": {
+      "CASH": "Cash",
+      "CARD": "Card",
+      "REFUND": "Refund"
+    },
+    "modal": {
+      "receipt": "Receipt",
+      "id": "ID",
+      "date": "Date",
+      "status": "Status",
+      "payment": "Payment",
+      "place": "Place",
+      "item": "Item",
+      "price": "Price",
+      "qty": "Qty",
+      "total": "Total",
+      "subtotal": "Subtotal",
+      "amountGiven": "Amount given",
+      "change": "Change"
+    },
+    "pagination": {
+      "pageOf": "Page {page} of {total}",
+      "prev": "Previous",
+      "next": "Next"
+    },
+    "blank": {
+      "empty": "Nothing here yet."
+    }
+  },
   "Items": {
     "title": "Items",
     "header": {
