@@ -29,34 +29,15 @@ type ItemRow = {
 
 export function ItemCard({
     item,
-    onUpdate,
-    onDelete,
+    onItemUpdated,
+    onItemDeleted,
+    onConflict,
     onSelect,
 }: {
     item: ItemRow
-    onUpdate: (
-        id: string,
-        patch: Partial<
-            Pick<
-                ItemRow,
-                | 'name'
-                | 'sku'
-                | 'price'
-                | 'taxRateBps'
-                | 'isActive'
-                | 'measurementType'
-                | 'stockQuantity'
-                | 'description'
-                | 'color'
-                | 'size'
-                | 'brand'
-                | 'tags'
-                | 'categoryId'
-            >
-        >,
-        opts?: { categoryName?: string | null }
-    ) => Promise<void>
-    onDelete: (id: string) => Promise<void>
+    onItemUpdated?: (updated: ItemRow) => void
+    onItemDeleted?: (id: string) => void
+    onConflict?: (info: { id: string; places: { placeId: string; placeName: string; quantity: number }[]; kind?: 'item' }) => void
     onSelect?: (item: ItemRow) => void
 }) {
     const t = useTranslations('Items')
@@ -140,7 +121,7 @@ export function ItemCard({
                     )}
                 </div>
                 <div className="hidden sm:flex items-center gap-2 opacity-0 group-hover:opacity-100 transition" data-no-open>
-                    <ItemRowActions item={item} onUpdate={onUpdate} onDelete={onDelete} />
+                    <ItemRowActions item={item} onItemUpdated={onItemUpdated} onItemDeleted={onItemDeleted} onConflict={onConflict} />
                 </div>
             </div>
 
@@ -239,7 +220,7 @@ export function ItemCard({
 
             {/* bottom actions (visible on small screens) */}
             <div className="mt-4 flex items-center justify-end gap-2 sm:hidden">
-                <ItemRowActions item={item} onUpdate={onUpdate} onDelete={onDelete} />
+                <ItemRowActions item={item} onItemUpdated={onItemUpdated} onItemDeleted={onItemDeleted} onConflict={onConflict} />
             </div>
         </div>
     )

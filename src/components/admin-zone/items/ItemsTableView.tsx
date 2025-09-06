@@ -9,14 +9,15 @@ import { useTranslations } from 'next-intl'
 type Props = {
     items: ItemRow[]
     loading: boolean
-    onUpdate: (id: string, patch: Partial<Pick<ItemRow, 'name' | 'sku' | 'price' | 'pricePaid' | 'taxRateBps' | 'isActive' | 'measurementType' | 'stockQuantity' | 'description' | 'color' | 'size' | 'brand' | 'tags' | 'categoryId'>>, opts?: { categoryName?: string | null }) => Promise<void>
-    onDelete: (id: string) => Promise<void>
+    onItemUpdated: (updated: ItemRow) => void
+    onItemDeleted: (id: string) => void
+    onConflict?: (info: { id: string; places: { placeId: string; placeName: string; quantity: number }[]; kind?: 'item' }) => void
     onSelectItem?: (item: ItemRow) => void
 }
 
 const columnWidths = ["w-56", "w-36", "w-24", "w-24", "w-16", "w-20", "w-20", "w-40"]
 
-export default function ItemsTableView({ items, loading, onUpdate, onDelete, onSelectItem }: Props) {
+export default function ItemsTableView({ items, loading, onItemUpdated, onItemDeleted, onConflict, onSelectItem }: Props) {
     const t = useTranslations('Items')
     const lastDownRef = React.useRef<EventTarget | null>(null)
     function handleRowMouseDown(e: React.MouseEvent) {
@@ -82,7 +83,12 @@ export default function ItemsTableView({ items, loading, onUpdate, onDelete, onS
                                 <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{it.unit || "pcs"}</td>
                                 <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{typeof it.stockQuantity === "number" ? it.stockQuantity : "0"}</td>
                                 <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300" data-no-open>
-                                    <ItemRowActions item={it} onUpdate={onUpdate} onDelete={onDelete} />
+                                    <ItemRowActions
+                                        item={it}
+                                        onItemUpdated={onItemUpdated}
+                                        onItemDeleted={onItemDeleted}
+                                        onConflict={onConflict}
+                                    />
                                 </td>
                             </tr>
                         ))}

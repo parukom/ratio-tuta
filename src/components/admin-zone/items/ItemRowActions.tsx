@@ -32,14 +32,11 @@ type ItemRow = {
 }
 
 
-export function ItemRowActions({ item, onUpdate, onDelete }: {
+export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict }: {
     item: ItemRow;
-    onUpdate: (
-        id: string,
-        patch: Partial<Pick<ItemRow, 'name' | 'sku' | 'price' | 'pricePaid' | 'taxRateBps' | 'isActive' | 'measurementType' | 'stockQuantity' | 'description' | 'color' | 'size' | 'brand' | 'tags' | 'categoryId'>>,
-        opts?: { categoryName?: string | null }
-    ) => Promise<void>;
-    onDelete: (id: string) => Promise<void>;
+    onItemUpdated?: (updated: ItemRow, opts?: { categoryName?: string | null }) => void;
+    onItemDeleted?: (id: string) => void;
+    onConflict?: (info: { id: string; places: { placeId: string; placeName: string; quantity: number }[]; kind?: 'item' }) => void;
 }) {
     const t = useTranslations('Common')
     const ti = useTranslations('Items')
@@ -103,22 +100,31 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
         try {
             const nextCategoryId: string | null = categoryId ? categoryId : null
             const nextCategoryName: string | null = nextCategoryId ? (categories.find(c => c.id === nextCategoryId)?.name ?? null) : null
-            await onUpdate(item.id, {
-                name: name.trim(),
-                sku: sku.trim() || null,
-                price: Number(price),
-                pricePaid: Number(pricePaid) || 0,
-                taxRateBps: Number(taxRateBps) || 0,
-                isActive,
-                measurementType: (measurementType ?? 'PCS'),
-                stockQuantity: Number(stockQuantity) || 0,
-                description: description.trim() || null,
-                color: color.trim() || null,
-                size: size.trim() || null,
-                brand: brand.trim() || null,
-                tags: tagsCSV.split(',').map(t => t.trim()).filter(Boolean),
-                categoryId: nextCategoryId,
-            }, { categoryName: nextCategoryName })
+            // Perform update via API
+            const res = await fetch(`/api/items/${item.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: name.trim(),
+                    sku: sku.trim() || null,
+                    price: Number(price),
+                    pricePaid: Number(pricePaid) || 0,
+                    taxRateBps: Number(taxRateBps) || 0,
+                    isActive,
+                    measurementType: (measurementType ?? 'PCS'),
+                    stockQuantity: Number(stockQuantity) || 0,
+                    description: description.trim() || null,
+                    color: color.trim() || null,
+                    size: size.trim() || null,
+                    brand: brand.trim() || null,
+                    tags: tagsCSV.split(',').map(t => t.trim()).filter(Boolean),
+                    categoryId: nextCategoryId,
+                }),
+            })
+            if (!res.ok) throw new Error('Failed to update')
+            const updated: ItemRow = await res.json()
+            onItemUpdated?.({ ...item, ...updated, categoryName: nextCategoryName ?? null }, { categoryName: nextCategoryName })
+            toast.success(ti('toasts.updated'))
             // If an image file is selected, upload it now
             if (imageFile) {
                 try {
@@ -128,6 +134,8 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
                     const upData = await up.json()
                     if (up.ok) {
                         setImageUrl(upData.imageUrl)
+                        // notify parent with updated image
+                        onItemUpdated?.({ ...item, ...updated, imageUrl: upData.imageUrl, categoryName: nextCategoryName ?? null }, { categoryName: nextCategoryName })
                     } else {
                         toast.error(upData.error || 'Failed to upload image')
                     }
@@ -149,7 +157,23 @@ export function ItemRowActions({ item, onUpdate, onDelete }: {
     async function doDelete() {
         setLoading(true)
         try {
-            await onDelete(item.id)
+            const res = await fetch(`/api/items/${item.id}`, { method: 'DELETE' })
+            if (res.status === 409) {
+                try {
+                    const r2 = await fetch(`/api/items/${item.id}/places`)
+                    const data = await r2.json()
+                    const places = Array.isArray(data) ? data : []
+                    onConflict?.({ id: item.id, places, kind: 'item' })
+                } catch {
+                    onConflict?.({ id: item.id, places: [], kind: 'item' })
+                }
+                toast(ti('modals.conflict.itemAssigned'), { icon: '⚠️' })
+                setConfirmOpen(false)
+                return
+            }
+            if (!res.ok) throw new Error('Failed to delete')
+            onItemDeleted?.(item.id)
+            toast.success(ti('toasts.deleted'))
             setConfirmOpen(false)
             setOpen(false)
         } catch {

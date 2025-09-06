@@ -36,3 +36,10 @@ export type Group = {
   items: ItemRow[];
   totalStock: number;
 };
+
+export type EditRow = {
+  id: string;
+  size: string;
+  quantity: string;
+  itemId?: string;
+};

@@ -29,6 +29,14 @@ export async function GET(req: Request) {
   const minPricePaidParam = searchParams.get('minPricePaid');
   const maxPricePaidParam = searchParams.get('maxPricePaid');
   const sortParam = (searchParams.get('sort') || '').toLowerCase();
+  // Optional pagination
+  const pageParam = searchParams.get('page');
+  const perPageParam = searchParams.get('perPage');
+  const hasPagination = !!(pageParam || perPageParam);
+  const page = Math.max(1, Number.parseInt(pageParam || '1', 10) || 1);
+  const perPageRaw = Number.parseInt(perPageParam || '25', 10) || 25;
+  // cap perPage to 25 as requested
+  const perPage = Math.max(1, Math.min(25, perPageRaw));
 
   // Resolve teams current user belongs to
   const [owned, memberOf] = await Promise.all([
@@ -189,6 +197,7 @@ export async function GET(req: Request) {
       category: { select: { name: true } },
     },
     orderBy,
+    ...(hasPagination ? { skip: (page - 1) * perPage, take: perPage } : {}),
   });
 
   const shaped = items.map((it) => {
@@ -232,7 +241,12 @@ export async function GET(req: Request) {
     };
   });
 
-  return NextResponse.json(shaped);
+  if (!hasPagination) {
+    return NextResponse.json(shaped);
+  }
+
+  const total = await prisma.item.count({ where: whereClause });
+  return NextResponse.json({ items: shaped, total, page, perPage });
 }
 
 export async function POST(req: Request) {

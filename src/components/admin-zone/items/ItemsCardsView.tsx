@@ -15,14 +15,15 @@ type Props = {
     loading: boolean
     openGroups: Record<string, boolean>
     setOpenGroups: (updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void
-    onUpdate: (id: string, patch: Partial<Pick<ItemRow, 'name' | 'sku' | 'price' | 'pricePaid' | 'taxRateBps' | 'isActive' | 'measurementType' | 'stockQuantity' | 'description' | 'color' | 'size' | 'brand' | 'tags' | 'categoryId'>>, opts?: { categoryName?: string | null }) => Promise<void>
-    onDelete: (id: string) => Promise<void>
+    onItemUpdated: (updated: ItemRow) => void
+    onItemDeleted: (id: string) => void
+    onConflict?: (info: { id: string; places: { placeId: string; placeName: string; quantity: number }[]; kind?: 'item' }) => void
     onAskDeleteBox: (groupKey: string) => void
     onAskEditBox: (groupKey: string) => void
     onSelectItem?: (item: ItemRow) => void
 }
 
-export default function ItemsCardsView({ items, groups, grouped, loading, openGroups, setOpenGroups, onUpdate, onDelete, onAskDeleteBox, onAskEditBox, onSelectItem }: Props) {
+export default function ItemsCardsView({ items, groups, grouped, loading, openGroups, setOpenGroups, onItemUpdated, onItemDeleted, onConflict, onAskDeleteBox, onAskEditBox, onSelectItem }: Props) {
     const t = useTranslations('Items')
     if (loading) return grouped ? <LoadingGroupedCards className="mt-2" /> : <LoadingCards className="mt-2" />
 
@@ -35,7 +36,16 @@ export default function ItemsCardsView({ items, groups, grouped, loading, openGr
     if (!grouped) {
         return (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                {items.map((it) => (<ItemCard key={it.id} item={it} onUpdate={onUpdate} onDelete={onDelete} onSelect={onSelectItem} />))}
+                {items.map((it) => (
+                    <ItemCard
+                        key={it.id}
+                        item={it}
+                        onItemUpdated={onItemUpdated}
+                        onItemDeleted={onItemDeleted}
+                        onConflict={onConflict}
+                        onSelect={onSelectItem}
+                    />
+                ))}
             </div>
         )
     }
@@ -110,7 +120,16 @@ export default function ItemsCardsView({ items, groups, grouped, loading, openGr
                     {openGroups[g.key] && (
                         <div className="px-3 pb-3">
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                                {g.items.map((it) => (<ItemCard key={it.id} item={it} onUpdate={onUpdate} onDelete={onDelete} onSelect={onSelectItem} />))}
+                                {g.items.map((it) => (
+                                    <ItemCard
+                                        key={it.id}
+                                        item={it}
+                                        onItemUpdated={onItemUpdated}
+                                        onItemDeleted={onItemDeleted}
+                                        onConflict={onConflict}
+                                        onSelect={onSelectItem}
+                                    />
+                                ))}
                             </div>
                         </div>
                     )}

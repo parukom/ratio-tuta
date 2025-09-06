@@ -5,16 +5,17 @@ import toast from "react-hot-toast"
 import CreateBoxButton from "./CreateBoxButton"
 import CreateItemButton from "./CreateItemButton"
 import { ConflictModal } from "./ConflictModal"
-import { LayoutGrid, Table as TableIcon, RotateCcw } from "lucide-react"
-import Dropdown from "@/components/ui/Dropdown"
-import Input from "@/components/ui/Input"
-import SearchInput from "@/components/ui/SearchInput"
+// header UI moved to ItemsHeader
 import Modal from "@/components/modals/Modal"
 import ItemsTableView from "./ItemsTableView"
 import ItemsCardsView from "./ItemsCardsView"
 import type { ItemRow, Group } from "./types"
 import ItemInfoDrawer from "./ItemInfoDrawer"
 import { useTranslations } from 'next-intl'
+import { ConfirmDeleteBoxModal } from "./ConfirmDeleteBoxModal"
+import { EditBoxModal } from "./EditBoxModal"
+import ItemsHeader from "./ItemsHeader"
+import ItemsPagination from "./ItemsPagination"
 
 // ItemRow and Group types moved to ./types for reuse across components
 
@@ -64,14 +65,16 @@ export default function InnerItems() {
 
     // data
     const [items, setItems] = useState<ItemRow[]>([])
+    const [total, setTotal] = useState<number>(0)
+    const [page, setPage] = useState<number>(1)
+    const perPage = 25
+    const boxesPerPage = 10
     const [loading, setLoading] = useState(false)
     const [conflictInfo, setConflictInfo] = useState<null | { id: string; places: { placeId: string; placeName: string; quantity: number }[]; kind?: 'item' | 'box' }>(null)
     type Category = { id: string; name: string }
     const [categories, setCategories] = useState<Category[]>([])
     // Deleting a whole box (group)
     const [confirmBoxKey, setConfirmBoxKey] = useState<string | null>(null)
-    const [deletingBox, setDeletingBox] = useState(false)
-    const [boxMsg, setBoxMsg] = useState("")
     // Edit box modal
     const [editBoxKey, setEditBoxKey] = useState<string | null>(null)
     const [editLoading, setEditLoading] = useState(false)
@@ -127,12 +130,15 @@ export default function InnerItems() {
     }, [])
 
     // fetch items
+    // When filters or view mode change, reset to page 1
+    useEffect(() => { setPage(1) }, [q, onlyActive, categoryId, measurementType, inStock, minPrice, maxPrice, sort, view, grouped])
+    // Fetch whenever filters, page, or view mode change
     useEffect(() => {
         setLoading(true)
         const t = setTimeout(() => { fetchItems() }, 250)
         return () => clearTimeout(t)
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [q, onlyActive, categoryId, measurementType, inStock, minPrice, maxPrice, sort])
+    }, [q, onlyActive, categoryId, measurementType, inStock, minPrice, maxPrice, sort, page, view, grouped])
 
     async function fetchItems() {
         setLoading(true)
@@ -145,6 +151,11 @@ export default function InnerItems() {
             if (inStock) params.set("inStock", "1")
             if (minPrice) params.set("minPrice", minPrice)
             if (maxPrice) params.set("maxPrice", maxPrice)
+            const groupedMode = (view === 'cards' && grouped)
+            if (!groupedMode) {
+                params.set("page", String(page))
+                params.set("perPage", String(perPage))
+            }
             const sortMap: Record<string, string> = {
                 createdAt_desc: "createdat_desc",
                 createdAt_asc: "createdat_asc",
@@ -160,8 +171,19 @@ export default function InnerItems() {
             params.set("sort", sortMap[sort] || "createdat_desc")
             const res = await fetch(`/api/items?${params.toString()}`)
             if (!res.ok) throw new Error(t('toasts.loadFailed'))
-            const data: ItemRow[] = await res.json()
-            setItems(data)
+            const data: unknown = await res.json()
+            if (Array.isArray(data)) {
+                setItems(data as ItemRow[])
+                // total is used only for item pagination; in grouped mode, pages are computed from groups later
+                setTotal((data as ItemRow[]).length)
+            } else if (data && typeof data === 'object') {
+                const obj = data as { items?: ItemRow[]; total?: number; page?: number; perPage?: number }
+                setItems(Array.isArray(obj.items) ? obj.items : [])
+                setTotal(typeof obj.total === 'number' ? obj.total : 0)
+            } else {
+                setItems([])
+                setTotal(0)
+            }
         } catch (e) {
             console.error(e)
             toast.error(t('toasts.loadFailed'))
@@ -169,55 +191,7 @@ export default function InnerItems() {
     }
 
     // Delete a whole box (group)
-    async function deleteBoxByGroupKey(groupKey: string) {
-        // groupKey format: `${teamId}|${baseLabel}|${color || ""}`
-        const [teamId, baseLabel, color] = groupKey.split("|")
-        // Normalize baseName expected by API: strip trailing ` (Color)` if present
-        let baseName = baseLabel
-        if (color && baseLabel.endsWith(` (${color})`)) {
-            baseName = baseLabel.slice(0, -(` (${color})`).length)
-        }
-
-        setDeletingBox(true); setBoxMsg("")
-        try {
-            const res = await fetch(`/api/items/box`, {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ teamId, baseName, color: color || null }),
-            })
-            const data: unknown = await res.json().catch(() => ({} as unknown))
-            if (res.status === 409) {
-                const places = (typeof data === 'object' && data && Array.isArray((data as { places?: unknown }).places)
-                    ? ((data as { places: { placeId: string; placeName: string; quantity: number }[] }).places)
-                    : [])
-                setConflictInfo({ id: groupKey, places, kind: 'box' })
-                toast(t('modals.conflict.boxAssigned'), { icon: '⚠️' })
-                setConfirmBoxKey(null)
-                return
-            }
-            if (!res.ok) {
-                const errMsg = (typeof data === 'object' && data && typeof (data as { error?: unknown }).error === 'string')
-                    ? (data as { error: string }).error
-                    : t('toasts.boxDeleteFailed')
-                throw new Error(errMsg)
-            }
-
-            // Optimistically remove items from this group
-            setItems((prev) => prev.filter((it) => {
-                const base = (it.name || "").split(" - ")[0] || it.name
-                const key = `${it.teamId}|${base}|${it.color || ""}`
-                return key !== groupKey
-            }))
-            toast.success(t('toasts.boxDeleted'))
-            setConfirmBoxKey(null)
-        } catch (e) {
-            console.error(e)
-            setBoxMsg((e as Error)?.message || t('toasts.boxDeleteFailed'))
-            toast.error(t('toasts.boxDeleteFailed'))
-        } finally {
-            setDeletingBox(false)
-        }
-    }
+    // handled inside ConfirmDeleteBoxModal now
 
     // create callback
     function onCreated(created: Partial<ItemRow> & { id: string; teamId: string; name: string; price: number; pricePaid?: number; taxRateBps: number; isActive: boolean; createdAt: string }) {
@@ -264,21 +238,7 @@ export default function InnerItems() {
         }))
         toast.success(t('toasts.updated'))
     }
-    async function deleteItem(id: string) {
-        const res = await fetch(`/api/items/${id}`, { method: "DELETE" })
-        if (res.status === 409) {
-            try {
-                const r2 = await fetch(`/api/items/${id}/places`)
-                const data = await r2.json()
-                setConflictInfo({ id, places: Array.isArray(data) ? data : [], kind: 'item' })
-            } catch { setConflictInfo({ id, places: [] }) }
-            toast(t('modals.conflict.itemAssigned'), { icon: "⚠️" })
-            return
-        }
-        if (!res.ok) throw new Error("Failed to delete")
-        setItems((prev) => prev.filter((it) => it.id !== id))
-        toast.success(t('toasts.deleted'))
-    }
+    // deleteItem moved into child components (ItemRowActions) via callbacks
 
     // grouping
     const groups = useMemo(() => {
@@ -301,6 +261,14 @@ export default function InnerItems() {
     function expandAllGroups() { const all: Record<string, boolean> = {}; for (const g of groups) all[g.key] = true; setOpenGroups(all) }
     function collapseAllGroups() { const all: Record<string, boolean> = {}; for (const g of groups) all[g.key] = false; setOpenGroups(all) }
 
+    const totalPagesItems = Math.max(1, Math.ceil(total / perPage))
+    const totalPagesBoxes = Math.max(1, Math.ceil(groups.length / boxesPerPage))
+    const pagedGroups = useMemo(() => {
+        if (!(view === 'cards' && grouped)) return groups
+        const start = (page - 1) * boxesPerPage
+        return groups.slice(start, start + boxesPerPage)
+    }, [groups, view, grouped, page, boxesPerPage])
+
     return (
         <>
             <div className="mb-6 flex items-center justify-between">
@@ -311,133 +279,60 @@ export default function InnerItems() {
                 </div>
             </div>
 
-            <header className="sticky top-0 z-10 mb-4 rounded-xl border border-gray-200 bg-white p-3 shadow-xs dark:border-white/10 dark:bg-gray-900">
-                <div className="flex flex-col gap-4">
-                    <header className="w-full flex gap-4 flex-wrap">
-
-                        <div className="ml-auto flex items-center gap-1 rounded-md bg-gray-50 p-1 ring-1 ring-gray-200 dark:bg-white/5 dark:ring-white/10">
-                            <button type="button" onClick={() => setView("cards")} className={`inline-flex items-center gap-1 rounded px-2 py-1 text-xs ${view === "cards" ? "bg-white text-gray-900 ring-1 ring-gray-200 dark:bg-gray-800 dark:text-white dark:ring-white/10" : "text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"}`} title={t('header.view.cards')}><LayoutGrid className="size-3.5" /> </button>
-                            <button type="button" onClick={() => setView("table")} className={`inline-flex items-center gap-1 rounded px-2 py-1 text-xs ${view === "table" ? "bg-white text-gray-900 ring-1 ring-gray-200 dark:bg-gray-800 dark:text-white dark:ring-white/10" : "text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"}`} title={t('header.view.table')}><TableIcon className="size-3.5" /> </button>
-                        </div>
-
-                        <div className="relative min-w-56 flex-1">
-                            <SearchInput
-                                value={q}
-                                onChange={(e) => setQ(e.target.value)}
-                                placeholder={t('header.searchPlaceholder')}
-                                containerClassName=""
-                                inputClassName="block w-full rounded-md bg-white py-1.5 pl-8 pr-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500 sm:text-sm/6"
-                            />
-                        </div>
-
-                        <div className="inline-block">
-                            <Dropdown
-                                align="left"
-                                buttonLabel={categoryId ? (categories.find(c => c.id === categoryId)?.name ?? t('header.allCategories')) : t('header.allCategories')}
-                                items={[{ key: "", label: t('header.allCategories') }, ...categories.map(c => ({ key: c.id, label: c.name }))]}
-                                onSelect={(key) => setCategoryId(key)}
-                            />
-                        </div>
-
-                        <label className="flex items-center gap-2 rounded-md px-2 py-1 text-sm text-gray-700 ring-1 ring-inset ring-gray-300 dark:text-gray-300 dark:ring-white/10">
-                            <input type="checkbox" checked={inStock} onChange={(e) => setInStock(e.target.checked)} />
-                            {t('header.inStock')}
-                        </label>
-                    </header>
-
-
-                    <footer className="flex gap-4 flex-wrap">
-
-
-                        <div className="flex items-center gap-1">
-                            <div className="w-24">
-                                <Input
-                                    type="number"
-                                    value={minPrice}
-                                    onChange={(e) => setMinPrice(e.target.value)}
-                                    placeholder={t('header.minPrice')}
-                                    className="px-2"
-                                    hideLabel
-                                />
-                            </div>
-                            <span className="text-gray-400">-</span>
-                            <div className="w-24">
-                                <Input
-                                    type="number"
-                                    value={maxPrice}
-                                    onChange={(e) => setMaxPrice(e.target.value)}
-                                    placeholder={t('header.maxPrice')}
-                                    className="px-2"
-                                    hideLabel
-                                />
-                            </div>
-                        </div>
-                        {(() => {
-                            const sortOptions = [
-                                { key: "createdAt_desc", label: t('header.sort.newest') },
-                                { key: "createdAt_asc", label: t('header.sort.oldest') },
-                                { key: "name_asc", label: t('header.sort.nameAsc') },
-                                { key: "name_desc", label: t('header.sort.nameDesc') },
-                                { key: "price_asc", label: t('header.sort.priceAsc') },
-                                { key: "price_desc", label: t('header.sort.priceDesc') },
-                                { key: "stock_asc", label: t('header.sort.stockAsc') },
-                                { key: "stock_desc", label: t('header.sort.stockDesc') },
-                                { key: "tax_asc", label: t('header.sort.taxAsc') },
-                                { key: "tax_desc", label: t('header.sort.taxDesc') },
-                            ]
-                            const current = sortOptions.find(o => o.key === sort)?.label ?? t('header.sort.label')
-                            return (
-                                <div className="inline-block" title={t('header.sort.label')}>
-                                    <Dropdown
-                                        align="left"
-                                        buttonLabel={current}
-                                        items={sortOptions}
-                                        onSelect={(key) => setSort(key)}
-                                    />
-                                </div>
-                            )
-                        })()}
-                        <button type="button" onClick={() => { setQ(""); setOnlyActive(false); setCategoryId(""); setMeasurementType(""); setInStock(false); setMinPrice(""); setMaxPrice(""); setSort("createdAt_desc") }} className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:text-gray-200 dark:ring-white/10 dark:hover:bg-white/5" title={t('header.reset')}>
-                            <RotateCcw className="size-3.5" /> {t('header.reset')}
-                        </button>
-
-                    </footer>
-                </div>
-                <div className="mt-2 flex items-center gap-3">
-                    <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" checked={onlyActive} onChange={(e) => setOnlyActive(e.target.checked)} />{t('header.activeOnly')}</label>
-                    {view === "cards" && (
-                        <div className="ml-2 flex items-center gap-2">
-                            <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" checked={grouped} onChange={(e) => setGrouped(e.target.checked)} />{t('header.groupByBox')}</label>
-                            {grouped && (
-                                <div className="flex items-center gap-1">
-                                    <button type="button" onClick={expandAllGroups} className="rounded px-2 py-1 text-xs text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:text-gray-200 dark:ring-white/10 dark:hover:bg-white/5">{t('header.expandAll')}</button>
-                                    <button type="button" onClick={collapseAllGroups} className="rounded px-2 py-1 text-xs text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:text-gray-200 dark:ring-white/10 dark:hover:bg-white/5">{t('header.collapseAll')}</button>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-            </header>
+            <ItemsHeader
+                q={q}
+                setQ={setQ}
+                inStock={inStock}
+                setInStock={setInStock}
+                onlyActive={onlyActive}
+                setOnlyActive={setOnlyActive}
+                view={view}
+                setView={setView}
+                grouped={grouped}
+                setGrouped={setGrouped}
+                onExpandAll={expandAllGroups}
+                onCollapseAll={collapseAllGroups}
+                categories={categories}
+                categoryId={categoryId}
+                setCategoryId={setCategoryId}
+                minPrice={minPrice}
+                setMinPrice={setMinPrice}
+                maxPrice={maxPrice}
+                setMaxPrice={setMaxPrice}
+                sort={sort}
+                setSort={setSort}
+                onReset={() => { setQ(""); setOnlyActive(false); setCategoryId(""); setMeasurementType(""); setInStock(false); setMinPrice(""); setMaxPrice(""); setSort("createdAt_desc") }}
+            />
 
             {/* Views */}
             {view === "table" ? (
                 <ItemsTableView
                     items={items}
                     loading={loading}
-                    onUpdate={updateItem}
-                    onDelete={deleteItem}
+                    onItemUpdated={(updated) => {
+                        setItems((prev) => prev.map((it) => it.id === updated.id ? { ...it, ...updated } : it))
+                    }}
+                    onItemDeleted={(id) => {
+                        setItems((prev) => prev.filter((it) => it.id !== id))
+                    }}
+                    onConflict={(info) => setConflictInfo(info)}
                     onSelectItem={(it) => { setSelectedItem(it); setInfoOpen(true) }}
                 />
             ) : (
                 <ItemsCardsView
                     items={items}
-                    groups={groups}
+                    groups={grouped ? pagedGroups : groups}
                     grouped={grouped}
                     loading={loading}
                     openGroups={openGroups}
                     setOpenGroups={(updater) => setOpenGroups(updater(openGroups))}
-                    onUpdate={updateItem}
-                    onDelete={deleteItem}
+                    onItemUpdated={(updated) => {
+                        setItems((prev) => prev.map((it) => it.id === updated.id ? { ...it, ...updated } : it))
+                    }}
+                    onItemDeleted={(id) => {
+                        setItems((prev) => prev.filter((it) => it.id !== id))
+                    }}
+                    onConflict={(info) => setConflictInfo(info)}
                     onAskDeleteBox={(key) => setConfirmBoxKey(key)}
                     onAskEditBox={(key) => {
                         setEditMsg("")
@@ -458,134 +353,58 @@ export default function InnerItems() {
                 />
             )}
 
+            {/* Pagination */}
+            <ItemsPagination
+                page={page}
+                setPage={(n) => setPage(n)}
+                totalPages={(view === 'cards' && grouped) ? totalPagesBoxes : totalPagesItems}
+                disabled={loading}
+            />
+
             <ConflictModal info={conflictInfo} onClose={() => setConflictInfo(null)} />
 
             {/* Confirm delete box modal */}
-            <Modal open={!!confirmBoxKey} onClose={() => (!deletingBox && setConfirmBoxKey(null))} size="sm">
-                <div className="sm:flex sm:items-start">
-                    <div className="mx-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10 dark:bg-red-500/10">
-                        <svg className="h-6 w-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" aria-hidden="true">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                        </svg>
-                    </div>
-                    <div className="mt-3 text-left sm:ml-4 sm:mt-0">
-                        <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">{t('modals.deleteBox.title')}</h3>
-                        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{t('modals.deleteBox.body')}</p>
-                    </div>
-                </div>
-                <div className="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse">
-                    <button
-                        type="button"
-                        onClick={() => confirmBoxKey && deleteBoxByGroupKey(confirmBoxKey)}
-                        disabled={deletingBox}
-                        className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 disabled:opacity-60 sm:ml-3 sm:w-auto dark:bg-red-500 dark:hover:bg-red-400"
-                    >
-                        {deletingBox ? t('modals.deleteBox.deleting') : t('modals.deleteBox.submit')}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => setConfirmBoxKey(null)}
-                        disabled={deletingBox}
-                        className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto dark:bg-gray-700 dark:text-white dark:ring-white/10 dark:hover:bg-gray-600"
-                    >
-                        {t('modals.deleteBox.cancel')}
-                    </button>
-                </div>
-                {boxMsg && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{boxMsg}</p>}
+            <Modal open={!!confirmBoxKey} onClose={() => setConfirmBoxKey(null)} size="sm">
+                <ConfirmDeleteBoxModal
+                    confirmBoxKey={confirmBoxKey}
+                    onClose={() => setConfirmBoxKey(null)}
+                    onDeleted={(groupKey) => {
+                        // Optimistically remove items from this group
+                        setItems((prev) => prev.filter((it) => {
+                            const base = (it.name || "").split(" - ")[0] || it.name
+                            const key = `${it.teamId}|${base}|${it.color || ""}`
+                            return key !== groupKey
+                        }))
+                    }}
+                    onConflict={(info) => setConflictInfo(info)}
+                />
             </Modal>
 
             {/* Edit box modal */}
             <Modal open={!!editBoxKey} onClose={() => (!editLoading && setEditBoxKey(null))} size="lg">
-                <h3 className="text-base font-semibold text-gray-900 dark:text-white">{t('modals.editBox.title')}</h3>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t('modals.editBox.subtitle')}</p>
-                <div className="mt-4 space-y-3">
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                        <Input type="number" placeholder={t('modals.editBox.price')} value={editPrice} onChange={(e) => setEditPrice(e.target.value)} />
-                        <Input type="number" placeholder={t('modals.editBox.boxCost')} value={editBoxCost} onChange={(e) => setEditBoxCost(e.target.value)} />
-                        <Input type="number" placeholder={t('modals.editBox.taxBps')} value={editTaxBps} onChange={(e) => setEditTaxBps(e.target.value)} />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('modals.editBox.replacePicture')}</label>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => setEditImage(e.target.files?.[0] ?? null)}
-                            className="block w-full text-sm text-gray-900 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:text-gray-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-300"
-                        />
-                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('modals.editBox.pictureHint')}</p>
-                    </div>
-                    <div>
-                        <div className="mb-1 text-sm font-medium text-gray-800 dark:text-gray-200">{t('modals.editBox.sizesTitle')}</div>
-                        <div className="space-y-2">
-                            {editRows.map((row) => (
-                                <div key={row.id} className="grid grid-cols-12 items-center gap-2">
-                                    <div className="col-span-6"><Input type="text" placeholder={t('modals.editBox.variantSize')} value={row.size} onChange={(e) => updateEditRow(row.id, { size: e.target.value })} /></div>
-                                    <div className="col-span-4"><Input type="number" placeholder={t('modals.editBox.quantity')} value={row.quantity} onChange={(e) => updateEditRow(row.id, { quantity: e.target.value })} /></div>
-                                    <div className="col-span-2 flex justify-end"><button type="button" onClick={() => removeEditRow(row.id)} className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-gray-100 dark:ring-white/10">{t('modals.editBox.remove')}</button></div>
-                                </div>
-                            ))}
-                        </div>
-                        <div className="mt-2"><button type="button" onClick={addEditRow} className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-gray-100 dark:ring-white/10">{t('modals.editBox.addSize')}</button></div>
-                    </div>
-                </div>
-                <div className="mt-4 flex items-center justify-end gap-2">
-                    <button type="button" onClick={() => setEditBoxKey(null)} disabled={editLoading} className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-gray-100 dark:ring-white/10">{t('modals.editBox.cancel')}</button>
-                    <button
-                        type="button"
-                        disabled={editLoading}
-                        onClick={async () => {
-                            if (!editBoxKey) return
-                            setEditLoading(true); setEditMsg("")
-                            try {
-                                // Parse groupKey
-                                const [teamId, baseLabel, color] = editBoxKey.split("|")
-                                let baseName = baseLabel
-                                if (color && baseLabel.endsWith(` (${color})`)) {
-                                    baseName = baseLabel.slice(0, -(` (${color})`).length)
-                                }
-                                // Build sizes for API: only positive quantities allowed by API; we’ll send adds via box API
-                                const adds = editRows.filter(r => r.size.trim() && Number(r.quantity) !== 0 && Number(r.quantity) > 0)
-                                    .map(r => ({ size: r.size.trim(), quantity: Number(r.quantity) }))
-                                // Send sizes update and/or image replacement
-                                if (adds.length || editImage) {
-                                    let res: Response
-                                    if (editImage) {
-                                        const fd = new FormData()
-                                        fd.append('payload', JSON.stringify({ teamId, baseName, color: color || null, price: Number(editPrice) || 0, boxCost: Number(editBoxCost) || 0, taxRateBps: Number(editTaxBps) || 0, measurementType: 'PCS', skuPrefix: null, sizes: adds, createMissing: true, isActive: true }))
-                                        fd.append('file', editImage)
-                                        res = await fetch('/api/items/box', { method: 'POST', body: fd })
-                                    } else {
-                                        res = await fetch('/api/items/box', {
-                                            method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({ teamId, baseName, color: color || null, price: Number(editPrice) || 0, boxCost: Number(editBoxCost) || 0, taxRateBps: Number(editTaxBps) || 0, measurementType: 'PCS', skuPrefix: null, sizes: adds, createMissing: true, isActive: true }),
-                                        })
-                                    }
-                                    const data = await res.json().catch(() => ({}))
-                                    if (!res.ok) throw new Error(data?.error || 'Failed to update box')
-                                }
-                                // Handle negative quantities: apply as per-item decrements via PATCH
-                                const negs = editRows.filter(r => r.itemId && r.size.trim() && Number(r.quantity) < 0)
-                                for (const r of negs) {
-                                    const it = items.find(i => i.id === r.itemId)
-                                    if (!it) continue
-                                    const newStock = Math.max(0, (it.stockQuantity || 0) + Number(r.quantity))
-                                    // Note: this does not adjust pricePaid; it's a stock correction
-                                    await updateItem(it.id, { stockQuantity: newStock })
-                                }
-                                toast.success(t('toasts.updated'))
-                                setEditBoxKey(null)
-                                setEditImage(null)
-                                fetchItems()
-                            } catch (e) {
-                                setEditMsg((e as Error)?.message || t('Common.errors.failedToSave'))
-                                toast.error(t('Common.errors.failedToSave'))
-                            } finally { setEditLoading(false) }
-                        }}
-                        className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400"
-                    >{editLoading ? t('modals.editBox.saving') : t('modals.editBox.save')}</button>
-                </div>
-                {editMsg && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{editMsg}</p>}
+                <EditBoxModal
+                    editBoxKey={editBoxKey}
+                    setEditBoxKey={setEditBoxKey}
+                    editLoading={editLoading}
+                    setEditLoading={setEditLoading}
+                    editMsg={editMsg}
+                    setEditMsg={setEditMsg}
+                    editImage={editImage}
+                    setEditImage={setEditImage}
+                    editPrice={editPrice}
+                    setEditPrice={setEditPrice}
+                    editBoxCost={editBoxCost}
+                    setEditBoxCost={setEditBoxCost}
+                    editTaxBps={editTaxBps}
+                    setEditTaxBps={setEditTaxBps}
+                    editRows={editRows}
+                    addEditRow={addEditRow}
+                    removeEditRow={removeEditRow}
+                    updateEditRow={updateEditRow}
+                    items={items}
+                    updateItem={updateItem}
+                    fetchItems={fetchItems}
+                />
             </Modal>
 
             <ItemInfoDrawer open={infoOpen} onClose={() => setInfoOpen(false)} item={selectedItem} />
