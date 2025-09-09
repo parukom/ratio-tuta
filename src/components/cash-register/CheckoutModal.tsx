@@ -1,5 +1,5 @@
 
-import { Banknote, CreditCard, X } from "lucide-react"
+import { Banknote, CreditCard } from "lucide-react"
 import type { CartItem } from '@/types/cash-register';
 
 type Props = {
@@ -43,35 +43,28 @@ const CheckoutModal: React.FC<Props> = ({
         <>
             <header className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">Krepšelis</h2>
-                <button
-                    onClick={() => {
-                        setIsModalOpen(false);
-                        setPaymentOption('CASH');
-                    }}
-                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                >
-                    <X className="cursor-pointer"/>
-                </button>
+
             </header>
 
             {/* body - items */}
             <div className="mb-4 max-h-64 overflow-y-auto">
                 {cart.map(item => (
-            <div key={item.id} className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-white/10">
+                    <div key={item.id} className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-white/10">
                         <div>
-                <span className="font-medium text-2xl text-gray-900 dark:text-white">{item.name}</span>
-                <span className="text-gray-500 text-sm ml-2 dark:text-gray-400">x{item.quantity}</span>
+                            <span className="font-medium text-2xl text-gray-900 dark:text-white">{item.name}</span>
+                            <span className="text-gray-500 text-sm ml-2 dark:text-gray-400">x{item.quantity}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setCart(prevCart => {
-                                        const newCart = prevCart.map(cartItem =>
-                                            cartItem.id === item.id
-                                                ? { ...cartItem, quantity: Math.max(0, cartItem.quantity - 1) }
-                                                : cartItem
-                                        ).filter(cartItem => cartItem.quantity > 0);
+                                        const newCart = prevCart.map(cartItem => {
+                                            if (cartItem.id !== item.id) return cartItem;
+                                            const step = 1; // simple modal; parent flow handles units
+                                            const nextQty = Math.max(0, Number((cartItem.quantity - step).toFixed(2)));
+                                            return { ...cartItem, quantity: nextQty };
+                                        }).filter(cartItem => cartItem.quantity > 0);
                                         // const cartRef = ref(db, `carts/${id}`);
                                         // set(cartRef, newCart);
                                         return newCart;
@@ -81,16 +74,17 @@ const CheckoutModal: React.FC<Props> = ({
                             >
                                 -
                             </button>
-                            <span className="text-2xl text-gray-900 dark:text-white">€{(item.price * item.quantity).toFixed(2)}</span>
+                            <span className="text-2xl text-gray-900 dark:text-white">€{(item.subtotal ?? (item.price * item.quantity)).toFixed(2)}</span>
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setCart(prevCart => {
-                                        const newCart = prevCart.map(cartItem =>
-                                            cartItem.id === item.id
-                                                ? { ...cartItem, quantity: cartItem.quantity + 1 }
-                                                : cartItem
-                                        );
+                                        const newCart = prevCart.map(cartItem => {
+                                            if (cartItem.id !== item.id) return cartItem;
+                                            const step = 1;
+                                            const nextQty = Number((cartItem.quantity + step).toFixed(2));
+                                            return { ...cartItem, quantity: nextQty };
+                                        });
                                         // const cartRef = ref(db, `carts/${id}`);
                                         // set(cartRef, newCart);
                                         return newCart;

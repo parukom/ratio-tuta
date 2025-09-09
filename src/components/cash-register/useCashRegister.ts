@@ -139,13 +139,19 @@ export function useCart() {
       const current = next.get(child.itemId);
       const have = current?.quantity || 0;
       const room = Math.max(0, child.quantity - have);
-      const add = Math.min(Math.max(1, requestedQty), room);
+      // LENGTH: allow decimal meters; others remain integers
+      const isLength = child.measurementType === 'LENGTH';
+      const normalizedReq = isLength
+        ? Math.max(0.01, requestedQty)
+        : Math.max(1, Math.round(requestedQty));
+      const add = Math.min(normalizedReq, room);
       if (add <= 0) return prev;
       next.set(child.itemId, {
         itemId: child.itemId,
         title: displayName,
         price: displayPrice,
-        quantity: have + add,
+        quantity: isLength ? have + add : Math.round(have + add),
+        measurementType: child.measurementType,
       });
       return next;
     });
@@ -157,20 +163,34 @@ export function useCart() {
     let qty = 0;
     let sum = 0;
     for (const line of cart.values()) {
+      // cart quantity can be decimal for LENGTH, integer otherwise
       qty += line.quantity;
-      sum += line.price * line.quantity;
+      if (line.measurementType === 'WEIGHT') {
+        // price is per kilogram; quantity is grams
+        sum += line.price * (line.quantity / 1000);
+      } else {
+        sum += line.price * line.quantity;
+      }
     }
     return { qty, sum };
   }, [cart]);
 
   // Adapt cart Map to modal's array-based API
   const cartArray: CartItem[] = useMemo(() => {
-    return Array.from(cart.values()).map((l) => ({
-      id: l.itemId,
-      name: l.title,
-      price: l.price,
-      quantity: l.quantity,
-    }));
+    return Array.from(cart.values()).map((l) => {
+      const subtotal =
+        l.measurementType === 'WEIGHT'
+          ? l.price * (l.quantity / 1000)
+          : l.price * l.quantity;
+      return {
+        id: l.itemId,
+        name: l.title,
+        price: l.price,
+        quantity: l.quantity,
+        subtotal,
+        measurementType: l.measurementType,
+      };
+    });
   }, [cart]);
 
   const setCartFromModal = (updater: React.SetStateAction<CartItem[]>) => {

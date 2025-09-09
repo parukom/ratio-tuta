@@ -53,7 +53,7 @@ export default function PlaceDetailPage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [isAddItemsOpen, setIsAddItemsOpen] = useState(false)
-    const [assignedItems, setAssignedItems] = useState<Array<{ id: string; itemId: string; quantity: number; item?: { id: string; name: string; sku?: string | null; price: number } }>>([])
+    const [assignedItems, setAssignedItems] = useState<Array<{ id: string; itemId: string; quantity: number; item?: { id: string; name: string; sku?: string | null; price: number; measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME' } }>>([])
     const [assignedLoading, setAssignedLoading] = useState(true)
     const [assignedError, setAssignedError] = useState<string | null>(null)
     // Members state
@@ -211,6 +211,7 @@ export default function PlaceDetailPage() {
         taxRateBps: number;
         isActive: boolean;
         unit: string;
+        measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME';
         stockQuantity: number;
         createdAt: string;
         updatedAt: string;
@@ -234,6 +235,7 @@ export default function PlaceDetailPage() {
                 taxRateBps: data.taxRateBps,
                 isActive: data.isActive,
                 unit: data.unit,
+                measurementType: data.measurementType,
                 stockQuantity: data.stockQuantity ?? 0,
                 createdAt: data.createdAt,
                 updatedAt: data.updatedAt,
@@ -598,7 +600,18 @@ export default function PlaceDetailPage() {
                                                         <td className="py-2 text-right text-sm text-gray-900 dark:text-white">
                                                             {new Intl.NumberFormat('en-US', { style: 'currency', currency: place?.currency || 'EUR' }).format(row.item?.price ?? 0)}
                                                         </td>
-                                                        <td className="py-2 text-right text-sm text-gray-900 dark:text-white">{row.quantity}</td>
+                                                        <td className="py-2 text-right text-sm text-gray-900 dark:text-white">
+                                                            {(() => {
+                                                                const q = Number(row.quantity || 0)
+                                                                const mt = row.item?.measurementType as undefined | 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'
+                                                                if (mt === 'WEIGHT') return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`
+                                                                if (mt === 'LENGTH') return `${q} m (${q * 100} cm)`
+                                                                if (mt === 'VOLUME') return `${q} l`
+                                                                if (mt === 'AREA') return `${q} m2`
+                                                                if (mt === 'TIME') return `${q} h (${q * 60} min)`
+                                                                return `${q} pcs`
+                                                            })()}
+                                                        </td>
                                                         <td className="py-2 text-right text-sm">
                                                             <button onClick={() => removeFromShop(row.itemId)} className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">{tc('delete')}</button>
                                                         </td>
@@ -652,12 +665,12 @@ export default function PlaceDetailPage() {
                         <div><span className="font-medium">{t('place.items.teamId')}:</span> {info.teamId}</div>
                         <div><span className="font-medium">SKU:</span> {info.sku || '—'}</div>
                         <div><span className="font-medium">{t('place.items.categoryId')}:</span> {info.categoryId || '—'}</div>
-                        <div><span className="font-medium">{t('place.items.unit')}:</span> {info.unit || 'pcs'}</div>
+                        <div><span className="font-medium">{t('place.items.unit')}:</span> {info.unit || (info.measurementType === 'WEIGHT' ? 'kg (saved as g)' : 'pcs')}</div>
                         <div><span className="font-medium">{t('place.items.price')}:</span> {new Intl.NumberFormat('en-US', { style: 'currency', currency: place?.currency || 'EUR' }).format(info.price || 0)}</div>
                         <div><span className="font-medium">{t('place.items.tax')}:</span> {(info.taxRateBps / 100).toFixed(2)}%</div>
                         <div><span className="font-medium">{t('place.items.active')}:</span> {info.isActive ? tc('yes') : tc('no')}</div>
-                        <div><span className="font-medium">{t('place.items.warehouseStock')}:</span> {info.stockQuantity}</div>
-                        <div><span className="font-medium">{t('place.items.assignedHere')}:</span> {info.placeQuantity}</div>
+                        <div><span className="font-medium">{t('place.items.warehouseStock')}:</span> {(() => { const q = Number(info.stockQuantity || 0); if (info.measurementType === 'WEIGHT') return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`; if (info.measurementType === 'LENGTH') return `${q} m (${q * 100} cm)`; if (info.measurementType === 'VOLUME') return `${q} l`; if (info.measurementType === 'AREA') return `${q} m2`; if (info.measurementType === 'TIME') return `${q} h (${q * 60} min)`; return q; })()}</div>
+                        <div><span className="font-medium">{t('place.items.assignedHere')}:</span> {(() => { const q = Number(info.placeQuantity || 0); if (info.measurementType === 'WEIGHT') return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`; if (info.measurementType === 'LENGTH') return `${q} m (${q * 100} cm)`; if (info.measurementType === 'VOLUME') return `${q} l`; if (info.measurementType === 'AREA') return `${q} m2`; if (info.measurementType === 'TIME') return `${q} h (${q * 60} min)`; return q; })()}</div>
                         <div><span className="font-medium">{t('place.items.createdAt')}:</span> {new Date(info.createdAt).toLocaleString()}</div>
                         <div><span className="font-medium">{t('place.items.updatedAt')}:</span> {new Date(info.updatedAt).toLocaleString()}</div>
                     </div>

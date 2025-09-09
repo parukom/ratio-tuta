@@ -146,14 +146,20 @@ export const CashRegisterMainSection: React.FC<RegisterMainProps> = ({
                                             {currency} {pi.price.toFixed(2)}
                                         </span>
                                         {(() => {
-                                            const isWeight = pi.items.some((c) => c.measurementType === 'WEIGHT')
+                                            const anyWeight = pi.items.some((c) => c.measurementType === 'WEIGHT')
+                                            const anyLength = pi.items.some((c) => c.measurementType === 'LENGTH')
                                             const formatWeight = (grams: number) => {
                                                 if (grams >= 1000) return `${(grams / 1000).toFixed(1)} kg`
                                                 return `${grams} g`
                                             }
+                                            const text = anyWeight
+                                                ? formatWeight(pi.quantity)
+                                                : anyLength
+                                                    ? `${pi.quantity} m`
+                                                    : `${pi.quantity}`
                                             return (
                                                 <span className="mt-0.5 rounded bg-black/40 px-1 py-0.5 text-[9px] leading-none ring-1 ring-white/20 backdrop-blur-sm">
-                                                    Stock: {isWeight ? formatWeight(pi.quantity) : pi.quantity}
+                                                    Stock: {text}
                                                 </span>
                                             )
                                         })()}

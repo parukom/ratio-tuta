@@ -39,7 +39,13 @@ export default function CashRegisterClient() {
         setCheckingOut(true);
         setError(null);
         try {
-            const items = Array.from(cart.values()).map((l) => ({ itemId: l.itemId, quantity: l.quantity }));
+            // Backend expects integer quantities:
+            // - WEIGHT: quantity is grams (cart holds grams)
+            // - LENGTH: round meters to nearest integer meter for now (until backend supports cm)
+            const items = Array.from(cart.values()).map((l) => ({
+                itemId: l.itemId,
+                quantity: Math.round(l.quantity),
+            }));
             const payload = {
                 placeId: activePlaceId,
                 items,

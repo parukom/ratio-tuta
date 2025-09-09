@@ -1,4 +1,4 @@
-import { Banknote, X } from "lucide-react"
+import { Banknote } from "lucide-react"
 import type { CartItem } from '@/types/cash-register';
 
 type Props = {
@@ -36,23 +36,27 @@ const CheckoutModalCash: React.FC<Props> = ({
         <>
             <header className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">Krepšelis</h2>
-                <button
-                    onClick={() => {
-                        setIsModalOpen(false);
-                    }}
-                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                >
-                    <X className="cursor-pointer" />
-                </button>
+
             </header>
 
             {/* body - items */}
             <div className="mb-4 max-h-64 overflow-y-auto">
                 {cart.map(item => (
-            <div key={item.id} className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-white/10">
+                    <div key={item.id} className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-white/10">
                         <div>
-                <span className="font-medium text-2xl text-gray-900 dark:text-white">{item.name}</span>
-                <span className="text-gray-500 text-sm ml-2 dark:text-gray-400">x{item.quantity}</span>
+                            <span className="font-medium text-2xl text-gray-900 dark:text-white">{item.name}</span>
+                            <span className="text-gray-500 text-sm ml-2 dark:text-gray-400">
+                                x{(() => {
+                                    if (item.measurementType === 'WEIGHT') {
+                                        const g = Number(item.quantity || 0);
+                                        return g >= 1000 ? `${(g / 1000).toFixed(2)} kg` : `${g} g`;
+                                    }
+                                    if (item.measurementType === 'LENGTH') {
+                                        return `${item.quantity} m`;
+                                    }
+                                    return item.quantity;
+                                })()}
+                            </span>
                         </div>
                         <div className="flex items-center gap-2">
                             <button
@@ -71,7 +75,7 @@ const CheckoutModalCash: React.FC<Props> = ({
                             >
                                 -
                             </button>
-                            <span className="text-2xl text-gray-900 dark:text-white">€{(item.price * item.quantity).toFixed(2)}</span>
+                            <span className="text-2xl text-gray-900 dark:text-white">€{(item.subtotal ?? (item.price * item.quantity)).toFixed(2)}</span>
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();

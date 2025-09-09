@@ -14,6 +14,7 @@ type Item = {
     isActive: boolean
     unit?: string | null
     stockQuantity?: number
+    measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'
 }
 
 type PlaceItem = {
@@ -61,6 +62,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                     isActive: it.isActive,
                     unit: it.unit ?? 'pcs',
                     stockQuantity: typeof it.stockQuantity === 'number' ? it.stockQuantity : 0,
+                    measurementType: it.measurementType as Item['measurementType'],
                 }))
                 setItems(mapped)
                 setAssigned(placeItems)
@@ -168,8 +170,8 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                                         <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                                             <span>{it.sku || '—'}</span>
                                             {it.categoryName && <span>• {it.categoryName}</span>}
-                                            <span className="inline-flex items-center rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700 ring-1 ring-inset ring-gray-200 dark:bg-white/5 dark:text-gray-300 dark:ring-white/10">
-                                                In warehouse: {it.stockQuantity ?? 0} {it.unit ?? 'pcs'}
+                                            <span className="inline-flex items-center rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700 ring-1 ring-inset ring-gray-200 dark:bg:white/5 dark:text-gray-300 dark:ring-white/10">
+                                                In warehouse: {(() => { const q = Number(it.stockQuantity ?? 0); if (it.measurementType === 'WEIGHT') return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`; if (it.measurementType === 'LENGTH') return `${q} m (${q * 100} cm)`; if (it.measurementType === 'VOLUME') return `${q} l`; if (it.measurementType === 'AREA') return `${q} m2`; if (it.measurementType === 'TIME') return `${q} h (${q * 60} min)`; return `${q} ${it.unit ?? 'pcs'}`; })()}
                                             </span>
                                         </div>
                                     </div>
@@ -183,7 +185,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                                                 onChange={(e) => setQtyMap((m) => ({ ...m, [it.id]: e.target.value }))}
                                                 className="w-24 rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
                                             />
-                                            <span className="text-xs text-gray-600 dark:text-gray-400">{it.unit ?? 'pcs'}</span>
+                                            <span className="text-xs text-gray-600 dark:text-gray-400">{it.measurementType === 'WEIGHT' ? 'g' : (it.unit ?? 'pcs')}</span>
                                         </div>
                                         <div className='flex flex-col'>
                                             <button

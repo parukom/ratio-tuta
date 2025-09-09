@@ -2,13 +2,19 @@ export type CartItem = {
   id: string;
   name: string;
   price: number;
+  // For LENGTH items, quantity can be decimal meters; otherwise integer
   quantity: number;
+  // Optional precomputed subtotal for display (e.g., weight uses kg pricing)
+  subtotal?: number;
+  measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME';
 };
 export type CartLine = {
   itemId: string;
   title: string;
   price: number;
   quantity: number;
+  // For LENGTH items, quantity can be decimal meters; otherwise integer
+  measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME';
 };
 
 export type FooterProps = {

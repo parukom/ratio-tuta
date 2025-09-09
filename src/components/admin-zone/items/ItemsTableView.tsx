@@ -88,6 +88,12 @@ export default function ItemsTableView({ items, loading, onItemUpdated, onItemDe
                                             // q is saved in grams
                                             return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`
                                         }
+                                        if (it.measurementType === 'LENGTH') {
+                                            return `${q} m (${q * 100} cm)`
+                                        }
+                                        if (it.measurementType === 'TIME') {
+                                            return `${q} h (${q * 60} min)`
+                                        }
                                         return q
                                     })()}
                                 </td>

@@ -72,6 +72,7 @@ export default function SelectVariantModal({ open, onClose, group, onConfirm, cu
     const maxQty = selected ? Math.max(0, selected.quantity) : 0
 
     const isWeight = selected?.measurementType === 'WEIGHT'
+    const isLength = selected?.measurementType === 'LENGTH'
     const formatWeight = (grams: number) => {
         if (!Number.isFinite(grams)) return '0 g'
         if (grams >= 1000) {
@@ -84,6 +85,13 @@ export default function SelectVariantModal({ open, onClose, group, onConfirm, cu
     }
     const qtyNumber = Number(qty)
     const approxKg = isWeight && Number.isFinite(qtyNumber) ? (qtyNumber / 1000) : null
+    const approxCm = isLength && Number.isFinite(qtyNumber) ? Math.round(qtyNumber * 100) : null
+
+    // For LENGTH, stock quantity currently comes from API in meters (integer).
+    const formatLengthMeters = (m: number) => {
+        if (!Number.isFinite(m)) return '0 m'
+        return `${m} m`
+    }
 
     return (
         <Modal open={open} onClose={onClose} size="md">
@@ -131,7 +139,7 @@ export default function SelectVariantModal({ open, onClose, group, onConfirm, cu
                                             {measurementLabel(v.measurementType, v.unit)}{v.sku ? ` • SKU: ${v.sku}` : ''}
                                         </div>
                                         <div className="mt-0.5 flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
-                                            <span>Stock: {v.measurementType === 'WEIGHT' ? formatWeight(v.quantity) : v.quantity}</span>
+                                            <span>Stock: {v.measurementType === 'WEIGHT' ? formatWeight(v.quantity) : (v.measurementType === 'LENGTH' ? formatLengthMeters(v.quantity) : v.quantity)}</span>
                                             <span>{new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(v.price)}</span>
                                         </div>
                                     </div>
@@ -142,20 +150,28 @@ export default function SelectVariantModal({ open, onClose, group, onConfirm, cu
 
                     <div>
                         <label className="block text-sm font-medium text-gray-900 dark:text-white">
-                            {isWeight ? 'Quantity (grams)' : `Quantity (${measurementLabel(selected?.measurementType, selected?.unit)})`}
+                            {isWeight
+                                ? 'Quantity (grams)'
+                                : isLength
+                                    ? 'Quantity (meters)'
+                                    : `Quantity (${measurementLabel(selected?.measurementType, selected?.unit)})`}
                         </label>
                         <div className="mt-1 flex items-center gap-2">
                             <Input
                                 type="number"
-                                min={isWeight ? 1 : 1}
+                                min={isLength ? 0.01 : (isWeight ? 1 : 1)}
+                                step={isLength ? 0.01 : 1}
                                 value={qty}
                                 onChange={(e) => setQty(e.target.value)}
                                 className="w-40"
                             />
-                            <span className="text-xs text-gray-500 dark:text-gray-400">Max: {isWeight ? formatWeight(maxQty) : maxQty}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">Max: {isWeight ? formatWeight(maxQty) : (isLength ? formatLengthMeters(maxQty) : maxQty)}</span>
                         </div>
                         {isWeight && Number.isFinite(qtyNumber) && qtyNumber > 0 && (
                             <div className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">≈ {approxKg?.toFixed(2)} kg</div>
+                        )}
+                        {isLength && Number.isFinite(qtyNumber) && qtyNumber > 0 && (
+                            <div className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">≈ {approxCm} cm</div>
                         )}
                     </div>
                 </div>
@@ -174,7 +190,9 @@ export default function SelectVariantModal({ open, onClose, group, onConfirm, cu
                         onClick={() => {
                             const n = Number(qty)
                             const valid = Number.isFinite(n) && n > 0
-                            const capped = Math.min(valid ? n : 1, maxQty)
+                            // Keep LENGTH quantity in meters (can be decimal) for cart and pricing
+                            const desired = valid ? n : 1
+                            const capped = Math.min(desired, maxQty)
                             if (selected) onConfirm({ child: selected, quantity: capped })
                         }}
                         className="rounded-md bg-indigo-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400"
