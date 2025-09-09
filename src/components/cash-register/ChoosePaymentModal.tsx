@@ -1,4 +1,6 @@
+"use client"
 import React from 'react'
+import { useTranslations } from 'next-intl'
 
 type ChoosePaymentProps = {
     setPaymentOption: (value: React.SetStateAction<"CASH" | "CARD">) => void
@@ -8,9 +10,10 @@ type ChoosePaymentProps = {
 }
 
 export const ChoosePaymentModal: React.FC<ChoosePaymentProps> = ({ setPaymentOption, setOpenChoosePayment, setOpenCashModal, setOpenCardModal }) => {
+    const t = useTranslations('CashRegister')
     return (
         <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Pasirinkite mokėjimo būdą</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('choosePayment')}</h3>
             <div className='mt-4 flex justify-between gap-4'>
                 <button
                     className="flex flex-col items-center justify-center h-48 w-full rounded-lg p-6 transition-colors border shadow-sm bg-white hover:bg-gray-50 border-gray-200 dark:bg-white/5 dark:hover:bg-white/10 dark:border-white/10"
@@ -26,7 +29,7 @@ export const ChoosePaymentModal: React.FC<ChoosePaymentProps> = ({ setPaymentOpt
                         <path d="M19 8H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                         <circle cx="12" cy="12" r="2" stroke="currentColor" strokeWidth="2" />
                     </svg>
-                    <span className="mt-4 text-xl font-semibold text-gray-900 dark:text-white">GRYNAIS</span>
+                    <span className="mt-4 text-xl font-semibold text-gray-900 dark:text-white">{t('cash').toUpperCase()}</span>
                 </button>
 
                 <button
@@ -42,7 +45,7 @@ export const ChoosePaymentModal: React.FC<ChoosePaymentProps> = ({ setPaymentOpt
                         <path d="M22 10V16C22 17.6569 20.6569 19 19 19H5C3.34315 19 2 17.6569 2 16V10" stroke="currentColor" strokeWidth="2" />
                         <path d="M6 15H10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                     </svg>
-                    <span className="mt-4 text-xl font-semibold text-gray-900 dark:text-white">KORTELE</span>
+                    <span className="mt-4 text-xl font-semibold text-gray-900 dark:text-white">{t('card').toUpperCase()}</span>
                 </button>
             </div>
         </div>

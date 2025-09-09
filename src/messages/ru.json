@@ -601,5 +601,39 @@
       "categoryCreated": "Категория создана",
       "failedToUploadImage": "Не удалось загрузить изображение"
     }
+  },
+  "CashRegister": {
+    "headerTitle": "Касса",
+    "stock": "Остаток",
+    "qtyLabel": "Кол-во",
+    "sumLabel": "Сумма",
+    "clear": "Очистить",
+    "continue": "Продолжить",
+    "processing": "Обработка…",
+    "cart": "Корзина",
+    "total": "Итого",
+    "amountGiven": "Внесено (€)",
+    "change": "Сдача",
+    "cash": "Наличные",
+    "card": "Карта",
+    "choosePayment": "Выберите способ оплаты",
+    "selectVariant": "Выберите вариант",
+    "chooseSize": "Выберите размер",
+    "inStockOnly": "Только в наличии",
+    "noVariants": "Вариантов нет.",
+    "quantity": "Количество",
+    "quantityGrams": "Количество (в граммах)",
+    "quantityMeters": "Количество (в метрах)",
+    "max": "Макс.",
+    "addToCart": "Добавить в корзину",
+    "units": {
+      "PCS": "Шт.",
+      "WEIGHT": "Вес",
+      "LENGTH": "Длина",
+      "VOLUME": "Объём",
+      "AREA": "Площадь",
+      "TIME": "Время",
+      "kilograms": "Килограммы"
+    }
   }
 }

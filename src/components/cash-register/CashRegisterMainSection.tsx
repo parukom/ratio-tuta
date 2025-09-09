@@ -1,5 +1,7 @@
+"use client"
 import React from 'react'
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import SearchInput from '../ui/SearchInput';
 import { VariantChild, VariantGroup } from './SelectVariantModal';
 import { GroupedPlaceItem } from '@/types/cash-register';
@@ -23,6 +25,7 @@ export const CashRegisterMainSection: React.FC<RegisterMainProps> = ({
     setActiveGroup,
     setOpenVariant
 }) => {
+    const t = useTranslations('CashRegister');
     return (
         <main className="flex-grow overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
             {error && (
@@ -97,7 +100,7 @@ export const CashRegisterMainSection: React.FC<RegisterMainProps> = ({
                                                 <span
                                                     className="hidden sm:inline-block h-3 w-3 rounded ring-1 ring-inset ring-white/30"
                                                     style={{ backgroundColor: pi.color || undefined }}
-                                                    aria-label="Color"
+                                                    aria-label={"Color"}
                                                 />
                                             ) : null}
                                             <h3 className="truncate text-[11px] font-medium text-white drop-shadow sm:text-xs">
@@ -159,7 +162,7 @@ export const CashRegisterMainSection: React.FC<RegisterMainProps> = ({
                                                     : `${pi.quantity}`
                                             return (
                                                 <span className="mt-0.5 rounded bg-black/40 px-1 py-0.5 text-[9px] leading-none ring-1 ring-white/20 backdrop-blur-sm">
-                                                    Stock: {text}
+                                                    {t('stock')}: {text}
                                                 </span>
                                             )
                                         })()}

@@ -1,5 +1,6 @@
 import { Banknote } from "lucide-react"
 import type { CartItem } from '@/types/cash-register';
+import { useTranslations } from 'next-intl';
 
 type Props = {
     setIsModalOpen: (value: React.SetStateAction<boolean>) => void
@@ -31,11 +32,13 @@ const CheckoutModalCash: React.FC<Props> = ({
     change,
     loading
 }) => {
+    const t = useTranslations('CashRegister');
+    const tc = useTranslations('Common');
 
     return (
         <>
             <header className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Krepšelis</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('cart')}</h2>
 
             </header>
 
@@ -99,14 +102,14 @@ const CheckoutModalCash: React.FC<Props> = ({
 
             <footer className="border-gray-200 mb-4">
                 <div className="flex justify-between font-semibold text-lg mb-4 text-gray-900 dark:text-white">
-                    <span>Viso:</span>
+                    <span>{t('total')}:</span>
                     <span className="text-2xl">€{cartTotal.toFixed(2)}</span>
                 </div>
 
                 {/* amount given */}
                 <div className="mb-4">
                     <label htmlFor="amount-given" className="block text-gray-700 dark:text-gray-300 mb-2">
-                        Gauta pinigų (€)
+                        {t('amountGiven')}
                     </label>
                     <input
                         type="number"
@@ -133,7 +136,7 @@ const CheckoutModalCash: React.FC<Props> = ({
                 {showChange && (
                     <div className="mb-4 p-3 rounded-md bg-gray-50 dark:bg-white/5">
                         <p className="font-medium text-xl text-gray-900 dark:text-white">
-                            Grąža: <span>€{change.toFixed(2)}</span>
+                            {t('change')}: <span>€{change.toFixed(2)}</span>
                         </p>
                     </div>
                 )}
@@ -163,13 +166,13 @@ const CheckoutModalCash: React.FC<Props> = ({
                 {/* buttons */}
                 <div className="flex items-center justify-center space-x-2">
 
-                    {/* grynais */}
+                    {/* cash */}
                     <button
                         onClick={completeSale}
                         disabled={(!showChange) || loading}
                         className="w-full cursor-pointer rounded-lg px-5 py-6 text-sm font-medium text-white shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-gray-800 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600"
                     >
-                        {loading ? <><span className='loader'></span>Saugoma</> : <span className="flex items-center justify-center"><Banknote className="w-5 h-5 mr-2" /> Grynais</span>}
+                        {loading ? <><span className='loader'></span>{t('processing')}</> : <span className="flex items-center justify-center"><Banknote className="w-5 h-5 mr-2" /> {t('cash')}</span>}
                     </button>
                     <button
                         onClick={() => {
@@ -181,7 +184,7 @@ const CheckoutModalCash: React.FC<Props> = ({
                         }}
                         className="w-full cursor-pointer rounded-md border px-4 py-6 transition-colors text-gray-800 border-gray-300 hover:bg-gray-50 dark:text-gray-200 dark:border-white/10 dark:hover:bg-white/5"
                     >
-                        Atšaukti
+                        {tc('cancel')}
                     </button>
                 </div>
             </footer>

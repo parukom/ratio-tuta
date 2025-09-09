@@ -601,5 +601,39 @@
       "categoryCreated": "Kategorija sukurta",
       "failedToUploadImage": "Nepavyko įkelti nuotraukos"
     }
+  },
+  "CashRegister": {
+    "headerTitle": "Kasa",
+    "stock": "Likutis",
+    "qtyLabel": "Kiekis",
+    "sumLabel": "Suma",
+    "clear": "Išvalyti",
+    "continue": "Tęsti",
+    "processing": "Apdorojama…",
+    "cart": "Krepšelis",
+    "total": "Viso",
+    "amountGiven": "Gauta pinigų (€)",
+    "change": "Grąža",
+    "cash": "Grynais",
+    "card": "Kortele",
+    "choosePayment": "Pasirinkite mokėjimo būdą",
+    "selectVariant": "Pasirinkite variantą",
+    "chooseSize": "Pasirinkite dydį",
+    "inStockOnly": "Tik turimos sandėlyje",
+    "noVariants": "Variantų nėra.",
+    "quantity": "Kiekis",
+    "quantityGrams": "Kiekis (gramais)",
+    "quantityMeters": "Kiekis (metrais)",
+    "max": "Maks.",
+    "addToCart": "Pridėti į krepšelį",
+    "units": {
+      "PCS": "Vnt.",
+      "WEIGHT": "Svoris",
+      "LENGTH": "Ilgis",
+      "VOLUME": "Tūris",
+      "AREA": "Plotas",
+      "TIME": "Laikas",
+      "kilograms": "Kilogramai"
+    }
   }
 }

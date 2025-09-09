@@ -601,5 +601,39 @@
       "categoryCreated": "Category created",
       "failedToUploadImage": "Failed to upload image"
     }
+  },
+  "CashRegister": {
+    "headerTitle": "Cash Register",
+    "stock": "Stock",
+    "qtyLabel": "Qty",
+    "sumLabel": "Total",
+    "clear": "Clear",
+    "continue": "Continue",
+    "processing": "Processing…",
+    "cart": "Cart",
+    "total": "Total",
+    "amountGiven": "Amount given (€)",
+    "change": "Change",
+    "cash": "Cash",
+    "card": "Card",
+    "choosePayment": "Choose payment method",
+    "selectVariant": "Select variant",
+    "chooseSize": "Choose size",
+    "inStockOnly": "In stock only",
+    "noVariants": "No variants available.",
+    "quantity": "Quantity",
+    "quantityGrams": "Quantity (grams)",
+    "quantityMeters": "Quantity (meters)",
+    "max": "Max",
+    "addToCart": "Add to cart",
+    "units": {
+      "PCS": "Pieces",
+      "WEIGHT": "Weight",
+      "LENGTH": "Length",
+      "VOLUME": "Volume",
+      "AREA": "Area",
+      "TIME": "Time",
+      "kilograms": "Kilograms"
+    }
   }
 }

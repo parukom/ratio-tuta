@@ -1,5 +1,7 @@
+"use client"
 import { CreditCard } from "lucide-react"
 import type { CartItem } from '@/types/cash-register';
+import { useTranslations } from 'next-intl';
 
 type Props = {
     setIsModalOpen: (value: React.SetStateAction<boolean>) => void
@@ -25,11 +27,13 @@ const CheckoutModalCard: React.FC<Props> = ({
     completeSale,
     loading
 }) => {
+    const t = useTranslations('CashRegister');
+    const tc = useTranslations('Common');
 
     return (
         <>
             <header className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Krepšelis</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('cart')}</h2>
 
             </header>
 
@@ -95,7 +99,7 @@ const CheckoutModalCard: React.FC<Props> = ({
 
             <footer className="border-gray-200 mb-4">
                 <div className="flex justify-between font-semibold text-lg mb-4 text-gray-900 dark:text-white">
-                    <span>Viso:</span>
+                    <span>{t('total')}:</span>
                     <span className="text-2xl">€{cartTotal.toFixed(2)}</span>
                 </div>
 
@@ -111,7 +115,7 @@ const CheckoutModalCard: React.FC<Props> = ({
                     >
                         <span className="flex items-center justify-center">
                             <CreditCard className="w-4 h-4 mr-2" />
-                            {loading ? <><span className='loader'></span>Saugoma</> : <span className="flex items-center justify-center"> Kortele</span>}
+                            {loading ? <><span className='loader'></span>{t('processing')}</> : <span className="flex items-center justify-center"> {t('card')}</span>}
                         </span>
                     </button>
 
@@ -126,7 +130,7 @@ const CheckoutModalCard: React.FC<Props> = ({
                         }}
                         className="w-full cursor-pointer rounded-md border px-4 py-6 transition-colors text-gray-800 border-gray-300 hover:bg-gray-50 dark:text-gray-200 dark:border-white/10 dark:hover:bg-white/5"
                     >
-                        Atšaukti
+                        {tc('cancel')}
                     </button>
                 </div>
             </footer>
