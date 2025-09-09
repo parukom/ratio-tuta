@@ -17,6 +17,10 @@ type Props = {
     onSelect?: (key: string) => void
     align?: 'left' | 'right'
     disabled?: boolean
+    side?: 'top' | 'bottom' // vertical placement of the menu relative to button
+    className?: string // wrapper class
+    buttonClassName?: string
+    menuClassName?: string
 }
 
 export default function Dropdown({
@@ -25,9 +29,14 @@ export default function Dropdown({
     onSelect,
     align = 'right',
     disabled = false,
+    side = 'bottom',
+    className,
+    buttonClassName,
+    menuClassName,
 }: Props) {
     const t = useTranslations('Common')
-    const menuAlign = align === 'right' ? 'right-0 origin-top-right' : 'left-0 origin-top-left'
+    const horizAlign = align === 'right' ? 'right-0' : 'left-0'
+    const vertAlign = side === 'top' ? 'bottom-full mb-2 origin-bottom' : 'mt-2 origin-top'
 
     const defaultItems: DropdownItem[] = [
         { key: 'account', label: t('accountSettings', { default: 'Account settings' }) },
@@ -44,10 +53,10 @@ export default function Dropdown({
     }
 
     return (
-        <Menu as="div" className="relative inline-block">
+        <Menu as="div" className={`relative inline-block ${className ?? ''}`}>
             <MenuButton
                 disabled={disabled}
-                className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring-1 inset-ring-gray-300 hover:bg-gray-50 disabled:opacity-60 dark:bg-white/10 dark:text-white dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20"
+                className={`inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring-1 inset-ring-gray-300 hover:bg-gray-50 disabled:opacity-60 dark:bg-white/10 dark:text-white dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20 ${buttonClassName ?? ''}`}
             >
                 {buttonLabel}
                 <ChevronDownIcon aria-hidden="true" className="-mr-1 size-5 text-gray-400" />
@@ -55,7 +64,7 @@ export default function Dropdown({
 
             <MenuItems
                 transition
-                className={`absolute ${menuAlign} z-10 mt-2 w-56 rounded-md bg-white shadow-lg outline-1 outline-black/5 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in dark:bg-gray-800 dark:shadow-none dark:-outline-offset-1 dark:outline-white/10`}
+                className={`absolute ${horizAlign} ${vertAlign} z-50 w-56 rounded-md bg-white shadow-lg outline-1 outline-black/5 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in dark:bg-gray-800 dark:shadow-none dark:-outline-offset-1 dark:outline-white/10 ${menuClassName ?? ''}`}
             >
                 <div className="py-1">
                     {list.map((item) => (

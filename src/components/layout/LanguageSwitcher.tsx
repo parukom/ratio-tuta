@@ -2,8 +2,11 @@
 import { useState, useTransition } from "react";
 import { useLocale } from "next-intl";
 import { locales, type Locale } from "@/i18n/config";
+import Dropdown from "@/components/ui/Dropdown";
 
-export default function LanguageSwitcher({ className }: { className?: string }) {
+type Props = { className?: string; align?: 'left' | 'right'; side?: 'top' | 'bottom' }
+
+export default function LanguageSwitcher({ className, align = 'right', side = 'bottom' }: Props) {
     const current = useLocale();
     const [pending, startTransition] = useTransition();
     const [value, setValue] = useState<Locale>(current as Locale);
@@ -24,19 +27,18 @@ export default function LanguageSwitcher({ className }: { className?: string }) 
         });
     }
 
+    const items = locales.map((loc) => ({ key: loc, label: loc.toUpperCase() }));
+
     return (
-        <select
-            className={className ?? "rounded-md border bg-white/80 px-2 py-1 text-sm dark:bg-gray-800/60"}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            aria-label="Language"
-            disabled={pending}
-        >
-            {locales.map((loc) => (
-                <option key={loc} value={loc}>
-                    {loc.toUpperCase()}
-                </option>
-            ))}
-        </select>
+        <div className={className} aria-label="Language">
+            <Dropdown
+                buttonLabel={value.toUpperCase()}
+                items={items}
+                onSelect={onChange}
+                align={align}
+                side={side}
+                disabled={pending}
+            />
+        </div>
     );
 }

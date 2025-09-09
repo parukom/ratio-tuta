@@ -3,12 +3,11 @@ import { getSession } from "@lib/session";
 import { prisma } from "@lib/prisma";
 import { redirect } from "next/navigation";
 import dynamic from 'next/dynamic';
-import HowItWorks from "@/components/HowItWorks";
 const HeroSection = dynamic(() => import('@/components/HeroSection'));
 const FeaturesSection = dynamic(() => import('@/components/FeaturesSection'));
 const OurMission = dynamic(() => import('@/components/OurMission'));
 const FAQ = dynamic(() => import('@/components/Faq'));
-const PricingSection = dynamic(() => import('@/components/PricingSection'));
+// const PricingSection = dynamic(() => import('@/components/PricingSection'));
 const Footer = dynamic(() => import('@/components/Footer'));
 
 export default async function Home() {
@@ -43,8 +42,7 @@ export default async function Home() {
       <HeroSection />
       <OurMission />
       <FeaturesSection />
-      <HowItWorks />
-      <PricingSection />
+      {/* <PricingSection /> */}
       <FAQ />
       <Footer />
     </>

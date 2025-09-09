@@ -1,6 +1,16 @@
 import { CheckIcon } from '@heroicons/react/20/solid'
 
-const tiers = [
+type Tier = {
+  name: string
+  id: string
+  href: string
+  priceMonthly: string
+  description: string
+  features: string[]
+  mostPopular: boolean
+}
+
+const tiers: Tier[] = [
   {
     name: 'Freelancer',
     id: 'tier-freelancer',

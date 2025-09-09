@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AppToaster from '@/components/ui/Toaster'
@@ -38,6 +38,9 @@ export const metadata: Metadata = {
     title: "Ratio Tuta",
     statusBarStyle: "black-translucent",
   },
+};
+
+export const viewport: Viewport = {
   themeColor: "#111827",
 };
 

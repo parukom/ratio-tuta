@@ -78,7 +78,7 @@ const HeroSection = () => {
                                 </div>
                                 <div className="py-6">
                                     <div className="px-3 pb-4">
-                                        <LanguageSwitcher className="w-full" />
+                                        <LanguageSwitcher className="w-full" side="top" align="left" />
                                     </div>
                                     <Link
                                         href="/auth?form=login"
