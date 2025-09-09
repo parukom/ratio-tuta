@@ -375,22 +375,22 @@ export default function PlaceDetailPage() {
             <header>
 
                 {/* Heading */}
-                <div className="-mt-3 flex flex-col items-start justify-between gap-x-8 gap-y-4 bg-gray-50 px-4 py-2 sm:flex-row sm:items-center sm:px-6 lg:px-8 dark:bg-gray-700/10">
-                    <div>
-                        <div className="flex items-center gap-x-3">
+                <div className="lg:-mt-3 flex flex-col items-start justify-between gap-x-8 gap-y-4 bg-gray-50 px-4 py-2 sm:flex-row sm:items-center sm:px-6 lg:px-8 dark:bg-gray-700/10">
+                    <div className='flex justify-between w-full'>
+                        <span className="flex items-center gap-x-3">
                             <div className={`flex-none rounded-full p-1 ${place?.isActive ? 'bg-green-500/10 text-green-500 dark:bg-green-400/10 dark:text-green-400' : 'bg-gray-400/10 text-gray-500 dark:bg-gray-500/10 dark:text-gray-400'}`}>
                                 <div className="size-2 rounded-full bg-current" />
                             </div>
                             <h1 className="flex flex-wrap items-center gap-x-3 text-base/7">
                                 <span className="font-semibold text-gray-900 dark:text-white">{place?.name || t('place.title')}</span>
-                                <span className="text-gray-400 dark:text-gray-600">/</span>
-                                <button onClick={copyPlaceId} className="inline-flex items-center gap-1 rounded border border-gray-300 px-1.5 py-0.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-300 dark:hover:bg-white/5">
-                                    #{placeId}{copied ? ` · ${tc('copied')}` : ''}
-                                </button>
+                                <span className='hidden lg:inline-block'>
+                                    <span className="text-gray-400 dark:text-gray-600">/ </span>
+                                    <button onClick={copyPlaceId} className="inline-flex items-center gap-1 rounded border border-gray-300 px-1.5 py-0.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-300 dark:hover:bg-white/5">
+                                        #{placeId}{copied ? ` · ${tc('copied')}` : ''}
+                                    </button>
+                                </span>
                             </h1>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2">
+                        </span>
                         <Link
                             href={`/cash-register?placeId=${encodeURIComponent(String(placeId))}`}
                             className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800 dark:text-white"

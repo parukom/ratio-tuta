@@ -53,7 +53,7 @@ export default function Places() {
     }, [])
     return (
         <div className="border-t border-gray-200 pt-4 dark:border-white/10">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6 px-4">
                 <span></span>
                 <CreatePlaceButton onCreated={(p) => {
                     // Optimistically add the new place to the list top

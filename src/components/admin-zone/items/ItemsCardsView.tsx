@@ -29,7 +29,7 @@ export default function ItemsCardsView({ items, groups, grouped, loading, openGr
 
     if (items.length === 0) {
         return (
-            <div className="rounded-lg border border-gray-200 p-8 text-center text-sm text-gray-600 dark:border-white/10 dark:text-gray-300">{t('table.noItems')}</div>
+            <div className="lg:rounded-lg border-y lg:border border-gray-200 p-8 text-center text-sm text-gray-600 dark:border-white/10 dark:text-gray-300">{t('table.noItems')}</div>
         )
     }
 

@@ -271,13 +271,14 @@ export default function InnerItems() {
 
     return (
         <>
-            <div className="mb-6 flex items-center justify-between">
+            {/* header */}
+            <header className=" p-4 flex items-center justify-between">
                 <h1 className="text-base font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
                 <div className="flex items-center gap-2">
                     <CreateBoxButton onDone={fetchItems} />
                     <CreateItemButton onCreated={onCreated} suppressToast />
                 </div>
-            </div>
+            </header>
 
             <ItemsHeader
                 q={q}
@@ -303,55 +304,57 @@ export default function InnerItems() {
                 setSort={setSort}
                 onReset={() => { setQ(""); setOnlyActive(false); setCategoryId(""); setMeasurementType(""); setInStock(false); setMinPrice(""); setMaxPrice(""); setSort("createdAt_desc") }}
             />
+            <main className="p-4">
 
-            {/* Views */}
-            {view === "table" ? (
-                <ItemsTableView
-                    items={items}
-                    loading={loading}
-                    onItemUpdated={(updated) => {
-                        setItems((prev) => prev.map((it) => it.id === updated.id ? { ...it, ...updated } : it))
-                    }}
-                    onItemDeleted={(id) => {
-                        setItems((prev) => prev.filter((it) => it.id !== id))
-                    }}
-                    onConflict={(info) => setConflictInfo(info)}
-                    onSelectItem={(it) => { setSelectedItem(it); setInfoOpen(true) }}
-                />
-            ) : (
-                <ItemsCardsView
-                    items={items}
-                    groups={grouped ? pagedGroups : groups}
-                    grouped={grouped}
-                    loading={loading}
-                    openGroups={openGroups}
-                    setOpenGroups={(updater) => setOpenGroups(updater(openGroups))}
-                    onItemUpdated={(updated) => {
-                        setItems((prev) => prev.map((it) => it.id === updated.id ? { ...it, ...updated } : it))
-                    }}
-                    onItemDeleted={(id) => {
-                        setItems((prev) => prev.filter((it) => it.id !== id))
-                    }}
-                    onConflict={(info) => setConflictInfo(info)}
-                    onAskDeleteBox={(key) => setConfirmBoxKey(key)}
-                    onAskEditBox={(key) => {
-                        setEditMsg("")
-                        setEditBoxKey(key)
-                        // seed with group data
-                        const g = groups.find(g => g.key === key)
-                        if (g) {
-                            setEditPrice(String(g.price))
-                            setEditTaxBps(String(g.taxRateBps))
-                            setEditBoxCost("")
-                            const rows: EditRow[] = g.items.map(it => ({ id: genId(), size: it.size || "", quantity: "0", itemId: it.id }))
-                            setEditRows(rows)
-                        } else {
-                            setEditRows([{ id: genId(), size: "", quantity: "0" }])
-                        }
-                    }}
-                    onSelectItem={(it) => { setSelectedItem(it); setInfoOpen(true) }}
-                />
-            )}
+                {/* Views */}
+                {view === "table" ? (
+                    <ItemsTableView
+                        items={items}
+                        loading={loading}
+                        onItemUpdated={(updated) => {
+                            setItems((prev) => prev.map((it) => it.id === updated.id ? { ...it, ...updated } : it))
+                        }}
+                        onItemDeleted={(id) => {
+                            setItems((prev) => prev.filter((it) => it.id !== id))
+                        }}
+                        onConflict={(info) => setConflictInfo(info)}
+                        onSelectItem={(it) => { setSelectedItem(it); setInfoOpen(true) }}
+                    />
+                ) : (
+                    <ItemsCardsView
+                        items={items}
+                        groups={grouped ? pagedGroups : groups}
+                        grouped={grouped}
+                        loading={loading}
+                        openGroups={openGroups}
+                        setOpenGroups={(updater) => setOpenGroups(updater(openGroups))}
+                        onItemUpdated={(updated) => {
+                            setItems((prev) => prev.map((it) => it.id === updated.id ? { ...it, ...updated } : it))
+                        }}
+                        onItemDeleted={(id) => {
+                            setItems((prev) => prev.filter((it) => it.id !== id))
+                        }}
+                        onConflict={(info) => setConflictInfo(info)}
+                        onAskDeleteBox={(key) => setConfirmBoxKey(key)}
+                        onAskEditBox={(key) => {
+                            setEditMsg("")
+                            setEditBoxKey(key)
+                            // seed with group data
+                            const g = groups.find(g => g.key === key)
+                            if (g) {
+                                setEditPrice(String(g.price))
+                                setEditTaxBps(String(g.taxRateBps))
+                                setEditBoxCost("")
+                                const rows: EditRow[] = g.items.map(it => ({ id: genId(), size: it.size || "", quantity: "0", itemId: it.id }))
+                                setEditRows(rows)
+                            } else {
+                                setEditRows([{ id: genId(), size: "", quantity: "0" }])
+                            }
+                        }}
+                        onSelectItem={(it) => { setSelectedItem(it); setInfoOpen(true) }}
+                    />
+                )}
+            </main>
 
             {/* Pagination */}
             <ItemsPagination

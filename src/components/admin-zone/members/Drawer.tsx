@@ -78,7 +78,7 @@ export default function MemberDrawer({ open, onClose, member, isAdmin, onSaved }
     }
 
     return (
-        <Dialog open={open && canEdit} onClose={onClose} className="relative z-10">
+        <Dialog open={open && canEdit} onClose={onClose} className="relative z-50">
             <div className="fixed inset-0" />
             <div className="fixed inset-0 overflow-hidden">
                 <div className="absolute inset-0 overflow-hidden">
@@ -115,13 +115,13 @@ export default function MemberDrawer({ open, onClose, member, isAdmin, onSaved }
 
                                         {/* Form fields */}
                                         <div className="space-y-6 py-6 sm:space-y-0 sm:divide-y sm:divide-gray-200 sm:py-0 dark:sm:divide-white/10">
-                                            <div className="space-y-2 px-4 sm:px-6 sm:py-5">
+                                            <div className="space-y-2 sm:px-6 sm:py-5">
                                                 <Input id="name" name="name" type="text" value={name} placeholder={t('name')} onChange={(e) => setName(e.target.value)} />
                                             </div>
 
                                             
 
-                                            <div className="space-y-2 px-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:space-y-0 sm:px-6 sm:py-5">
+                                            <div className="space-y-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:space-y-0 sm:px-6 sm:py-5">
                                                 <div>
                                                     <label className="block text-sm/6 font-medium text-gray-900 sm:mt-1.5 dark:text-white">{tt('role.label')}</label>
                                                 </div>

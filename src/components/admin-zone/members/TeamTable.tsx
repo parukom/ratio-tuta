@@ -78,7 +78,7 @@ const TeamTable = ({ teamId }: Props) => {
     }, [teamId])
 
     return (
-        <div className="mt-8 flow-root h-full">
+        <div className="mt-8 px-4 flow-root h-full">
             <AdminHeader
                 title={tt('title')}
                 subtitle={activeTeamId ? tt('subtitle') : tt('noTeam')}
