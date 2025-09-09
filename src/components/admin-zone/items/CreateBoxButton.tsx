@@ -49,6 +49,8 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
     const [sizes, setSizes] = useState<SizeRow[]>([
         { id: genId(), size: '', quantity: '0' },
     ])
+    // For WEIGHT boxes allow per-row unit toggle (kg/g)
+    const [weightUnits, setWeightUnits] = useState<Record<string, 'kg' | 'g'>>({})
 
     const loadCategories = useCallback(async () => {
         try {
@@ -103,10 +105,14 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
     useEffect(() => { try { localStorage.setItem(LS_MT, measurementType) } catch { } }, [measurementType])
 
     function addRow() {
-        setSizes(prev => [...prev, { id: genId(), size: '', quantity: '0' }])
+        const id = genId()
+        setSizes(prev => [...prev, { id, size: '', quantity: '0' }])
+        setWeightUnits(prev => ({ ...prev, [id]: 'kg' }))
     }
     function removeRow(id: string) {
         setSizes(prev => prev.length > 1 ? prev.filter(r => r.id !== id) : prev)
+        // remove key from weightUnits
+        setWeightUnits(prev => { const next = { ...prev }; delete next[id]; return next })
     }
     function updateRow(id: string, patch: Partial<SizeRow>) {
         setSizes(prev => prev.map(r => r.id === id ? { ...r, ...patch } : r))
@@ -125,7 +131,9 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
 
     function resetSizes() {
         try { localStorage.removeItem(LS_SIZES) } catch { }
-        setSizes([{ id: genId(), size: '', quantity: '0' }])
+        const id = genId()
+        setSizes([{ id, size: '', quantity: '0' }])
+        setWeightUnits({ [id]: 'kg' })
     }
 
     async function submit(e: React.FormEvent) {
@@ -145,7 +153,19 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
                 skuPrefix: skuPrefix || null,
                 sizes: sizes
                     .filter(s => s.size.trim() && Number(s.quantity) > 0)
-                    .map(s => ({ size: s.size.trim(), quantity: Number(s.quantity), sku: (s.sku || '').trim() || null })),
+                    .map(s => ({
+                        size: s.size.trim(),
+                        quantity: (() => {
+                            const v = Number(s.quantity)
+                            if (!Number.isFinite(v) || v <= 0) return 0
+                            if (measurementType === 'WEIGHT') {
+                                const unit = weightUnits[s.id] || 'kg'
+                                return Math.round(unit === 'kg' ? v * 1000 : v)
+                            }
+                            return Math.round(v)
+                        })(),
+                        sku: (s.sku || '').trim() || null
+                    })),
             }
             // If image selected, send multipart with payload + file; else JSON
             let res: Response
@@ -306,7 +326,20 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
                             {sizes.map((row, idx) => (
                                 <div key={row.id} className="grid grid-cols-12 items-center gap-2">
                                     <div className="col-span-5"><Input id={`size-${row.id}`} name={`size-${idx}`} type="text" className="" placeholder={`${t('modals.editBox.variantSize')} (e.g. 35, M)`} value={row.size} onChange={(e) => updateRow(row.id, { size: e.target.value })} /></div>
-                                    <div className="col-span-5"><Input id={`qty-${row.id}`} name={`quantity-${idx}`} type="number" className="" placeholder={`Quantity (${measurementType === 'PCS' ? 'pcs' : measurementType === 'WEIGHT' ? 'kg' : measurementType === 'LENGTH' ? 'm' : measurementType === 'VOLUME' ? 'l' : measurementType === 'AREA' ? 'm2' : 'h'})`} value={row.quantity} onChange={(e) => updateRow(row.id, { quantity: e.target.value })} /></div>
+                                    <div className="col-span-5">
+                                        {measurementType === 'WEIGHT' && (
+                                            <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                                                <button type="button" onClick={() => setWeightUnits(prev => ({ ...prev, [row.id]: 'kg' }))} className={`px-2 py-1 text-xs ${((weightUnits[row.id] || 'kg') === 'kg') ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>kg</button>
+                                                <button type="button" onClick={() => setWeightUnits(prev => ({ ...prev, [row.id]: 'g' }))} className={`px-2 py-1 text-xs ${((weightUnits[row.id] || 'kg') === 'g') ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>g</button>
+                                            </div>
+                                        )}
+                                        <Input id={`qty-${row.id}`} name={`quantity-${idx}`} type="number" className="" placeholder={`Quantity (${measurementType === 'PCS' ? 'pcs' : measurementType === 'WEIGHT' ? (weightUnits[row.id] || 'kg') : measurementType === 'LENGTH' ? 'm' : measurementType === 'VOLUME' ? 'l' : measurementType === 'AREA' ? 'm2' : 'h'})`} value={row.quantity} onChange={(e) => updateRow(row.id, { quantity: e.target.value })} />
+                                        {measurementType === 'WEIGHT' && row.quantity && Number(row.quantity) > 0 && (
+                                            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                                {(weightUnits[row.id] || 'kg') === 'kg' ? `${Math.round(Number(row.quantity) * 1000)} g will be saved` : `${(Number(row.quantity) / 1000).toFixed(3)} kg`}
+                                            </p>
+                                        )}
+                                    </div>
                                     <div className="col-span-2 flex justify-end gap-2">
                                         <button type="button" onClick={() => removeRow(row.id)} className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-white/10 dark:text-gray-100 dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20 dark:focus-visible:outline-indigo-500">{t('modals.editBox.remove')}</button>
                                     </div>

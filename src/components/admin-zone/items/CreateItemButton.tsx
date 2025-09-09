@@ -42,6 +42,8 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
   const [isActive, setIsActive] = useState(true)
   const [measurementType, setMeasurementType] = useState<'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'>('PCS')
   const [stockQuantity, setStockQuantity] = useState('0')
+  // For WEIGHT items allow entering quantity in kg or g, but we will save as grams (int)
+  const [weightUnit, setWeightUnit] = useState<'kg' | 'g'>('kg')
   const [description, setDescription] = useState('')
   const [color, setColor] = useState('')
   const [brand, setBrand] = useState('')
@@ -70,7 +72,7 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
   useEffect(() => { if (open) loadCategories() }, [open, loadCategories])
 
   function reset() {
-    setName(''); setSku(''); setPrice(''); setTaxRateBps('0'); setIsActive(true); setMeasurementType('PCS'); setStockQuantity('0'); setDescription(''); setColor(''); setBrand(''); setTagsCSV(''); setCategoryId(''); setCreatingCat(false); setNewCatName(''); setCatMsg(''); setImageFile(null)
+    setName(''); setSku(''); setPrice(''); setTaxRateBps('0'); setIsActive(true); setMeasurementType('PCS'); setStockQuantity('0'); setWeightUnit('kg'); setDescription(''); setColor(''); setBrand(''); setTagsCSV(''); setCategoryId(''); setCreatingCat(false); setNewCatName(''); setCatMsg(''); setImageFile(null)
   }
 
   async function submit(e: React.FormEvent) {
@@ -97,7 +99,15 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
           taxRateBps: Number(taxRateBps) || 0,
           isActive,
           measurementType,
-          stockQuantity: Number(stockQuantity) || 0,
+          // Save grams for WEIGHT items; otherwise use integer units as entered
+          stockQuantity: (() => {
+            const v = Number(stockQuantity)
+            if (!Number.isFinite(v) || v < 0) return 0
+            if (measurementType === 'WEIGHT') {
+              return Math.round((weightUnit === 'kg' ? v * 1000 : v))
+            }
+            return Math.round(v)
+          })(),
           description: description.trim() || null,
           color: color.trim() || null,
           brand: brand.trim() || null,
@@ -240,26 +250,39 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
                     { key: 'AREA', label: t('forms.measurementOptions.AREA') },
                     { key: 'TIME', label: t('forms.measurementOptions.TIME') },
                   ]}
-                  onSelect={(key) => setMeasurementType(key as typeof measurementType)}
+                  onSelect={(key) => { setMeasurementType(key as typeof measurementType); if (key !== 'WEIGHT') setWeightUnit('kg') }}
                 />
               </div>
             </div>
-            <Input
-              id="stockQuantity"
-              name="stockQuantity"
-              type="number"
-              className=""
-              placeholder={
-                measurementType === 'PCS' ? t('forms.initialStock.PCS')
-                  : measurementType === 'WEIGHT' ? t('forms.initialStock.WEIGHT')
-                    : measurementType === 'LENGTH' ? t('forms.initialStock.LENGTH')
-                      : measurementType === 'VOLUME' ? t('forms.initialStock.VOLUME')
-                        : measurementType === 'AREA' ? t('forms.initialStock.AREA')
-                          : t('forms.initialStock.TIME')
-              }
-              value={stockQuantity}
-              onChange={(e) => setStockQuantity(e.target.value)}
-            />
+            <div>
+              {measurementType === 'WEIGHT' && (
+                <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                  <button type="button" onClick={() => setWeightUnit('kg')} className={`px-2 py-1 text-xs ${weightUnit === 'kg' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>kg</button>
+                  <button type="button" onClick={() => setWeightUnit('g')} className={`px-2 py-1 text-xs ${weightUnit === 'g' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>g</button>
+                </div>
+              )}
+              <Input
+                id="stockQuantity"
+                name="stockQuantity"
+                type="number"
+                className=""
+                placeholder={
+                  measurementType === 'PCS' ? t('forms.initialStock.PCS')
+                    : measurementType === 'WEIGHT' ? `${t('forms.initialStock.WEIGHT')}`.replace('(kg)', `(${weightUnit})`)
+                      : measurementType === 'LENGTH' ? t('forms.initialStock.LENGTH')
+                        : measurementType === 'VOLUME' ? t('forms.initialStock.VOLUME')
+                          : measurementType === 'AREA' ? t('forms.initialStock.AREA')
+                            : t('forms.initialStock.TIME')
+                }
+                value={stockQuantity}
+                onChange={(e) => setStockQuantity(e.target.value)}
+              />
+              {measurementType === 'WEIGHT' && stockQuantity && Number(stockQuantity) > 0 && (
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  {weightUnit === 'kg' ? `${Math.round(Number(stockQuantity) * 1000)} g will be saved` : `${(Number(stockQuantity) / 1000).toFixed(3)} kg`}
+                </p>
+              )}
+            </div>
           </div>
           <Input id="description" name="description" type="text" className="" placeholder={t('forms.descriptionOptional')} value={description} onChange={(e) => setDescription(e.target.value)} />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import type { SessionData } from '@lib/session'
 import { PersonalInformation } from './sections/PersonalInformation';
 import { ChangePassword } from './sections/ChangePassword';
@@ -19,7 +19,7 @@ function splitName(full: string): { firstName: string; lastName: string } {
 
 const UserForm: React.FC<Props> = ({ session }) => {
     const { firstName, lastName } = useMemo(() => splitName(session?.name ?? ''), [session?.name])
-    
+
 
     return (
         <div className="divide-y divide-gray-200 dark:divide-white/10">

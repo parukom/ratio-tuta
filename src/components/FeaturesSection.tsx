@@ -1,7 +1,6 @@
 import React from "react";
 import {
     ShieldCheckIcon,
-    CalculatorIcon,
     EyeSlashIcon,
     Squares2X2Icon,
 } from "@heroicons/react/24/outline";

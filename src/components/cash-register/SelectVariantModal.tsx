@@ -34,7 +34,7 @@ type Props = {
 const measurementLabel = (mt?: VariantChild['measurementType'], unit?: string | null) => {
     switch (mt) {
         case 'WEIGHT':
-            return unit?.toLowerCase() === 'kg' ? 'Kilograms' : 'Grams'
+            return unit?.toLowerCase() === 'kg' ? 'Kilograms' : 'Weight'
         case 'LENGTH':
             return unit || 'Length'
         case 'VOLUME':
@@ -70,6 +70,20 @@ export default function SelectVariantModal({ open, onClose, group, onConfirm, cu
     const selected = useMemo(() => displayVariants.find(v => v.itemId === selectedId) ?? displayVariants[0], [displayVariants, selectedId])
 
     const maxQty = selected ? Math.max(0, selected.quantity) : 0
+
+    const isWeight = selected?.measurementType === 'WEIGHT'
+    const formatWeight = (grams: number) => {
+        if (!Number.isFinite(grams)) return '0 g'
+        if (grams >= 1000) {
+            const kg = grams / 1000
+            // Trim .0
+            const text = (Math.round(kg * 100) / 100).toString()
+            return `${text} kg`
+        }
+        return `${grams} g`
+    }
+    const qtyNumber = Number(qty)
+    const approxKg = isWeight && Number.isFinite(qtyNumber) ? (qtyNumber / 1000) : null
 
     return (
         <Modal open={open} onClose={onClose} size="md">
@@ -117,7 +131,7 @@ export default function SelectVariantModal({ open, onClose, group, onConfirm, cu
                                             {measurementLabel(v.measurementType, v.unit)}{v.sku ? ` • SKU: ${v.sku}` : ''}
                                         </div>
                                         <div className="mt-0.5 flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
-                                            <span>Stock: {v.quantity}</span>
+                                            <span>Stock: {v.measurementType === 'WEIGHT' ? formatWeight(v.quantity) : v.quantity}</span>
                                             <span>{new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(v.price)}</span>
                                         </div>
                                     </div>
@@ -128,18 +142,21 @@ export default function SelectVariantModal({ open, onClose, group, onConfirm, cu
 
                     <div>
                         <label className="block text-sm font-medium text-gray-900 dark:text-white">
-                            Quantity ({measurementLabel(selected?.measurementType, selected?.unit)})
+                            {isWeight ? 'Quantity (grams)' : `Quantity (${measurementLabel(selected?.measurementType, selected?.unit)})`}
                         </label>
                         <div className="mt-1 flex items-center gap-2">
                             <Input
                                 type="number"
-                                min={1}
+                                min={isWeight ? 1 : 1}
                                 value={qty}
                                 onChange={(e) => setQty(e.target.value)}
                                 className="w-40"
                             />
-                            <span className="text-xs text-gray-500 dark:text-gray-400">Max: {maxQty}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">Max: {isWeight ? formatWeight(maxQty) : maxQty}</span>
                         </div>
+                        {isWeight && Number.isFinite(qtyNumber) && qtyNumber > 0 && (
+                            <div className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">≈ {approxKg?.toFixed(2)} kg</div>
+                        )}
                     </div>
                 </div>
 

@@ -38,11 +38,11 @@ export const CashRegisterMainSection: React.FC<RegisterMainProps> = ({
                     inputClassName="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500 pl-9"
                 />
             </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
                 {visiblePlaceItems.map((pi) => (
                     <div
                         key={pi.key}
-                        className="relative overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition hover:shadow dark:border-white/10 dark:bg-gray-800/50"
+                        className="group relative overflow-hidden rounded-lg border border-gray-200 shadow-sm transition hover:shadow-md dark:border-white/10"
                         role="button"
                         tabIndex={0}
                         onClick={() => {
@@ -73,47 +73,93 @@ export const CashRegisterMainSection: React.FC<RegisterMainProps> = ({
                             }
                         }}
                     >
-                        <div className="h-24 w-full bg-gray-100 dark:bg-white/5 relative">
+                        {/* Background image card */}
+                        <div className="relative aspect-[3/4] w-full bg-gray-100 dark:bg-white/5">
                             <Image
                                 src={pi.image ?? '/images/no-image.jpg'}
                                 alt={pi.name}
-                                priority
                                 fill
-                                sizes='100%'
+                                priority={false}
+                                sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, (max-width: 1024px) 20vw, 14vw"
                                 style={{ objectFit: 'cover' }}
-                                className="transition-transform duration-200 ease-in-out group-hover:scale-110"
+                                className="transition-transform duration-200 ease-in-out group-hover:scale-[1.03]"
                             />
-                        </div>
-                        <div className="p-3">
-                            <div className="mb-1 flex items-center gap-2">
-                                {pi.color ? (
-                                    <span
-                                        className="inline-block h-4 w-4 rounded ring-1 ring-inset ring-gray-200 dark:ring-white/10"
-                                        style={{ backgroundColor: pi.color || undefined }}
-                                        aria-label="Color"
-                                    />
-                                ) : null}
-                                <h3 className="line-clamp-2 text-sm font-semibold text-gray-900 dark:text-white">{pi.name}</h3>
-                            </div>
-                            <div className="mb-2 flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
-                                <span>
-                                    {currency} {pi.price.toFixed(2)}
-                                </span>
-                                <span>Stock: {pi.quantity}</span>
-                            </div>
-                            {/* Sizes preview */}
-                            {pi.items.some((c) => c.size) && (
-                                <div className="mb-1 flex flex-wrap gap-1">
-                                    {[...new Set(pi.items.map((c) => c.size).filter(Boolean) as string[])].slice(0, 5).map((sz) => (
-                                        <span key={sz} className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-700 ring-1 ring-inset ring-gray-200 dark:bg-white/5 dark:text-gray-300 dark:ring-white/10">
-                                            {sz}
+
+                            {/* Overlay gradient for readability */}
+                            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/100 via-black/70 to-transparent" />
+
+                            {/* Footer content overlay */}
+                            <div className="absolute inset-x-0 bottom-0 p-1.5 sm:p-2">
+                                <div className="flex items-end justify-between gap-1">
+                                    <div className="min-w-0">
+                                        <div className="flex items-center gap-1">
+                                            {pi.color ? (
+                                                <span
+                                                    className="hidden sm:inline-block h-3 w-3 rounded ring-1 ring-inset ring-white/30"
+                                                    style={{ backgroundColor: pi.color || undefined }}
+                                                    aria-label="Color"
+                                                />
+                                            ) : null}
+                                            <h3 className="truncate text-[11px] font-medium text-white drop-shadow sm:text-xs">
+                                                {pi.name}
+                                            </h3>
+                                        </div>
+                                        {/* Sizes preview on larger screens only */}
+                                        {pi.items.some((c) => c.size) && (
+                                            <div className="mt-1 hidden flex-wrap gap-1 sm:flex">
+                                                {(() => {
+                                                    const uniqueSizes = Array.from(
+                                                        new Set(pi.items.map((c) => c.size).filter(Boolean) as string[])
+                                                    );
+                                                    uniqueSizes.sort((a, b) => {
+                                                        const na = parseFloat(String(a).replace(',', '.'));
+                                                        const nb = parseFloat(String(b).replace(',', '.'));
+                                                        const aIsNum = !Number.isNaN(na);
+                                                        const bIsNum = !Number.isNaN(nb);
+                                                        if (aIsNum && bIsNum) return na - nb;
+                                                        if (aIsNum) return -1; // numeric sizes come before non-numeric
+                                                        if (bIsNum) return 1;
+                                                        return String(a).localeCompare(String(b));
+                                                    });
+                                                    const shown = uniqueSizes.slice(0, 4);
+                                                    return (
+                                                        <>
+                                                            {shown.map((sz) => (
+                                                                <span
+                                                                    key={sz}
+                                                                    className="rounded bg-white/15 px-1.5 py-0.5 text-[10px] text-white/90 ring-1 ring-inset ring-white/30 backdrop-blur-sm"
+                                                                >
+                                                                    {sz}
+                                                                </span>
+                                                            ))}
+                                                            {uniqueSizes.length > 4 && (
+                                                                <span className="text-[10px] text-white/80">…</span>
+                                                            )}
+                                                        </>
+                                                    );
+                                                })()}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex shrink-0 flex-col items-end text-white">
+                                        <span className="text-[11px] font-semibold sm:text-xs">
+                                            {currency} {pi.price.toFixed(2)}
                                         </span>
-                                    ))}
-                                    {new Set(pi.items.map((c) => c.size).filter(Boolean)).size > 5 && (
-                                        <span className="text-[10px] text-gray-500 dark:text-gray-400">…</span>
-                                    )}
+                                        {(() => {
+                                            const isWeight = pi.items.some((c) => c.measurementType === 'WEIGHT')
+                                            const formatWeight = (grams: number) => {
+                                                if (grams >= 1000) return `${(grams / 1000).toFixed(1)} kg`
+                                                return `${grams} g`
+                                            }
+                                            return (
+                                                <span className="mt-0.5 rounded bg-black/40 px-1 py-0.5 text-[9px] leading-none ring-1 ring-white/20 backdrop-blur-sm">
+                                                    Stock: {isWeight ? formatWeight(pi.quantity) : pi.quantity}
+                                                </span>
+                                            )
+                                        })()}
+                                    </div>
                                 </div>
-                            )}
+                            </div>
                         </div>
                     </div>
                 ))}

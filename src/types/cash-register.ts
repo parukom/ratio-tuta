@@ -41,6 +41,7 @@ export type PlaceItem = {
     name: string;
     price: number;
     sku: string | null;
+    imageUrl?: string | null;
     image?: string | null;
     color?: string | null;
     size?: string | null;
@@ -62,6 +63,7 @@ export type GroupedPlaceItem = {
     quantity: number;
     price: number;
     sku: string | null;
+    imageUrl?: string | null;
     image?: string | null;
     size?: string | null;
     unit?: string | null;

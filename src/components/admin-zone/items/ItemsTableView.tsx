@@ -81,7 +81,16 @@ export default function ItemsTableView({ items, loading, onItemUpdated, onItemDe
                                 <td className="px-2 py-2 text-right text-gray-900 dark:text-white">{new Intl.NumberFormat(undefined, { style: "currency", currency: it.currency || "EUR" }).format(it.price)}</td>
                                 <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{(it.taxRateBps / 100).toFixed(2)}%</td>
                                 <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{it.unit || "pcs"}</td>
-                                <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{typeof it.stockQuantity === "number" ? it.stockQuantity : "0"}</td>
+                                <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">
+                                    {(() => {
+                                        const q = typeof it.stockQuantity === 'number' ? it.stockQuantity : 0
+                                        if (it.measurementType === 'WEIGHT') {
+                                            // q is saved in grams
+                                            return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`
+                                        }
+                                        return q
+                                    })()}
+                                </td>
                                 <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300" data-no-open>
                                     <ItemRowActions
                                         item={it}

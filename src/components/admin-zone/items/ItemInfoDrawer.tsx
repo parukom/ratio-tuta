@@ -80,8 +80,14 @@ const ItemInfoDrawer = ({ open, onClose, item }: Props) => {
                                                 <InfoRow label={t('labels.profit')} value={fmtCurrency((item!.price - (item!.pricePaid || 0)), currency)} />
                                             )}
                                             <InfoRow label={t('labels.tax')} value={item ? `${(item.taxRateBps / 100).toFixed(2)}%` : '—'} />
-                                            <InfoRow label={t('labels.stock')} value={String(item?.stockQuantity ?? 0)} />
-                                            <InfoRow label={t('labels.unit')} value={item?.unit || 'pcs'} />
+                                            <InfoRow label={t('labels.stock')} value={(() => {
+                                                const q = Number(item?.stockQuantity || 0)
+                                                if (item?.measurementType === 'WEIGHT') {
+                                                    return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`
+                                                }
+                                                return String(q)
+                                            })()} />
+                                            <InfoRow label={t('labels.unit')} value={item?.unit || (item?.measurementType === 'WEIGHT' ? 'kg (saved as g)' : 'pcs')} />
                                             <InfoRow label={t('labels.measurement')} value={item?.measurementType || 'PCS'} />
                                             <InfoRow label={t('labels.brand')} value={item?.brand || '—'} />
                                             <InfoRow label={t('labels.size')} value={item?.size || '—'} />

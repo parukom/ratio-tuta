@@ -55,6 +55,10 @@ export async function GET(
           taxRateBps: true,
           isActive: true,
           createdAt: true,
+          imageUrl: true,
+          color: true,
+          size: true,
+          measurementType: true,
           category: {
             select: {
               id: true,
@@ -146,7 +150,11 @@ export async function POST(
       if (delta > 0) {
         // Ensure enough stock in warehouse and decrement
         const upd = await tx.item.updateMany({
-          where: { id: itemId, teamId: place.teamId, stockQuantity: { gte: delta } },
+          where: {
+            id: itemId,
+            teamId: place.teamId,
+            stockQuantity: { gte: delta },
+          },
           data: { stockQuantity: { decrement: delta } },
         });
         if (upd.count !== 1) {
@@ -213,7 +221,9 @@ export async function DELETE(
   if (!placeId || typeof placeId !== 'string')
     return NextResponse.json({ error: 'Invalid placeId' }, { status: 400 });
 
-  const body = (await req.json().catch(() => null)) as { itemId?: string } | null;
+  const body = (await req.json().catch(() => null)) as {
+    itemId?: string;
+  } | null;
   const itemId = body?.itemId as string | undefined;
   if (!itemId || typeof itemId !== 'string')
     return NextResponse.json({ error: 'Invalid itemId' }, { status: 400 });
@@ -251,9 +261,11 @@ export async function DELETE(
           data: { stockQuantity: { increment: row.quantity } },
         });
       }
-      await tx.placeItem.delete({
-        where: { placeId_itemId: { placeId, itemId } },
-      }).catch(() => undefined);
+      await tx.placeItem
+        .delete({
+          where: { placeId_itemId: { placeId, itemId } },
+        })
+        .catch(() => undefined);
     });
 
     await logAudit({

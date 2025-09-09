@@ -63,6 +63,12 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
     }
     const [measurementType, setMeasurementType] = useState<ItemRow['measurementType']>(item.measurementType ?? mapUnitToMT(item.unit ?? 'pcs'))
     const [stockQuantity, setStockQuantity] = useState(String(item.stockQuantity ?? 0))
+    // For WEIGHT items allow entering/editing in kg or g but save as grams
+    const [weightUnit, setWeightUnit] = useState<'kg' | 'g'>(() => {
+        // heuristics: if existing quantity is large, assume grams; otherwise default to kg
+        const q = Number(item.stockQuantity || 0)
+        return q >= 1000 ? 'g' : 'kg'
+    })
     const [description, setDescription] = useState(item.description ?? '')
     const [color, setColor] = useState(item.color ?? '')
     const [size, setSize] = useState(item.size ?? '')
@@ -112,7 +118,14 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
                     taxRateBps: Number(taxRateBps) || 0,
                     isActive,
                     measurementType: (measurementType ?? 'PCS'),
-                    stockQuantity: Number(stockQuantity) || 0,
+                    stockQuantity: (() => {
+                        const v = Number(stockQuantity)
+                        if (!Number.isFinite(v) || v < 0) return 0
+                        if (measurementType === 'WEIGHT') {
+                            return Math.round((weightUnit === 'kg' ? v * 1000 : v))
+                        }
+                        return Math.round(v)
+                    })(),
                     description: description.trim() || null,
                     color: color.trim() || null,
                     size: size.trim() || null,
@@ -309,26 +322,39 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
                                         { key: 'AREA', label: ti('forms.measurementOptions.AREA') },
                                         { key: 'TIME', label: ti('forms.measurementOptions.TIME') },
                                     ]}
-                                    onSelect={(key) => setMeasurementType(key as ItemRow['measurementType'])}
+                                    onSelect={(key) => { setMeasurementType(key as ItemRow['measurementType']); if (key !== 'WEIGHT') setWeightUnit('kg') }}
                                 />
                             </div>
                         </div>
-                        <Input
-                            id={`stock-${item.id}`}
-                            name="stock"
-                            type="number"
-                            className=""
-                            placeholder={
-                                measurementType === 'PCS' ? ti('forms.stock.PCS')
-                                    : measurementType === 'WEIGHT' ? ti('forms.stock.WEIGHT')
-                                        : measurementType === 'LENGTH' ? ti('forms.stock.LENGTH')
-                                            : measurementType === 'VOLUME' ? ti('forms.stock.VOLUME')
-                                                : measurementType === 'AREA' ? ti('forms.stock.AREA')
-                                                    : ti('forms.stock.TIME')
-                            }
-                            value={stockQuantity}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStockQuantity(e.target.value)}
-                        />
+                        <div>
+                            {measurementType === 'WEIGHT' && (
+                                <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                                    <button type="button" onClick={() => setWeightUnit('kg')} className={`px-2 py-1 text-xs ${weightUnit === 'kg' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>kg</button>
+                                    <button type="button" onClick={() => setWeightUnit('g')} className={`px-2 py-1 text-xs ${weightUnit === 'g' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>g</button>
+                                </div>
+                            )}
+                            <Input
+                                id={`stock-${item.id}`}
+                                name="stock"
+                                type="number"
+                                className=""
+                                placeholder={
+                                    measurementType === 'PCS' ? ti('forms.stock.PCS')
+                                        : measurementType === 'WEIGHT' ? `${ti('forms.stock.WEIGHT')}`.replace('(kg)', `(${weightUnit})`)
+                                            : measurementType === 'LENGTH' ? ti('forms.stock.LENGTH')
+                                                : measurementType === 'VOLUME' ? ti('forms.stock.VOLUME')
+                                                    : measurementType === 'AREA' ? ti('forms.stock.AREA')
+                                                        : ti('forms.stock.TIME')
+                                }
+                                value={stockQuantity}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStockQuantity(e.target.value)}
+                            />
+                            {measurementType === 'WEIGHT' && stockQuantity && Number(stockQuantity) > 0 && (
+                                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                    {weightUnit === 'kg' ? `${Math.round(Number(stockQuantity) * 1000)} g will be saved` : `${(Number(stockQuantity) / 1000).toFixed(3)} kg`}
+                                </p>
+                            )}
+                        </div>
                     </div>
                     <Input id={`desc-${item.id}`} name="description" type="text" className="" placeholder={ti('forms.descriptionOptional')} value={description} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)} />
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">

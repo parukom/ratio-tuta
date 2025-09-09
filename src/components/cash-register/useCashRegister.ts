@@ -222,13 +222,15 @@ export function useGroupedSearch(placeItems: PlaceItem[] | null) {
       const base = (fullName.split(' - ')[0] || fullName).trim();
       const color = (pi.item.color ?? '').trim() || null;
       const key = `${base.toLowerCase()}|${(color ?? '').toLowerCase()}`;
+      const imageUrl = pi.item.imageUrl ?? pi.item.image ?? null;
       const child = {
         placeItemId: pi.id,
         itemId: pi.itemId,
         quantity: pi.quantity,
         price: pi.item.price,
         sku: pi.item.sku,
-        image: pi.item.image ?? null,
+        imageUrl,
+        image: imageUrl,
         size: pi.item.size ?? null,
         unit: pi.item.unit ?? null,
         measurementType: pi.item.measurementType ?? 'PCS',
@@ -239,7 +241,7 @@ export function useGroupedSearch(placeItems: PlaceItem[] | null) {
           key,
           name: base,
           color,
-          image: pi.item.image ?? null,
+          image: imageUrl,
           price: pi.item.price,
           quantity: pi.quantity,
           items: [child],

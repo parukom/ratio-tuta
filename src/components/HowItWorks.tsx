@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 const steps = [
   {
@@ -40,7 +41,7 @@ export default function HowItWorks() {
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{s.title}</h3>
                 <p className="mt-2 text-gray-600 dark:text-gray-400">{s.desc}</p>
                 <div className="mt-4 h-36 w-full overflow-hidden rounded-xl bg-gray-50 ring-1 ring-gray-200 dark:bg-gray-900 dark:ring-white/10">
-                  <img src="https://www.thispersondoesnotexist.com" alt="" className="h-full w-full object-cover" />
+                  <Image width={300} height={300} src="https://www.thispersondoesnotexist.com" alt="" className="h-full w-full object-cover" />
                 </div>
               </div>
             </li>
