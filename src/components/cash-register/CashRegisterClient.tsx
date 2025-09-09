@@ -10,7 +10,7 @@ import { CashRegisterFooter } from './CashRegisterFooter';
 import { CashRegisterMainSection } from './CashRegisterMainSection';
 import { CashRegisterHeader } from './CashRegisterHeader';
 import { ChoosePaymentModal } from './ChoosePaymentModal';
-import { useCart, useGroupedSearch, usePlaceItems, usePlaces } from './useCashRegister';
+import { SortKey, useCart, useGroupedSearch, usePlaceItems, usePlaces } from './useCashRegister';
 
 
 
@@ -18,7 +18,7 @@ export default function CashRegisterClient() {
     const searchParams = useSearchParams();
     const queryPlaceId = searchParams.get('placeId');
     const { activePlaceId, currency, error: placesError } = usePlaces(queryPlaceId);
-    const { placeItems, reload: reloadItems, error: itemsError } = usePlaceItems(activePlaceId);
+    const { placeItems, reload: reloadItems, error: itemsError, loading: loadingItems } = usePlaceItems(activePlaceId);
     const { cart, addVariantToCart, clearCart, totals, cartArray, setCartFromModal } = useCart();
     const [checkingOut, setCheckingOut] = useState(false);
     const [openChoosePayment, setOpenChoosePayment] = useState(false);
@@ -32,7 +32,7 @@ export default function CashRegisterClient() {
     const [openVariant, setOpenVariant] = useState(false);
     const [activeGroup, setActiveGroup] = useState<VariantGroup | null>(null);
     const checkoutBtnRef = useRef<HTMLButtonElement | null>(null);
-    const { search, setSearch, visiblePlaceItems } = useGroupedSearch(placeItems);
+    const { search, setSearch, visiblePlaceItems, inStockOnly, setInStockOnly, sortKey, setSortKey } = useGroupedSearch(placeItems);
 
     async function completeSale() {
         if (!activePlaceId || cart.size === 0) return;
@@ -91,17 +91,23 @@ export default function CashRegisterClient() {
     return (
         <div className="flex h-dvh flex-col overflow-hidden bg-gray-50 dark:bg-gray-900">
             {/* Header */}
-            <CashRegisterHeader />
+            <CashRegisterHeader
+                search={search}
+                setSearch={setSearch}
+                inStockOnly={inStockOnly}
+                setInStockOnly={setInStockOnly}
+                sortKey={sortKey as SortKey}
+                setSortKey={setSortKey as (v: React.SetStateAction<SortKey>) => void}
+            />
 
             {/* Content */}
             <CashRegisterMainSection
                 error={error || placesError || itemsError}
-                search={search}
-                setSearch={setSearch}
                 visiblePlaceItems={visiblePlaceItems}
                 currency={currency}
                 setActiveGroup={setActiveGroup}
                 setOpenVariant={setOpenVariant}
+                loading={loadingItems}
             />
             {/* Footer */}
             <CashRegisterFooter

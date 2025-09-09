@@ -89,12 +89,14 @@ export function usePlaces(queryPlaceId: string | null) {
 export function usePlaceItems(activePlaceId: string | null) {
   const [placeItems, setPlaceItems] = useState<PlaceItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (!activePlaceId) return;
     let cancelled = false;
     async function loadItems() {
       setError(null);
+      setLoading(true);
       try {
         const res = await fetch(`/api/places/${activePlaceId}/items`);
         if (!res.ok) throw new Error('Failed to load items');
@@ -103,6 +105,8 @@ export function usePlaceItems(activePlaceId: string | null) {
       } catch (e: unknown) {
         const msg = e instanceof Error ? e.message : 'Error';
         if (!cancelled) setError(msg);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     }
     loadItems();
@@ -114,14 +118,17 @@ export function usePlaceItems(activePlaceId: string | null) {
   const reload = async () => {
     if (!activePlaceId) return;
     try {
+      setLoading(true);
       const res = await fetch(`/api/places/${activePlaceId}/items`);
       if (res.ok) setPlaceItems(await res.json());
     } catch {
       // ignore reload errors
+    } finally {
+      setLoading(false);
     }
   };
 
-  return { placeItems, setPlaceItems, error, reload } as const;
+  return { placeItems, setPlaceItems, error, loading, reload } as const;
 }
 
 // Cart state and helpers
@@ -232,8 +239,13 @@ export function useCart() {
 }
 
 // Group duplicate place items by itemId and sum quantities + search filter state
+export type SortKey = 'NAME_ASC' | 'PRICE_ASC' | 'PRICE_DESC' | 'STOCK_DESC';
+
+// Group duplicate place items by itemId and sum quantities + search/sort/filter state
 export function useGroupedSearch(placeItems: PlaceItem[] | null) {
   const [search, setSearch] = useState('');
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [sortKey, setSortKey] = useState<SortKey>('NAME_ASC');
 
   const groupedItems: GroupedPlaceItem[] = useMemo(() => {
     const map = new Map<string, GroupedPlaceItem>();
@@ -277,18 +289,54 @@ export function useGroupedSearch(placeItems: PlaceItem[] | null) {
   }, [placeItems]);
 
   const visiblePlaceItems = useMemo(() => {
+    // Text search
     const q = search.trim().toLowerCase();
     const tokens = q.split(/\s+/).filter(Boolean);
-    if (tokens.length === 0) return groupedItems;
-    return groupedItems.filter((gi) => {
-      const name = gi.name.toLowerCase();
-      const skus = gi.items.map((c) => c.sku?.toLowerCase() ?? '').join(' ');
-      const color = (gi.color ?? '').toLowerCase();
-      return tokens.every(
-        (t) => name.includes(t) || skus.includes(t) || color.includes(t),
-      );
-    });
-  }, [groupedItems, search]);
+    let list = groupedItems;
+    if (tokens.length > 0) {
+      list = list.filter((gi) => {
+        const name = gi.name.toLowerCase();
+        const skus = gi.items.map((c) => c.sku?.toLowerCase() ?? '').join(' ');
+        const color = (gi.color ?? '').toLowerCase();
+        return tokens.every(
+          (t) => name.includes(t) || skus.includes(t) || color.includes(t),
+        );
+      });
+    }
 
-  return { search, setSearch, groupedItems, visiblePlaceItems } as const;
+    // In-stock filter
+    if (inStockOnly) {
+      list = list.filter(
+        (gi) => (gi.quantity ?? 0) > 0 || gi.items.some((c) => c.quantity > 0),
+      );
+    }
+
+    // Sorting
+    const sorted = [...list];
+    sorted.sort((a, b) => {
+      switch (sortKey) {
+        case 'PRICE_ASC':
+          return a.price - b.price;
+        case 'PRICE_DESC':
+          return b.price - a.price;
+        case 'STOCK_DESC':
+          return (b.quantity ?? 0) - (a.quantity ?? 0);
+        case 'NAME_ASC':
+        default:
+          return a.name.localeCompare(b.name);
+      }
+    });
+    return sorted;
+  }, [groupedItems, search, inStockOnly, sortKey]);
+
+  return {
+    search,
+    setSearch,
+    inStockOnly,
+    setInStockOnly,
+    sortKey,
+    setSortKey,
+    groupedItems,
+    visiblePlaceItems,
+  } as const;
 }

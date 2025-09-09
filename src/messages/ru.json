@@ -173,6 +173,7 @@
     "close": "Закрыть",
     "copied": "Скопировано",
     "name": "Название",
+    "price": "Цена",
     "yes": "Да",
     "no": "Нет",
     "errors": {
@@ -605,6 +606,7 @@
   "CashRegister": {
     "headerTitle": "Касса",
     "stock": "Остаток",
+    "sort": "Сортировка",
     "qtyLabel": "Кол-во",
     "sumLabel": "Сумма",
     "clear": "Очистить",

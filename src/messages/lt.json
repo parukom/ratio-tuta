@@ -173,6 +173,7 @@
     "close": "Uždaryti",
     "copied": "Nukopijuota",
     "name": "Pavadinimas",
+    "price": "Kaina",
     "yes": "Taip",
     "no": "Ne",
     "errors": {
@@ -605,6 +606,7 @@
   "CashRegister": {
     "headerTitle": "Kasa",
     "stock": "Likutis",
+    "sort": "Rūšiuoti",
     "qtyLabel": "Kiekis",
     "sumLabel": "Suma",
     "clear": "Išvalyti",

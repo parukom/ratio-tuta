@@ -173,6 +173,7 @@
     "close": "Close",
     "copied": "Copied",
     "name": "Name",
+    "price": "Price",
     "yes": "Yes",
     "no": "No",
     "errors": {
@@ -605,6 +606,7 @@
   "CashRegister": {
     "headerTitle": "Cash Register",
     "stock": "Stock",
+    "sort": "Sort",
     "qtyLabel": "Qty",
     "sumLabel": "Total",
     "clear": "Clear",
