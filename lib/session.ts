@@ -66,7 +66,9 @@ export async function setSession(
   });
 }
 
-export async function getSession(): Promise<SessionData | null> {
+export async function getSession(
+  opts?: { skipDbCheck?: boolean },
+): Promise<SessionData | null> {
   const store = await cookies();
   const value = store.get(SESSION_COOKIE)?.value;
   if (!value) return null;
@@ -90,21 +92,23 @@ export async function getSession(): Promise<SessionData | null> {
     const nowSec = Math.floor(Date.now() / 1000);
     if (typeof token.exp !== 'number' || nowSec >= token.exp) return null;
     // Optional server-side invalidation via sessionRevokedAt
-    try {
-      const rows = await prisma.$queryRaw<
-        Array<{ sessionrevokedat: Date | null }>
-      >`
-        SELECT "sessionRevokedAt" as sessionrevokedat FROM "User" WHERE id = ${token.data.userId} LIMIT 1
-      `;
-      const revokedAt = rows[0]?.sessionrevokedat ?? null;
-      if (revokedAt) {
-        const revokedSec = Math.floor(new Date(revokedAt).getTime() / 1000);
-        // Invalidate tokens strictly older than the revoked timestamp
-        if (token.iat < revokedSec) return null;
+    if (!opts?.skipDbCheck) {
+      try {
+        const rows = await prisma.$queryRaw<
+          Array<{ sessionrevokedat: Date | null }>
+        >`
+          SELECT "sessionRevokedAt" as sessionrevokedat FROM "User" WHERE id = ${token.data.userId} LIMIT 1
+        `;
+        const revokedAt = rows[0]?.sessionrevokedat ?? null;
+        if (revokedAt) {
+          const revokedSec = Math.floor(new Date(revokedAt).getTime() / 1000);
+          // Invalidate tokens strictly older than the revoked timestamp
+          if (token.iat < revokedSec) return null;
+        }
+      } catch {
+        // On DB error, fail closed by denying session (safer)
+        return null;
       }
-    } catch {
-      // On DB error, fail closed by denying session (safer)
-      return null;
     }
     return token.data;
   } catch {
