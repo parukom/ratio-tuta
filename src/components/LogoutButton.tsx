@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Spinner from "@/components/ui/Spinner";
 import { useTranslations } from "next-intl";
+import { LogOut } from "lucide-react";
 
 type Props = {
     widthFull?: boolean
@@ -43,16 +44,7 @@ export default function LogoutButton({ widthFull }: Props) {
                 </>
             ) : (
                 <>
-                    <svg
-                        className="w-5 h-5 text-red-600 dark:text-red-400"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        aria-hidden="true"
-                    >
-                        <path d="M16 13v-2H7V8l-5 4 5 4v-3z" />
-                        <path d="M20 3H10a2 2 0 00-2 2v3h2V5h10v14H10v-3H8v3a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2z" />
-                    </svg>
+                    <LogOut className="w-5 h-5 text-red-600 dark:text-red-400" aria-hidden="true" />
                     <span>{t('logout')}</span>
                 </>
             )}

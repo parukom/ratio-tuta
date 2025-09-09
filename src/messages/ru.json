@@ -607,6 +607,7 @@
     "headerTitle": "Касса",
     "stock": "Остаток",
     "sort": "Сортировка",
+    "filters": "Фильтры",
     "qtyLabel": "Кол-во",
     "sumLabel": "Сумма",
     "clear": "Очистить",

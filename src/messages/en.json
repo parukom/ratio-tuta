@@ -607,6 +607,7 @@
     "headerTitle": "Cash Register",
     "stock": "Stock",
     "sort": "Sort",
+    "filters": "Filters",
     "qtyLabel": "Qty",
     "sumLabel": "Total",
     "clear": "Clear",
