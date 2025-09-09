@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import LogoutButton from '@/components/LogoutButton';
@@ -7,7 +7,10 @@ import LogoutButton from '@/components/LogoutButton';
 import CheckoutModalCash from '@/components/cash-register/CheckoutModalCash';
 import CheckoutModalCard from '@/components/cash-register/CheckourModalCard';
 import Modal from '@/components/modals/Modal';
+import SearchInput from '@/components/ui/SearchInput';
 import type { CartItem } from '@/types/cash-register';
+import SelectVariantModal, { VariantChild, VariantGroup } from './SelectVariantModal';
+import flyToCart from '@/lib/flyToCart';
 
 type Place = {
     id: string;
@@ -26,10 +29,24 @@ type PlaceItem = {
         name: string;
         price: number;
         sku: string | null;
+        image?: string | null;
+        color?: string | null;
+        size?: string | null;
+        unit?: string | null;
+        measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME';
     };
 };
 
 type CartLine = { itemId: string; title: string; price: number; quantity: number };
+type GroupedPlaceItem = {
+    key: string; // group key by name+color
+    name: string;
+    color: string | null;
+    image?: string | null;
+    price: number;
+    quantity: number; // total stock across variants in the group
+    items: Array<{ placeItemId: string; itemId: string; quantity: number; price: number; sku: string | null; image?: string | null; size?: string | null; unit?: string | null; measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME' }>;
+};
 
 export default function CashRegisterClient() {
     const searchParams = useSearchParams();
@@ -48,7 +65,10 @@ export default function CashRegisterClient() {
     const [change, setChange] = useState(0);
     const [showChange, setShowChange] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    // const [isAdmin, setIsAdmin] = useState(false);
+    const [search, setSearch] = useState('');
+    const [openVariant, setOpenVariant] = useState(false);
+    const [activeGroup, setActiveGroup] = useState<VariantGroup | null>(null);
+    const checkoutBtnRef = useRef<HTMLButtonElement | null>(null);
 
     const activePlace = useMemo(() => places?.find((p) => p.id === activePlaceId) || null, [places, activePlaceId]);
     const currency = activePlace?.currency || 'EUR';
@@ -94,27 +114,6 @@ export default function CashRegisterClient() {
         };
     }, [queryPlaceId]);
 
-    // // Load current user to determine admin role
-    // useEffect(() => {
-    //     let cancelled = false;
-    //     (async () => {
-    //         try {
-    //             const res = await fetch('/api/me');
-    //             if (!res.ok) throw new Error('unauthorized');
-    //             const data: unknown = await res.json();
-    //             if (!cancelled && data && typeof data === 'object' && 'role' in (data as Record<string, unknown>)) {
-    //                 const role = (data as Record<string, unknown>).role;
-    //                 setIsAdmin(role === 'ADMIN');
-    //             }
-    //         } catch {
-    //             if (!cancelled) setIsAdmin(false);
-    //         }
-    //     })();
-    //     return () => {
-    //         cancelled = true;
-    //     };
-    // }, []);
-
     useEffect(() => {
         if (!activePlaceId) return;
         let cancelled = false;
@@ -139,30 +138,21 @@ export default function CashRegisterClient() {
         };
     }, [activePlaceId]);
 
-    function addToCart(pi: PlaceItem) {
+    // Modal confirm: add selected variant with requested quantity (capped by stock)
+    function addVariantToCart(child: VariantChild, requestedQty: number, displayName: string, displayPrice: number) {
         setCart((prev) => {
             const next = new Map(prev);
-            const current = next.get(pi.itemId);
-            const maxQty = pi.quantity;
-            const nextQty = Math.min((current?.quantity || 0) + 1, maxQty);
-            next.set(pi.itemId, {
-                itemId: pi.itemId,
-                title: pi.item.name,
-                price: pi.item.price,
-                quantity: nextQty,
+            const current = next.get(child.itemId);
+            const have = current?.quantity || 0;
+            const room = Math.max(0, child.quantity - have);
+            const add = Math.min(Math.max(1, requestedQty), room);
+            if (add <= 0) return prev;
+            next.set(child.itemId, {
+                itemId: child.itemId,
+                title: displayName,
+                price: displayPrice,
+                quantity: have + add,
             });
-            return next;
-        });
-    }
-
-    function decrement(pi: PlaceItem) {
-        setCart((prev) => {
-            const next = new Map(prev);
-            const current = next.get(pi.itemId);
-            if (!current) return prev;
-            const q = Math.max(current.quantity - 1, 0);
-            if (q === 0) next.delete(pi.itemId);
-            else next.set(pi.itemId, { ...current, quantity: q });
             return next;
         });
     }
@@ -180,6 +170,60 @@ export default function CashRegisterClient() {
         }
         return { qty, sum };
     }, [cart]);
+
+    // Group duplicate place items by itemId and sum quantities
+    const groupedItems = useMemo((): GroupedPlaceItem[] => {
+        const map = new Map<string, GroupedPlaceItem>();
+        for (const pi of placeItems || []) {
+            const fullName = (pi.item.name ?? '').trim();
+            const base = (fullName.split(' - ')[0] || fullName).trim();
+            const color = (pi.item.color ?? '').trim() || null;
+            const key = `${base.toLowerCase()}|${(color ?? '').toLowerCase()}`;
+            const child = {
+                placeItemId: pi.id,
+                itemId: pi.itemId,
+                quantity: pi.quantity,
+                price: pi.item.price,
+                sku: pi.item.sku,
+                image: pi.item.image ?? null,
+                size: pi.item.size ?? null,
+                unit: pi.item.unit ?? null,
+                measurementType: pi.item.measurementType ?? 'PCS',
+            };
+            const existing = map.get(key);
+            if (!existing) {
+                map.set(key, {
+                    key,
+                    name: base,
+                    color,
+                    image: pi.item.image ?? null,
+                    price: pi.item.price,
+                    quantity: pi.quantity,
+                    items: [child],
+                });
+            } else {
+                existing.quantity += pi.quantity;
+                existing.items.push(child);
+                // keep the first price as display price
+            }
+        }
+        // Stable sort by name for predictability
+        return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
+    }, [placeItems]);
+
+    // Filter grouped items by search query (name or SKU)
+    const visiblePlaceItems = useMemo(() => {
+        const q = search.trim().toLowerCase();
+        const tokens = q.split(/\s+/).filter(Boolean);
+        if (tokens.length === 0) return groupedItems;
+        return groupedItems.filter((gi) => {
+            const name = gi.name.toLowerCase();
+            // Combine SKUs across children for search convenience
+            const skus = gi.items.map((c) => c.sku?.toLowerCase() ?? '').join(' ');
+            const color = (gi.color ?? '').toLowerCase();
+            return tokens.every((t) => name.includes(t) || skus.includes(t) || color.includes(t));
+        });
+    }, [groupedItems, search]);
 
     // Adapt cart Map to modal's array-based API
     const cartArray: CartItem[] = useMemo(() => {
@@ -267,34 +311,88 @@ export default function CashRegisterClient() {
                         {error}
                     </div>
                 )}
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                    {(placeItems || []).map((pi) => (
+                <div className="mb-4">
+                    <SearchInput
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        containerClassName="w-full"
+                        inputClassName="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500 pl-9"
+                    />
+                </div>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+                    {visiblePlaceItems.map((pi) => (
                         <div
-                            key={pi.id}
-                            className="relative overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition hover:shadow-md dark:border-white/10 dark:bg-gray-800/50"
+                            key={pi.key}
+                            className="relative overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition hover:shadow dark:border-white/10 dark:bg-gray-800/50"
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => {
+                                const vg: VariantGroup = {
+                                    key: pi.key,
+                                    name: pi.name,
+                                    color: pi.color,
+                                    price: pi.price,
+                                    quantity: pi.quantity,
+                                    items: pi.items as unknown as VariantChild[],
+                                };
+                                setActiveGroup(vg);
+                                setOpenVariant(true);
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    const vg: VariantGroup = {
+                                        key: pi.key,
+                                        name: pi.name,
+                                        color: pi.color,
+                                        price: pi.price,
+                                        quantity: pi.quantity,
+                                        items: pi.items as unknown as VariantChild[],
+                                    };
+                                    setActiveGroup(vg);
+                                    setOpenVariant(true);
+                                }
+                            }}
                         >
-                            <div className="h-36 w-full bg-gray-100 dark:bg-white/5" />
-                            <div className="p-4">
-                                <h3 className="mb-1 text-base font-semibold text-gray-900 dark:text-white">{pi.item.name}</h3>
-                                <div className="mb-2 flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+                            <div className="h-24 w-full bg-gray-100 dark:bg-white/5 relative">
+                                <Image
+                                    src={pi.image ?? '/images/cat.jpg'}
+                                    alt={pi.name}
+                                    fill
+                                    style={{ objectFit: 'cover' }}
+                                    className="transition-transform duration-200 ease-in-out group-hover:scale-110"
+                                />
+                            </div>
+                            <div className="p-3">
+                                <div className="mb-1 flex items-center gap-2">
+                                    {pi.color ? (
+                                        <span
+                                            className="inline-block h-4 w-4 rounded ring-1 ring-inset ring-gray-200 dark:ring-white/10"
+                                            style={{ backgroundColor: pi.color || undefined }}
+                                            aria-label="Color"
+                                        />
+                                    ) : null}
+                                    <h3 className="line-clamp-2 text-sm font-semibold text-gray-900 dark:text-white">{pi.name}</h3>
+                                </div>
+                                <div className="mb-2 flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
                                     <span>
-                                        {currency} {pi.item.price.toFixed(2)}
+                                        {currency} {pi.price.toFixed(2)}
                                     </span>
                                     <span>Stock: {pi.quantity}</span>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <button onClick={() => decrement(pi)} className="rounded border border-gray-300 px-2 py-1 text-sm dark:border-white/10">
-                                        -
-                                    </button>
-                                    <span className="min-w-8 text-center">{cart.get(pi.itemId)?.quantity || 0}</span>
-                                    <button
-                                        onClick={() => addToCart(pi)}
-                                        disabled={(cart.get(pi.itemId)?.quantity || 0) >= pi.quantity}
-                                        className="rounded border border-gray-300 px-2 py-1 text-sm disabled:opacity-50 dark:border-white/10"
-                                    >
-                                        +
-                                    </button>
-                                </div>
+                                {/* Sizes preview */}
+                                {pi.items.some((c) => c.size) && (
+                                    <div className="mb-1 flex flex-wrap gap-1">
+                                        {[...new Set(pi.items.map((c) => c.size).filter(Boolean) as string[])].slice(0, 5).map((sz) => (
+                                            <span key={sz} className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-700 ring-1 ring-inset ring-gray-200 dark:bg-white/5 dark:text-gray-300 dark:ring-white/10">
+                                                {sz}
+                                            </span>
+                                        ))}
+                                        {new Set(pi.items.map((c) => c.size).filter(Boolean)).size > 5 && (
+                                            <span className="text-[10px] text-gray-500 dark:text-gray-400">…</span>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))}
@@ -324,6 +422,7 @@ export default function CashRegisterClient() {
                             Clear
                         </button>
                         <button
+                            ref={checkoutBtnRef}
                             onClick={() => {
                                 setOpenChoosePayment(true);
                             }}
@@ -335,6 +434,26 @@ export default function CashRegisterClient() {
                     </div>
                 </div>
             </footer>
+            {/* Variant selection modal */}
+            <SelectVariantModal
+                open={openVariant}
+                onClose={() => setOpenVariant(false)}
+                group={activeGroup}
+                currency={currency}
+                onConfirm={({ child, quantity }) => {
+                    const displayName = activeGroup?.name ?? child.sku ?? 'Item';
+                    const displayPrice = child.price;
+                    addVariantToCart(child, quantity, displayName, displayPrice);
+                    // Animate from the selected variant button to the checkout button
+                    try {
+                        const modal = document.querySelector('[role="dialog"]');
+                        const selectedEl = modal?.querySelector('[data-variant-selected="true"]') as HTMLElement | null;
+                        const target = checkoutBtnRef.current;
+                        if (selectedEl && target) flyToCart(selectedEl, target);
+                    } catch { /* noop */ }
+                    setOpenVariant(false);
+                }}
+            />
             {/* Choose Payment Modal */}
             <Modal open={openChoosePayment} onClose={() => setOpenChoosePayment(false)} size="md">
                 <div>
