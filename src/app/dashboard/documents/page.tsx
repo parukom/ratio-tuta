@@ -3,6 +3,7 @@ import Tabs from "@/components/ui/Tabs";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import SearchInput from "@/components/ui/SearchInput";
 import React, { Suspense, useEffect, useMemo, useState } from "react";
+import BottomPaginationBar from "@/components/ui/BottomPaginationBar";
 import { useRouter, useSearchParams } from "next/navigation";
 import Modal from "@/components/modals/Modal";
 import { useTranslations } from "next-intl";
@@ -239,31 +240,16 @@ const ReceiptsTab: React.FC = () => {
             </div>
 
             {/* Fixed bottom pagination bar */}
-            <div className="fixed inset-x-0 bottom-0 z-30 border-t py-4 border-gray-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 safe-bottom dark:border-white/10 dark:bg-gray-900/80 dark:supports-[backdrop-filter]:bg-gray-900/60">
-                <div className="mx-auto max-w-screen-2xl px-4 lg:pl-76 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between">
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
-                            {t('pagination.pageOf', { page, total: totalPages })}
-                        </div>
-                        <div className="flex gap-2">
-                            <button
-                                className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/10"
-                                disabled={page <= 1 || loading}
-                                onClick={() => setPage(Math.max(1, page - 1))}
-                            >
-                                {t('pagination.prev')}
-                            </button>
-                            <button
-                                className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/10"
-                                disabled={page >= totalPages || loading}
-                                onClick={() => setPage(page + 1)}
-                            >
-                                {t('pagination.next')}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <BottomPaginationBar
+                page={page}
+                totalPages={totalPages}
+                onPrev={() => setPage(Math.max(1, page - 1))}
+                onNext={() => setPage(page + 1)}
+                disabled={loading}
+                includeSidebarInset
+                prevLabel={t('pagination.prev')}
+                nextLabel={t('pagination.next')}
+            />
         </div>
     );
 };
