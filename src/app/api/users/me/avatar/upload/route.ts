@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession, setSession } from '@lib/session';
 import { prisma } from '@lib/prisma';
-import { putObjectFromBuffer } from '@lib/s3';
+import { deleteObjectByKey, putObjectFromBuffer } from '@lib/s3';
 import { processImageToWebp } from '@lib/image';
 import { logAudit } from '@lib/logger';
 
@@ -35,12 +35,21 @@ export async function POST(req: Request) {
     }
     const buf = Buffer.from(await file.arrayBuffer());
 
+    // If a previous avatar exists, remove it from S3 first
+    const existing = await prisma.user.findUnique({
+      where: { id: session.userId },
+      select: { avatarKey: true },
+    });
+    if (existing?.avatarKey) {
+      await deleteObjectByKey(existing.avatarKey);
+    }
+
     // Process to max 640px WEBP
     const processed = await processImageToWebp(buf, {
       maxSize: 640,
       quality: 80,
     });
-    const key = `avatars/${session.userId}.${processed.ext}`;
+  const key = `avatars/${session.userId}.${processed.ext}`;
 
     const url = await putObjectFromBuffer({
       key,

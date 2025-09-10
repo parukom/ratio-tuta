@@ -356,38 +356,40 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                 </div>
 
                 <div className="sticky top-0 z-50 flex items-center gap-x-6 bg-white px-4 py-4 safe-top shadow-xs sm:px-6 lg:hidden dark:bg-gray-900  dark:shadow-none dark:before:pointer-events-none dark:before:absolute dark:before:inset-0 dark:before:border-b dark:before:border-white/10 dark:before:bg-black/10">
-                    <button
-                        type="button"
-                        onClick={() => setSidebarOpen(true)}
-                        className="relative -m-2.5 p-2.5 text-gray-700 lg:hidden dark:text-gray-400"
-                    >
-                        <span className="sr-only">{t('openSidebar')}</span>
-                        <Bars3Icon aria-hidden="true" className="size-6" />
-                    </button>
-                    <div className="relative flex-1 text-sm/6 font-semibold text-gray-900 dark:text-white">{title ?? t('dashboard')}</div>
-                    <a href="#" className="relative">
-                        <span className="sr-only">{t('yourProfile')}</span>
+                    <div className='mt-4 flex gap-x-6 items-center w-full'>
+                        <button
+                            type="button"
+                            onClick={() => setSidebarOpen(true)}
+                            className="relative -m-2.5 p-2.5 text-gray-700 lg:hidden dark:text-gray-400"
+                        >
+                            <span className="sr-only">{t('openSidebar')}</span>
+                            <Bars3Icon aria-hidden="true" className="size-6" />
+                        </button>
+                        <div className="relative flex-1 text-sm/6 font-semibold text-gray-900 dark:text-white">{title ?? t('dashboard')}</div>
+                        <a href="#" className="relative">
+                            <span className="sr-only">{t('yourProfile')}</span>
 
-                        {/* Avatar or initials */}
-                        {me?.avatarUrl && !avatarError ? (
-                            <Image
-                                alt={me?.name ?? 'User avatar'}
-                                src={me.avatarUrl}
-                                className="size-8 rounded-full bg-gray-50 outline -outline-offset-1 outline-black/5 dark:bg-gray-800 dark:outline-white/10"
-                                width={32}
-                                height={32}
-                                unoptimized
-                                onError={() => setAvatarError(true)}
-                            />
-                        ) : (
-                            <div
-                                className="size-8 rounded-full bg-indigo-600 text-white outline -outline-offset-1 outline-black/5 dark:bg-indigo-500 dark:outline-white/10 flex items-center justify-center text-xs font-semibold"
-                                aria-hidden="true"
-                            >
-                                {getInitials(me?.name ?? null, me?.email ?? null)}
-                            </div>
-                        )}
-                    </a>
+                            {/* Avatar or initials */}
+                            {me?.avatarUrl && !avatarError ? (
+                                <Image
+                                    alt={me?.name ?? 'User avatar'}
+                                    src={me.avatarUrl}
+                                    className="size-8 rounded-full bg-gray-50 outline -outline-offset-1 outline-black/5 dark:bg-gray-800 dark:outline-white/10"
+                                    width={32}
+                                    height={32}
+                                    unoptimized
+                                    onError={() => setAvatarError(true)}
+                                />
+                            ) : (
+                                <div
+                                    className="size-8 rounded-full bg-indigo-600 text-white outline -outline-offset-1 outline-black/5 dark:bg-indigo-500 dark:outline-white/10 flex items-center justify-center text-xs font-semibold"
+                                    aria-hidden="true"
+                                >
+                                    {getInitials(me?.name ?? null, me?.email ?? null)}
+                                </div>
+                            )}
+                        </a>
+                    </div>
                 </div>
 
                 <main className="lg:pl-72">

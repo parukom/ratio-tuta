@@ -1,9 +1,9 @@
 'use client'
 
 import React from 'react'
-import Image from 'next/image'
 import toast from 'react-hot-toast'
 import Spinner from '@/components/ui/Spinner'
+import ImageUploader from '@/components/ui/ImageUploader'
 import { useTranslations } from 'next-intl'
 
 type Props = {
@@ -21,6 +21,7 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName }) =>
     const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null)
     const [uploading, setUploading] = React.useState(false)
     const [removing, setRemoving] = React.useState(false)
+    const [file, setFile] = React.useState<File | null>(null)
 
     React.useEffect(() => {
         setFirst(firstName)
@@ -42,37 +43,35 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName }) =>
         return () => { cancelled = true }
     }, [])
 
-    async function handleChangeAvatar() {
-        try {
-            const input = document.createElement('input')
-            input.type = 'file'
-            input.accept = 'image/jpeg,image/png,image/gif,image/webp'
-            const picked: File | undefined = await new Promise((resolve) => {
-                input.onchange = () => resolve(input.files?.[0] ?? undefined)
-                input.click()
-            })
-            if (!picked) return
-            if (picked.size > 5_000_000) {
-                toast.error(t('toasts.fileTooLarge'))
-                return
+    // When a file is selected in the ImageUploader, upload it immediately
+    React.useEffect(() => {
+        async function uploadSelected(f: File) {
+            try {
+                if (f.size > 5_000_000) {
+                    toast.error(t('toasts.fileTooLarge'))
+                    return
+                }
+                setUploading(true)
+                const fd = new FormData()
+                fd.append('file', f)
+                const res = await fetch('/api/users/me/avatar/upload', { method: 'POST', body: fd, credentials: 'include' })
+                const data = await res.json().catch(() => ({}))
+                if (!res.ok) {
+                    toast.error(data?.error || t('toasts.uploadFailed'))
+                    return
+                }
+                setAvatarUrl(data?.avatarUrl ?? null)
+                toast.success(t('toasts.avatarUpdated'))
+            } catch {
+                toast.error(t('toasts.uploadError'))
+            } finally {
+                setUploading(false)
+                // Clear local file so the uploader shows the latest server image
+                setFile(null)
             }
-            setUploading(true)
-            const fd = new FormData()
-            fd.append('file', picked)
-            const res = await fetch('/api/users/me/avatar/upload', { method: 'POST', body: fd, credentials: 'include' })
-            const data = await res.json().catch(() => ({}))
-            if (!res.ok) {
-                toast.error(data?.error || t('toasts.uploadFailed'))
-                return
-            }
-            setAvatarUrl(data?.avatarUrl ?? null)
-            toast.success(t('toasts.avatarUpdated'))
-        } catch {
-            toast.error(t('toasts.uploadError'))
-        } finally {
-            setUploading(false)
         }
-    }
+        if (file) uploadSelected(file)
+    }, [file, t])
 
     async function handleDeleteAvatar() {
         try {
@@ -130,41 +129,28 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName }) =>
 
             <form className="md:col-span-2" onSubmit={onSubmit}>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:max-w-xl sm:grid-cols-6">
-                    <div className="col-span-full flex items-center gap-x-8">
-                        <div className="relative">
-                            <Image
-                                alt={t('avatarAlt')}
-                                src={avatarUrl || '/images/no-image.jpg'}
-                                className="h-24 w-24 flex-none rounded-lg bg-gray-100 object-cover outline -outline-offset-1 outline-black/5 dark:bg-gray-800 dark:outline-white/10"
-                                width={96}
-                                height={96}
-                            />
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <button
-                                type="button"
-                                onClick={handleChangeAvatar}
-                                disabled={uploading}
-                                aria-busy={uploading}
-                                className="inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring-1 inset-ring-gray-300 hover:bg-gray-100 disabled:opacity-60 dark:bg-white/10 dark:text-white dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20"
-                            >
-                                {uploading && <Spinner size={16} className="text-gray-700 dark:text-gray-200" />}
-                                <span>{uploading ? t('uploading') : t('changeAvatar')}</span>
-                            </button>
-                            {avatarUrl && (
-                                <button
-                                    type="button"
-                                    onClick={handleDeleteAvatar}
-                                    disabled={removing}
-                                    aria-busy={removing}
-                                    className="inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-xs inset-ring-1 inset-ring-gray-300 hover:bg-gray-100 disabled:opacity-60 dark:bg-white/10 dark:text-red-400 dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20"
-                                >
-                                    {removing && <Spinner size={16} className="text-red-600 dark:text-red-400" />}
-                                    <span>{removing ? t('removing') : tc('delete')}</span>
-                                </button>
-                            )}
-                            <p className="mt-2 text-xs/5 text-gray-500 dark:text-gray-400">{t('uploadNote')}</p>
-                        </div>
+                    <div className="col-span-full sm:max-w-md">
+                        <ImageUploader
+                            id="avatar"
+                            label={t('avatarAlt')}
+                            value={file}
+                            onChange={setFile}
+                            initialUrl={avatarUrl}
+                            onRemoveInitial={handleDeleteAvatar}
+                            accept="image/jpeg,image/png,image/gif,image/webp"
+                            maxSizeMB={5}
+                            disabled={uploading || removing}
+                            replaceLabel={t('changeAvatar')}
+                            removeLabel={tc('delete')}
+                            hint={t('uploadNote')}
+                            className=""
+                        />
+                        {(uploading || removing) && (
+                            <div className="mt-2 inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                                <Spinner size={16} className={uploading ? 'text-gray-700 dark:text-gray-200' : 'text-red-600 dark:text-red-400'} />
+                                <span>{uploading ? t('uploading') : t('removing')}</span>
+                            </div>
+                        )}
                     </div>
 
                     <div className="sm:col-span-3">

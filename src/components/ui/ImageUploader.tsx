@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import Image from 'next/image'
 
 type Props = {
   id?: string
@@ -99,7 +100,9 @@ const ImageUploader = ({
       >
         {previewUrl || initialUrl ? (
           <div className="relative w-full">
-            <img src={previewUrl || initialUrl || ''} alt="Selected image preview" className="h-44 w-full rounded-md object-cover sm:h-56" />
+            <div className="relative h-44 w-full sm:h-56">
+              <Image src={previewUrl || initialUrl || ''} alt="Selected image preview" fill className="rounded-md object-cover" />
+            </div>
             <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-gradient-to-t from-black/60 to-transparent p-2">
               <div className="truncate text-xs text-white opacity-90">
                 {value?.name || 'image'}
@@ -108,7 +111,7 @@ const ImageUploader = ({
                 <button type="button" onClick={(e) => { e.stopPropagation(); pickFile() }} className="rounded-md bg-white/90 px-2 py-1 text-xs font-semibold text-gray-900 shadow-xs hover:bg-white">
                   {replaceLabel || 'Replace'}
                 </button>
-                <button type="button" onClick={(e) => { e.stopPropagation(); value ? onChange(null) : onRemoveInitial?.() }} className="rounded-md bg-white/20 px-2 py-1 text-xs font-semibold text-white ring-1 ring-inset ring-white/50 hover:bg-white/30">
+                <button type="button" onClick={(e) => { e.stopPropagation(); if (value) { onChange(null) } else { onRemoveInitial?.() } }} className="rounded-md bg-white/20 px-2 py-1 text-xs font-semibold text-white ring-1 ring-inset ring-white/50 hover:bg-white/30">
                   {removeLabel || 'Remove'}
                 </button>
               </div>
