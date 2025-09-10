@@ -57,9 +57,9 @@ input[type='number'] {
 }
 
 /* Apply padding on sticky/fixed headers to avoid notch overlap */
-.safe-top {
+/* .safe-top {
   padding-top: max(0px, var(--safe-top));
-}
+} */
 
 /* Apply padding on fixed bottom bars to avoid home indicator overlap */
 .safe-bottom {
