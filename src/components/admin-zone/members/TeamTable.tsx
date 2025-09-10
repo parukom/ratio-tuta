@@ -5,9 +5,10 @@ import React, { useEffect, useState } from 'react'
 import AddMember from './InviteMemberForm'
 import MemberDrawer, { type Member } from './Drawer'
 import AdminHeader from '@/components/layout/AdminHeader'
-import { EllipsisVertical, Search } from 'lucide-react'
+import { EllipsisVertical } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Spinner from '@/components/ui/Spinner'
+import SearchInput from '@/components/ui/SearchInput'
 
 type Person = { id: string; name: string; role: 'USER' | 'ADMIN' }
 type ApiUser = { id: string; name: string; email: string; role: 'USER' | 'ADMIN'; createdAt: string }
@@ -89,61 +90,58 @@ const TeamTable = ({ teamId }: Props) => {
     }, [loading, people.length])
 
     return (
-        <div className="mt-8 px-4 flow-root h-full">
-            <AdminHeader
-                left={
-                    !loading ? (
-                        <div className="relative w-full ">
-                            <Search className="pointer-events-none absolute left-3 top-2.5 size-4 text-gray-400 dark:text-gray-500" />
-                            <input
-                                type="text"
+        <div className="flow-root h-full">
+            <div className="sticky top-0 z-40 flex w-full h-16 items-center justify-between border-b border-gray-200 bg-gradient-to-t from-white to-gray-50 px-4 safe-top shadow-xs dark:border-white/5 dark:bg-gradient-to-t dark:from-gray-900 dark:to-gray-900 dark:shadow-none">
+                <AdminHeader
+                    left={
+                        !loading ? (
+                            <SearchInput
                                 value={q}
                                 onChange={(e) => setQ(e.target.value)}
                                 placeholder={tt('searchPlaceholder')}
-                                aria-label={t('search')}
-                                className="block w-full rounded-md bg-white pl-9 pr-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+                                containerClassName="w-full"
+                                inputClassName="block w-full rounded-md bg-white py-1.5 pl-8 pr-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500 sm:text-sm/6"
                             />
-                        </div>
-                    ) : undefined
-                }
-                right={
-                    !loading ? (
-                        <>
-                            {isAdmin && (
-                                <>
-                                    {/* Desktop / md+: text button */}
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsModalOpen(true)}
-                                        className="hidden md:inline-flex text-nowrap items-center gap-2 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                        aria-label={tt('inviteMember') ?? t('add')}
-                                    >
-                                        {tt('inviteMember') ?? t('add')}
-                                    </button>
+                        ) : undefined
+                    }
+                    right={
+                        !loading ? (
+                            <>
+                                {isAdmin && (
+                                    <>
+                                        {/* Desktop / md+: text button */}
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsModalOpen(true)}
+                                            className="inline-flex text-nowrap items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+                                            aria-label={tt('inviteMember') ?? t('add')}
+                                        >
+                                            {tt('inviteMember') ?? t('add')}
+                                        </button>
 
-                                    {/* Mobile: icon-only (small screens) */}
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsModalOpen(true)}
-                                        className="inline-flex md:hidden items-center justify-center rounded-md bg-indigo-600 p-2 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                        aria-label={tt('inviteMember') ?? t('add')}
-                                        title={tt('inviteMember') ?? t('add')}
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                                            <circle cx="9" cy="8" r="3"></circle>
-                                            <path d="M21 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path>
-                                            <line x1="19" y1="8" x2="19" y2="14"></line>
-                                            <line x1="16" y1="11" x2="22" y2="11"></line>
-                                        </svg>
-                                    </button>
-                                </>
-                            )}
-                        </>
-                    ) : undefined
-                }
-            />
-
-            <div className={` h-full ${loading ? 'flex justify-center items-center' : ''}`}>
+                                        {/* Mobile: icon-only (small screens) */}
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsModalOpen(true)}
+                                            className="inline-flex md:hidden items-center justify-center rounded-md bg-indigo-600 p-2 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                            aria-label={tt('inviteMember') ?? t('add')}
+                                            title={tt('inviteMember') ?? t('add')}
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                                                <circle cx="9" cy="8" r="3"></circle>
+                                                <path d="M21 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path>
+                                                <line x1="19" y1="8" x2="19" y2="14"></line>
+                                                <line x1="16" y1="11" x2="22" y2="11"></line>
+                                            </svg>
+                                        </button>
+                                    </>
+                                )}
+                            </>
+                        ) : undefined
+                    }
+                />
+            </div>
+            <div className={`p-4 h-full ${loading ? 'flex justify-center items-center' : ''}`}>
                 {/* Team select under header (if many teams) */}
                 {!loading && teams.length > 1 && (
                     <div className="mt-4">
@@ -164,16 +162,16 @@ const TeamTable = ({ teamId }: Props) => {
                     </div>
                 )}
 
-                {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+                {error && <p className="text-sm text-red-600">{error}</p>}
                 {!loading && !error && people.length === 0 && (
-                    <p className="mt-4 text-sm text-gray-600 dark:text-gray-300">{tt('noMembers')}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">{tt('noMembers')}</p>
                 )}
                 {loading ? (
                     <div className="flex items-center justify-center py-16">
                         <Spinner size={24} className="text-gray-400 dark:text-white/40" />
                     </div>
                 ) : (
-                    <div className="px-0 sm:px-0 lg:px-0 mt-4">
+                    <div className="px-0 sm:px-0 lg:px-0">
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             {people
                                 .filter(p => p.name.toLowerCase().includes(q.trim().toLowerCase()))

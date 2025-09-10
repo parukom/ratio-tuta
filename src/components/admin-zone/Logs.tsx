@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Spinner from '@/components/ui/Spinner'
 
@@ -24,7 +24,9 @@ type AuditRow = {
 }
 
 
-const Logs = () => {
+type Props = { query?: string }
+
+const Logs = ({ query = '' }: Props) => {
     const t = useTranslations('Home')
 
     const [activityItems, setActivityItems] = useState<AuditRow[]>([])
@@ -62,8 +64,20 @@ const Logs = () => {
         }
     }, [activityLoading, activityItems.length])
 
+    const filtered = useMemo(() => {
+        const q = query.trim().toLowerCase()
+        if (!q) return activityItems
+        return activityItems.filter((item) => {
+            const user = (item.actorUser?.name ?? item.actorUser?.email ?? '').toLowerCase()
+            const action = (item.action ?? '').toLowerCase()
+            const msg = (item.message ?? '').toLowerCase()
+            const target = `${item.targetTable ?? ''}#${item.targetId ?? ''}`.toLowerCase()
+            return user.includes(q) || action.includes(q) || msg.includes(q) || target.includes(q)
+        })
+    }, [activityItems, query])
+
     return (
-        <div className="border-t border-gray-200 pt-4 dark:border-white/10">
+        <div className="border-t border-gray-200 dark:border-white/10">
             <h2 className="px-4 text-base/7 font-semibold text-gray-900 sm:px-6 lg:px-8 dark:text-white">{t('logs.latestActivity')}</h2>
             <table className="mt-6 w-full text-left whitespace-nowrap">
                 <colgroup>
@@ -104,14 +118,14 @@ const Logs = () => {
                                 </div>
                             </td>
                         </tr>
-                    ) : activityItems.length === 0 ? (
+                    ) : filtered.length === 0 ? (
                         <tr>
                             <td className="py-4 pr-8 pl-4 text-sm text-gray-500 sm:pl-6 lg:pl-8" colSpan={5}>
                                 {t('logs.empty')}
                             </td>
                         </tr>
                     ) : (
-                        activityItems.map((item) => (
+                        filtered.map((item) => (
                             <tr key={item.id}>
                                 <td className="py-4 pr-8 pl-4 sm:pl-6 lg:pl-8">
                                     <div className={`transition-opacity duration-1000 ${reveal ? 'opacity-100' : 'opacity-0'}`}>

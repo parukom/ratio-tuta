@@ -392,7 +392,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
 
                 <main className="lg:pl-72">
                     <div className="">
-                        <div className="m:px-6 lg:px-8 lg:py-6">
+                        <div className="">
                             {children}
                         </div>
                     </div>

@@ -75,7 +75,7 @@ export default function CreatePlaceButton({ teamId, onCreated }: Props) {
             <button
                 type="button"
                 onClick={() => setOpen(true)}
-                className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+                className="inline-flex text-nowrap items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
             >
                 {t('createPlace')}
             </button>

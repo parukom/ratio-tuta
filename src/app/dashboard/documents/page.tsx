@@ -102,7 +102,20 @@ const ReceiptsTab: React.FC = () => {
         <div>
             {/* Sticky search header */}
             <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-6 border-b border-gray-200 bg-white px-4 safe-top shadow-xs sm:px-6 lg:px-8 dark:border-white/5 dark:bg-gray-900 dark:shadow-none">
-                <SearchInput />
+                <SearchInput
+                    value={q}
+                    onChange={(e) => {
+                        const params = new URLSearchParams(searchParams?.toString() ?? '')
+                        const val = e.target.value
+                        if (val) params.set('search', val); else params.delete('search')
+                        // reset to first page on search change
+                        params.set('page', '1')
+                        router.push(`?${params.toString()}`)
+                    }}
+                    placeholder={t('searchPlaceholder', { default: 'Search receipts' })}
+                    containerClassName="w-full"
+                    inputClassName="block w-full rounded-md bg-white py-1.5 pl-8 pr-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500 sm:text-sm/6"
+                />
             </div>
             <div className="px-4 sm:px-6 lg:px-8">
                 {error && (
