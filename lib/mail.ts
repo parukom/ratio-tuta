@@ -50,3 +50,47 @@ export async function sendVerificationEmail(params: {
 function escapeHtml(s: string) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
+
+// Invitation email used when an admin creates an account for someone.
+// Includes the initial password and prompts them to verify and change it in Settings.
+export async function sendInviteEmail(params: {
+  to: string;
+  name: string;
+  password: string;
+  token: string;
+}) {
+  const resend = getClient();
+  const verifyUrl = `${APP_URL}/api/verify-email?token=${encodeURIComponent(
+    params.token,
+  )}`;
+  const settingsUrl = `${APP_URL}/dashboard/settings`;
+
+  const html = `
+    <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #111827;">
+      <h2 style="margin:0 0 12px;">Welcome</h2>
+      <p style="margin:0 0 12px;">Hi ${escapeHtml(params.name)},</p>
+      <p style="margin:0 0 12px;">An administrator created an account for you. Please verify your email and sign in using this initial password:</p>
+      <p style="margin:8px 0 16px;"><code style="background:#f3f4f6;padding:8px 10px;border-radius:6px;display:inline-block;">${escapeHtml(
+        params.password,
+      )}</code></p>
+      <p style="margin:0 0 12px;">
+        <a href="${verifyUrl}" style="display:inline-block;padding:10px 16px;background:#4f46e5;color:#fff;text-decoration:none;border-radius:6px">Verify Email</a>
+      </p>
+      <p style="margin:0 0 12px;">After you sign in, go to <a href="${settingsUrl}">Settings</a> to change your password to your own.</p>
+      <p style="margin:0 0 12px;">If you didn't expect this, you can ignore this email.</p>
+    </div>
+  `;
+
+  const { error } = await resend.emails.send({
+    from: EMAIL_FROM,
+    to: params.to,
+    subject: 'Your new account – verify and sign in',
+    html,
+  });
+
+  if (error) {
+    throw new Error(
+      `Resend send error: ${typeof error === 'string' ? error : JSON.stringify(error)}`,
+    );
+  }
+}

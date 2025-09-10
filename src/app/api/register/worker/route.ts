@@ -4,8 +4,13 @@ import { hashPassword } from '@lib/auth';
 import { getSession } from '@lib/session';
 import { randomBytes } from 'crypto';
 import { logAudit } from '@lib/logger';
-import { sendVerificationEmail } from '@lib/mail';
-import { hmacEmail, encryptEmail, normalizeEmail, redactEmail } from '@lib/crypto';
+import { sendInviteEmail } from '@lib/mail';
+import {
+  hmacEmail,
+  encryptEmail,
+  normalizeEmail,
+  redactEmail,
+} from '@lib/crypto';
 
 // Protected endpoint: register someone else (e.g., worker)
 export async function POST(req: Request) {
@@ -20,14 +25,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-  const { name, email, password, role, teamId } = (await req.json()) as {
+    const { name, email, password, role, teamId } = (await req.json()) as {
       name: string;
       email: string;
       password?: string;
       role?: 'USER' | 'ADMIN';
       teamId?: string;
     };
-  const normEmail = email ? normalizeEmail(email) : '';
+    const normEmail = email ? normalizeEmail(email) : '';
 
     if (!name || !email) {
       await logAudit({
@@ -154,11 +159,11 @@ export async function POST(req: Request) {
     const userRole: 'USER' | 'ADMIN' = role ?? 'USER';
     const passwordHash = await hashPassword(finalPassword);
     let verificationToken: string | null = null;
-  const user = await prisma.$transaction(async (tx) => {
+    const user = await prisma.$transaction(async (tx) => {
       const created = await tx.user.create({
         data: {
           name,
-      // no plaintext email stored
+          // no plaintext email stored
           email: undefined,
           emailHmac: hmacEmail(normEmail),
           emailEnc: encryptEmail(normEmail),
@@ -168,7 +173,7 @@ export async function POST(req: Request) {
         select: {
           id: true,
           name: true,
-      // do not select plaintext email
+          // do not select plaintext email
           role: true,
           createdAt: true,
         },
@@ -194,7 +199,7 @@ export async function POST(req: Request) {
       actor: session,
       teamId: targetTeamId!,
       target: { table: 'User', id: user.id },
-  metadata: { email: redactEmail(normEmail) },
+      metadata: { email: redactEmail(normEmail) },
     });
     const responseBody: Record<string, unknown> = {
       user: { ...user, email: normEmail }, // include email from input for display only
@@ -203,22 +208,23 @@ export async function POST(req: Request) {
       responseBody.generatedPassword = finalPassword;
     }
 
-    // Fire verification email (best-effort)
+    // Fire invitation email (includes initial password) and verification link (best-effort)
     try {
       if (verificationToken) {
-        await sendVerificationEmail({
+        await sendInviteEmail({
           to: normEmail,
           name: user.name,
+          password: finalPassword,
           token: verificationToken,
         });
       }
     } catch {
       await logAudit({
-        action: 'user.register.worker.sendVerification',
+        action: 'user.register.worker.sendInvite',
         status: 'ERROR',
         actor: session,
         teamId: targetTeamId!,
-        message: 'Failed to send verification email',
+        message: 'Failed to send invite email',
         metadata: { email: redactEmail(normEmail) },
       });
     }
