@@ -1,0 +1,646 @@
+'use client'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import Modal from '@/components/modals/Modal'
+import Input from '@/components/ui/Input'
+import Dropdown from '@/components/ui/Dropdown'
+import Spinner from '@/components/ui/Spinner'
+import toast from 'react-hot-toast'
+import { useTranslations } from 'next-intl'
+import { Plus } from 'lucide-react'
+
+type Mode = 'item' | 'box'
+
+type Props = {
+    teamId?: string
+    // Box form: optionally preselect a category
+    defaultCategoryId?: string | null
+    // Callbacks
+    onItemCreated?: (item: ItemCreated) => void
+    onBoxDone?: () => void
+    // When true, the item form won't show a success toast (parents can own toasts)
+    suppressItemToast?: boolean
+}
+
+// Stable localStorage keys for the Box form
+const LS_TAX = 'box:taxRateBps'
+const LS_CATEGORY = 'box:categoryId'
+const LS_MT = 'box:measurementType'
+const LS_SIZES = 'box:sizes'
+
+type SizeRow = { id: string; size: string; quantity: string; sku?: string }
+
+type ItemCreated = {
+    id: string
+    teamId: string
+    name: string
+    sku?: string | null
+    categoryId?: string | null
+    price: number
+    pricePaid?: number
+    taxRateBps: number
+    isActive: boolean
+    createdAt: string
+    imageUrl?: string
+}
+
+export default function CreateItemOrBoxButton({
+    teamId,
+    defaultCategoryId,
+    onItemCreated,
+    onBoxDone,
+    suppressItemToast,
+}: Props) {
+    const t = useTranslations('Items')
+    const tc = useTranslations('Common')
+
+    const [open, setOpen] = useState(false)
+    const [mode, setMode] = useState<Mode>('item')
+
+    // Shared categories list
+    type Category = { id: string; name: string }
+    const [categories, setCategories] = useState<Category[]>([])
+    const loadCategories = useCallback(async () => {
+        try {
+            const qs = new URLSearchParams()
+            if (teamId) qs.set('teamId', teamId)
+            qs.set('onlyActive', 'true')
+            const r = await fetch(`/api/item-categories?${qs.toString()}`)
+            if (!r.ok) return setCategories([])
+            const data = (await r.json()) as Array<{ id: string; name: string }>
+            setCategories(Array.isArray(data) ? data.map((c) => ({ id: String(c.id), name: String(c.name) })) : [])
+        } catch {
+            setCategories([])
+        }
+    }, [teamId])
+    useEffect(() => { if (open) loadCategories() }, [open, loadCategories])
+
+    // --------------------------------------------------
+    // Item form state
+    // --------------------------------------------------
+    const [it_loading, it_setLoading] = useState(false)
+    const [it_message, it_setMessage] = useState('')
+    const [it_name, it_setName] = useState('')
+    const [it_sku, it_setSku] = useState('')
+    const [it_price, it_setPrice] = useState('')
+    const [it_pricePaid, it_setPricePaid] = useState('')
+    const [it_taxRateBps, it_setTaxRateBps] = useState('0')
+    const [it_isActive, it_setIsActive] = useState(true)
+    const [it_measurementType, it_setMeasurementType] = useState<'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'>('PCS')
+    const [it_stockQuantity, it_setStockQuantity] = useState('0')
+    const [it_weightUnit, it_setWeightUnit] = useState<'kg' | 'g'>('kg')
+    const [it_description, it_setDescription] = useState('')
+    const [it_color, it_setColor] = useState('')
+    const [it_brand, it_setBrand] = useState('')
+    const [it_tagsCSV, it_setTagsCSV] = useState('')
+    const [it_imageFile, it_setImageFile] = useState<File | null>(null)
+    const [it_categoryId, it_setCategoryId] = useState<string | ''>('')
+    const [it_creatingCat, it_setCreatingCat] = useState(false)
+    const [it_newCatName, it_setNewCatName] = useState('')
+    const [it_catLoading, it_setCatLoading] = useState(false)
+    const [it_catMsg, it_setCatMsg] = useState('')
+
+    function it_reset() {
+        it_setName(''); it_setSku(''); it_setPrice(''); it_setPricePaid(''); it_setTaxRateBps('0'); it_setIsActive(true); it_setMeasurementType('PCS'); it_setStockQuantity('0'); it_setWeightUnit('kg'); it_setDescription(''); it_setColor(''); it_setBrand(''); it_setTagsCSV(''); it_setCategoryId(''); it_setCreatingCat(false); it_setNewCatName(''); it_setCatMsg(''); it_setImageFile(null)
+    }
+
+    async function it_submit(e: React.FormEvent) {
+        e.preventDefault()
+        it_setMessage('')
+        it_setLoading(true)
+        try {
+            if (!it_imageFile) {
+                it_setMessage(t('forms.pictureRequired'))
+                toast(t('forms.pictureRequired'), { icon: '📷' })
+                it_setLoading(false)
+                return
+            }
+            const res = await fetch('/api/items', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...(teamId ? { teamId } : {}),
+                    name: it_name,
+                    sku: it_sku || null,
+                    categoryId: it_categoryId || null,
+                    price: Number(it_price),
+                    pricePaid: Number(it_pricePaid) || 0,
+                    taxRateBps: Number(it_taxRateBps) || 0,
+                    isActive: it_isActive,
+                    measurementType: it_measurementType,
+                    stockQuantity: (() => {
+                        const v = Number(it_stockQuantity)
+                        if (!Number.isFinite(v) || v < 0) return 0
+                        if (it_measurementType === 'WEIGHT') {
+                            return Math.round((it_weightUnit === 'kg' ? v * 1000 : v))
+                        }
+                        return Math.round(v)
+                    })(),
+                    description: it_description.trim() || null,
+                    color: it_color.trim() || null,
+                    brand: it_brand.trim() || null,
+                    tags: it_tagsCSV.split(',').map((t) => t.trim()).filter(Boolean),
+                }),
+            })
+            const data = await res.json()
+            if (!res.ok) { const err = data.error || 'Failed to create'; it_setMessage(err); toast.error(err); return }
+            let created = data
+            // upload image
+            if (it_imageFile) {
+                try {
+                    const fd = new FormData()
+                    fd.append('file', it_imageFile)
+                    const up = await fetch(`/api/items/${data.id}/image`, { method: 'POST', body: fd })
+                    const upData = await up.json()
+                    if (up.ok) created = { ...data, imageUrl: upData.imageUrl }
+                    else toast.error(upData.error || 'Failed to upload image')
+                } catch { toast.error('Failed to upload image') }
+            }
+            it_setMessage(t('toasts.created'))
+            if (!suppressItemToast) toast.success(t('toasts.created'))
+            onItemCreated?.(created)
+            it_reset()
+            setOpen(false)
+        } catch {
+            it_setMessage(t('toasts.networkError'))
+            toast.error(t('toasts.networkError'))
+        } finally {
+            it_setLoading(false)
+        }
+    }
+
+    async function it_createCategoryInline() {
+        if (!it_newCatName.trim()) { it_setCatMsg(t('forms.enterName')); toast(t('forms.enterName'), { icon: '⚠️' }); return }
+        it_setCatLoading(true); it_setCatMsg('')
+        try {
+            const r = await fetch('/api/item-categories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: it_newCatName.trim(), ...(teamId ? { teamId } : {}) }),
+            })
+            const data = await r.json()
+            if (!r.ok) { const err = data.error || tc('errors.failed'); it_setCatMsg(err); toast.error(err); return }
+            setCategories(prev => {
+                const next = [...prev, { id: data.id, name: data.name }]
+                next.sort((a, b) => a.name.localeCompare(b.name))
+                return next
+            })
+            it_setCategoryId(data.id)
+            it_setCreatingCat(false)
+            it_setNewCatName('')
+            toast.success(t('toasts.categoryCreated'))
+        } catch {
+            it_setCatMsg(t('toasts.networkError'))
+            toast.error(t('toasts.networkError'))
+        } finally { it_setCatLoading(false) }
+    }
+
+    // --------------------------------------------------
+    // Box form state
+    // --------------------------------------------------
+    const genId = () => globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2)
+    const [bx_loading, bx_setLoading] = useState(false)
+    const [bx_message, bx_setMessage] = useState('')
+    const [bx_baseName, bx_setBaseName] = useState('')
+    const [bx_color, bx_setColor] = useState('')
+    const [bx_price, bx_setPrice] = useState('')
+    const [bx_boxCost, bx_setBoxCost] = useState('')
+    const [bx_taxRateBps, bx_setTaxRateBps] = useState('0')
+    const [bx_measurementType, bx_setMeasurementType] = useState<'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'>('PCS')
+    const [bx_skuPrefix, bx_setSkuPrefix] = useState('')
+    const [bx_imageFile, bx_setImageFile] = useState<File | null>(null)
+    const [bx_categoryId, bx_setCategoryId] = useState<string | ''>(defaultCategoryId || '')
+    const [bx_creatingCat, bx_setCreatingCat] = useState(false)
+    const [bx_newCatName, bx_setNewCatName] = useState('')
+    const [bx_catLoading, bx_setCatLoading] = useState(false)
+    const [bx_catMsg, bx_setCatMsg] = useState('')
+    const [bx_sizes, bx_setSizes] = useState<SizeRow[]>([{ id: genId(), size: '', quantity: '0' }])
+    const [bx_weightUnits, bx_setWeightUnits] = useState<Record<string, 'kg' | 'g'>>({})
+
+    // Load persisted values when opening modal (only for Box tab)
+    useEffect(() => {
+        if (!open) return
+        try {
+            const vTax = localStorage.getItem(LS_TAX)
+            if (vTax != null) bx_setTaxRateBps(vTax)
+
+            const allowed = ['PCS', 'WEIGHT', 'LENGTH', 'VOLUME', 'AREA', 'TIME'] as const
+            const vMT = localStorage.getItem(LS_MT) as typeof bx_measurementType | null
+            if (vMT && (allowed as readonly string[]).includes(vMT)) bx_setMeasurementType(vMT)
+
+            const vCat = localStorage.getItem(LS_CATEGORY)
+            if (typeof vCat === 'string') bx_setCategoryId(vCat)
+
+            const raw = localStorage.getItem(LS_SIZES)
+            if (raw) {
+                try {
+                    const arr = JSON.parse(raw) as Array<{ size: string; quantity: string | number; sku?: string }>
+                    if (Array.isArray(arr) && arr.length) {
+                        const mapped = arr.map((r) => ({ id: genId(), size: String(r.size ?? ''), quantity: String(r.quantity ?? '0'), sku: r.sku ? String(r.sku) : undefined }))
+                        bx_setSizes(mapped.length ? mapped : [{ id: genId(), size: '', quantity: '0' }])
+                    }
+                } catch { /* ignore parse */ }
+            }
+        } catch { /* ignore */ }
+    }, [open])
+
+    // Ensure stored category still exists after categories load (Box)
+    useEffect(() => {
+        if (!open) return
+        if (bx_categoryId && !categories.some(c => c.id === bx_categoryId)) bx_setCategoryId('')
+    }, [open, categories, bx_categoryId])
+
+    // Persist Box changes
+    useEffect(() => { try { localStorage.setItem(LS_TAX, bx_taxRateBps || '0') } catch { } }, [bx_taxRateBps])
+    useEffect(() => { try { localStorage.setItem(LS_CATEGORY, bx_categoryId || '') } catch { } }, [bx_categoryId])
+    useEffect(() => { try { localStorage.setItem(LS_MT, bx_measurementType) } catch { } }, [bx_measurementType])
+    useEffect(() => {
+        try {
+            const compact = bx_sizes
+                .filter(s => (s.size?.trim() || s.quantity?.toString().trim()))
+                .map(s => ({ size: s.size.trim(), quantity: String(s.quantity || '0'), ...(s.sku ? { sku: s.sku } : {}) }))
+            if (compact.length) localStorage.setItem(LS_SIZES, JSON.stringify(compact))
+            else localStorage.removeItem(LS_SIZES)
+        } catch { /* ignore */ }
+    }, [bx_sizes])
+
+    function bx_addRow() {
+        const id = genId()
+        bx_setSizes(prev => [...prev, { id, size: '', quantity: '0' }])
+        bx_setWeightUnits(prev => ({ ...prev, [id]: 'kg' }))
+    }
+    function bx_removeRow(id: string) {
+        bx_setSizes(prev => prev.length > 1 ? prev.filter(r => r.id !== id) : prev)
+        bx_setWeightUnits(prev => { const next = { ...prev }; delete next[id]; return next })
+    }
+    function bx_updateRow(id: string, patch: Partial<SizeRow>) {
+        bx_setSizes(prev => prev.map(r => r.id === id ? { ...r, ...patch } : r))
+    }
+    function bx_resetSizes() {
+        try { localStorage.removeItem(LS_SIZES) } catch { }
+        const id = genId()
+        bx_setSizes([{ id, size: '', quantity: '0' }])
+        bx_setWeightUnits({ [id]: 'kg' })
+    }
+
+    async function bx_submit(e: React.FormEvent) {
+        e.preventDefault()
+        bx_setMessage('')
+        bx_setLoading(true)
+        try {
+            const payload = {
+                ...(teamId ? { teamId } : {}),
+                baseName: bx_baseName,
+                color: bx_color || null,
+                categoryId: (bx_categoryId || undefined),
+                price: Number(bx_price),
+                boxCost: Number(bx_boxCost) || 0,
+                taxRateBps: Number(bx_taxRateBps) || 0,
+                measurementType: bx_measurementType,
+                skuPrefix: bx_skuPrefix || null,
+                sizes: bx_sizes
+                    .filter(s => s.size.trim() && Number(s.quantity) > 0)
+                    .map(s => ({
+                        size: s.size.trim(),
+                        quantity: (() => {
+                            const v = Number(s.quantity)
+                            if (!Number.isFinite(v) || v <= 0) return 0
+                            if (bx_measurementType === 'WEIGHT') {
+                                const unit = bx_weightUnits[s.id] || 'kg'
+                                return Math.round(unit === 'kg' ? v * 1000 : v)
+                            }
+                            return Math.round(v)
+                        })(),
+                        sku: (s.sku || '').trim() || null,
+                    })),
+            }
+
+            let res: Response
+            if (bx_imageFile) {
+                const fd = new FormData()
+                fd.append('payload', JSON.stringify(payload))
+                fd.append('file', bx_imageFile)
+                res = await fetch('/api/items/box', { method: 'POST', body: fd })
+            } else {
+                res = await fetch('/api/items/box', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                })
+            }
+            const data = await res.json()
+            if (!res.ok) { const err = data.error || 'Failed to add box'; bx_setMessage(err); toast.error(err); return }
+            bx_setMessage(t('toasts.boxAdded'))
+            toast.success(t('toasts.boxAdded'))
+            setOpen(false)
+            onBoxDone?.()
+            // reset non-persisted fields
+            bx_setBaseName(''); bx_setColor(''); bx_setPrice(''); bx_setBoxCost(''); bx_setSkuPrefix(''); bx_setImageFile(null)
+        } catch {
+            bx_setMessage(t('toasts.networkError'))
+            toast.error(t('toasts.networkError'))
+        } finally {
+            bx_setLoading(false)
+        }
+    }
+
+    async function bx_createCategoryInline() {
+        if (!bx_newCatName.trim()) { bx_setCatMsg(t('forms.enterName')); return }
+        bx_setCatLoading(true); bx_setCatMsg('')
+        try {
+            const r = await fetch('/api/item-categories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: bx_newCatName.trim(), ...(teamId ? { teamId } : {}) }),
+            })
+            const data = await r.json()
+            if (!r.ok) { bx_setCatMsg(data.error || tc('errors.failed')); return }
+            setCategories(prev => {
+                const next = [...prev, { id: data.id, name: data.name }]
+                next.sort((a, b) => a.name.localeCompare(b.name))
+                return next
+            })
+            bx_setCategoryId(data.id)
+            bx_setCreatingCat(false)
+            bx_setNewCatName('')
+        } catch { bx_setCatMsg(t('toasts.networkError')); toast.error(t('toasts.networkError')) } finally { bx_setCatLoading(false) }
+    }
+
+    // Toggle pill for switching forms
+    const Toggle = useMemo(() => (
+        <div className="inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+            <button type="button" onClick={() => setMode('item')} className={`px-3 py-1.5 text-xs sm:text-sm font-medium ${mode === 'item' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>{t('modals.editItem.title')}</button>
+            <button type="button" onClick={() => setMode('box')} className={`px-3 py-1.5 text-xs sm:text-sm font-medium ${mode === 'box' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>{t('buttons.addBox')}</button>
+        </div>
+    ), [mode, t])
+
+    return (
+        <>
+            <button
+                type="button"
+                onClick={() => setOpen(true)}
+                className="inline-flex items-center justify-center gap-1.5 rounded-md bg-indigo-600 px-3 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
+            >
+                <Plus className="h-4 w-4" />
+                <span className='hidden md:inline-block'>{tc('create')}</span>
+            </button>
+
+            <Modal open={open} onClose={() => setOpen(false)} size="lg">
+                <div className="flex items-start justify-between gap-3">
+                    <div>
+                        <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                            {mode === 'item' ? t('modals.editItem.title') : t('buttons.addBox')}
+                        </h3>
+                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            {mode === 'item' ? 'Items are team-wide. You can assign them to places with quantities later.' : 'Create or update multiple size items in one go. All items share the same base name, color and price.'}
+                        </p>
+                    </div>
+                    {Toggle}
+                </div>
+
+                {/* Animated forms container */}
+                <div className="mt-4 relative">
+                    <div className="relative min-h-[520px]">{/* reserve space to reduce layout shift */}
+                        {/* Item form panel */}
+                        <div className={`absolute inset-0 transition-opacity duration-200 ${mode === 'item' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                            <form onSubmit={it_submit} className="space-y-3">
+                                <Input id="it_name" name="name" type="text" placeholder={tc('name')} value={it_name} onChange={(e) => it_setName(e.target.value)} />
+                                <Input id="it_sku" name="sku" type="text" placeholder={t('forms.sku')} value={it_sku} onChange={(e) => it_setSku(e.target.value)} />
+                                {/* Category selector */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.category')}</label>
+                                    <div className="inline-block">
+                                        <Dropdown
+                                            align="left"
+                                            buttonLabel={it_categoryId ? (categories.find(c => c.id === it_categoryId)?.name ?? t('forms.category')) : t('forms.noCategory')}
+                                            items={[{ key: '', label: t('forms.noCategory') }, ...categories.map(c => ({ key: c.id, label: c.name }))]}
+                                            onSelect={(key) => it_setCategoryId(key)}
+                                        />
+                                    </div>
+                                    {!it_creatingCat ? (
+                                        <div className="mt-2">
+                                            <button type="button" onClick={() => { it_setCreatingCat(true); it_setCatMsg('') }} className="text-xs text-indigo-600 hover:underline dark:text-indigo-400">+ {tc('createNewCategory')}</button>
+                                        </div>
+                                    ) : (
+                                        <div className="mt-2 flex items-center gap-2">
+                                            <Input id="it_newCategory" name="newCategory" type="text" placeholder={t('forms.newCategoryName')} value={it_newCatName} onChange={(e) => it_setNewCatName(e.target.value)} />
+                                            <button type="button" onClick={() => it_setCreatingCat(false)} className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">{tc('cancel')}</button>
+                                            <button type="button" onClick={it_createCategoryInline} disabled={it_catLoading} className="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400">{it_catLoading && <Spinner size={14} className="text-white" />}<span>{it_catLoading ? tc('saving') : tc('create')}</span></button>
+                                        </div>
+                                    )}
+                                    {it_catMsg && <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">{it_catMsg}</p>}
+                                </div>
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                    <Input id="it_price" name="price" type="number" placeholder={t('labels.price')} value={it_price} onChange={(e) => it_setPrice(e.target.value)} />
+                                    <Input id="it_pricePaid" name="pricePaid" type="number" placeholder={t('card.cost')} value={it_pricePaid} onChange={(e) => it_setPricePaid(e.target.value)} />
+                                    <Input id="it_taxRateBps" name="taxRateBps" type="number" placeholder={`${t('labels.tax')} (bps)`} value={it_taxRateBps} onChange={(e) => it_setTaxRateBps(e.target.value)} />
+                                </div>
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.measurementType')}</label>
+                                        <div className="inline-block">
+                                            <Dropdown
+                                                align="left"
+                                                buttonLabel={(
+                                                    [
+                                                        { key: 'PCS', label: t('forms.measurementOptions.PCS') },
+                                                        { key: 'WEIGHT', label: t('forms.measurementOptions.WEIGHT') },
+                                                        { key: 'LENGTH', label: t('forms.measurementOptions.LENGTH') },
+                                                        { key: 'VOLUME', label: t('forms.measurementOptions.VOLUME') },
+                                                        { key: 'AREA', label: t('forms.measurementOptions.AREA') },
+                                                        { key: 'TIME', label: t('forms.measurementOptions.TIME') },
+                                                    ] as Array<{ key: typeof it_measurementType; label: string }>
+                                                ).find(o => o.key === it_measurementType)?.label || t('forms.select')}
+                                                items={[
+                                                    { key: 'PCS', label: t('forms.measurementOptions.PCS') },
+                                                    { key: 'WEIGHT', label: t('forms.measurementOptions.WEIGHT') },
+                                                    { key: 'LENGTH', label: t('forms.measurementOptions.LENGTH') },
+                                                    { key: 'VOLUME', label: t('forms.measurementOptions.VOLUME') },
+                                                    { key: 'AREA', label: t('forms.measurementOptions.AREA') },
+                                                    { key: 'TIME', label: t('forms.measurementOptions.TIME') },
+                                                ]}
+                                                onSelect={(key) => { it_setMeasurementType(key as typeof it_measurementType); if (key !== 'WEIGHT') it_setWeightUnit('kg') }}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        {it_measurementType === 'WEIGHT' && (
+                                            <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                                                <button type="button" onClick={() => it_setWeightUnit('kg')} className={`px-2 py-1 text-xs ${it_weightUnit === 'kg' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>kg</button>
+                                                <button type="button" onClick={() => it_setWeightUnit('g')} className={`px-2 py-1 text-xs ${it_weightUnit === 'g' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>g</button>
+                                            </div>
+                                        )}
+                                        <Input
+                                            id="it_stockQuantity"
+                                            name="stockQuantity"
+                                            type="number"
+                                            placeholder={
+                                                it_measurementType === 'PCS' ? t('forms.initialStock.PCS')
+                                                    : it_measurementType === 'WEIGHT' ? `${t('forms.initialStock.WEIGHT')}`.replace('(kg)', `(${it_weightUnit})`)
+                                                        : it_measurementType === 'LENGTH' ? t('forms.initialStock.LENGTH')
+                                                            : it_measurementType === 'VOLUME' ? t('forms.initialStock.VOLUME')
+                                                                : it_measurementType === 'AREA' ? t('forms.initialStock.AREA')
+                                                                    : t('forms.initialStock.TIME')
+                                            }
+                                            value={it_stockQuantity}
+                                            onChange={(e) => it_setStockQuantity(e.target.value)}
+                                        />
+                                        {it_measurementType === 'WEIGHT' && it_stockQuantity && Number(it_stockQuantity) > 0 && (
+                                            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                                {it_weightUnit === 'kg' ? `${Math.round(Number(it_stockQuantity) * 1000)} g will be saved` : `${(Number(it_stockQuantity) / 1000).toFixed(3)} kg`}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                                <Input id="it_description" name="description" type="text" placeholder={t('forms.descriptionOptional')} value={it_description} onChange={(e) => it_setDescription(e.target.value)} />
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                    <Input id="it_color" name="color" type="text" placeholder={t('forms.colorOptional')} value={it_color} onChange={(e) => it_setColor(e.target.value)} />
+                                    <Input id="it_brand" name="brand" type="text" placeholder={t('forms.brandOptional')} value={it_brand} onChange={(e) => it_setBrand(e.target.value)} />
+                                </div>
+                                <Input id="it_tags" name="tags" type="text" placeholder={t('forms.tagsComma')} value={it_tagsCSV} onChange={(e) => it_setTagsCSV(e.target.value)} />
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.picture')} <span className="text-red-500">*</span></label>
+                                    <input type="file" accept="image/*" onChange={(e) => it_setImageFile(e.target.files?.[0] ?? null)} className="block w-full text-sm text-gray-900 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:text-gray-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-300" />
+                                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('forms.pictureHint')}</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <input id="it_isActive" name="isActive" type="checkbox" checked={it_isActive} onChange={(e) => it_setIsActive(e.target.checked)} className="size-4" />
+                                    <label htmlFor="it_isActive" className="text-sm text-gray-700 dark:text-gray-300">{t('forms.active')}</label>
+                                </div>
+                                <div className="mt-4 flex items-center justify-between">
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">{t('forms.uniqueNote')}</p>
+                                    <div className="flex gap-2">
+                                        <button type="button" onClick={() => setOpen(false)} className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-white/10 dark:text-gray-100 dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20 dark:focus-visible:outline-indigo-500">{tc('cancel')}</button>
+                                        <button type="submit" disabled={it_loading} aria-busy={it_loading} className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500">{it_loading && <Spinner size={16} className="text-white" />}<span>{it_loading ? tc('creating') : tc('create')}</span></button>
+                                    </div>
+                                </div>
+                                {it_message && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{it_message}</p>}
+                            </form>
+                        </div>
+
+                        {/* Box form panel */}
+                        <div className={`absolute inset-0 transition-opacity duration-200 ${mode === 'box' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                            <form onSubmit={bx_submit} className="space-y-3">
+                                <Input id="bx_baseName" name="baseName" type="text" placeholder={t('forms.baseName')} value={bx_baseName} onChange={(e) => bx_setBaseName(e.target.value)} />
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
+                                    <Input id="bx_color" name="color" type="text" placeholder={t('forms.colorOptional')} value={bx_color} onChange={(e) => bx_setColor(e.target.value)} />
+                                    <Input id="bx_price" name="price" type="number" placeholder={t('labels.price')} value={bx_price} onChange={(e) => bx_setPrice(e.target.value)} />
+                                    <Input id="bx_boxCost" name="boxCost" type="number" placeholder={t('modals.editBox.boxCost')} value={bx_boxCost} onChange={(e) => bx_setBoxCost(e.target.value)} />
+                                    <Input id="bx_tax" name="tax" type="number" placeholder={`${t('labels.tax')} (bps)`} value={bx_taxRateBps} onChange={(e) => bx_setTaxRateBps(e.target.value)} />
+                                </div>
+
+                                {/* Category */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.category')}</label>
+                                    <div className="inline-block">
+                                        <Dropdown
+                                            align="left"
+                                            buttonLabel={bx_categoryId ? (categories.find(c => c.id === bx_categoryId)?.name ?? t('forms.category')) : t('forms.noCategory')}
+                                            items={[{ key: '', label: t('forms.noCategory') }, ...categories.map(c => ({ key: c.id, label: c.name }))]}
+                                            onSelect={(key) => bx_setCategoryId(key)}
+                                        />
+                                    </div>
+                                    {!bx_creatingCat ? (
+                                        <div className="mt-2">
+                                            <button type="button" onClick={() => { bx_setCreatingCat(true); bx_setCatMsg('') }} className="text-xs text-indigo-600 hover:underline dark:text-indigo-400">+ {tc('createNewCategory')}</button>
+                                        </div>
+                                    ) : (
+                                        <div className="mt-2 flex items-center gap-2">
+                                            <Input id="bx_newCategoryBox" name="newCategoryBox" type="text" placeholder={t('forms.newCategoryName')} value={bx_newCatName} onChange={(e) => bx_setNewCatName(e.target.value)} />
+                                            <button type="button" onClick={() => bx_setCreatingCat(false)} className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-white/10 dark:text-gray-100 dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20 dark:focus-visible:outline-indigo-500">{tc('cancel')}</button>
+                                            <button type="button" onClick={bx_createCategoryInline} disabled={bx_catLoading} className="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500">{bx_catLoading && <Spinner size={14} className="text-white" />}<span>{bx_catLoading ? tc('saving') : tc('create')}</span></button>
+                                        </div>
+                                    )}
+                                    {bx_catMsg && <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">{bx_catMsg}</p>}
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.measurementType')}</label>
+                                        <div className="inline-block">
+                                            <Dropdown
+                                                align="left"
+                                                buttonLabel={(
+                                                    [
+                                                        { key: 'PCS', label: t('forms.measurementOptions.PCS') },
+                                                        { key: 'WEIGHT', label: t('forms.measurementOptions.WEIGHT') },
+                                                        { key: 'LENGTH', label: t('forms.measurementOptions.LENGTH') },
+                                                        { key: 'VOLUME', label: t('forms.measurementOptions.VOLUME') },
+                                                        { key: 'AREA', label: t('forms.measurementOptions.AREA') },
+                                                        { key: 'TIME', label: t('forms.measurementOptions.TIME') },
+                                                    ] as Array<{ key: typeof bx_measurementType; label: string }>
+                                                ).find(o => o.key === bx_measurementType)?.label || t('forms.select')}
+                                                items={[
+                                                    { key: 'PCS', label: t('forms.measurementOptions.PCS') },
+                                                    { key: 'WEIGHT', label: t('forms.measurementOptions.WEIGHT') },
+                                                    { key: 'LENGTH', label: t('forms.measurementOptions.LENGTH') },
+                                                    { key: 'VOLUME', label: t('forms.measurementOptions.VOLUME') },
+                                                    { key: 'AREA', label: t('forms.measurementOptions.AREA') },
+                                                    { key: 'TIME', label: t('forms.measurementOptions.TIME') },
+                                                ]}
+                                                onSelect={(key) => bx_setMeasurementType(key as typeof bx_measurementType)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <Input id="bx_skuPrefix" name="skuPrefix" type="text" placeholder={t('forms.skuPrefix')} value={bx_skuPrefix} onChange={(e) => bx_setSkuPrefix(e.target.value)} />
+                                    <div />
+                                </div>
+
+                                {/* Optional picture for the whole box */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.boxPicture')}</label>
+                                    <input type="file" accept="image/*" onChange={(e) => bx_setImageFile(e.target.files?.[0] ?? null)} className="block w-full text-sm text-gray-900 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:text-gray-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-300" />
+                                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('forms.pictureHint')}</p>
+                                </div>
+
+                                <div>
+                                    <div className="mb-1 text-sm font-medium text-gray-800 dark:text-gray-200">{t('forms.sizesInBox')}</div>
+                                    <p className="mb-2 text-xs text-gray-600 dark:text-gray-400">
+                                        Each row represents a size/variant (e.g., 35, M). Quantity adds stock per item using the selected measurement
+                                        type ({bx_measurementType === 'PCS' ? 'pieces' : bx_measurementType === 'WEIGHT' ? 'kg' : bx_measurementType === 'LENGTH' ? 'm' : bx_measurementType === 'VOLUME' ? 'l' : bx_measurementType === 'AREA' ? 'm²' : 'hours'}).
+                                    </p>
+                                    <div className="space-y-2">
+                                        {bx_sizes.map((row, idx) => (
+                                            <div key={row.id} className="grid grid-cols-12 items-center gap-2">
+                                                <div className="col-span-5"><Input id={`bx_size-${row.id}`} name={`size-${idx}`} type="text" placeholder={`${t('modals.editBox.variantSize')} (e.g. 35, M)`} value={row.size} onChange={(e) => bx_updateRow(row.id, { size: e.target.value })} /></div>
+                                                <div className="col-span-5">
+                                                    {bx_measurementType === 'WEIGHT' && (
+                                                        <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                                                            <button type="button" onClick={() => bx_setWeightUnits(prev => ({ ...prev, [row.id]: 'kg' }))} className={`px-2 py-1 text-xs ${((bx_weightUnits[row.id] || 'kg') === 'kg') ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>kg</button>
+                                                            <button type="button" onClick={() => bx_setWeightUnits(prev => ({ ...prev, [row.id]: 'g' }))} className={`px-2 py-1 text-xs ${((bx_weightUnits[row.id] || 'kg') === 'g') ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>g</button>
+                                                        </div>
+                                                    )}
+                                                    <Input id={`bx_qty-${row.id}`} name={`quantity-${idx}`} type="number" placeholder={`Quantity (${bx_measurementType === 'PCS' ? 'pcs' : bx_measurementType === 'WEIGHT' ? (bx_weightUnits[row.id] || 'kg') : bx_measurementType === 'LENGTH' ? 'm' : bx_measurementType === 'VOLUME' ? 'l' : bx_measurementType === 'AREA' ? 'm2' : 'h'})`} value={row.quantity} onChange={(e) => bx_updateRow(row.id, { quantity: e.target.value })} />
+                                                    {bx_measurementType === 'WEIGHT' && row.quantity && Number(row.quantity) > 0 && (
+                                                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                                            {(bx_weightUnits[row.id] || 'kg') === 'kg' ? `${Math.round(Number(row.quantity) * 1000)} g will be saved` : `${(Number(row.quantity) / 1000).toFixed(3)} kg`}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <div className="col-span-2 flex justify-end gap-2">
+                                                    <button type="button" onClick={() => bx_removeRow(row.id)} className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-white/10 dark:text-gray-100 dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20 dark:focus-visible:outline-indigo-500">{t('modals.editBox.remove')}</button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="mt-2 flex items-center gap-2">
+                                        <button type="button" onClick={bx_addRow} className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-white/10 dark:text-gray-100 dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20 dark:focus-visible:outline-indigo-500">{t('modals.editBox.addSize')}</button>
+                                        <button type="button" onClick={bx_resetSizes} className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-700 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-gray-200 dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20">{t('forms.resetSizes')}</button>
+                                    </div>
+                                </div>
+
+                                <div className="mt-4 flex items-center justify-between">
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">{t('forms.stockAddsNote')}</p>
+                                    <div className="flex gap-2">
+                                        <button type="button" onClick={() => setOpen(false)} className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-white/10 dark:text-gray-100 dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20 dark:focus-visible:outline-indigo-500">{tc('cancel')}</button>
+                                        <button type="submit" disabled={bx_loading} aria-busy={bx_loading} className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500">{bx_loading && <Spinner size={16} className="text-white" />}<span>{bx_loading ? tc('saving') : t('buttons.addBox')}</span></button>
+                                    </div>
+                                </div>
+                                {bx_message && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{bx_message}</p>}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </Modal>
+        </>
+    )
+}

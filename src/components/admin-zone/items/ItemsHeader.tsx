@@ -9,6 +9,7 @@ import React from "react"
 import Drawer from "@/components/ui/Drawer"
 import { SlidersHorizontal } from "lucide-react"
 import AdminHeader from "@/components/layout/AdminHeader"
+import CreateItemOrBoxButton from "./CreateItemOrBoxButton"
 
 type Category = { id: string; name: string }
 
@@ -35,6 +36,21 @@ type Props = {
     sort: string
     setSort: (v: string) => void
     onReset: () => void
+    // Optional extras for create actions
+    teamId?: string
+    onItemCreated?: (item: {
+        id: string
+        teamId: string
+        name: string
+        sku?: string | null
+        categoryId?: string | null
+        price: number
+        pricePaid?: number
+        taxRateBps: number
+        isActive: boolean
+        createdAt: string
+    }) => void
+    onBoxDone?: () => void
 }
 
 export default function ItemsHeader({
@@ -49,13 +65,16 @@ export default function ItemsHeader({
     maxPrice, setMaxPrice,
     sort, setSort,
     onReset,
+    teamId,
+    onItemCreated,
+    onBoxDone,
 }: Props) {
     const t = useTranslations('Items')
     const common = useTranslations('Common')
     const cash = useTranslations('CashRegister')
     const [filtersOpen, setFiltersOpen] = React.useState(false)
     return (
-        <header className="sticky top-0 z-10 border-b border-gray-200 bg-white p-4 shadow-xs dark:border-white/10 dark:bg-gray-900">
+        <header className="sticky top-0 z-40 flex w-full h-16 items-center justify-between border-b border-gray-200 bg-gradient-to-t from-white to-gray-50 px-4 safe-top shadow-xs dark:border-white/5 dark:bg-gradient-to-t dark:from-gray-900 dark:to-gray-900 dark:shadow-none">
             <AdminHeader
                 left={
                     <div className="relative min-w-56 flex-1">
@@ -69,15 +88,22 @@ export default function ItemsHeader({
                     </div>
                 }
                 right={
-                    <button
-                        type="button"
-                        onClick={() => setFiltersOpen(true)}
-                        className="inline-flex items-center gap-2 rounded-md px-3 py-2.5 text-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:text-gray-200 dark:ring-white/10 dark:hover:bg-white/5"
-                        title={cash('filters', { default: 'Filters' })}
-                    >
-                        <SlidersHorizontal className="size-4" />
-                        {/* <span>{cash('filters', { default: 'Filters' })}</span> */}
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <CreateItemOrBoxButton
+                            teamId={teamId}
+                            onItemCreated={onItemCreated}
+                            onBoxDone={onBoxDone}
+                            suppressItemToast
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setFiltersOpen(true)}
+                            className="inline-flex items-center gap-2 rounded-md px-3 py-2.5 text-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:text-gray-200 dark:ring-white/10 dark:hover:bg-white/5"
+                            title={cash('filters', { default: 'Filters' })}
+                        >
+                            <SlidersHorizontal className="size-4" />
+                        </button>
+                    </div>
                 }
             />
             {/* All filters are now accessed via the Drawer to save space on desktop. */}
