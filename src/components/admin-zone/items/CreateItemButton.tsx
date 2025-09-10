@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import Modal from '@/components/modals/Modal'
 import Input from '@/components/ui/Input'
+import ImageUploader from '@/components/ui/ImageUploader'
 import Dropdown from '@/components/ui/Dropdown'
 import toast from 'react-hot-toast'
 import Spinner from '@/components/ui/Spinner'
@@ -195,6 +196,15 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
         </div>
 
         <form onSubmit={submit} className="mt-4 space-y-3">
+          <ImageUploader
+            id="create-item-image"
+            label={t('forms.picture')}
+            required
+            value={imageFile}
+            onChange={setImageFile}
+            hint={t('forms.pictureHint')}
+            allowCamera
+          />
           <Input id="name" name="name" type="text" className="" placeholder={tc('name')} value={name} onChange={(e) => setName(e.target.value)} />
           <Input id="sku" name="sku" type="text" className="" placeholder={t('forms.sku')} value={sku} onChange={(e) => setSku(e.target.value)} />
           {/* Category selector with inline create */}
@@ -290,16 +300,7 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
             <Input id="brand" name="brand" type="text" className="" placeholder={t('forms.brandOptional')} value={brand} onChange={(e) => setBrand(e.target.value)} />
           </div>
           <Input id="tags" name="tags" type="text" className="" placeholder={t('forms.tagsComma')} value={tagsCSV} onChange={(e) => setTagsCSV(e.target.value)} />
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.picture')} <span className="text-red-500">*</span></label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
-              className="block w-full text-sm text-gray-900 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:text-gray-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-300"
-            />
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('forms.pictureHint')}</p>
-          </div>
+          {/* Image upload handled by ImageUploader above */}
           <div className="flex items-center gap-2">
             <input id="isActive" name="isActive" type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="size-4" />
             <label htmlFor="isActive" className="text-sm text-gray-700 dark:text-gray-300">{t('forms.active')}</label>

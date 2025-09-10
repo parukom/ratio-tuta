@@ -4,6 +4,7 @@ import Modal from '@/components/modals/Modal'
 import Input from '@/components/ui/Input'
 import Dropdown from '@/components/ui/Dropdown'
 import Spinner from '@/components/ui/Spinner'
+import ImageUploader from '@/components/ui/ImageUploader'
 import toast from 'react-hot-toast'
 import { useTranslations } from 'next-intl'
 import { Plus } from 'lucide-react'
@@ -368,10 +369,10 @@ export default function CreateItemOrBoxButton({
     // Toggle pill for switching forms
     const Toggle = useMemo(() => (
         <div className="inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
-            <button type="button" onClick={() => setMode('item')} className={`px-3 py-1.5 text-xs sm:text-sm font-medium ${mode === 'item' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>{t('modals.editItem.title')}</button>
+        <button type="button" onClick={() => setMode('item')} className={`px-3 py-1.5 text-xs sm:text-sm font-medium ${mode === 'item' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>{tc('createItem')}</button>
             <button type="button" onClick={() => setMode('box')} className={`px-3 py-1.5 text-xs sm:text-sm font-medium ${mode === 'box' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>{t('buttons.addBox')}</button>
         </div>
-    ), [mode, t])
+    ), [mode, t, tc])
 
     return (
         <>
@@ -385,24 +386,31 @@ export default function CreateItemOrBoxButton({
             </button>
 
             <Modal open={open} onClose={() => setOpen(false)} size="lg">
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start justify-between gap-3 pr-10">
                     <div>
                         <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                            {mode === 'item' ? t('modals.editItem.title') : t('buttons.addBox')}
+                            {mode === 'item' ? tc('createItem') : t('buttons.addBox')}
                         </h3>
                         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                            {mode === 'item' ? 'Items are team-wide. You can assign them to places with quantities later.' : 'Create or update multiple size items in one go. All items share the same base name, color and price.'}
+                            {mode === 'item' ? 'Items are team-wide. You can assign them to places with quantities later.' : 'Create multiple size items in one go. All items share the same base name, color and price.'}
                         </p>
                     </div>
-                    {Toggle}
                 </div>
+                <div className="mt-2">{Toggle}</div>
 
-                {/* Animated forms container */}
-                <div className="mt-4 relative">
-                    <div className="relative min-h-[520px]">{/* reserve space to reduce layout shift */}
-                        {/* Item form panel */}
-                        <div className={`absolute inset-0 transition-opacity duration-200 ${mode === 'item' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                            <form onSubmit={it_submit} className="space-y-3">
+                {/* Forms container */}
+                <div className="mt-4">
+                    {mode === 'item' ? (
+                        <form onSubmit={it_submit} className="space-y-3">
+                                <ImageUploader
+                                    id="it_image"
+                                    label={t('forms.picture')}
+                                    required
+                                    value={it_imageFile}
+                                    onChange={it_setImageFile}
+                                    hint={t('forms.pictureHint')}
+                                    allowCamera
+                                />
                                 <Input id="it_name" name="name" type="text" placeholder={tc('name')} value={it_name} onChange={(e) => it_setName(e.target.value)} />
                                 <Input id="it_sku" name="sku" type="text" placeholder={t('forms.sku')} value={it_sku} onChange={(e) => it_setSku(e.target.value)} />
                                 {/* Category selector */}
@@ -497,11 +505,7 @@ export default function CreateItemOrBoxButton({
                                     <Input id="it_brand" name="brand" type="text" placeholder={t('forms.brandOptional')} value={it_brand} onChange={(e) => it_setBrand(e.target.value)} />
                                 </div>
                                 <Input id="it_tags" name="tags" type="text" placeholder={t('forms.tagsComma')} value={it_tagsCSV} onChange={(e) => it_setTagsCSV(e.target.value)} />
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.picture')} <span className="text-red-500">*</span></label>
-                                    <input type="file" accept="image/*" onChange={(e) => it_setImageFile(e.target.files?.[0] ?? null)} className="block w-full text-sm text-gray-900 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:text-gray-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-300" />
-                                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('forms.pictureHint')}</p>
-                                </div>
+                                {/* ImageUploader placed at the top, so remove old input */}
                                 <div className="flex items-center gap-2">
                                     <input id="it_isActive" name="isActive" type="checkbox" checked={it_isActive} onChange={(e) => it_setIsActive(e.target.checked)} className="size-4" />
                                     <label htmlFor="it_isActive" className="text-sm text-gray-700 dark:text-gray-300">{t('forms.active')}</label>
@@ -513,13 +517,18 @@ export default function CreateItemOrBoxButton({
                                         <button type="submit" disabled={it_loading} aria-busy={it_loading} className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500">{it_loading && <Spinner size={16} className="text-white" />}<span>{it_loading ? tc('creating') : tc('create')}</span></button>
                                     </div>
                                 </div>
-                                {it_message && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{it_message}</p>}
-                            </form>
-                        </div>
-
-                        {/* Box form panel */}
-                        <div className={`absolute inset-0 transition-opacity duration-200 ${mode === 'box' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                {it_message && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{it_message}</p>}
+                </form>
+            ) : (
                             <form onSubmit={bx_submit} className="space-y-3">
+                                <ImageUploader
+                                    id="bx_image"
+                                    label={t('forms.boxPicture')}
+                                    value={bx_imageFile}
+                                    onChange={bx_setImageFile}
+                                    hint={t('forms.pictureHint')}
+                                    allowCamera
+                                />
                                 <Input id="bx_baseName" name="baseName" type="text" placeholder={t('forms.baseName')} value={bx_baseName} onChange={(e) => bx_setBaseName(e.target.value)} />
                                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
                                     <Input id="bx_color" name="color" type="text" placeholder={t('forms.colorOptional')} value={bx_color} onChange={(e) => bx_setColor(e.target.value)} />
@@ -585,12 +594,7 @@ export default function CreateItemOrBoxButton({
                                     <div />
                                 </div>
 
-                                {/* Optional picture for the whole box */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.boxPicture')}</label>
-                                    <input type="file" accept="image/*" onChange={(e) => bx_setImageFile(e.target.files?.[0] ?? null)} className="block w-full text-sm text-gray-900 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:text-gray-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-300" />
-                                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('forms.pictureHint')}</p>
-                                </div>
+                                {/* ImageUploader already present above */}
 
                                 <div>
                                     <div className="mb-1 text-sm font-medium text-gray-800 dark:text-gray-200">{t('forms.sizesInBox')}</div>
@@ -637,8 +641,7 @@ export default function CreateItemOrBoxButton({
                                 </div>
                                 {bx_message && <p className="mt-2 text-sm text-center text-gray-700 dark:text-gray-300">{bx_message}</p>}
                             </form>
-                        </div>
-                    </div>
+                    )}
                 </div>
             </Modal>
         </>

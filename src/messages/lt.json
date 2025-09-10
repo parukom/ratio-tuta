@@ -355,6 +355,7 @@
     "breadcrumbs": {
       "documents": "Dokumentai"
     },
+    "searchPlaceholder": "Ieškoti kvitų",
     "tabs": {
       "receipts": "Kvitai",
       "blank": "Kita"

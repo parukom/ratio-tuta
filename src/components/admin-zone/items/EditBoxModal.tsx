@@ -1,4 +1,5 @@
 import Input from '@/components/ui/Input'
+import ImageUploader from '@/components/ui/ImageUploader'
 import { useTranslations } from 'next-intl'
 import React from 'react'
 import toast from 'react-hot-toast'
@@ -61,20 +62,18 @@ export const EditBoxModal: React.FC<Props> = ({
             <h3 className="text-base font-semibold text-gray-900 dark:text-white">{t('modals.editBox.title')}</h3>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t('modals.editBox.subtitle')}</p>
             <div className="mt-4 space-y-3">
+                <ImageUploader
+                    id="edit-box-image"
+                    label={t('modals.editBox.replacePicture')}
+                    value={editImage}
+                    onChange={setEditImage}
+                    hint={t('modals.editBox.pictureHint')}
+                    allowCamera
+                />
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     <Input type="number" placeholder={t('modals.editBox.price')} value={editPrice} onChange={(e) => setEditPrice(e.target.value)} />
                     <Input type="number" placeholder={t('modals.editBox.boxCost')} value={editBoxCost} onChange={(e) => setEditBoxCost(e.target.value)} />
                     <Input type="number" placeholder={t('modals.editBox.taxBps')} value={editTaxBps} onChange={(e) => setEditTaxBps(e.target.value)} />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('modals.editBox.replacePicture')}</label>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => setEditImage(e.target.files?.[0] ?? null)}
-                        className="block w-full text-sm text-gray-900 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:text-gray-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-300"
-                    />
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('modals.editBox.pictureHint')}</p>
                 </div>
                 <div>
                     <div className="mb-1 text-sm font-medium text-gray-800 dark:text-gray-200">{t('modals.editBox.sizesTitle')}</div>

@@ -58,9 +58,6 @@ const HomeInner = () => {
                             />
                         </header>
 
-
-
-
                         {/* Content */}
                         <Places query={q} />
                     </main>

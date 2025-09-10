@@ -383,7 +383,6 @@ export default function PlaceDetailPage() {
     return (
         <div>
             <header>
-
                 {/* Heading */}
                 <div className="lg:-mt-3 flex flex-col items-start justify-between gap-x-8 gap-y-4 bg-gray-50 px-4 py-2 sm:flex-row sm:items-center sm:px-6 lg:px-8 dark:bg-gray-700/10">
                     <div className='flex justify-between w-full'>

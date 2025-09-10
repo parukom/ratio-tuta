@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import Spinner from "@/components/ui/Spinner"
 import { useTranslations } from 'next-intl'
+import ImageUploader from '@/components/ui/ImageUploader'
 
 type ItemRow = {
     id: string
@@ -245,6 +246,22 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
                     </div>
                 </div>
                 <form onSubmit={submit} className="mt-4 space-y-3">
+                    <ImageUploader
+                        id={`edit-image-${item.id}`}
+                        label={ti('forms.picture')}
+                        value={imageFile}
+                        onChange={setImageFile}
+                        hint={ti('forms.pictureHint')}
+                        initialUrl={imageUrl || null}
+                        onRemoveInitial={async () => {
+                            try {
+                                const r = await fetch(`/api/items/${item.id}/image`, { method: 'DELETE' })
+                                if (r.ok) { setImageUrl(null); setImageFile(null); toast.success(ti('modals.image.removed')) }
+                                else { const d = await r.json(); toast.error(d.error || ti('modals.image.removeFailed')) }
+                            } catch { toast.error(ti('modals.image.removeFailed')) }
+                        }}
+                        allowCamera
+                    />
                     <Input id={`name-${item.id}`} name="name" type="text" className="" placeholder={t('name')} value={name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)} />
                     <Input id={`sku-${item.id}`} name="sku" type="text" className="" placeholder={ti('forms.sku')} value={sku} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSku(e.target.value)} />
                     {/* Category selector with inline create */}
@@ -363,33 +380,7 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
                         <Input id={`brand-${item.id}`} name="brand" type="text" className="" placeholder={ti('forms.brandOptional')} value={brand} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBrand(e.target.value)} />
                     </div>
                     <Input id={`tags-${item.id}`} name="tags" type="text" className="" placeholder={ti('forms.tagsComma')} value={tagsCSV} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTagsCSV(e.target.value)} />
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{ti('forms.picture')}</label>
-                        {imageUrl ? (
-                            <div className="mb-2 flex items-center gap-2">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={imageUrl} alt={ti('drawer.itemPictureAlt')} className="h-16 w-16 rounded object-cover ring-1 ring-black/5 dark:ring-white/10" />
-                                <button
-                                    type="button"
-                                    className="text-xs text-red-600 hover:underline dark:text-red-400"
-                                    onClick={async () => {
-                                        try {
-                                            const r = await fetch(`/api/items/${item.id}/image`, { method: 'DELETE' })
-                                            if (r.ok) { setImageUrl(null); setImageFile(null); toast.success(ti('modals.image.removed')) }
-                                            else { const d = await r.json(); toast.error(d.error || ti('modals.image.removeFailed')) }
-                                        } catch { toast.error(ti('modals.image.removeFailed')) }
-                                    }}
-                                >{ti('modals.image.remove')}</button>
-                            </div>
-                        ) : null}
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
-                            className="block w-full text-sm text-gray-900 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:text-gray-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-300"
-                        />
-                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{ti('forms.pictureHint')}</p>
-                    </div>
+                    {/* Image block replaced by ImageUploader above */}
                     <div className="flex items-center gap-2">
                         <input id={`active-${item.id}`} name="isActive" type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="size-4" />
                         <label htmlFor={`active-${item.id}`} className="text-sm text-gray-700 dark:text-gray-300">{ti('forms.active')}</label>

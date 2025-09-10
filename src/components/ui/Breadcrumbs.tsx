@@ -16,7 +16,7 @@ export default function Breadcrumbs({
 }) {
   const t = useTranslations('Common')
   return (
-    <nav aria-label="Breadcrumb" className="flex">
+    <nav aria-label="Breadcrumb" className="flex ">
       <ol role="list" className="flex items-center space-x-4">
         <li>
           <div>

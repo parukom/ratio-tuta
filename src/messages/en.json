@@ -355,6 +355,7 @@
     "breadcrumbs": {
       "documents": "Documents"
     },
+    "searchPlaceholder": "Search receipts",
     "tabs": {
       "receipts": "Receipts",
       "blank": "Other"
