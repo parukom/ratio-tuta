@@ -179,7 +179,7 @@ const TeamTable = ({ teamId }: Props) => {
                                 .filter(p => p.name.toLowerCase().includes(q.trim().toLowerCase()))
                                 .map((person) => (
                                     <div key={person.id} className="relative rounded-2xl border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-white/5">
-                                        <div className="flex items-start justify-between gap-3">
+                                        <div className="flex items-center justify-between gap-3">
                                             <div className={`transition-opacity duration-1000 ${reveal ? 'opacity-100' : 'opacity-0'} flex items-center gap-3`}>
                                                 <div className="flex size-9 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-600 ring-1 ring-black/5 dark:bg:white/10 dark:text-gray-300 dark:ring-white/10">
                                                     {person.name.split(' ').map((s) => s.charAt(0)).slice(0, 2).join('')}
