@@ -11,8 +11,10 @@ type Props = {
 
 const AdminHeader = ({ title, subtitle, onAdd, addLabel = 'Add', left, right }: Props) => {
     return (
-        <div className="sm:flex sm:items-center">
-            <div className="sm:flex-auto">
+        <div className="flex justify-between gap-4 sm:items-center">
+
+            {/* left */}
+            <div className="sm:flex-auto w-full">
                 {left ? (
                     left
                 ) : (
@@ -26,7 +28,9 @@ const AdminHeader = ({ title, subtitle, onAdd, addLabel = 'Add', left, right }: 
                     </>
                 )}
             </div>
-            <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+
+            {/* right */}
+            <div className="sm:flex sm:flex-nowrap sm:items-center sm:space-x-2">
                 {right ? (
                     right
                 ) : onAdd ? (
@@ -39,6 +43,7 @@ const AdminHeader = ({ title, subtitle, onAdd, addLabel = 'Add', left, right }: 
                     </button>
                 ) : null}
             </div>
+
         </div>
     )
 }

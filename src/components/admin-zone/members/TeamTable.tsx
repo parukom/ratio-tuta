@@ -108,18 +108,37 @@ const TeamTable = ({ teamId }: Props) => {
                 }
                 right={
                     !loading ? (
-                        <div className="flex items-center gap-2">
+                        <>
                             {isAdmin && (
-                                <button
-                                    type="button"
-                                    onClick={() => setIsModalOpen(true)}
-                                    className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                    aria-label={tt('inviteMember') ?? t('add')}
-                                >
-                                    {tt('inviteMember') ?? t('add')}
-                                </button>
+                                <>
+                                    {/* Desktop / md+: text button */}
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsModalOpen(true)}
+                                        className="hidden md:inline-flex text-nowrap items-center gap-2 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                        aria-label={tt('inviteMember') ?? t('add')}
+                                    >
+                                        {tt('inviteMember') ?? t('add')}
+                                    </button>
+
+                                    {/* Mobile: icon-only (small screens) */}
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsModalOpen(true)}
+                                        className="inline-flex md:hidden items-center justify-center rounded-md bg-indigo-600 p-2 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                        aria-label={tt('inviteMember') ?? t('add')}
+                                        title={tt('inviteMember') ?? t('add')}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                                            <circle cx="9" cy="8" r="3"></circle>
+                                            <path d="M21 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path>
+                                            <line x1="19" y1="8" x2="19" y2="14"></line>
+                                            <line x1="16" y1="11" x2="22" y2="11"></line>
+                                        </svg>
+                                    </button>
+                                </>
                             )}
-                        </div>
+                        </>
                     ) : undefined
                 }
             />
