@@ -18,6 +18,7 @@ import { usePathname } from 'next/navigation'
 import LogoutButton from '../LogoutButton'
 import { Settings } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import LoadingOverlay from '@/components/ui/LoadingOverlay'
 
 type NavKey = 'home' | 'team' | 'items' | 'documents' | 'reports' | 'settings'
 const navigation: Array<{ key: NavKey; href: string; icon: React.ComponentType<React.ComponentProps<'svg'>> }> = [
@@ -63,6 +64,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
     // NEW: current user info for avatar/initials
     type CurrentUser = { name?: string | null; email?: string | null; avatarUrl?: string | null }
     const [me, setMe] = useState<CurrentUser | null>(null)
+    const [meLoading, setMeLoading] = useState(true)
     const [avatarError, setAvatarError] = useState(false)
 
     const loadPlaces = useCallback(async () => {
@@ -104,12 +106,24 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                 } catch {
                     // ignore
                 }
+                finally {
+                    if (!ignore) setMeLoading(false)
+                }
             })()
         return () => { ignore = true }
     }, [])
 
+    // Dashboard readiness: initial user + places fetched
+    const isReady = !meLoading && !loadingPlaces
+
     return (
         <>
+            <LoadingOverlay
+                isReady={isReady}
+                minDuration={2400}
+                label="Loading..."
+                steps={["Fetching profile", "Loading events", "Retrieving recent items"]}
+            />
             <div>
                 <Dialog open={sidebarOpen} onClose={setSidebarOpen} className="relative z-50 lg:hidden">
                     <DialogBackdrop

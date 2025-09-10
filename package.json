@@ -8,8 +8,8 @@
     "start": "prisma migrate deploy && next start",
     "lint": "eslint",
     "prisma:generate": "prisma generate",
-  "postinstall": "prisma generate",
-  "backfill:email": "ts-node -r tsconfig-paths/register scripts/backfill-email.ts"
+    "postinstall": "prisma generate",
+    "backfill:email": "ts-node -r tsconfig-paths/register scripts/backfill-email.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.744.0",
@@ -18,6 +18,7 @@
     "@heroicons/react": "^2.2.0",
     "@prisma/client": "^6.14.0",
     "bcryptjs": "^3.0.2",
+    "framer-motion": "^11.18.2",
     "lucide-react": "^0.542.0",
     "next": "15.5.0",
     "next-intl": "^3.26.5",
@@ -40,8 +41,8 @@
     "npm": "^11.5.2",
     "prisma": "^6.14.0",
     "tailwindcss": "^4",
-  "typescript": "^5",
-  "ts-node": "^10.9.2",
-  "tsconfig-paths": "^4.2.0"
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5"
   }
 }

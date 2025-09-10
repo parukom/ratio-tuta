@@ -90,7 +90,7 @@ const ReceiptsTab: React.FC = () => {
     return (
         <div>
             {/* Sticky search header */}
-            <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-6 border-b border-gray-200 bg-gradient-to-t from-white to-gray-50 px-4 safe-top shadow-xs sm:px-6 lg:px-8 dark:border-white/5 dark:bg-gradient-to-t dark:from-gray-900 dark:to-gray-900 dark:shadow-none">
+            <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-6 border-b border-gray-200 bg-white px-4 safe-top shadow-xs sm:px-6 lg:px-8 dark:border-white/5 dark:bg-gray-900 dark:shadow-none">
                 <SearchInput />
             </div>
             <div className="px-4 sm:px-6 lg:px-8">
