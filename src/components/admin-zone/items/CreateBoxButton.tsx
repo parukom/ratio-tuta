@@ -6,6 +6,7 @@ import Dropdown from '@/components/ui/Dropdown'
 import toast from 'react-hot-toast'
 import Spinner from '@/components/ui/Spinner'
 import { useTranslations } from 'next-intl'
+import { Plus } from 'lucide-react'
 
 // Stable localStorage keys
 const LS_TAX = 'box:taxRateBps'
@@ -221,13 +222,29 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
 
     return (
         <>
-            <button
-                type="button"
-                onClick={() => setOpen(true)}
-                className="inline-flex items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-indigo-700 shadow-xs inset-ring inset-ring-indigo-200 hover:bg-indigo-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-transparent dark:text-indigo-400 dark:inset-ring-indigo-500/40 dark:hover:bg-indigo-500/10 dark:focus-visible:outline-indigo-500"
-            >
-                {t('buttons.addBox')}
-            </button>
+            <div className="flex items-center gap-2">
+                {/* Icon-only button on small screens */}
+                <button
+                    type="button"
+                    onClick={() => setOpen(true)}
+                    aria-label={t('buttons.addBox')}
+                    className="inline-flex items-center justify-center rounded-md bg-white p-2 text-sm font-semibold text-indigo-700 shadow-xs inset-ring inset-ring-indigo-200 hover:bg-indigo-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-transparent dark:text-indigo-400 dark:inset-ring-indigo-500/40 dark:hover:bg-indigo-500/10 dark:focus-visible:outline-indigo-500 sm:hidden"
+                >
+                    {(() => {
+                        // lazy require so we don't need to edit top imports; uses lucide-react Plus icon
+                        return <Plus className="w-5 h-5" />
+                    })()}
+                </button>
+
+                {/* Full text button on sm+ screens */}
+                <button
+                    type="button"
+                    onClick={() => setOpen(true)}
+                    className="hidden sm:inline-flex items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-indigo-700 shadow-xs inset-ring inset-ring-indigo-200 hover:bg-indigo-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-transparent dark:text-indigo-400 dark:inset-ring-indigo-500/40 dark:hover:bg-indigo-500/10 dark:focus-visible:outline-indigo-500"
+                >
+                    {t('buttons.addBox')}
+                </button>
+            </div>
 
             <Modal open={open} onClose={() => setOpen(false)} size="lg">
                 <h3 className="text-base font-semibold text-gray-900 dark:text-white">{t('buttons.addBox')}</h3>

@@ -113,7 +113,7 @@ const TeamTable = ({ teamId }: Props) => {
                                         <button
                                             type="button"
                                             onClick={() => setIsModalOpen(true)}
-                                            className="inline-flex text-nowrap items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+                                            className="md:inline-flex hidden text-nowrap items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
                                             aria-label={tt('inviteMember') ?? t('add')}
                                         >
                                             {tt('inviteMember') ?? t('add')}

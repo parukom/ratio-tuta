@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl"
 import React from "react"
 import Drawer from "@/components/ui/Drawer"
 import { SlidersHorizontal } from "lucide-react"
+import AdminHeader from "@/components/layout/AdminHeader"
 
 type Category = { id: string; name: string }
 
@@ -54,9 +55,9 @@ export default function ItemsHeader({
     const cash = useTranslations('CashRegister')
     const [filtersOpen, setFiltersOpen] = React.useState(false)
     return (
-        <header className="sticky top-0 z-10 lg:rounded-xl border-y lg:border border-gray-200 bg-white p-3 shadow-xs dark:border-white/10 dark:bg-gray-900">
-            <div className="flex flex-col gap-4">
-                <header className="w-full flex gap-4 flex-wrap items-center">
+        <header className="sticky top-0 z-10 border-b border-gray-200 bg-white p-4 shadow-xs dark:border-white/10 dark:bg-gray-900">
+            <AdminHeader
+                left={
                     <div className="relative min-w-56 flex-1">
                         <SearchInput
                             value={q}
@@ -66,20 +67,19 @@ export default function ItemsHeader({
                             inputClassName="block w-full rounded-md bg-white py-1.5 pl-8 pr-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500 sm:text-sm/6"
                         />
                     </div>
-                    {/* Filters button (all breakpoints) */}
-                    <div className="ml-auto">
-                        <button
-                            type="button"
-                            onClick={() => setFiltersOpen(true)}
-                            className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:text-gray-200 dark:ring-white/10 dark:hover:bg-white/5"
-                            title={cash('filters', { default: 'Filters' })}
-                        >
-                            <SlidersHorizontal className="size-4" />
-                            <span>{cash('filters', { default: 'Filters' })}</span>
-                        </button>
-                    </div>
-                </header>
-            </div>
+                }
+                right={
+                    <button
+                        type="button"
+                        onClick={() => setFiltersOpen(true)}
+                        className="inline-flex items-center gap-2 rounded-md px-3 py-2.5 text-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:text-gray-200 dark:ring-white/10 dark:hover:bg-white/5"
+                        title={cash('filters', { default: 'Filters' })}
+                    >
+                        <SlidersHorizontal className="size-4" />
+                        {/* <span>{cash('filters', { default: 'Filters' })}</span> */}
+                    </button>
+                }
+            />
             {/* All filters are now accessed via the Drawer to save space on desktop. */}
 
             {/* Mobile Drawer with filters */}

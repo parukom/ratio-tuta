@@ -271,15 +271,6 @@ export default function InnerItems() {
 
     return (
         <>
-            {/* header */}
-            <header className=" p-4 flex items-center justify-between">
-                <h1 className="text-base font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
-                <div className="flex items-center gap-2">
-                    <CreateBoxButton onDone={fetchItems} />
-                    <CreateItemButton onCreated={onCreated} suppressToast />
-                </div>
-            </header>
-
             <ItemsHeader
                 q={q}
                 setQ={setQ}
@@ -304,6 +295,15 @@ export default function InnerItems() {
                 setSort={setSort}
                 onReset={() => { setQ(""); setOnlyActive(false); setCategoryId(""); setMeasurementType(""); setInStock(false); setMinPrice(""); setMaxPrice(""); setSort("createdAt_desc") }}
             />
+
+            <header className=" p-4 flex items-center justify-between">
+                <h1 className="text-base font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
+                <div className="flex items-center gap-2">
+                    <CreateBoxButton onDone={fetchItems} />
+                    <CreateItemButton onCreated={onCreated} suppressToast />
+                </div>
+            </header>
+
             <main className="p-4">
 
                 {/* Views */}
