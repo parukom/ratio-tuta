@@ -321,8 +321,9 @@
       "member": "Narys",
       "user": "Vartotojas"
     },
+    "inviteMember": "Pakviesti narį",
     "invite": {
-      "subtitle": "Sukurkite naują paskyrą ir pridėkite prie savo komandos."
+      "subtitle": "Sukurkite naują paskyrą ir pridėkite prie savo komandos. Jie gaus email su prisijungimo duomenimis."
     },
     "password": {
       "setOptional": "Nustatyti slaptažodį (nebūtina)",
@@ -346,7 +347,8 @@
       "userUpdated": "Vartotojas atnaujintas",
       "updateFailed": "Nepavyko atnaujinti vartotojo"
     },
-    "noMembers": "Narių kol kas nėra."
+    "noMembers": "Narių kol kas nėra.",
+    "searchPlaceholder": "Ieškoti narių"
   },
   "Documents": {
     "breadcrumbs": {

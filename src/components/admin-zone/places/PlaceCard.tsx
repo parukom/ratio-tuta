@@ -6,6 +6,7 @@ type SimpleT = (key: string, values?: Record<string, string | number>) => string
 
 type Props = {
   id?: string
+  reveal?: boolean
   name: string
   description?: string | null
   city?: string | null
@@ -40,6 +41,7 @@ function timeAgo(iso?: string | null, t?: SimpleT): string {
 
 export default function PlaceCard({
   id,
+  reveal = true,
   name,
   description,
   city,
@@ -60,71 +62,74 @@ export default function PlaceCard({
     : 'bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-300/20'
   const location = [city, country].filter(Boolean).join(', ')
   const fmt = (n: number) => new Intl.NumberFormat(undefined, { style: 'currency', currency: currency || 'EUR' }).format(n)
+  const fadeCls = `transition-opacity duration-1000 ${reveal ? 'opacity-100' : 'opacity-0'}`
 
   return (
     <Link
       href={href}
       className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 hover:shadow-lg dark:border-white/5 dark:bg-white/5 ">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h3 className="text-base font-semibold text-gray-900 dark:text-white">{name}</h3>
-          <p className="mt-1 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">{description || '—'}</p>
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            {location && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-gray-50 px-2 py-1 text-[10px] font-medium text-gray-700 ring-1 ring-inset ring-gray-200 dark:bg-white/5 dark:text-gray-300 dark:ring-white/10">
-                <MapPinIcon className="h-3 w-3" /> {location}
+      <div className={fadeCls}>
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white">{name}</h3>
+            <p className="mt-1 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">{description || '—'}</p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              {location && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-gray-50 px-2 py-1 text-[10px] font-medium text-gray-700 ring-1 ring-inset ring-gray-200 dark:bg-white/5 dark:text-gray-300 dark:ring-white/10">
+                  <MapPinIcon className="h-3 w-3" /> {location}
+                </span>
+              )}
+              <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-medium ring-1 ring-inset ${statusColor}`}>
+                <BoltIcon className="h-3 w-3" /> {isActive ? t('place.card.active') : t('place.card.paused')}
               </span>
-            )}
-            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-medium ring-1 ring-inset ${statusColor}`}>
-              <BoltIcon className="h-3 w-3" /> {isActive ? t('place.card.active') : t('place.card.paused')}
-            </span>
+            </div>
           </div>
-        </div>
-        <div className="text-right">
-          <span className="text-xs text-gray-500 dark:text-gray-400">{t('place.card.today')}</span>
-          <div className="mt-1 text-xl font-bold tracking-tight text-gray-900 dark:text-white">{fmt(salesToday)}</div>
-          <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('place.card.receiptsToday', { count: receiptsToday })}</div>
-        </div>
-      </div>
-
-      {/* Stats row */}
-      <div className="mt-6 flex gap-2">
-        <div className="flex flex-col items-center rounded-xl bg-gray-50 p-4 dark:bg-white/5 flex-1">
-          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 justify-center">
-            <BanknotesIcon className="h-4 w-4 text-emerald-500" />
-          </div>
-          <div className="mt-2 text-lg font-semibold text-gray-900 dark:text-white">
-            {fmt(totalEarnings)}
+          <div className="text-right">
+            <span className="text-xs text-gray-500 dark:text-gray-400">{t('place.card.today')}</span>
+            <div className="mt-1 text-xl font-bold tracking-tight text-gray-900 dark:text-white">{fmt(salesToday)}</div>
+            <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('place.card.receiptsToday', { count: receiptsToday })}</div>
           </div>
         </div>
 
-        <div className="flex flex-col items-center rounded-xl bg-gray-50 p-4 dark:bg-white/5 flex-1">
-          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 justify-center">
-            <ClipboardDocumentListIcon className="h-4 w-4 text-blue-500" />
+        {/* Stats row */}
+        <div className="mt-6 flex gap-2">
+          <div className="flex flex-col items-center rounded-xl bg-gray-50 p-4 dark:bg-white/5 flex-1">
+            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 justify-center">
+              <BanknotesIcon className="h-4 w-4 text-emerald-500" />
+            </div>
+            <div className="mt-2 text-lg font-semibold text-gray-900 dark:text-white">
+              {fmt(totalEarnings)}
+            </div>
           </div>
-          <div className="mt-2 text-lg font-semibold text-gray-900 dark:text-white">
-            {receipts7d}
+
+          <div className="flex flex-col items-center rounded-xl bg-gray-50 p-4 dark:bg-white/5 flex-1">
+            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 justify-center">
+              <ClipboardDocumentListIcon className="h-4 w-4 text-blue-500" />
+            </div>
+            <div className="mt-2 text-lg font-semibold text-gray-900 dark:text-white">
+              {receipts7d}
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center rounded-xl bg-gray-50 p-4 dark:bg-white/5 flex-1">
+            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 justify-center">
+              <UsersIcon className="h-4 w-4 text-pink-500" />
+            </div>
+            <div className="mt-2 text-lg font-semibold text-gray-900 dark:text-white">
+              {teamPeopleCount}
+            </div>
           </div>
         </div>
 
-        <div className="flex flex-col items-center rounded-xl bg-gray-50 p-4 dark:bg-white/5 flex-1">
-          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 justify-center">
-            <UsersIcon className="h-4 w-4 text-pink-500" />
+
+        {/* Footer */}
+        <div className="mt-5 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
+            <ClockIcon className="h-4 w-4" /> {t('place.card.lastActivity')}: {timeAgo(lastActivityAt, t)}
           </div>
-          <div className="mt-2 text-lg font-semibold text-gray-900 dark:text-white">
-            {teamPeopleCount}
-          </div>
+
         </div>
-      </div>
-
-
-      {/* Footer */}
-      <div className="mt-5 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
-          <ClockIcon className="h-4 w-4" /> {t('place.card.lastActivity')}: {timeAgo(lastActivityAt, t)}
-        </div>
-
       </div>
     </Link>
   )

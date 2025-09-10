@@ -3,6 +3,7 @@ import Tabs from "@/components/ui/Tabs";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import SearchInput from "@/components/ui/SearchInput";
 import React, { Suspense, useEffect, useMemo, useState } from "react";
+import Spinner from "@/components/ui/Spinner";
 import BottomPaginationBar from "@/components/ui/BottomPaginationBar";
 import { useRouter, useSearchParams } from "next/navigation";
 import Modal from "@/components/modals/Modal";
@@ -35,7 +36,6 @@ const ReceiptsTab: React.FC = () => {
     const page = Math.max(1, Number(searchParams.get('page') ?? '1'));
     const q = searchParams.get('search') ?? '';
     const t = useTranslations('Documents');
-    const tc = useTranslations('Common');
     const paymentLabels: Record<Receipt['paymentOption'], string> = {
         CASH: t('payments.CASH'),
         CARD: t('payments.CARD'),
@@ -46,6 +46,8 @@ const ReceiptsTab: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [selected, setSelected] = useState<Receipt | null>(null);
+    const [reveal, setReveal] = useState(false);
+    const fadeCls = `transition-opacity duration-1000 ${reveal ? 'opacity-100' : 'opacity-0'}`;
 
     useEffect(() => {
         let cancelled = false;
@@ -78,6 +80,15 @@ const ReceiptsTab: React.FC = () => {
             cancelled = true;
         };
     }, [page, q]);
+
+    // trigger fade after data loads
+    useEffect(() => {
+        if (!loading) {
+            setReveal(false);
+            const t = window.setTimeout(() => setReveal(true), 50);
+            return () => window.clearTimeout(t);
+        }
+    }, [loading, data.length]);
 
     const totalPages = useMemo(() => Math.max(1, Math.ceil(total / 25)), [total]);
 
@@ -112,7 +123,11 @@ const ReceiptsTab: React.FC = () => {
                         <tbody className="divide-y divide-gray-200 dark:divide-white/10">
                             {loading ? (
                                 <tr>
-                                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400" colSpan={4}>{tc('loading')}</td>
+                                    <td className="px-4 py-8" colSpan={4}>
+                                        <div className="flex items-center justify-center">
+                                            <Spinner size={24} className="text-gray-400 dark:text-white/40" />
+                                        </div>
+                                    </td>
                                 </tr>
                             ) : data.length === 0 ? (
                                 <tr>
@@ -135,14 +150,22 @@ const ReceiptsTab: React.FC = () => {
                                         aria-label={t('list.openReceipt', { id: r.id })}
                                     >
                                         <td className="px-4 py-3 text-gray-900 dark:text-white">
-                                            <time dateTime={(r.createdAt ?? r.timestamp ?? '') as string}>
-                                                {new Date(r.createdAt ?? r.timestamp ?? '').toLocaleString()}
-                                            </time>
+                                            <div className={fadeCls}>
+                                                <time dateTime={(r.createdAt ?? r.timestamp ?? '') as string}>
+                                                    {new Date(r.createdAt ?? r.timestamp ?? '').toLocaleString()}
+                                                </time>
+                                            </div>
                                         </td>
-                                        <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{paymentLabels[r.paymentOption]}</td>
-                                        <td className="px-4 py-3 text-gray-900 dark:text-white">EUR {r.totalPrice.toFixed(2)}</td>
+                                        <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
+                                            <div className={fadeCls}>{paymentLabels[r.paymentOption]}</div>
+                                        </td>
+                                        <td className="px-4 py-3 text-gray-900 dark:text-white">
+                                            <div className={fadeCls}>EUR {r.totalPrice.toFixed(2)}</div>
+                                        </td>
                                         <td className="px-4 py-3 max-w-[480px] truncate text-gray-600 dark:text-gray-400">
-                                            {r.items.map((it) => `${it.title}×${it.quantity}`).join(', ')}
+                                            <div className={fadeCls}>
+                                                {r.items.map((it) => `${it.title}×${it.quantity}`).join(', ')}
+                                            </div>
                                         </td>
                                     </tr>
                                 ))

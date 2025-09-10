@@ -321,8 +321,9 @@
       "member": "Member",
       "user": "User"
     },
+    "inviteMember": "Invite member",
     "invite": {
-      "subtitle": "Create a new account and add them to your team."
+      "subtitle": "Create a new account and add them to your team. They will receive an email with login details."
     },
     "password": {
       "setOptional": "Set password (optional)",
@@ -346,7 +347,8 @@
       "userUpdated": "User updated",
       "updateFailed": "Failed to update user"
     },
-    "noMembers": "No members yet."
+    "noMembers": "No members yet.",
+    "searchPlaceholder": "Search members"
   },
   "Documents": {
     "breadcrumbs": {

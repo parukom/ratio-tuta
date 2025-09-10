@@ -5,9 +5,9 @@ import React, { useEffect, useState } from 'react'
 import AddMember from './InviteMemberForm'
 import MemberDrawer, { type Member } from './Drawer'
 import AdminHeader from '@/components/layout/AdminHeader'
-import TableSkeleton from '@/components/ui/TableSkeleton'
-import { EllipsisVertical } from 'lucide-react'
+import { EllipsisVertical, Search } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import Spinner from '@/components/ui/Spinner'
 
 type Person = { id: string; name: string; role: 'USER' | 'ADMIN' }
 type ApiUser = { id: string; name: string; email: string; role: 'USER' | 'ADMIN'; createdAt: string }
@@ -26,6 +26,8 @@ const TeamTable = ({ teamId }: Props) => {
     const [drawerOpen, setDrawerOpen] = useState(false)
     const [selected, setSelected] = useState<Member | null>(null)
     const [isAdmin, setIsAdmin] = useState(false)
+    const [reveal, setReveal] = useState(false)
+    const [q, setQ] = useState('')
 
     async function loadTeams() {
         try {
@@ -77,20 +79,57 @@ const TeamTable = ({ teamId }: Props) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [teamId])
 
+    // When loading finishes, fade in inner content smoothly
+    useEffect(() => {
+        if (!loading) {
+            setReveal(false)
+            const tm = setTimeout(() => setReveal(true), 50)
+            return () => clearTimeout(tm)
+        }
+    }, [loading, people.length])
+
     return (
         <div className="mt-8 px-4 flow-root h-full">
             <AdminHeader
-                title={tt('title')}
-                subtitle={activeTeamId ? tt('subtitle') : tt('noTeam')}
-                onAdd={() => setIsModalOpen(true)}
-                addLabel={t('inviteMember')}
+                left={
+                    !loading ? (
+                        <div className="relative w-full ">
+                            <Search className="pointer-events-none absolute left-3 top-2.5 size-4 text-gray-400 dark:text-gray-500" />
+                            <input
+                                type="text"
+                                value={q}
+                                onChange={(e) => setQ(e.target.value)}
+                                placeholder={tt('searchPlaceholder')}
+                                aria-label={t('search')}
+                                className="block w-full rounded-md bg-white pl-9 pr-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+                            />
+                        </div>
+                    ) : undefined
+                }
+                right={
+                    !loading ? (
+                        <div className="flex items-center gap-2">
+                            {isAdmin && (
+                                <button
+                                    type="button"
+                                    onClick={() => setIsModalOpen(true)}
+                                    className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    aria-label={tt('inviteMember') ?? t('add')}
+                                >
+                                    {tt('inviteMember') ?? t('add')}
+                                </button>
+                            )}
+                        </div>
+                    ) : undefined
+                }
             />
 
             <div className={` h-full ${loading ? 'flex justify-center items-center' : ''}`}>
-                {teams.length > 1 && (
+                {/* Team select under header (if many teams) */}
+                {!loading && teams.length > 1 && (
                     <div className="mt-4">
-                        <label htmlFor="team" className="block text-sm/6 font-medium text-gray-900 dark:text-white">{tt('teamLabel')}</label>
-                        <div className="mt-2">
+                        <div className="flex items-center gap-3">
+                            <label htmlFor="team" className="text-sm font-medium text-gray-900 dark:text-white">{tt('teamLabel')}</label>
                             <select
                                 id="team"
                                 name="team"
@@ -111,63 +150,47 @@ const TeamTable = ({ teamId }: Props) => {
                     <p className="mt-4 text-sm text-gray-600 dark:text-gray-300">{tt('noMembers')}</p>
                 )}
                 {loading ? (
-                    <div className="w-full -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                        <table className="relative min-w-full divide-y divide-gray-300 dark:divide-white/15">
-                            <TableSkeleton rows={8} columnWidths={["w-40", "w-28", "w-10"]} />
-                        </table>
+                    <div className="flex items-center justify-center py-16">
+                        <Spinner size={24} className="text-gray-400 dark:text-white/40" />
                     </div>
                 ) : (
-                    <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                        <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                            <table className="relative min-w-full divide-y divide-gray-300 dark:divide-white/15">
-                                <thead>
-                                    <tr>
-                                        <th
-                                            scope="col"
-                                            className="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 sm:pl-0 dark:text-white"
-                                        >
-                                            {t('name')}
-                                        </th>
-                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">
-                                            {tt('role.label')}
-                                        </th>
-                                        <th scope="col" className="py-3.5 pr-4 pl-3 sm:pr-0">
-                                            <span className="sr-only">{t('edit')}</span>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-200 dark:divide-white/10">
-                                    {people.map((person) => (
-                                        <tr key={person.id}>
-                                            <td className="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900 sm:pl-0 dark:text-white">
-                                                {person.name}
-                                            </td>
-                                            <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
-                                                {person.role === 'ADMIN' ? tt('roles.admin') : tt('roles.member')}
-                                            </td>
-                                            <td className="py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-0">
-                                                {isAdmin && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            const m: Member = {
-                                                                id: person.id,
-                                                                name: person.name,
-                                                                role: person.role,
-                                                            }
-                                                            setSelected(m)
-                                                            setDrawerOpen(true)
-                                                        }}
-                                                        className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
-                                                    >
-                                                        <EllipsisVertical /><span className="sr-only">, {person.name}</span>
-                                                    </button>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                    <div className="px-0 sm:px-0 lg:px-0 mt-4">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            {people
+                                .filter(p => p.name.toLowerCase().includes(q.trim().toLowerCase()))
+                                .map((person) => (
+                                    <div key={person.id} className="relative rounded-2xl border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-white/5">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className={`transition-opacity duration-1000 ${reveal ? 'opacity-100' : 'opacity-0'} flex items-center gap-3`}>
+                                                <div className="flex size-9 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-600 ring-1 ring-black/5 dark:bg:white/10 dark:text-gray-300 dark:ring-white/10">
+                                                    {person.name.split(' ').map((s) => s.charAt(0)).slice(0, 2).join('')}
+                                                </div>
+                                                <div>
+                                                    <div className="text-sm font-semibold text-gray-900 dark:text-white">{person.name}</div>
+                                                    <div className="mt-1 text-[11px]">
+                                                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 ring-1 ring-inset ${person.role === 'ADMIN' ? 'bg-indigo-50 text-indigo-700 ring-indigo-600/20 dark:bg-indigo-500/10 dark:text-indigo-300' : 'bg-gray-50 text-gray-700 ring-gray-600/20 dark:bg-white/5 dark:text-gray-300 dark:ring-white/10'}`}>
+                                                            {person.role === 'ADMIN' ? tt('roles.admin') : tt('roles.member')}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {isAdmin && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const m: Member = { id: person.id, name: person.name, role: person.role }
+                                                        setSelected(m)
+                                                        setDrawerOpen(true)
+                                                    }}
+                                                    className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                                    aria-label={`${t('edit')} ${person.name}`}
+                                                >
+                                                    <EllipsisVertical />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
                         </div>
                     </div>
                 )}

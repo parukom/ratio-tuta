@@ -29,12 +29,14 @@ type ItemRow = {
 
 export function ItemCard({
     item,
+    reveal = true,
     onItemUpdated,
     onItemDeleted,
     onConflict,
     onSelect,
 }: {
     item: ItemRow
+    reveal?: boolean
     onItemUpdated?: (updated: ItemRow) => void
     onItemDeleted?: (id: string) => void
     onConflict?: (info: { id: string; places: { placeId: string; placeName: string; quantity: number }[]; kind?: 'item' }) => void
@@ -83,6 +85,8 @@ export function ItemCard({
         }
     }
 
+    const fadeCls = `transition-opacity duration-1000 ${reveal ? 'opacity-100' : 'opacity-0'}`
+
     return (
         <div
             className={
@@ -125,102 +129,105 @@ export function ItemCard({
                 </div>
             </div>
 
-            {/* header */}
-            <div className="flex items-start gap-3">
-                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg ring-1 ring-inset ring-gray-200 dark:ring-white/10">
-                    {item.imageUrl && !imgFailed ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                            src={item.imageUrl}
-                            alt={item.name}
-                            className="h-full w-full object-cover"
-                            loading="lazy"
-                            decoding="async"
-                            onError={() => setImgFailed(true)}
-                        />
-                    ) : item.color ? (
-                        <div className="h-full w-full" style={colorStyle} />
-                    ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-xs text-gray-500 dark:from-white/10 dark:to-white/5 dark:text-gray-400">
-                            {item.name.slice(0, 2).toUpperCase()}
+            {/* main content fades in as a single block */}
+            <div className={fadeCls}>
+                {/* header */}
+                <div className="flex items-start gap-3">
+                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg ring-1 ring-inset ring-gray-200 dark:ring-white/10">
+                        {item.imageUrl && !imgFailed ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                                src={item.imageUrl}
+                                alt={item.name}
+                                className="h-full w-full object-cover"
+                                loading="lazy"
+                                decoding="async"
+                                onError={() => setImgFailed(true)}
+                            />
+                        ) : item.color ? (
+                            <div className="h-full w-full" style={colorStyle} />
+                        ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-xs text-gray-500 dark:from-white/10 dark:to-white/5 dark:text-gray-400">
+                                {item.name.slice(0, 2).toUpperCase()}
+                            </div>
+                        )}
+                        {item.size && (
+                            <span className="absolute bottom-0 right-0 m-1 rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-medium text-gray-700 shadow ring-1 ring-gray-200 backdrop-blur-sm dark:bg-gray-900/80 dark:text-gray-200 dark:ring-white/10">
+                                {item.size}
+                            </span>
+                        )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-semibold text-gray-900 dark:text-white" title={item.name}>
+                            {item.name}
                         </div>
-                    )}
-                    {item.size && (
-                        <span className="absolute bottom-0 right-0 m-1 rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-medium text-gray-700 shadow ring-1 ring-gray-200 backdrop-blur-sm dark:bg-gray-900/80 dark:text-gray-200 dark:ring-white/10">
-                            {item.size}
-                        </span>
-                    )}
-                </div>
-                <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-semibold text-gray-900 dark:text-white" title={item.name}>
-                        {item.name}
-                    </div>
-                    <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
-                        {item.sku && <span className="truncate">{t('card.sku')}: {item.sku}</span>}
-                        {item.brand && <span className="truncate">• {item.brand}</span>}
+                        <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+                            {item.sku && <span className="truncate">{t('card.sku')}: {item.sku}</span>}
+                            {item.brand && <span className="truncate">• {item.brand}</span>}
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            {/* details */}
-            <div className="mt-4 grid grid-cols-2 gap-3">
-                <div>
-                    <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.price')}</div>
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">{price}</div>
-                </div>
-                <div className="text-right">
-                    <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.tax')}</div>
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">{taxPct}%</div>
-                </div>
-                {typeof item.pricePaid === 'number' && (
+                {/* details */}
+                <div className="mt-4 grid grid-cols-2 gap-3">
                     <div>
-                        <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.cost')}</div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">{cost}</div>
+                        <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.price')}</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">{price}</div>
                     </div>
-                )}
-                {typeof item.pricePaid === 'number' && (
                     <div className="text-right">
-                        <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.profit')}</div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">{profit}</div>
+                        <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.tax')}</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">{taxPct}%</div>
                     </div>
-                )}
-                <div>
-                    <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.unit')}</div>
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">{item.unit || 'pcs'}</div>
-                </div>
-                <div className="text-right">
-                    <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.stock')}</div>
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">{typeof item.stockQuantity === 'number' ? item.stockQuantity : 0}</div>
-                </div>
-            </div>
-
-            {/* tags / description */}
-            {(item.tags && item.tags.length > 0) || item.description ? (
-                <div className="mt-3">
-                    {item.tags && item.tags.length > 0 && (
-                        <div className="mb-2 flex flex-wrap gap-1.5">
-                            {item.tags.slice(0, 4).map((t) => (
-                                <span
-                                    key={t}
-                                    className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-700 ring-1 ring-gray-200 dark:bg-white/10 dark:text-gray-300 dark:ring-white/10"
-                                >
-                                    {t}
-                                </span>
-                            ))}
-                            {item.tags.length > 4 && (
-                                <span className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.more', { count: item.tags.length - 4 })}</span>
-                            )}
+                    {typeof item.pricePaid === 'number' && (
+                        <div>
+                            <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.cost')}</div>
+                            <div className="text-sm font-medium text-gray-900 dark:text-white">{cost}</div>
                         </div>
                     )}
-                    {item.description && (
-                        <p className="line-clamp-2 text-xs text-gray-600 dark:text-gray-300">{item.description}</p>
+                    {typeof item.pricePaid === 'number' && (
+                        <div className="text-right">
+                            <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.profit')}</div>
+                            <div className="text-sm font-medium text-gray-900 dark:text-white">{profit}</div>
+                        </div>
                     )}
+                    <div>
+                        <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.unit')}</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">{item.unit || 'pcs'}</div>
+                    </div>
+                    <div className="text-right">
+                        <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.stock')}</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">{typeof item.stockQuantity === 'number' ? item.stockQuantity : 0}</div>
+                    </div>
                 </div>
-            ) : null}
 
-            {/* bottom actions (visible on small screens) */}
-            <div className="mt-4 flex items-center justify-end gap-2 sm:hidden">
-                <ItemRowActions item={item} onItemUpdated={onItemUpdated} onItemDeleted={onItemDeleted} onConflict={onConflict} />
+                {/* tags / description */}
+                {(item.tags && item.tags.length > 0) || item.description ? (
+                    <div className="mt-3">
+                        {item.tags && item.tags.length > 0 && (
+                            <div className="mb-2 flex flex-wrap gap-1.5">
+                                {item.tags.slice(0, 4).map((t) => (
+                                    <span
+                                        key={t}
+                                        className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-700 ring-1 ring-gray-200 dark:bg-white/10 dark:text-gray-300 dark:ring-white/10"
+                                    >
+                                        {t}
+                                    </span>
+                                ))}
+                                {item.tags.length > 4 && (
+                                    <span className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.more', { count: item.tags.length - 4 })}</span>
+                                )}
+                            </div>
+                        )}
+                        {item.description && (
+                            <p className="line-clamp-2 text-xs text-gray-600 dark:text-gray-300">{item.description}</p>
+                        )}
+                    </div>
+                ) : null}
+
+                {/* bottom actions (visible on small screens) */}
+                <div className="mt-4 flex items-center justify-end gap-2 sm:hidden">
+                    <ItemRowActions item={item} onItemUpdated={onItemUpdated} onItemDeleted={onItemDeleted} onConflict={onConflict} />
+                </div>
             </div>
         </div>
     )
