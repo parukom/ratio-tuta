@@ -30,13 +30,15 @@ export default function BottomPaginationBar({
             <div
                 className={
                     `fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white/80 backdrop-blur ` +
-                    `supports-[backdrop-filter]:bg-white/60 safe-bottom dark:border-white/10 ` +
+                    `supports-[backdrop-filter]:bg-white/60 dark:border-white/10 ` +
                     `dark:bg-gray-900/80 dark:supports-[backdrop-filter]:bg-gray-900/60 ` +
-                    `${includeSidebarInset ? 'lg:pl-72' : ''}`
+                    `${includeSidebarInset ? 'lg:pl-72' : ''} relative`
                 }
             >
-                <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
-                    <div className="relative flex items-center justify-center py-4">
+                {/* Safe area background filler that doesn't shift content */}
+                <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[env(safe-area-inset-bottom)] bg-inherit" />
+                <div className="relative z-10 mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+                    <div className="relative flex items-center justify-center py-3">
                         <button
                             className="absolute left-0 rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/10"
                             disabled={disabled || page <= 1}
