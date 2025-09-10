@@ -21,7 +21,9 @@ export async function GET(req: Request) {
   const q = (searchParams.get('q') || '').trim();
   const limitParam = Number(searchParams.get('limit') || '25');
   const pageParam = Number(searchParams.get('page') || '1');
-  const take = Number.isFinite(limitParam) ? Math.min(Math.max(1, limitParam), 100) : 25;
+  const take = Number.isFinite(limitParam)
+    ? Math.min(Math.max(1, limitParam), 100)
+    : 25;
   const page = Number.isFinite(pageParam) ? Math.max(1, pageParam) : 1;
   const skip = (page - 1) * take;
 
@@ -70,23 +72,22 @@ export async function GET(req: Request) {
     const qNum = Number(q);
     const byNumber: Prisma.ReceiptWhereInput | undefined = Number.isFinite(qNum)
       ? {
-          OR: [
-            { totalPrice: qNum },
-            { amountGiven: qNum },
-            { change: qNum },
-          ],
+          OR: [{ totalPrice: qNum }, { amountGiven: qNum }, { change: qNum }],
         }
       : undefined;
-  const byItem: Prisma.ReceiptWhereInput = { items: { some: { title: { contains: q, mode: 'insensitive' as Prisma.QueryMode } } } };
+    const byItem: Prisma.ReceiptWhereInput = {
+      items: {
+        some: {
+          title: { contains: q, mode: 'insensitive' as Prisma.QueryMode },
+        },
+      },
+    };
 
-  const orClauses: Prisma.ReceiptWhereInput[] = [byItem];
+    const orClauses: Prisma.ReceiptWhereInput[] = [byItem];
     if (byPayment) orClauses.push(byPayment);
     if (byNumber) orClauses.push(byNumber);
     where = {
-      AND: [
-        where,
-        { OR: orClauses },
-      ],
+      AND: [where, { OR: orClauses }],
     };
   }
 
@@ -177,7 +178,7 @@ export async function POST(req: Request) {
 
   const dbItems = await prisma.item.findMany({
     where: { id: { in: itemIds }, teamId: place.teamId },
-    select: { id: true, name: true, price: true },
+    select: { id: true, name: true, price: true, measurementType: true },
   });
   if (dbItems.length !== itemIds.length)
     return NextResponse.json(
@@ -216,15 +217,32 @@ export async function POST(req: Request) {
       itemId: it.itemId!,
       title: meta.name,
       price: meta.price,
+      // Store raw quantity as provided:
+      // - WEIGHT: grams
+      // - LENGTH/PCS/etc: integer units (client rounds for LENGTH for now)
       quantity: it.quantity!,
     };
   });
-  const totalPrice = receiptItemsData.reduce(
-    (sum, ri) => sum + ri.price * ri.quantity,
-    0,
+
+  // Monetary rounding helper (cents)
+  const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
+
+  // Compute total considering measurement type:
+  const totalPrice = round2(
+    items.reduce((sum, it) => {
+      const meta = dbItemMap.get(it.itemId!)!;
+      const qty = it.quantity!;
+      if (meta.measurementType === 'WEIGHT') {
+        // price per kg, qty in grams -> convert to kg
+        return sum + meta.price * (qty / 1000);
+      }
+      return sum + meta.price * qty;
+    }, 0),
   );
-  const change = amountGiven - totalPrice;
-  if (change < 0)
+
+  const given = round2(amountGiven);
+  const change = round2(given - totalPrice);
+  if (given < totalPrice)
     return NextResponse.json(
       { error: 'amountGiven is less than totalPrice', totalPrice },
       { status: 400 },
@@ -238,7 +256,7 @@ export async function POST(req: Request) {
           userId: session.userId,
           placeId,
           totalPrice,
-          amountGiven,
+          amountGiven: given,
           change,
           paymentOption,
           status: 'COMPLETED',
@@ -247,7 +265,7 @@ export async function POST(req: Request) {
         select: { id: true },
       });
 
-  // Decrement stock per item for the place, guarding against negatives
+      // Decrement stock per item for the place, guarding against negatives
       for (const it of items) {
         const qty = it.quantity!;
 
