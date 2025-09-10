@@ -89,7 +89,7 @@ const ReceiptsTab: React.FC = () => {
     return (
         <div>
             {/* Sticky search header */}
-            <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-6 border-b border-gray-200 bg-white px-4 shadow-xs sm:px-6 lg:px-8 dark:border-white/5 dark:bg-gray-900 dark:shadow-none">
+            <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-6 border-b border-gray-200 bg-white px-4 safe-top shadow-xs sm:px-6 lg:px-8 dark:border-white/5 dark:bg-gray-900 dark:shadow-none">
                 <SearchInput />
             </div>
             <div className="px-4 sm:px-6 lg:px-8">
@@ -239,8 +239,8 @@ const ReceiptsTab: React.FC = () => {
             </div>
 
             {/* Fixed bottom pagination bar */}
-            <div className="fixed inset-x-0 bottom-0 z-30 border-t py-4 border-gray-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-white/10 dark:bg-gray-900/80 dark:supports-[backdrop-filter]:bg-gray-900/60">
-                <div className="mx-auto max-w-screen-2xl px-4 lg:pl-76 sm:px-6 lg:px-8 pb-[env(safe-area-inset-bottom)]">
+            <div className="fixed inset-x-0 bottom-0 z-30 border-t py-4 border-gray-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 safe-bottom dark:border-white/10 dark:bg-gray-900/80 dark:supports-[backdrop-filter]:bg-gray-900/60">
+                <div className="mx-auto max-w-screen-2xl px-4 lg:pl-76 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between">
                         <div className="text-sm text-gray-600 dark:text-gray-400">
                             {t('pagination.pageOf', { page, total: totalPages })}

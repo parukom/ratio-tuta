@@ -16,7 +16,7 @@ export const CashRegisterFooter: React.FC<FooterProps> = ({
     const t = useTranslations('CashRegister');
     return (
         <footer className="sticky bottom-0 border-t border-gray-200 bg-white px-4 dark:border-white/5 dark:bg-gray-900">
-            <div className="mx-auto max-w-7xl py-3 sm:py-4">
+            <div className="mx-auto max-w-7xl py-4 pb-8 sm:pb-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     {/* Totals */}
                     <div className="flex w-full items-center justify-between gap-4 text-base text-gray-700 sm:w-auto sm:justify-start sm:gap-6 sm:text-xl dark:text-gray-300">

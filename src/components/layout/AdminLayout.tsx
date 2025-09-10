@@ -341,7 +341,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                     </div>
                 </div>
 
-                <div className="sticky top-0 z-40 flex items-center gap-x-6 bg-white px-4 py-4 shadow-xs sm:px-6 lg:hidden dark:bg-gray-900 dark:shadow-none dark:before:pointer-events-none dark:before:absolute dark:before:inset-0 dark:before:border-b dark:before:border-white/10 dark:before:bg-black/10">
+                <div className="sticky top-0 z-50 flex items-center gap-x-6 bg-white px-4 py-4 safe-top shadow-xs sm:px-6 lg:hidden dark:bg-gray-900 dark:shadow-none dark:before:pointer-events-none dark:before:absolute dark:before:inset-0 dark:before:border-b dark:before:border-white/10 dark:before:bg-black/10">
                     <button
                         type="button"
                         onClick={() => setSidebarOpen(true)}

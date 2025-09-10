@@ -18,8 +18,8 @@ export default function ItemsPagination({ page, setPage, totalPages, disabled }:
             <div aria-hidden className="h-16" />
 
             {/* Fixed bottom pagination bar */}
-            <div className="lg:pl-72 fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-white/10 dark:bg-gray-900/80 dark:supports-[backdrop-filter]:bg-gray-900/60">
-                <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 pb-[env(safe-area-inset-bottom)]">
+            <div className="lg:pl-72 fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 safe-bottom dark:border-white/10 dark:bg-gray-900/80 dark:supports-[backdrop-filter]:bg-gray-900/60">
+                <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between">
                         <div className="text-sm text-gray-600 dark:text-gray-400">
                             {tDoc('pagination.pageOf', { page, total: totalPages })}

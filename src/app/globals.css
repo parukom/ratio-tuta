@@ -46,3 +46,30 @@ input[type='number'] {
     transform: translateX(100%);
   }
 }
+
+/* ============================================ */
+/* iOS safe-area helpers                        */
+/* ============================================ */
+
+:root {
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+}
+
+/* Apply padding on sticky/fixed headers to avoid notch overlap */
+.safe-top {
+  padding-top: max(0px, var(--safe-top));
+}
+
+/* Apply padding on fixed bottom bars to avoid home indicator overlap */
+.safe-bottom {
+  padding-bottom: max(0px, var(--safe-bottom));
+}
+
+/* Optional utilities if margins are needed instead of padding */
+.mt-safe {
+  margin-top: max(0px, var(--safe-top));
+}
+.mb-safe {
+  margin-bottom: max(0px, var(--safe-bottom));
+}
