@@ -645,6 +645,10 @@
       "networkError": "Сетевая ошибка",
       "categoryCreated": "Категория создана",
       "failedToUploadImage": "Не удалось загрузить изображение"
+    },
+    "units": {
+      "pcsShort": "шт",
+      "minShort": "мин"
     }
   },
   "CashRegister": {

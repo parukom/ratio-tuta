@@ -644,6 +644,10 @@
       "networkError": "Network error",
       "categoryCreated": "Category created",
       "failedToUploadImage": "Failed to upload image"
+    },
+    "units": {
+      "pcsShort": "pcs",
+      "minShort": "min"
     }
   },
   "CashRegister": {

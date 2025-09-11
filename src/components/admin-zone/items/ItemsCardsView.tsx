@@ -6,8 +6,9 @@ import ItemCard from './ItemCard'
 import Spinner from '@/components/ui/Spinner'
 import { ChevronDown, ChevronRight, Edit3, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { formatQuantity } from './format'
 
-type Props = {
+type ItemsCardsViewProps = {
     items: ItemRow[]
     groups: Group[]
     grouped: boolean
@@ -22,7 +23,7 @@ type Props = {
     onSelectItem?: (item: ItemRow) => void
 }
 
-export default function ItemsCardsView({ items, groups, grouped, loading, openGroups, setOpenGroups, onItemUpdated, onItemDeleted, onConflict, onAskDeleteBox, onAskEditBox, onSelectItem }: Props) {
+export default function ItemsCardsView({ items, groups, grouped, loading, openGroups, setOpenGroups, onItemUpdated, onItemDeleted, onConflict, onAskDeleteBox, onAskEditBox, onSelectItem }: ItemsCardsViewProps) {
     const t = useTranslations('Items')
     const [reveal, setReveal] = useState(false)
     // track per-box reveal so items inside a box fade in when the box is opened
@@ -142,7 +143,12 @@ export default function ItemsCardsView({ items, groups, grouped, loading, openGr
                                         {g.categoryName && (<span className="rounded-full bg-indigo-50 px-2 py-0.5 text-indigo-700 ring-1 ring-indigo-600/20 dark:bg-indigo-500/10 dark:text-indigo-300">{g.categoryName}</span>)}
                                         {g.brand && <span>• {g.brand}</span>}
                                         <span>• {g.items.length} {t('cards.variants')}</span>
-                                        <span>• {t('cards.totalStock')}: {g.totalStock}</span>
+                                        <span>• {t('cards.totalStock')}: {formatQuantity(
+                                            g.totalStock,
+                                            g.items[0]?.measurementType,
+                                            g.items[0]?.unit,
+                                            { pcs: t('units.pcsShort'), min: t('units.minShort') }
+                                        )}</span>
                                         {!openGroups[g.key] && (
                                             <span className="truncate">• {t('cards.sizes')}: {g.items.map((i) => i.size).filter(Boolean).slice(0, 4).join(", ")}{g.items.filter((i) => i.size).length > 4 ? "…" : ""}</span>
                                         )}

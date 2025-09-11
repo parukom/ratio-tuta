@@ -5,6 +5,7 @@ import Input from '@/components/ui/Input'
 import SearchInput from '@/components/ui/SearchInput'
 import { CheckCircle2, List, Package, ChevronDown, ChevronRight } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { formatQuantity } from '../items/format'
 
 
 type Item = {
@@ -38,6 +39,7 @@ type Props = {
 const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded }) => {
     const t = useTranslations('Home')
     const tc = useTranslations('Common')
+    const ti = useTranslations('Items')
     const VIEW_COOKIE = 'placeAddItemsViewMode'
     const readCookie = (name: string): string | null => {
         try {
@@ -363,7 +365,12 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                                                     <div className="truncate text-sm font-semibold text-gray-900 dark:text-white">
                                                         {g.label} {g.color ? <span className="ml-2 rounded bg-gray-100 px-1.5 py-0.5 text-xs font-normal text-gray-700 ring-1 ring-inset ring-gray-200 dark:bg-white/5 dark:text-gray-300 dark:ring-white/10">{g.color}</span> : null}
                                                     </div>
-                                                    <div className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{t('place.items.assignModal.totalInWarehouse')}: {g.totalStock}</div>
+                                                    <div className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{t('place.items.assignModal.totalInWarehouse')}: {formatQuantity(
+                                                        g.totalStock,
+                                                        g.items[0]?.measurementType,
+                                                        g.items[0]?.unit,
+                                                        { pcs: ti('units.pcsShort'), min: ti('units.minShort') }
+                                                    )}</div>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2">
@@ -390,7 +397,12 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                                                                 <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                                                                     <span>{it.sku || '—'}</span>
                                                                     <span className="inline-flex items-center rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700 ring-1 ring-inset ring-gray-200 dark:bg-white/5 dark:text-gray-300 dark:ring-white/10">
-                                                                        {t('place.items.assignModal.inWarehouseShort')}: {(() => { const q = Number(it.stockQuantity ?? 0); if (it.measurementType === 'WEIGHT') return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`; if (it.measurementType === 'LENGTH') return `${q} m`; if (it.measurementType === 'VOLUME') return `${q} l`; if (it.measurementType === 'AREA') return `${q} m2`; if (it.measurementType === 'TIME') return `${q} h`; return `${q} ${it.unit ?? 'pcs'}`; })()}
+                                                                        {t('place.items.assignModal.inWarehouseShort')}: {formatQuantity(
+                                                                            it.stockQuantity ?? 0,
+                                                                            it.measurementType,
+                                                                            it.unit,
+                                                                            { pcs: ti('units.pcsShort'), min: ti('units.minShort') }
+                                                                        )}
                                                                     </span>
                                                                 </div>
                                                             </div>

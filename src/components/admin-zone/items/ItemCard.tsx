@@ -1,6 +1,7 @@
 'use client'
 import React, { useRef, useState } from 'react'
 import { ItemRowActions } from './ItemRowActions'
+import { formatQuantity } from './format'
 import { useTranslations } from 'next-intl'
 
 type ItemRow = {
@@ -192,11 +193,26 @@ export function ItemCard({
                     )}
                     <div>
                         <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.unit')}</div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">{item.unit || 'pcs'}</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">{(() => {
+                            switch (item.measurementType) {
+                                case 'WEIGHT': return 'kg/g'
+                                case 'TIME': return 'min'
+                                case 'LENGTH': return 'm'
+                                case 'VOLUME': return 'l'
+                                case 'AREA': return 'm2'
+                                case 'PCS':
+                                default: return item.unit || 'pcs'
+                            }
+                        })()}</div>
                     </div>
                     <div className="text-right">
                         <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.stock')}</div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">{typeof item.stockQuantity === 'number' ? item.stockQuantity : 0}</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">{formatQuantity(
+                            item.stockQuantity ?? 0,
+                            item.measurementType,
+                            item.unit,
+                            { pcs: t('units.pcsShort'), min: t('units.minShort') }
+                        )}</div>
                     </div>
                 </div>
 

@@ -644,6 +644,10 @@
       "networkError": "Tinklo klaida",
       "categoryCreated": "Kategorija sukurta",
       "failedToUploadImage": "Nepavyko įkelti nuotraukos"
+    },
+    "units": {
+      "pcsShort": "vnt",
+      "minShort": "min"
     }
   },
   "CashRegister": {
