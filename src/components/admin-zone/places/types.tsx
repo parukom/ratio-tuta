@@ -15,3 +15,5 @@ export type Place = {
     isActive: boolean
     teamPeopleCount: number
 }
+
+export type Member = { id: string; userId: string; name: string; createdAt: string }
