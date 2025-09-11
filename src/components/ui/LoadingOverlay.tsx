@@ -29,6 +29,11 @@ const FlowerOfLifeCanvas: React.FC<{ rings?: number }> = ({ rings = 3 }) => {
     const radiusRef = useRef<number>(0)
     const layersRef = useRef<Array<Array<{ x: number; y: number; angle: number }>>>([])
     const ringsRef = useRef<number>(rings)
+    const animationDoneRef = useRef<boolean>(false)
+
+    // State for outer surrounding circle animation
+    const [outerRadius, setOuterRadius] = useState<number | null>(null)
+    const [outerAnimate, setOuterAnimate] = useState(false)
 
     // Keep rings in a ref so effects can read latest
     useEffect(() => {
@@ -81,7 +86,7 @@ const FlowerOfLifeCanvas: React.FC<{ rings?: number }> = ({ rings = 3 }) => {
 
         const base = Math.min(W, H) / 10
         const radius = Math.max(3, (base * 4) / (3 + ringsVal * 0.8))
-        radiusRef.current = radius
+    radiusRef.current = radius
 
         const d = radius
         const h = (Math.sqrt(3) / 2) * d
@@ -102,11 +107,20 @@ const FlowerOfLifeCanvas: React.FC<{ rings?: number }> = ({ rings = 3 }) => {
             }
         }
 
-        layersRef.current = buckets.map((arr) => {
+    layersRef.current = buckets.map((arr) => {
             const copy = (arr || []).slice()
             copy.sort((a, b) => a.angle - b.angle)
             return copy
         })
+
+    // Compute enclosing outer circle radius (distance to furthest center + small circle radius)
+    // For this axial hex layout, furthest center distance ~ ringsVal * radius (d) horizontally.
+    // Thus outerRadius = (ringsVal + 1) * radius.
+    const enclosing = (ringsVal + 1) * radius
+    setOuterRadius(enclosing)
+    // Reset animation flags when geometry changes
+    animationDoneRef.current = false
+    setOuterAnimate(false)
     }
 
     function drawBackground() {
@@ -191,7 +205,7 @@ const FlowerOfLifeCanvas: React.FC<{ rings?: number }> = ({ rings = 3 }) => {
             cancelAnimationFrame(rafRef.current)
             rafRef.current = null
         }
-        const duration = 2200
+        const duration = 1300
         const start = performance.now()
         const frame = (now: number) => {
             const progress = Math.min(1, (now - start) / duration)
@@ -200,14 +214,51 @@ const FlowerOfLifeCanvas: React.FC<{ rings?: number }> = ({ rings = 3 }) => {
                 rafRef.current = requestAnimationFrame(frame)
             } else {
                 rafRef.current = null
+                if (!animationDoneRef.current) {
+                    animationDoneRef.current = true
+                    // Trigger outer circle animation
+                    setOuterAnimate(true)
+                }
             }
         }
         rafRef.current = requestAnimationFrame(frame)
     }
 
     return (
-        <div className="flower-canvas-wrap">
+        <div className="flower-canvas-wrap relative">
             <canvas ref={canvasRef} className="flower-canvas" aria-hidden="true" />
+            {outerRadius && (
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden="true">
+                    <motion.svg
+                        width={outerRadius * 2}
+                        height={outerRadius * 2}
+                        viewBox={`${-outerRadius} ${-outerRadius} ${outerRadius * 2} ${outerRadius * 2}`}
+                        fill="none"
+                        className="overflow-visible"
+                    >
+                        {/** Animated enclosing circle using stroke-dasharray / stroke-dashoffset */}
+                        {(() => {
+                            const c = 2 * Math.PI * outerRadius
+                            return (
+                                <motion.circle
+                                    cx={0}
+                                    cy={0}
+                                    r={outerRadius}
+                                    stroke="rgba(255,255,255,0.85)"
+                                    strokeWidth={Math.max(1, outerRadius * 0.01)}
+                                    strokeLinecap="round"
+                                    vectorEffect="non-scaling-stroke"
+                                    // Rotate so stroke drawing starts at 9 o'clock instead of default 3 o'clock
+                                    transform="rotate(180)"
+                                    initial={{ strokeDasharray: c, strokeDashoffset: c }}
+                                    animate={outerAnimate ? { strokeDashoffset: 0 } : {}}
+                                    transition={{ duration: 0.75, ease: 'easeInOut' }}
+                                />
+                            )
+                        })()}
+                    </motion.svg>
+                </div>
+            )}
         </div>
     )
 }
@@ -218,7 +269,7 @@ const FlowerOfLifeCanvas: React.FC<{ rings?: number }> = ({ rings = 3 }) => {
  */
 const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
     isReady,
-    minDuration = 2200,
+    minDuration = 1500,
     onFinish,
     rings,
 }) => {
