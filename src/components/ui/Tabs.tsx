@@ -15,7 +15,7 @@ type TabsProps = {
 
 export default function Tabs({ items, activeKey, onChange, className }: TabsProps) {
   return (
-    <nav className={"flex overflow-x-auto border-b border-gray-200 dark:border-white/10 " + (className ?? '')}>
+    <nav className={"flex overflow-x-auto " + (className ?? '')}>
       <ul
         role="list"
         className="flex min-w-full flex-none gap-x-6 px-4 text-sm/6 font-semibold text-gray-700 dark:text-gray-300"

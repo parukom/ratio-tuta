@@ -213,7 +213,8 @@
         "overview": "Overview",
         "items": "Items",
         "members": "Members",
-        "settings": "Settings"
+        "settings": "Settings",
+        "openRegister": "Open register"
       },
       "stats": {
         "totalEarnings": "Total earnings",

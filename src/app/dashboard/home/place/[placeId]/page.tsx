@@ -11,29 +11,13 @@ import DeletePlaceButton from '@/components/admin-zone/places/DeletePlaceButton'
 import Input from '@/components/ui/Input'
 import Spinner from '@/components/ui/Spinner'
 import { useTranslations } from 'next-intl'
+import { PlacesItems } from '@/components/admin-zone/PlacesItems'
+import type { Place } from '@/components/admin-zone/places/types'
 
 type Member = { id: string; userId: string; name: string; createdAt: string }
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ')
-}
-
-type Place = {
-    id: string
-    teamId: string
-    name: string
-    description?: string | null
-    address1?: string | null
-    address2?: string | null
-    city?: string | null
-    country?: string | null
-    timezone?: string | null
-    currency?: string | null
-    totalEarnings: number
-    placeTypeId?: string | null
-    createdAt: string
-    isActive: boolean
-    teamPeopleCount: number
 }
 
 export default function PlaceDetailPage() {
@@ -382,10 +366,10 @@ export default function PlaceDetailPage() {
 
     return (
         <div>
-            <header>
+            <header className="border-b border-gray-200 dark:border-white/5">
                 {/* Heading */}
                 <div className="lg:-mt-3 flex flex-col items-start justify-between gap-x-8 gap-y-4 bg-gray-50 px-4 py-2 sm:flex-row sm:items-center dark:bg-gray-700/10">
-                    <div className='flex justify-between w-full p-[4.5px] md:p-y-0 md:mt-4'>
+                    <div className='flex justify-between w-full py-[5.5px] md:p-1  md:mt-[15px]'>
                         <span className="flex items-center gap-x-3">
                             <div className={`flex-none rounded-full p-1 ${place?.isActive ? 'bg-green-500/10 text-green-500 dark:bg-green-400/10 dark:text-green-400' : 'bg-gray-400/10 text-gray-500 dark:bg-gray-500/10 dark:text-gray-400'}`}>
                                 <div className="size-2 rounded-full bg-current" />
@@ -394,15 +378,16 @@ export default function PlaceDetailPage() {
                                 <span className="font-semibold text-gray-900 dark:text-white">{place?.name || t('place.title')}</span>
                                 <span className='hidden lg:inline-block'>
                                     <span className="text-gray-400 dark:text-gray-600">/ </span>
-                                    <button onClick={copyPlaceId} className="inline-flex items-center gap-1 rounded border border-gray-300 px-1.5 py-0.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-300 dark:hover:bg-white/5">
+                                    <button onClick={copyPlaceId} className="inline-flex items-center gap-1 rounded border border-gray-300 px-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-300 dark:hover:bg-white/5">
                                         #{placeId}{copied ? ` · ${tc('copied')}` : ''}
                                     </button>
                                 </span>
                             </h1>
                         </span>
                         <Link
+                            aria-label={t('place.openRegister')}
                             href={`/cash-register?placeId=${encodeURIComponent(String(placeId))}`}
-                            className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800 dark:text-white"
+                            className="inline-flex text-nowrap items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
                         >
                             {t('place.openRegister')}
                         </Link>
@@ -420,7 +405,7 @@ export default function PlaceDetailPage() {
                 </div>
 
                 {/* Tabs */}
-                <div className='my-4'>
+                <div className='py-4 '>
                     <Tabs
                         items={[
                             { key: 'overview', label: t('place.tabs.overview') },
@@ -457,19 +442,8 @@ export default function PlaceDetailPage() {
             </header>
 
             {/* Content */}
-            <main className="px-4 py-6 sm:px-6 lg:px-8">
-                <div className="mb-4 flex items-center justify-end gap-3">
+            <main className="p-4">
 
-                    {tab === 'items' && (
-                        <button
-                            type="button"
-                            onClick={() => setIsAddItemsOpen(true)}
-                            className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                        >
-                            {t('place.items.addItems')}
-                        </button>
-                    )}
-                </div>
                 {loading ? (
                     <div className="h-32 animate-pulse rounded bg-gray-100 dark:bg-white/5" />
                 ) : error ? (
@@ -576,77 +550,16 @@ export default function PlaceDetailPage() {
                         )}
 
                         {tab === 'items' && (
-                            <div className="rounded-lg border border-gray-200 dark:border-white/10">
-                                <div className="border-b border-gray-200 px-4 py-3 text-sm font-medium text-gray-900 dark:border-white/10 dark:text-white">{t('place.items.assigned')}</div>
-                                <div className="p-4">
-                                    {assignedLoading ? (
-                                        <div className="py-6">
-                                            <div className="flex items-center justify-center">
-                                                <Spinner size={24} className="text-gray-400 dark:text-white/40" />
-                                            </div>
-                                        </div>
-                                    ) : assignedError ? (
-                                        <div className="rounded border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-300">{assignedError}</div>
-                                    ) : assignedItems.length === 0 ? (
-                                        <div className="text-sm text-gray-500 dark:text-gray-400">{t('place.items.empty')}</div>
-                                    ) : (
-                                        <table className="w-full text-left">
-                                            <thead className="text-xs text-gray-500 dark:text-gray-400">
-                                                <tr>
-                                                    <th className="py-2">{tc('name')}</th>
-                                                    <th className="py-2">SKU</th>
-                                                    <th className="py-2 text-right">{t('place.items.price')}</th>
-                                                    <th className="py-2 text-right">{t('place.items.qty')}</th>
-                                                    <th className="py-2 text-right">{t('place.items.actions')}</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-gray-100 dark:divide-white/5">
-                                                {assignedItems.map((row) => (
-                                                    <tr key={row.id}>
-                                                        <td className="py-2 text-sm">
-                                                            <div className={`transition-opacity duration-1000 ${assignedReveal ? 'opacity-100' : 'opacity-0'}`}>
-                                                                <button
-                                                                    className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
-                                                                    onClick={() => openInfo(row.itemId, row.quantity)}
-                                                                >
-                                                                    {row.item?.name ?? `#${row.itemId}`}
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                        <td className="py-2 text-sm text-gray-500 dark:text-gray-400">
-                                                            <div className={`transition-opacity duration-1000 ${assignedReveal ? 'opacity-100' : 'opacity-0'}`}>{row.item?.sku ?? '—'}</div>
-                                                        </td>
-                                                        <td className="py-2 text-right text-sm text-gray-900 dark:text-white">
-                                                            <div className={`transition-opacity duration-1000 ${assignedReveal ? 'opacity-100' : 'opacity-0'}`}>
-                                                                {new Intl.NumberFormat('en-US', { style: 'currency', currency: place?.currency || 'EUR' }).format(row.item?.price ?? 0)}
-                                                            </div>
-                                                        </td>
-                                                        <td className="py-2 text-right text-sm text-gray-900 dark:text-white">
-                                                            <div className={`transition-opacity duration-1000 ${assignedReveal ? 'opacity-100' : 'opacity-0'}`}>
-                                                                {(() => {
-                                                                    const q = Number(row.quantity || 0)
-                                                                    const mt = row.item?.measurementType as undefined | 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'
-                                                                    if (mt === 'WEIGHT') return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`
-                                                                    if (mt === 'LENGTH') return `${q} m (${q * 100} cm)`
-                                                                    if (mt === 'VOLUME') return `${q} l`
-                                                                    if (mt === 'AREA') return `${q} m2`
-                                                                    if (mt === 'TIME') return `${q} h (${q * 60} min)`
-                                                                    return `${q} pcs`
-                                                                })()}
-                                                            </div>
-                                                        </td>
-                                                        <td className="py-2 text-right text-sm">
-                                                            <div className={`transition-opacity duration-1000 ${assignedReveal ? 'opacity-100' : 'opacity-0'}`}>
-                                                                <button onClick={() => removeFromShop(row.itemId)} className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">{tc('delete')}</button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    )}
-                                </div>
-                            </div>
+                            <PlacesItems
+                                setIsAddItemsOpen={setIsAddItemsOpen}
+                                assignedLoading={assignedLoading}
+                                assignedError={assignedError}
+                                assignedItems={assignedItems}
+                                assignedReveal={assignedReveal}
+                                place={place as Place}
+                                openInfo={openInfo}
+                                removeFromShop={removeFromShop}
+                            />
                         )}
                     </div>
                 )}
@@ -679,6 +592,7 @@ export default function PlaceDetailPage() {
                     </button>
                 </div>
             </Modal>
+            {/* Item info modal */}
             <Modal open={infoOpen} onClose={() => setInfoOpen(false)} size="md">
                 <h3 className="text-base font-semibold text-gray-900 dark:text-white">{t('place.items.infoTitle')}</h3>
                 {infoLoading ? (

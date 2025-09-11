@@ -213,7 +213,8 @@
         "overview": "Apžvalga",
         "items": "Prekės",
         "members": "Nariai",
-        "settings": "Nustatymai"
+        "settings": "Nustatymai",
+        "openRegister": "Atidaryti kasą"
       },
       "stats": {
         "totalEarnings": "Iš viso uždirbta",

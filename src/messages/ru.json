@@ -213,7 +213,8 @@
         "overview": "Обзор",
         "items": "Товары",
         "members": "Участники",
-        "settings": "Настройки"
+        "settings": "Настройки",
+        "openRegister": "Открыть кассу"
       },
       "stats": {
         "totalEarnings": "Всего заработано",
