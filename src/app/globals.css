@@ -54,6 +54,7 @@ input[type='number'] {
 :root {
   --safe-top: env(safe-area-inset-top);
   --safe-bottom: env(safe-area-inset-bottom);
+  --app-header-height: 0px; /* will be measured in layout */
 }
 
 /* Apply padding on sticky/fixed headers to avoid notch overlap */
@@ -72,6 +73,16 @@ input[type='number'] {
 }
 .mb-safe {
   margin-bottom: max(0px, var(--safe-bottom));
+}
+
+/* Account for sticky header when using anchor links / automatic focus */
+html:where(:root) {
+  scroll-padding-top: var(--app-header-height, 0px);
+}
+
+/* Utility (Tailwind can't see dynamic var easily) */
+.scroll-pt-\[var\(--app-header-height\)\] {
+  scroll-padding-top: var(--app-header-height, 0px);
 }
 
 /* ============================================ */

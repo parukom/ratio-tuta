@@ -1,6 +1,6 @@
 'use client'
 
-import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel, TransitionChild } from '@headlessui/react'
 import {
     Bars3Icon,
@@ -115,6 +115,20 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
 
     // Dashboard readiness: initial user + places fetched
     const isReady = !meLoading && !loadingPlaces
+
+    const headerRef = useRef<HTMLDivElement | null>(null)
+
+    // Measure sticky header height so we can offset scroll anchoring & focus auto-scroll
+    useEffect(() => {
+        function setVar() {
+            if (headerRef.current) {
+                document.documentElement.style.setProperty('--app-header-height', headerRef.current.offsetHeight + 'px')
+            }
+        }
+        setVar()
+        window.addEventListener('resize', setVar)
+        return () => window.removeEventListener('resize', setVar)
+    }, [])
 
     return (
         <>
@@ -355,7 +369,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                     </div>
                 </div>
 
-                <div className="sticky top-0 z-50 flex items-center gap-x-6 bg-white px-4 py-4 safe-top shadow-xs sm:px-6 lg:hidden dark:bg-gray-900  dark:shadow-none dark:before:pointer-events-none dark:before:absolute dark:before:inset-0 dark:before:border-b dark:before:border-white/10 dark:before:bg-black/10">
+                <div
+                    ref={headerRef}
+                    className="sticky top-0 z-50 flex items-center gap-x-6 bg-white px-4 py-4 safe-top shadow-xs sm:px-6 lg:hidden dark:bg-gray-900  dark:shadow-none dark:before:pointer-events-none dark:before:absolute dark:before:inset-0 dark:before:border-b dark:before:border-white/10 dark:before:bg-black/10"
+                >
                     <div className='mt-4 flex gap-x-6 items-center w-full'>
                         <button
                             type="button"
@@ -374,7 +391,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                                 <Image
                                     alt={me?.name ?? 'User avatar'}
                                     src={me.avatarUrl}
-                                    className="size-8 rounded-full bg-gray-50 outline -outline-offset-1 outline-black/5 dark:bg-gray-800 dark:outline-white/10"
+                                    className="w-8 h-8 rounded-full bg-gray-50 outline -outline-offset-1 outline-black/5 dark:bg-gray-800 dark:outline-white/10"
                                     width={32}
                                     height={32}
                                     unoptimized
@@ -392,7 +409,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                     </div>
                 </div>
 
-                <main className="lg:pl-72">
+                {/* scroll-pt variable ensures programmatic focus / anchor jumps account for sticky header */}
+                <main className="lg:pl-72 scroll-pt-[var(--app-header-height)]">
                     <div className="">
                         <div className="">
                             {children}
