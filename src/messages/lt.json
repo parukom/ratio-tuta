@@ -271,6 +271,30 @@
         "assignedHere": "Priskirta šiai vietai",
         "createdAt": "Sukurta",
         "updatedAt": "Atnaujinta",
+        "assignModal": {
+          "title": "Pridėti prekes į vietą",
+          "subtitle": "Pasirinkite prekes, kurias priskirti šiai vietai.",
+          "searchPlaceholder": "Ieškoti pagal pavadinimą, SKU ar kategoriją",
+          "inStockOnTitle": "Rodomos tik sandėlyje",
+          "inStockOffTitle": "Įtraukti ir pasibaigusias",
+          "view": { "boxes": "Dėžučių vaizdas", "items": "Prekių vaizdas" },
+          "loading": "Įkeliama…",
+          "noItems": "Prekių nerasta.",
+          "noBoxes": "Dėžučių nerasta.",
+          "inWarehouse": "Sandėlyje",
+          "inWarehouseShort": "Sand.",
+          "totalInWarehouse": "Iš viso sandėlyje",
+          "unnamed": "Be pavadinimo",
+          "add": "Pridėti",
+          "adding": "Pridedama…",
+          "addAll": "Visus",
+          "addAllTitle": "Pridėti visas vienetus iš sandėlio",
+          "addBoxAllTitle": "Pridėti dėžę (Visus)",
+          "nothingAdded": "Nieko nepridėta (jau priskirta arba kiekis lygus nuliui).",
+          "errors": {
+            "load": "Nepavyko įkelti prekių"
+          }
+        },
         "errors": {
           "load": "Nepavyko įkelti priskirtų prekių",
           "loadDetails": "Nepavyko įkelti prekės detalių"
@@ -469,6 +493,10 @@
       "more": "+{count} daugiau"
     },
     "modals": {
+      "create": {
+        "itemIntro": "Prekės yra komandinės. Vėliau galėsite jas priskirti vietoms su kiekiais.",
+        "boxIntro": "Sukurkite kelis dydžių variantus vienu kartu. Visos prekės dalijasi tuo pačiu baziniu pavadinimu, spalva ir kaina."
+      },
       "deleteBox": {
         "title": "Ištrinti dėžę",
         "body": "Tai pašalins visas šios dėžės prekes iš katalogo ir iš vietų. Esami kvitai liks nepakitę.",

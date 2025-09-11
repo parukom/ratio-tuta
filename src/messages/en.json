@@ -271,6 +271,30 @@
         "assignedHere": "Assigned to this place",
         "createdAt": "Created at",
         "updatedAt": "Updated at",
+        "assignModal": {
+          "title": "Add items to place",
+          "subtitle": "Select items to assign to this place.",
+          "searchPlaceholder": "Search by name, SKU, or category",
+          "inStockOnTitle": "Showing in-stock only",
+          "inStockOffTitle": "Include out-of-stock",
+          "view": { "boxes": "Boxes view", "items": "Raw items view" },
+          "loading": "Loading…",
+          "noItems": "No items found.",
+          "noBoxes": "No boxes found.",
+          "inWarehouse": "In warehouse",
+          "inWarehouseShort": "In wh",
+          "totalInWarehouse": "Total in warehouse",
+          "unnamed": "Unnamed item",
+          "add": "Add",
+          "adding": "Adding…",
+          "addAll": "All",
+          "addAllTitle": "Add all units from warehouse",
+          "addBoxAllTitle": "Add box (All)",
+          "nothingAdded": "Nothing was added (already assigned or zero quantities).",
+          "errors": {
+            "load": "Failed to load items"
+          }
+        },
         "errors": {
           "load": "Failed to load assigned items",
           "loadDetails": "Failed to load item details"
@@ -469,6 +493,10 @@
       "more": "+{count} more"
     },
     "modals": {
+      "create": {
+        "itemIntro": "Items are team-wide. You can assign them to places with quantities later.",
+        "boxIntro": "Create multiple size items in one go. All items share the same base name, color and price."
+      },
       "deleteBox": {
         "title": "Delete box",
         "body": "This will remove all items in this box from your catalog and from places. Existing receipts remain intact.",

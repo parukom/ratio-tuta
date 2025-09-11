@@ -66,12 +66,12 @@ export const PlacesItems = ({ placeId, currency = 'EUR', onCountChange }: Props)
             }
             const rows = await r.json()
             setAssignedItems(rows)
-            onCountChange?.(rows.length)
+            // notify parent in a separate effect (avoid setState during render)
         } catch (e: unknown) {
             const err = e as { message?: string }
             setAssignedError(err?.message || 'Failed to load assigned items')
             setAssignedItems([])
-            onCountChange?.(0)
+            // notify parent in a separate effect (avoid setState during render)
         } finally {
             setAssignedLoading(false)
         }
@@ -91,6 +91,11 @@ export const PlacesItems = ({ placeId, currency = 'EUR', onCountChange }: Props)
         }
     }, [assignedLoading, assignedItems.length])
 
+    // Notify parent about count changes after commit to avoid updating parent during render
+    useEffect(() => {
+        onCountChange?.(assignedItems.length)
+    }, [assignedItems.length, onCountChange])
+
     async function removeFromShop(itemId: string) {
         const res = await fetch(`/api/places/${placeId}/items`, {
             method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ itemId })
@@ -100,12 +105,13 @@ export const PlacesItems = ({ placeId, currency = 'EUR', onCountChange }: Props)
             alert(data?.error || tc('errors.failedToRemove'))
             return
         }
-        setAssignedItems(prev => {
-            const next = prev.filter(r => r.itemId !== itemId)
-            onCountChange?.(next.length)
-            return next
-        })
+        setAssignedItems(prev => prev.filter(r => r.itemId !== itemId))
     }
+
+    // Notify parent after count has changed and committed
+    useEffect(() => {
+        onCountChange?.(assignedItems.length)
+    }, [assignedItems.length, onCountChange])
 
     async function openInfo(itemId: string, placeQuantity: number) {
         setInfoOpen(true)
