@@ -384,8 +384,8 @@ export default function PlaceDetailPage() {
         <div>
             <header>
                 {/* Heading */}
-                <div className="lg:-mt-3 flex flex-col items-start justify-between gap-x-8 gap-y-4 bg-gray-50 px-4 py-2 sm:flex-row sm:items-center sm:px-6 lg:px-8 dark:bg-gray-700/10">
-                    <div className='flex justify-between w-full'>
+                <div className="lg:-mt-3 flex flex-col items-start justify-between gap-x-8 gap-y-4 bg-gray-50 px-4 py-2 sm:flex-row sm:items-center dark:bg-gray-700/10">
+                    <div className='flex justify-between w-full p-[4.5px] md:p-y-0 md:mt-4'>
                         <span className="flex items-center gap-x-3">
                             <div className={`flex-none rounded-full p-1 ${place?.isActive ? 'bg-green-500/10 text-green-500 dark:bg-green-400/10 dark:text-green-400' : 'bg-gray-400/10 text-gray-500 dark:bg-gray-500/10 dark:text-gray-400'}`}>
                                 <div className="size-2 rounded-full bg-current" />
@@ -410,7 +410,7 @@ export default function PlaceDetailPage() {
                 </div>
 
                 {/* breadcrumbs */}
-                <div className="px-4 pt-4 sm:px-6 lg:px-8">
+                <div className="px-4 py-4 border-y border-gray-200 dark:border-white/5">
                     <Breadcrumbs
                         items={[
                             { name: t('breadcrumbs.places'), href: '/dashboard/home?tab=places' },
@@ -420,16 +420,18 @@ export default function PlaceDetailPage() {
                 </div>
 
                 {/* Tabs */}
-                <Tabs
-                    items={[
-                        { key: 'overview', label: t('place.tabs.overview') },
-                        { key: 'items', label: `${t('place.tabs.items')}${assignedItems.length ? ` (${assignedItems.length})` : ''}` },
-                        { key: 'members', label: `${t('place.tabs.members')}${members.length ? ` (${members.length})` : ''}` },
-                        { key: 'settings', label: t('place.tabs.settings') },
-                    ]}
-                    activeKey={tab}
-                    onChange={(k) => setTab(k as typeof tab)}
-                />
+                <div className='my-4'>
+                    <Tabs
+                        items={[
+                            { key: 'overview', label: t('place.tabs.overview') },
+                            { key: 'items', label: `${t('place.tabs.items')}${assignedItems.length ? ` (${assignedItems.length})` : ''}` },
+                            { key: 'members', label: `${t('place.tabs.members')}${members.length ? ` (${members.length})` : ''}` },
+                            { key: 'settings', label: t('place.tabs.settings') },
+                        ]}
+                        activeKey={tab}
+                        onChange={(k) => setTab(k as typeof tab)}
+                    />
+                </div>
 
                 {/* Overview stats */}
                 {tab === 'overview' && (
