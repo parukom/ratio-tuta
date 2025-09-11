@@ -182,6 +182,16 @@
       "failedToRemove": "Не удалось удалить",
       "failedToLoad": "Не удалось загрузить",
       "failedToAdd": "Не удалось добавить"
+    },
+    "uploader": {
+      "unsupportedType": "Неподдерживаемый тип файла",
+      "fileTooLarge": "Файл слишком большой (макс. {max} МБ)",
+      "clickOrDrag": "Нажмите, чтобы загрузить, или перетащите файл",
+      "typesUpTo": "PNG, JPG, WEBP до {max} МБ",
+      "replace": "Заменить",
+      "remove": "Удалить",
+      "selectedImageAlt": "Предпросмотр выбранного изображения",
+      "imageFallbackName": "изображение"
     }
   },
   "Home": {

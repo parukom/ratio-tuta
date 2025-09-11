@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 
 type Props = {
   id?: string
@@ -38,6 +39,7 @@ const ImageUploader = ({
   replaceLabel,
   removeLabel,
 }: Props) => {
+  const t = useTranslations('Common')
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [dragOver, setDragOver] = useState(false)
   const [error, setError] = useState<string>('')
@@ -59,9 +61,9 @@ const ImageUploader = ({
     setError('')
     if (!file) { onChange(null); return }
     const isImage = file.type.startsWith('image/')
-    if (!isImage) { setError('Unsupported file type'); return }
+    if (!isImage) { setError(t('uploader.unsupportedType')); return }
     const maxBytes = maxSizeMB * 1024 * 1024
-    if (file.size > maxBytes) { setError(`File too large (max ${maxSizeMB}MB)`) ; return }
+    if (file.size > maxBytes) { setError(t('uploader.fileTooLarge', { max: maxSizeMB })); return }
     onChange(file)
   }
 
@@ -101,18 +103,18 @@ const ImageUploader = ({
         {previewUrl || initialUrl ? (
           <div className="relative w-full">
             <div className="relative h-44 w-full sm:h-56">
-              <Image src={previewUrl || initialUrl || ''} alt="Selected image preview" fill className="rounded-md object-cover" />
+              <Image src={previewUrl || initialUrl || ''} alt={t('uploader.selectedImageAlt')} fill className="rounded-md object-cover" />
             </div>
             <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-gradient-to-t from-black/60 to-transparent p-2">
               <div className="truncate text-xs text-white opacity-90">
-                {value?.name || 'image'}
+                {value?.name || t('uploader.imageFallbackName')}
               </div>
               <div className="flex gap-2">
                 <button type="button" onClick={(e) => { e.stopPropagation(); pickFile() }} className="rounded-md bg-white/90 px-2 py-1 text-xs font-semibold text-gray-900 shadow-xs hover:bg-white">
-                  {replaceLabel || 'Replace'}
+                  {replaceLabel || t('uploader.replace')}
                 </button>
                 <button type="button" onClick={(e) => { e.stopPropagation(); if (value) { onChange(null) } else { onRemoveInitial?.() } }} className="rounded-md bg-white/20 px-2 py-1 text-xs font-semibold text-white ring-1 ring-inset ring-white/50 hover:bg-white/30">
-                  {removeLabel || 'Remove'}
+                  {removeLabel || t('uploader.remove')}
                 </button>
               </div>
             </div>
@@ -120,11 +122,11 @@ const ImageUploader = ({
         ) : (
           <div className="flex w-full items-center justify-center gap-3 py-6">
             <div className="flex size-12 items-center justify-center rounded-full bg-indigo-50 text-indigo-600 ring-1 ring-inset ring-indigo-600/10 dark:bg-indigo-500/10 dark:text-indigo-300">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6"><path d="M4 5a2 2 0 012-2h2.172a2 2 0 011.414.586l1.828 1.828A2 2 0 0013.828 6H18a2 2 0 012 2v1h-2V8h-4.172a4 4 0 01-2.828-1.172L9.172 5H6v14h6v2H6a2 2 0 01-2-2V5z"/><path d="M16 20l.001-6H14l4-5 4 5h-2.001V20H16z"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6"><path d="M4 5a2 2 0 012-2h2.172a2 2 0 011.414.586l1.828 1.828A2 2 0 0013.828 6H18a2 2 0 012 2v1h-2V8h-4.172a4 4 0 01-2.828-1.172L9.172 5H6v14h6v2H6a2 2 0 01-2-2V5z" /><path d="M16 20l.001-6H14l4-5 4 5h-2.001V20H16z" /></svg>
             </div>
             <div className="text-center sm:text-left">
-              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Click to upload or drag and drop</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, WEBP up to {maxSizeMB}MB</div>
+              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{t('uploader.clickOrDrag')}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{t('uploader.typesUpTo', { max: maxSizeMB })}</div>
             </div>
           </div>
         )}

@@ -182,6 +182,16 @@
       "failedToRemove": "Nepavyko pašalinti",
       "failedToLoad": "Nepavyko įkelti",
       "failedToAdd": "Nepavyko pridėti"
+    },
+    "uploader": {
+      "unsupportedType": "Nepalaikomas failo tipas",
+      "fileTooLarge": "Failas per didelis (daugiausia {max} MB)",
+      "clickOrDrag": "Spustelėkite įkelti arba vilkite ir numeskite",
+      "typesUpTo": "PNG, JPG, WEBP iki {max} MB",
+      "replace": "Pakeisti",
+      "remove": "Pašalinti",
+      "selectedImageAlt": "Pasirinkto vaizdo peržiūra",
+      "imageFallbackName": "vaizdas"
     }
   },
   "Home": {

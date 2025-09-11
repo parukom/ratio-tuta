@@ -182,6 +182,16 @@
       "failedToRemove": "Failed to remove",
       "failedToLoad": "Failed to load",
       "failedToAdd": "Failed to add"
+    },
+    "uploader": {
+      "unsupportedType": "Unsupported file type",
+      "fileTooLarge": "File too large (max {max}MB)",
+      "clickOrDrag": "Click to upload or drag and drop",
+      "typesUpTo": "PNG, JPG, WEBP up to {max}MB",
+      "replace": "Replace",
+      "remove": "Remove",
+      "selectedImageAlt": "Selected image preview",
+      "imageFallbackName": "image"
     }
   },
   "Home": {
