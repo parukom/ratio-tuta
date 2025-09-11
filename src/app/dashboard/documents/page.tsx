@@ -8,6 +8,7 @@ import BottomPaginationBar from "@/components/ui/BottomPaginationBar";
 import { useRouter, useSearchParams } from "next/navigation";
 import Modal from "@/components/modals/Modal";
 import { useTranslations } from "next-intl";
+import ReceiptsListTable, { ReceiptListItem } from '@/components/admin-zone/documents/ReceiptsListTable';
 import AdminHeader from "@/components/layout/AdminHeader";
 
 type ReceiptItem = {
@@ -107,73 +108,20 @@ const ReceiptsTab: React.FC = () => {
                         {error}
                     </div>
                 )}
-                <div className="mt-4 overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-white/10 dark:bg-gray-800/30">
-                    <table className="min-w-full divide-y divide-gray-200 text-sm dark:divide-white/10">
-                        <thead className="bg-gray-50 text-gray-900 dark:bg-white/5 dark:text-white">
-                            <tr>
-                                <th className="px-4 py-3 text-left font-semibold">{t('table.headers.date')}</th>
-                                <th className="px-4 py-3 text-left font-semibold">{t('table.headers.payment')}</th>
-                                <th className="px-4 py-3 text-left font-semibold">{t('table.headers.total')}</th>
-                                <th className="px-4 py-3 text-left font-semibold">{t('table.headers.items')}</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200 dark:divide-white/10">
-                            {loading ? (
-                                <tr>
-                                    <td className="px-4 py-8" colSpan={4}>
-                                        <div className="flex items-center justify-center">
-                                            <Spinner size={24} className="text-gray-400 dark:text-white/40" />
-                                        </div>
-                                    </td>
-                                </tr>
-                            ) : data.length === 0 ? (
-                                <tr>
-                                    <td className="px-4 py-6 text-center text-gray-500" colSpan={4}>{t('list.empty')}</td>
-                                </tr>
-                            ) : (
-                                data.map((r) => (
-                                    <tr
-                                        key={r.id}
-                                        className="hover:bg-gray-50/60 dark:hover:bg-white/5 cursor-pointer"
-                                        onClick={() => setSelected(r)}
-                                        role="button"
-                                        tabIndex={0}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter' || e.key === ' ') {
-                                                e.preventDefault();
-                                                setSelected(r);
-                                            }
-                                        }}
-                                        aria-label={t('list.openReceipt', { id: r.id })}
-                                    >
-                                        <td className="px-4 py-3 text-gray-900 dark:text-white">
-                                            <div className={fadeCls}>
-                                                <time dateTime={(r.createdAt ?? r.timestamp ?? '') as string}>
-                                                    {new Date(r.createdAt ?? r.timestamp ?? '').toLocaleString()}
-                                                </time>
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
-                                            <div className={fadeCls}>{paymentLabels[r.paymentOption]}</div>
-                                        </td>
-                                        <td className="px-4 py-3 text-gray-900 dark:text-white">
-                                            <div className={fadeCls}>EUR {r.totalPrice.toFixed(2)}</div>
-                                        </td>
-                                        <td className="px-4 py-3 max-w-[480px] truncate text-gray-600 dark:text-gray-400">
-                                            <div className={fadeCls}>
-                                                {r.items.map((it) => `${it.title}×${it.quantity}`).join(', ')}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                <div className="mt-4 overflow-hidden">
+                    <ReceiptsListTable
+                        data={data as unknown as ReceiptListItem[]}
+                        loading={loading}
+                        t={t}
+                        fadeCls={fadeCls}
+                        setSelected={(r) => setSelected(r as Receipt)}
+                        paymentLabels={paymentLabels}
+                    />
                 </div>
 
                 {/* Pagination spacer */}
             </div>
-                <div aria-hidden className="h-16" />
+            <div aria-hidden className="h-16" />
 
             {/* Fixed bottom pagination bar */}
             <BottomPaginationBar
@@ -294,7 +242,7 @@ const DocumentsInner: React.FC = () => {
     return (
         <main>
             {/* Sticky search header — align with Home */}
-            <div className="sticky top-0 z-40 flex w-full h-16 items-center justify-between border-b border-gray-200 bg-gradient-to-t from-white to-gray-50 px-4 safe-top shadow-xs dark:border-white/5 dark:bg-gradient-to-t dark:from-gray-900 dark:to-gray-900 dark:shadow-none">
+            <div className="sticky top-0 z-40 flex w-full h-16 items-center justify-between border-b border-gray-200 bg-gradient-to-t from-white to-gray-50 px-4 safe-top shadow-xs dark:border-white/10 dark:bg-gradient-to-t dark:from-gray-900 dark:to-gray-900 dark:shadow-none">
                 <AdminHeader
                     left={
                         <SearchInput
@@ -317,7 +265,7 @@ const DocumentsInner: React.FC = () => {
             </div>
 
             {/* Breadcrumbs — same container spacing as Home */}
-            <header className="p-4 border-b border-gray-200 dark:border-white/5">
+            <header className="p-4">
                 <Breadcrumbs
                     items={[
                         { name: tab === 'receipts' ? t('tabs.receipts') : t('tabs.blank') },
@@ -326,14 +274,16 @@ const DocumentsInner: React.FC = () => {
             </header>
 
             {/* Tabs below breadcrumbs */}
-            <Tabs
-                items={[
-                    { key: 'receipts', label: t('tabs.receipts') },
-                    { key: 'blank', label: t('tabs.blank') },
-                ]}
-                activeKey={tab}
-                onChange={(k) => setTab(k as 'receipts' | 'blank')}
-            />
+            <div className="py-4 border-y border-gray-200 dark:border-white/10">
+                <Tabs
+                    items={[
+                        { key: 'receipts', label: t('tabs.receipts') },
+                        { key: 'blank', label: t('tabs.blank') },
+                    ]}
+                    activeKey={tab}
+                    onChange={(k) => setTab(k as 'receipts' | 'blank')}
+                />
+            </div>
 
             {/* Content */}
             {tab === 'receipts' && <ReceiptsTab />}

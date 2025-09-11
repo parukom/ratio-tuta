@@ -67,7 +67,7 @@ export default function PlaceCard({
   return (
     <Link
       href={href}
-      className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 hover:shadow-lg dark:border-white/5 dark:bg-white/5 ">
+      className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 hover:shadow-lg dark:border-white/10 dark:bg-white/5 ">
       <div className={fadeCls}>
         {/* Header */}
         <div className="flex items-start justify-between gap-4">

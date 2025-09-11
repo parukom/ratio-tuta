@@ -25,7 +25,7 @@ export const CashRegisterHeader: React.FC<Props> = ({
     const t = useTranslations('CashRegister');
     const [open, setOpen] = React.useState(false);
     return (
-        <header className="sticky top-0 z-50 safe-top border-b border-gray-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 px-4 py-2.5 sm:px-6 lg:px-8 dark:border-white/5 dark:bg-gray-900/80">
+        <header className="sticky top-0 z-50 safe-top border-b border-gray-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 px-4 py-2.5 sm:px-6 lg:px-8 dark:border-white/10 dark:bg-gray-900/80">
             <div className="flex items-center gap-2 sm:gap-3">
                 {/* Search */}
                 <div className="min-w-0 flex-1">

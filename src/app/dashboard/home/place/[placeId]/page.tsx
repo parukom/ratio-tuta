@@ -160,7 +160,27 @@ export default function PlaceDetailPage() {
                     />
                 </div>
 
-
+                {/* Overview stats */}
+                {tab === 'overview' && (
+                    <div className="grid grid-cols-1 bg-gray-50 sm:grid-cols-2 lg:grid-cols-4 dark:bg-gray-700/10">
+                        {stats.map((stat, statIdx) => (
+                            <div
+                                key={stat.name}
+                                className={classNames(
+                                    statIdx % 2 === 1 ? 'sm:border-l' : statIdx === 2 ? 'lg:border-l' : '',
+                                    'border-t border-gray-200/50 px-4 py-6 sm:px-6 lg:px-8 dark:border-white/5',
+                                )}
+                            >
+                                <p className="text-sm/6 font-medium text-gray-500 dark:text-gray-400">{stat.name}</p>
+                                <p className="mt-2 flex items-baseline gap-x-2">
+                                    <span className="text-4xl font-semibold tracking-tight text-gray-900 dark:text-white">
+                                        {stat.value}
+                                    </span>
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </header>
 
             {/* Content */}
@@ -175,27 +195,7 @@ export default function PlaceDetailPage() {
                 ) : (
                     <div className="space-y-6">
 
-                        {/* Overview stats */}
-                        {tab === 'overview' && (
-                            <div className="grid grid-cols-1 bg-gray-50 sm:grid-cols-2 lg:grid-cols-4 dark:bg-gray-700/10">
-                                {stats.map((stat, statIdx) => (
-                                    <div
-                                        key={stat.name}
-                                        className={classNames(
-                                            statIdx % 2 === 1 ? 'sm:border-l' : statIdx === 2 ? 'lg:border-l' : '',
-                                            'border-t border-gray-200/50 px-4 py-6 sm:px-6 lg:px-8 dark:border-white/5',
-                                        )}
-                                    >
-                                        <p className="text-sm/6 font-medium text-gray-500 dark:text-gray-400">{stat.name}</p>
-                                        <p className="mt-2 flex items-baseline gap-x-2">
-                                            <span className="text-4xl font-semibold tracking-tight text-gray-900 dark:text-white">
-                                                {stat.value}
-                                            </span>
-                                        </p>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+
 
                         {tab === 'settings' && (
                             <PlaceSettings place={place as Place} router={router} onSaved={(p) => setPlace(p)} />

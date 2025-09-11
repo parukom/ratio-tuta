@@ -19,7 +19,8 @@ const SettingsPage = () => {
     const t = useTranslations('Settings')
     return (
         <>
-            <Tabs
+           <div className='py-4 border-b border-gray-200 dark:border-white/10 mb-4'>
+             <Tabs
                 items={[
                     { key: 'user', label: t('tabs.user') },
                     { key: 'blank', label: t('tabs.blank') },
@@ -27,6 +28,7 @@ const SettingsPage = () => {
                 activeKey={tab}
                 onChange={(k) => setTab(k as 'user' | 'blank')}
             />
+           </div>
 
             {tab === 'user' && session && (
                 <div>
