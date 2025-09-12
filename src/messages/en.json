@@ -5,7 +5,13 @@
     "verify": {
       "success": "Email verified. You can now log in.",
       "invalid": "Verification link is invalid or expired.",
-      "error": "Something went wrong verifying your email. Please try again."
+      "error": "Something went wrong verifying your email. Please try again.",
+      "resend": {
+        "cta": "Resend verification email",
+        "sending": "Sending…",
+        "sent": "If that account exists, a verification email has been sent.",
+        "error": "Failed to send verification email"
+      }
     },
     "fields": {
       "name": "Name",

@@ -114,3 +114,103 @@ html:where(:root) {
   display: block;
   border-radius: 12px;
 }
+
+/* ============================================ */
+/* Auth page decorative background blobs        */
+/* ============================================ */
+.auth-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.auth-bg .blob {
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  filter: blur(80px);
+  opacity: 0.7;
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+}
+.auth-bg .bg-blob-a {
+  left: -10%;
+  top: -15%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(99, 102, 241, 0.9),
+    rgba(99, 102, 241, 0.5) 40%,
+    transparent 60%
+  );
+  animation: floatA 9s ease-in-out infinite;
+}
+.auth-bg .bg-blob-b {
+  right: -8%;
+  top: -10%;
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(
+    circle at 70% 40%,
+    rgba(16, 185, 129, 0.85),
+    rgba(16, 185, 129, 0.45) 40%,
+    transparent 65%
+  );
+  animation: floatB 12s ease-in-out infinite;
+}
+.auth-bg .bg-blob-c {
+  right: 10%;
+  bottom: -20%;
+  background: radial-gradient(
+    circle at 20% 60%,
+    rgba(236, 72, 153, 0.85),
+    rgba(236, 72, 153, 0.4) 35%,
+    transparent 65%
+  );
+  width: 300px;
+  height: 300px;
+  animation: floatC 11s ease-in-out infinite;
+}
+
+@keyframes floatA {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+  }
+  50% {
+    transform: translateY(18px) translateX(8px) scale(1.03);
+  }
+  100% {
+    transform: translateY(0) translateX(0) scale(1);
+  }
+}
+@keyframes floatB {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+  }
+  50% {
+    transform: translateY(-20px) translateX(-12px) scale(1.05);
+  }
+  100% {
+    transform: translateY(0) translateX(0) scale(1);
+  }
+}
+@keyframes floatC {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+  }
+  50% {
+    transform: translateY(14px) translateX(-6px) scale(1.02);
+  }
+  100% {
+    transform: translateY(0) translateX(0) scale(1);
+  }
+}
+
+/* Subtle glass/card backdrop for the form */
+.auth-card-glass {
+  backdrop-filter: blur(6px) saturate(120%);
+}
+
+/* Slightly larger, rounded input styles used on auth page */
+.auth-input {
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+}

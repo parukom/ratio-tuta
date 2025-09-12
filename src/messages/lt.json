@@ -5,7 +5,13 @@
     "verify": {
       "success": "El. paštas patvirtintas. Dabar galite prisijungti.",
       "invalid": "Patvirtinimo nuoroda neteisinga arba nebegalioja.",
-      "error": "Klaida tikrinant el. paštą. Bandykite dar kartą."
+      "error": "Klaida tikrinant el. paštą. Bandykite dar kartą.",
+      "resend": {
+        "cta": "Siųsti patvirtinimo laišką dar kartą",
+        "sending": "Siunčiama…",
+        "sent": "Jei tokia paskyra egzistuoja, patvirtinimo laiškas išsiųstas.",
+        "error": "Nepavyko išsiųsti patvirtinimo laiško"
+      }
     },
     "fields": {
       "name": "Vardas",
