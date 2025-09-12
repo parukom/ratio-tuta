@@ -405,21 +405,21 @@
           "desc": "Private by default, access you control"
         }
       }
-    }
-  },
-  "Home.hero": {
-    "badge": "Private by default · Role-based access · Audit trail",
-    "title": "A secure online notebook that does the math for you",
-    "subtitle": "Write, structure, and calculate in one place. Keep sensitive data protected, collaborate safely, and let formulas handle the numbers.",
-    "cta": {
-      "start": "Start your notebook",
-      "learn": "Learn more"
     },
-    "nav": {
-      "features": "Features",
-      "howItWorks": "How it works",
-      "pricing": "Pricing",
-      "contact": "Contact"
+    "hero": {
+      "badge": "Private by default · Role-based access · Audit trail",
+      "title": "A secure online notebook that does the math for you",
+      "subtitle": "Write, structure, and calculate in one place. Keep sensitive data protected, collaborate safely, and let formulas handle the numbers.",
+      "cta": {
+        "start": "Start your notebook",
+        "learn": "Learn more"
+      },
+      "nav": {
+        "features": "Features",
+        "howItWorks": "How it works",
+        "pricing": "Pricing",
+        "contact": "Contact"
+      }
     }
   },
   "Team": {
