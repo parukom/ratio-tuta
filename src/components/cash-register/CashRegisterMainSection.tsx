@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { VariantChild, VariantGroup } from './SelectVariantModal';
 import LoadingItemTiles from '@/components/ui/LoadingItemTiles';
+import Spinner from '@/components/ui/Spinner';
 import { GroupedPlaceItem } from '@/types/cash-register';
 
 type RegisterMainProps = {
@@ -13,6 +14,7 @@ type RegisterMainProps = {
     setActiveGroup: (value: React.SetStateAction<VariantGroup | null>) => void
     setOpenVariant: (value: React.SetStateAction<boolean>) => void
     loading?: boolean
+    reloading?: boolean
 }
 
 export const CashRegisterMainSection: React.FC<RegisterMainProps> = ({
@@ -22,10 +24,11 @@ export const CashRegisterMainSection: React.FC<RegisterMainProps> = ({
     setActiveGroup,
     setOpenVariant,
     loading = false,
+    reloading = false,
 }) => {
     const t = useTranslations('CashRegister');
     return (
-        <main className="flex-grow overflow-y-auto px-4 py-4 sm:px-6 lg:px-8">
+        <main className="flex-grow overflow-y-auto p-4">
             {error && (
                 <div className="mb-4 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-700/40 dark:bg-red-950/40">
                     {error}
@@ -35,6 +38,11 @@ export const CashRegisterMainSection: React.FC<RegisterMainProps> = ({
                 <LoadingItemTiles count={9} />
             ) : (
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-3 lg:grid-cols-6 xl:grid-cols-7">
+                    {reloading && (
+                        <div className="absolute right-6 top-6 z-20">
+                            <Spinner size={20} className="text-gray-600 dark:text-white" />
+                        </div>
+                    )}
                     {visiblePlaceItems.map((pi) => (
                         <div
                             key={pi.key}

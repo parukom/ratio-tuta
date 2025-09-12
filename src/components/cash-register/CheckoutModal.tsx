@@ -56,6 +56,7 @@ const CheckoutModal: React.FC<Props> = ({
                         </div>
                         <div className="flex items-center gap-2">
                             <button
+                                type="button"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setCart(prevCart => {
@@ -76,6 +77,7 @@ const CheckoutModal: React.FC<Props> = ({
                             </button>
                             <span className="text-2xl text-gray-900 dark:text-white">€{(item.subtotal ?? (item.price * item.quantity)).toFixed(2)}</span>
                             <button
+                                type="button"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setCart(prevCart => {
@@ -147,6 +149,7 @@ const CheckoutModal: React.FC<Props> = ({
                     {[1, 2, 5, 10, 20, 50, 100].map((value) => {
                         return (
                             <button
+                                type="button"
                                 key={value}
                                 onClick={() => {
                                     if (paymentOption === 'CASH') {
@@ -174,6 +177,7 @@ const CheckoutModal: React.FC<Props> = ({
 
                     {/* grynais */}
                     <button
+                        type="button"
                         onClick={completeSale}
                         disabled={(paymentOption === 'CASH' && !showChange) || loading}
                         className="w-full cursor-pointer rounded-lg px-5 py-6 text-sm font-medium text-white shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-gray-800 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600"
@@ -183,6 +187,7 @@ const CheckoutModal: React.FC<Props> = ({
 
                     {/* kortele */}
                     <button
+                        type="button"
                         onClick={() => {
                             setPaymentOption('CARD');
                             if (paymentOption === "CARD") {
@@ -200,6 +205,7 @@ const CheckoutModal: React.FC<Props> = ({
 
                     {/* atsaukti */}
                     <button
+                        type="button"
                         onClick={() => {
                             setIsModalOpen(false);
                             setPaymentOption('CASH');

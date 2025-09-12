@@ -18,7 +18,7 @@ export default function CashRegisterClient() {
     const searchParams = useSearchParams();
     const queryPlaceId = searchParams.get('placeId');
     const { activePlaceId, currency, error: placesError } = usePlaces(queryPlaceId);
-    const { placeItems, reload: reloadItems, error: itemsError, loading: loadingItems } = usePlaceItems(activePlaceId);
+    const { placeItems, reload: reloadItems, reloadQuiet, error: itemsError, loading: loadingItems } = usePlaceItems(activePlaceId);
     const { cart, addVariantToCart, clearCart, totals, cartArray, setCartFromModal } = useCart();
     const [checkingOut, setCheckingOut] = useState(false);
     const [openChoosePayment, setOpenChoosePayment] = useState(false);
@@ -31,6 +31,7 @@ export default function CashRegisterClient() {
     const [error, setError] = useState<string | null>(null);
     const [openVariant, setOpenVariant] = useState(false);
     const [activeGroup, setActiveGroup] = useState<VariantGroup | null>(null);
+    const [reloading, setReloading] = useState(false);
     const checkoutBtnRef = useRef<HTMLButtonElement | null>(null);
     const { search, setSearch, visiblePlaceItems, inStockOnly, setInStockOnly, sortKey, setSortKey } = useGroupedSearch(placeItems);
 
@@ -79,7 +80,17 @@ export default function CashRegisterClient() {
             setChange(0);
             setShowChange(false);
             setPaymentOption('CASH');
-            await reloadItems();
+            // perform a quiet reload so we don't show the full skeleton UI
+            if (typeof reloadQuiet === 'function') {
+                try {
+                    setReloading(true);
+                    await reloadQuiet();
+                } finally {
+                    setReloading(false);
+                }
+            } else {
+                await reloadItems();
+            }
         } catch (e: unknown) {
             const msg = e instanceof Error ? e.message : 'Checkout failed';
             setError(msg);
@@ -108,6 +119,7 @@ export default function CashRegisterClient() {
                 setActiveGroup={setActiveGroup}
                 setOpenVariant={setOpenVariant}
                 loading={loadingItems}
+                reloading={reloading}
             />
             {/* Footer */}
             <CashRegisterFooter

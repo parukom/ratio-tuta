@@ -12,10 +12,11 @@ type ChoosePaymentProps = {
 export const ChoosePaymentModal: React.FC<ChoosePaymentProps> = ({ setPaymentOption, setOpenChoosePayment, setOpenCashModal, setOpenCardModal }) => {
     const t = useTranslations('CashRegister')
     return (
-        <div>
+        <div className='min-w-[330px]'>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('choosePayment')}</h3>
             <div className='mt-4 flex justify-between gap-4'>
                 <button
+                    type="button"
                     className="flex flex-col items-center justify-center h-48 w-full rounded-lg p-6 transition-colors border shadow-sm bg-white hover:bg-gray-50 border-gray-200 dark:bg-white/5 dark:hover:bg-white/10 dark:border-white/10"
                     onClick={() => {
                         setPaymentOption('CASH');
@@ -33,6 +34,7 @@ export const ChoosePaymentModal: React.FC<ChoosePaymentProps> = ({ setPaymentOpt
                 </button>
 
                 <button
+                    type="button"
                     className="flex flex-col items-center justify-center h-48 w-full rounded-lg p-6 transition-colors border shadow-sm bg-white hover:bg-gray-50 border-gray-200 dark:bg-white/5 dark:hover:bg-white/10 dark:border-white/10"
                     onClick={() => {
                         setPaymentOption('CARD');

@@ -31,7 +31,7 @@ const CheckoutModalCard: React.FC<Props> = ({
     const tc = useTranslations('Common');
 
     return (
-        <>
+        <main className="min-w-[330px]">
             <header className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('cart')}</h2>
 
@@ -56,43 +56,6 @@ const CheckoutModalCard: React.FC<Props> = ({
                                 })()}
                             </span>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setCart(prevCart => {
-                                        const newCart = prevCart.map(cartItem =>
-                                            cartItem.id === item.id
-                                                ? { ...cartItem, quantity: Math.max(0, cartItem.quantity - 1) }
-                                                : cartItem
-                                        ).filter(cartItem => cartItem.quantity > 0);
-                                        return newCart;
-                                    });
-                                }}
-                                className="px-5 py-3 text-xl flex items-center justify-center rounded-2xl bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20"
-                            >
-                                -
-                            </button>
-                            <span className="text-2xl text-gray-900 dark:text-white">€{(item.subtotal ?? (item.price * item.quantity)).toFixed(2)}</span>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setCart(prevCart => {
-                                        const newCart = prevCart.map(cartItem =>
-                                            cartItem.id === item.id
-                                                ? { ...cartItem, quantity: cartItem.quantity + 1 }
-                                                : cartItem
-                                        );
-                                        // const cartRef = ref(db, `carts/${id}`);
-                                        // set(cartRef, newCart);
-                                        return newCart;
-                                    });
-                                }}
-                                className="px-5 py-3 text-xl flex items-center justify-center rounded-2xl bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20"
-                            >
-                                +
-                            </button>
-                        </div>
                     </div>
                 ))}
             </div>
@@ -108,6 +71,7 @@ const CheckoutModalCard: React.FC<Props> = ({
 
                     {/* kortele */}
                     <button
+                        type="button"
                         onClick={() => {
                             completeSale();
                         }}
@@ -121,6 +85,7 @@ const CheckoutModalCard: React.FC<Props> = ({
 
                     {/* atsaukti */}
                     <button
+                        type="button"
                         onClick={() => {
                             setIsModalOpen(false);
                             setCart([]);
@@ -134,7 +99,7 @@ const CheckoutModalCard: React.FC<Props> = ({
                     </button>
                 </div>
             </footer>
-        </>
+        </main>
     )
 }
 

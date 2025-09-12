@@ -128,7 +128,27 @@ export function usePlaceItems(activePlaceId: string | null) {
     }
   };
 
-  return { placeItems, setPlaceItems, error, loading, reload } as const;
+  // Quiet reload: fetch items but don't flip the public `loading` flag.
+  // Useful for small background refreshes (post-checkout) where we want to
+  // avoid showing the large skeleton UI.
+  const reloadQuiet = async () => {
+    if (!activePlaceId) return;
+    try {
+      const res = await fetch(`/api/places/${activePlaceId}/items`);
+      if (res.ok) setPlaceItems(await res.json());
+    } catch {
+      // ignore
+    }
+  };
+
+  return {
+    placeItems,
+    setPlaceItems,
+    error,
+    loading,
+    reload,
+    reloadQuiet,
+  } as const;
 }
 
 // Cart state and helpers

@@ -140,6 +140,7 @@ export default function SelectVariantModal({ open, onClose, group, onConfirm, cu
                             ) : displayVariants.map(v => (
                                 <button
                                     key={v.itemId}
+                                    type="button"
                                     onClick={() => setSelectedId(v.itemId)}
                                     className={`rounded-md border px-3 py-2 text-sm text-left ${selected?.itemId === v.itemId ? 'border-indigo-500 ring-1 ring-indigo-500 dark:border-indigo-400' : 'border-gray-300 dark:border-white/10'} bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700`}
                                     data-variant-selected={selected?.itemId === v.itemId ? 'true' : 'false'}

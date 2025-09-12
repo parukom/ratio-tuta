@@ -37,6 +37,7 @@ export const CashRegisterFooter: React.FC<FooterProps> = ({
                     {/* Actions */}
                     <div className="flex w-full items-center justify-end gap-2 sm:w-auto">
                         <button
+                            type="button"
                             onClick={clearCart}
                             disabled={cart.size === 0 || checkingOut}
                             className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-transparent px-3 py-2 text-base font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5 sm:flex-none sm:px-4"
@@ -45,6 +46,7 @@ export const CashRegisterFooter: React.FC<FooterProps> = ({
                             <span>{t('clear')}</span>
                         </button>
                         <button
+                            type="button"
                             ref={checkoutBtnRef}
                             onClick={() => {
                                 setOpenChoosePayment(true);
