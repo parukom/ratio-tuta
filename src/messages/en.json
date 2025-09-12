@@ -89,6 +89,7 @@
       "uploading": "Uploading…",
       "removing": "Removing…",
       "uploadNote": "JPG, PNG, GIF, WEBP. 5MB max. Images are optimized and resized.",
+      "nameHint": "Your name can be anything — for example: \"Golden Time\", \"Blue Eyes\", \"Blue Sky\".",
       "firstName": "First name",
       "lastName": "Last name",
       "email": "Email address",
@@ -731,6 +732,8 @@
   },
   "CashRegister": {
     "headerTitle": "Cash Register",
+    "settings": "Settings",
+    "language": "Language",
     "stock": "Stock",
     "sort": "Sort",
     "filters": "Filters",

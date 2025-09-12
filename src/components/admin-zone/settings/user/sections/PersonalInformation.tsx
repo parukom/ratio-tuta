@@ -183,6 +183,10 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName }) =>
                         </div>
                     </div>
 
+                    <div className="col-span-full">
+                        <p className=" text-sm text-gray-500 dark:text-gray-400">{t('nameHint')}</p>
+                    </div>
+
 
 
 

@@ -1,9 +1,8 @@
 "use client"
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { VariantChild, VariantGroup } from './SelectVariantModal';
-import LoadingItemTiles from '@/components/ui/LoadingItemTiles';
 import Spinner from '@/components/ui/Spinner';
 import { GroupedPlaceItem } from '@/types/cash-register';
 
@@ -27,6 +26,26 @@ export const CashRegisterMainSection: React.FC<RegisterMainProps> = ({
     reloading = false,
 }) => {
     const t = useTranslations('CashRegister');
+    // control mounting and staggered appearance of cards
+    const [contentMounted, setContentMounted] = useState(!loading);
+    const [cardsVisible, setCardsVisible] = useState(!loading);
+
+    useEffect(() => {
+        let id: ReturnType<typeof setTimeout> | undefined;
+        if (loading) {
+            // hide content while loading
+            setCardsVisible(false);
+            // unmount after a short delay to avoid layout jank
+            id = setTimeout(() => setContentMounted(false), 120);
+        } else {
+            // mount container immediately, then reveal cards with a small stagger delay
+            setContentMounted(true);
+            id = setTimeout(() => setCardsVisible(true), 40);
+        }
+        return () => {
+            if (id) clearTimeout(id);
+        };
+    }, [loading]);
     return (
         <main className="flex-grow overflow-y-auto p-4">
             {error && (
@@ -34,8 +53,11 @@ export const CashRegisterMainSection: React.FC<RegisterMainProps> = ({
                     {error}
                 </div>
             )}
-            {loading ? (
-                <LoadingItemTiles count={9} />
+            {loading && !contentMounted ? (
+                // show a centered spinner while loading
+                <div className="flex h-full items-center justify-center">
+                    <Spinner size={48} className="text-gray-600 dark:text-white" />
+                </div>
             ) : (
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-3 lg:grid-cols-6 xl:grid-cols-7">
                     {reloading && (
@@ -43,10 +65,12 @@ export const CashRegisterMainSection: React.FC<RegisterMainProps> = ({
                             <Spinner size={20} className="text-gray-600 dark:text-white" />
                         </div>
                     )}
-                    {visiblePlaceItems.map((pi) => (
+                    {visiblePlaceItems.map((pi, idx) => (
                         <div
                             key={pi.key}
-                            className="group relative overflow-hidden rounded-lg border border-gray-200 shadow-sm transition hover:shadow-md dark:border-white/10"
+                            // animate each card in with a small stagger
+                            className={`group relative overflow-hidden rounded-lg border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md dark:border-white/10 ${cardsVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-2 scale-[0.995]'}`}
+                            style={{ transitionDelay: `${idx * 40}ms` }}
                             role="button"
                             tabIndex={0}
                             onClick={() => {

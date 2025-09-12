@@ -89,6 +89,7 @@
       "uploading": "Įkeliama…",
       "removing": "Šalinama…",
       "uploadNote": "JPG, PNG, GIF, WEBP. Daugiausia 5 MB. Paveikslėliai optimizuojami ir keičiami.",
+      "nameHint": "Jūsų vardas gali būti bet koks — pavyzdžiui: \"Auksinis Laikas\", \"Pienių vaikas\", \"Mėlynas Dangus\".",
       "firstName": "Vardas",
       "lastName": "Pavardė",
       "email": "El. pašto adresas",
@@ -772,6 +773,8 @@
   },
   "CashRegister": {
     "headerTitle": "Kasa",
+    "settings": "Nustatymai",
+    "language": "Kalba",
     "stock": "Likutis",
     "sort": "Rūšiuoti",
     "filters": "Filtrai",
