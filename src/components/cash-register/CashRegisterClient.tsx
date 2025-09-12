@@ -3,6 +3,7 @@ import React, { useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import CheckoutModalCash from '@/components/cash-register/CheckoutModalCash';
 import CheckoutModalCard from '@/components/cash-register/CheckourModalCard';
+import LoadingOverlay from '@/components/ui/LoadingOverlay';
 import Modal from '@/components/modals/Modal';
 import SelectVariantModal, { VariantGroup } from './SelectVariantModal';
 import flyToCart from '@/lib/flyToCart';
@@ -17,8 +18,10 @@ import { SortKey, useCart, useGroupedSearch, usePlaceItems, usePlaces } from './
 export default function CashRegisterClient() {
     const searchParams = useSearchParams();
     const queryPlaceId = searchParams.get('placeId');
-    const { activePlaceId, currency, error: placesError } = usePlaces(queryPlaceId);
+    const { places, activePlaceId, currency, error: placesError } = usePlaces(queryPlaceId);
     const { placeItems, reload: reloadItems, reloadQuiet, error: itemsError, loading: loadingItems } = usePlaceItems(activePlaceId);
+    const placesLoading = places === null;
+    const isReady = !placesLoading && (!activePlaceId || !loadingItems);
     const { cart, addVariantToCart, clearCart, totals, cartArray, setCartFromModal } = useCart();
     const [checkingOut, setCheckingOut] = useState(false);
     const [openChoosePayment, setOpenChoosePayment] = useState(false);
@@ -101,6 +104,7 @@ export default function CashRegisterClient() {
 
     return (
         <div className="flex h-dvh flex-col overflow-hidden bg-gray-50 dark:bg-gray-900">
+            <LoadingOverlay isReady={isReady} minDuration={2000} />
             {/* Header */}
             <CashRegisterHeader
                 search={search}
