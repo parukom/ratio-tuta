@@ -239,6 +239,47 @@
       "when": "Laikas",
       "empty": "Dar nėra veiklos."
     },
+    "mission": {
+      "label": "Apie mus",
+      "heading": "Mūsų misija – padėti jums sutaupyti laiko, pinigų ir būti informuotiems visuose objektuose",
+      "description": "Ratio tuta yra saugi internetinė užrašų knygelė, kuri apskaičiuoja viską už jus. Laikykite pastabas, lenteles ir formules kartu, sekite, kas vyksta vietose, ir būkite tikri, kad jūsų duomenys yra apsaugoti.",
+      "sectionTitle": "Mūsų misija",
+      "saveTime": {
+        "title": "Sutaupykite laiko:",
+        "body": "Atsisakykite popieriaus — sutaupykite laiko su Ratio tuta, patogia programa, kuri vieną kartą užfiksuoja duomenis, laiko juos tvarkingai ir leidžia greitai ieškoti."
+      },
+      "saveMoney": {
+        "title": "Sutaupykite pinigų:",
+        "body": "Sumažinkite klaidas, aiškiau matykite išlaidas ir priimkite sprendimus greičiau."
+      },
+      "stayUpdated": {
+        "title": "Būkite informuoti:",
+        "body": "Sekite, kas vyksta kiekvienoje vietoje realiu laiku."
+      },
+      "beSecure": {
+        "title": "Saugumas pagal numatytuosius nustatymus:",
+        "body": "Privatumas yra prioritetas — vartotojų duomenys yra šifruojami perduodant ir saugant, o kur įmanoma, anonimizuojami; taikomas vaidmenimis pagrįstas prieigos valdymas ir audito įrašai."
+      },
+      "whatYouGet": "Ką gaunate",
+      "features": {
+        "timeBack": {
+          "title": "Atgautas laikas",
+          "desc": "Mažiau rankinio darbo kiekvieną savaitę"
+        },
+        "lowerCosts": {
+          "title": "Mažesnės sąnaudos",
+          "desc": "Mažiau klaidų, aiškesnė įžvalga"
+        },
+        "liveVisibility": {
+          "title": "Tiesioginis matomumas",
+          "desc": "Sužinokite, kas vyksta kiekvienoje vietoje"
+        },
+        "security": {
+          "title": "Saugumas",
+          "desc": "Privatumas pagal numatytuosius nustatymus, prieiga po jūsų kontrole"
+        }
+      }
+    },
     "place": {
       "title": "Vieta",
       "openRegister": "Atidaryti kasą",
@@ -363,6 +404,62 @@
           "hours": "prieš {h}val",
           "days": "prieš {d} d."
         }
+      },
+      "mission": {
+        "label": "Apie mus",
+        "heading": "Mūsų misija – padėti jums sutaupyti laiko, pinigų ir būti informuotiems visuose objektuose",
+        "description": "Ratio tuta yra saugi internetinė užrašų knygelė, kuri apskaičiuoja viską už jus. Laikykite pastabas, lenteles ir formules kartu, sekite, kas vyksta vietose, ir būkite tikri, kad jūsų duomenys yra apsaugoti.",
+        "sectionTitle": "Mūsų misija",
+        "saveTime": {
+          "title": "Sutaupykite laiko:",
+          "body": "Atsisakykite popieriaus — sutaupykite laiko su Ratio tuta, patogia programa, kuri vieną kartą užfiksuoja duomenis, laiko juos tvarkingai ir leidžia greitai ieškoti."
+        },
+        "saveMoney": {
+          "title": "Sutaupykite pinigų:",
+          "body": "Sumažinkite klaidas, aiškiau matykite išlaidas ir priimkite sprendimus greičiau."
+        },
+        "stayUpdated": {
+          "title": "Būkite informuoti:",
+          "body": "Sekite, kas vyksta kiekvienoje vietoje realiu laiku."
+        },
+        "beSecure": {
+          "title": "Saugumas pagal numatytuosius nustatymus:",
+          "body": "Privatumas yra prioritetas — vartotojų duomenys yra šifruojami perduodant ir saugant, o kur įmanoma, anonimizuojami; taikomas vaidmenimis pagrįstas prieigos valdymas ir audito įrašai."
+        },
+        "whatYouGet": "Ką gaunate",
+        "features": {
+          "timeBack": {
+            "title": "Atgautas laikas",
+            "desc": "Mažiau rankinio darbo kiekvieną savaitę"
+          },
+          "lowerCosts": {
+            "title": "Mažesnės sąnaudos",
+            "desc": "Mažiau klaidų, aiškesnė įžvalga"
+          },
+          "liveVisibility": {
+            "title": "Tiesioginis matomumas",
+            "desc": "Sužinokite, kas vyksta kiekvienoje vietoje"
+          },
+          "security": {
+            "title": "Saugumas",
+            "desc": "Privatumas pagal numatytuosius nustatymus, prieiga po jūsų kontrole"
+          }
+        }
+      }
+    },
+    "hero": {
+      "badge": "Privatu pagal numatytuosius nustatymus · Prieiga pagal vaidmenis · Audito žurnalas",
+      "title": "Saugus internetinis užrašų bloknotas, kuris atlieka skaičiavimus už jus",
+      "subtitle": "Rašykite, struktūrizuokite ir skaičiuokite vienoje vietoje. Apsaugokite jautrius duomenis, saugiai bendradarbiaukite ir patikėkite skaičiavimus formulėms.",
+      "cta": {
+        "start": "Pradėkite naudotis",
+        "learn": "Sužinokite daugiau"
+      },
+      "nav": {
+        "features": "Funkcijos",
+        "howItWorks": "Kaip tai veikia",
+        "pricing": "Kainos",
+        "contact": "Kontaktai"
       }
     }
   },

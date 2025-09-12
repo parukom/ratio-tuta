@@ -3,7 +3,6 @@
 import { Suspense, useEffect, useState } from "react";
 import Spinner from "@/components/ui/Spinner";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 function AuthContent() {

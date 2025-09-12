@@ -364,6 +364,62 @@
           "days": "{d}d ago"
         }
       }
+    },
+    "mission": {
+      "label": "About us",
+      "heading": "On a mission to empower you to save time, save money, and stay up to date across every place",
+      "description": "Ratio tuta is a secure online notebook that calculates everything for you. Keep notes, tables, and formulas together, stay informed about what\u2019s happening across places, and trust that your data is protected.",
+      "sectionTitle": "Our mission",
+      "saveTime": {
+        "title": "Save time:",
+        "body": "leave papers behind — save time with Ratio tuta \u2014 a user-friendly app that captures once, keeps everything organized for you, and lets you search instantly."
+      },
+      "saveMoney": {
+        "title": "Save money:",
+        "body": "reduce errors, see a clear picture of costs, and make faster decisions."
+      },
+      "stayUpdated": {
+        "title": "Stay updated across places:",
+        "body": "track what\u2019s happening at each place in real time."
+      },
+      "beSecure": {
+        "title": "Be secure by default:",
+        "body": "privacy-first design \u2014 user data is encrypted in transit and at rest and anonymized where possible, with role-based access controls and audit trails."
+      },
+      "whatYouGet": "What you get",
+      "features": {
+        "timeBack": {
+          "title": "Time back",
+          "desc": "Less manual work every week"
+        },
+        "lowerCosts": {
+          "title": "Lower costs",
+          "desc": "Fewer mistakes, clearer insights"
+        },
+        "liveVisibility": {
+          "title": "Live visibility",
+          "desc": "Know what\u2019s happening in each place"
+        },
+        "security": {
+          "title": "Security",
+          "desc": "Private by default, access you control"
+        }
+      }
+    }
+  },
+  "Home.hero": {
+    "badge": "Private by default · Role-based access · Audit trail",
+    "title": "A secure online notebook that does the math for you",
+    "subtitle": "Write, structure, and calculate in one place. Keep sensitive data protected, collaborate safely, and let formulas handle the numbers.",
+    "cta": {
+      "start": "Start your notebook",
+      "learn": "Learn more"
+    },
+    "nav": {
+      "features": "Features",
+      "howItWorks": "How it works",
+      "pricing": "Pricing",
+      "contact": "Contact"
     }
   },
   "Team": {

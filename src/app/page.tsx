@@ -4,11 +4,11 @@ import { prisma } from "@lib/prisma";
 import { redirect } from "next/navigation";
 import dynamic from 'next/dynamic';
 const HeroSection = dynamic(() => import('@/components/HeroSection'));
-const FeaturesSection = dynamic(() => import('@/components/FeaturesSection'));
+// const FeaturesSection = dynamic(() => import('@/components/FeaturesSection'));
 const OurMission = dynamic(() => import('@/components/OurMission'));
-const FAQ = dynamic(() => import('@/components/Faq'));
+// const FAQ = dynamic(() => import('@/components/Faq'));
 // const PricingSection = dynamic(() => import('@/components/PricingSection'));
-const Footer = dynamic(() => import('@/components/Footer'));
+// const Footer = dynamic(() => import('@/components/Footer'));
 
 export default async function Home() {
   // Fast-path: verify cookie signature and expiry only; skip DB revocation check for a snappier homepage.
@@ -41,10 +41,10 @@ export default async function Home() {
     <>
       <HeroSection />
       <OurMission />
-      <FeaturesSection />
+      {/* <FeaturesSection /> */}
       {/* <PricingSection /> */}
-      <FAQ />
-      <Footer />
+      {/* <FAQ />
+      <Footer /> */}
     </>
   );
 }
