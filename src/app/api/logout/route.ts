@@ -8,9 +8,19 @@ export async function POST() {
   try {
     res.cookies.delete('session');
   } catch {
-    // Fallback to store-based deletion
-    await clearSession();
+    // Fallback to store-based deletion. Guard against any errors so the
+    // route never throws and the client gets a stable response.
+    try {
+      await clearSession();
+    } catch {
+      console.warn('[logout] failed to clear session via store');
+    }
   }
-  await logAudit({ action: 'auth.logout', status: 'SUCCESS' });
+  try {
+    await logAudit({ action: 'auth.logout', status: 'SUCCESS' });
+  } catch {
+    // logAudit is fire-and-forget internally but guard here as well
+    console.warn('[logout] logAudit failed');
+  }
   return res;
 }
