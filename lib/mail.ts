@@ -94,3 +94,40 @@ export async function sendInviteEmail(params: {
     );
   }
 }
+
+// Password reset email
+export async function sendPasswordResetEmail(params: {
+  to: string;
+  name: string;
+  token: string;
+}) {
+  const resend = getClient();
+  const resetUrl = `${APP_URL}/auth/reset-password?token=${encodeURIComponent(
+    params.token,
+  )}`;
+
+  const html = `
+    <div style="font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; line-height:1.6; color:#111827;">
+      <h2 style="margin:0 0 12px;">Reset your password</h2>
+      <p style="margin:0 0 12px;">Hi ${escapeHtml(params.name)},</p>
+      <p style="margin:0 0 12px;">We received a request to reset your password. Click the button below to choose a new one. This link is valid for 60 minutes.</p>
+      <p style="margin:16px 0;">
+        <a href="${resetUrl}" style="display:inline-block;padding:10px 16px;background:#4f46e5;color:#fff;text-decoration:none;border-radius:6px">Reset Password</a>
+      </p>
+      <p style="margin:0 0 12px;">If you did not request a password reset, you can safely ignore this email.</p>
+      <p style="margin:24px 0 0;font-size:12px;color:#6b7280;">If the button doesn't work, copy and paste this URL:<br /><a href="${resetUrl}">${resetUrl}</a></p>
+    </div>
+  `;
+
+  const { error } = await resend.emails.send({
+    from: EMAIL_FROM,
+    to: params.to,
+    subject: 'Reset your password',
+    html,
+  });
+  if (error) {
+    throw new Error(
+      `Resend send error: ${typeof error === 'string' ? error : JSON.stringify(error)}`,
+    );
+  }
+}

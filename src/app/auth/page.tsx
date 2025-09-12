@@ -288,6 +288,15 @@ function AuthContent() {
                                 >
                                     {mode === "login" ? t("toggle.toRegister") : t("toggle.toLogin")}
                                 </button>
+                                {mode === 'login' && (
+                                    <button
+                                        type="button"
+                                        onClick={() => router.replace('/auth/forgot-password')}
+                                        className="ml-4 font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                    >
+                                        Forgot password?
+                                    </button>
+                                )}
                             </div>
                         </div>
 

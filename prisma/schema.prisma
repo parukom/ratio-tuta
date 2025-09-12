@@ -41,6 +41,8 @@ model User {
 
   // Email verification tokens
   emailVerificationTokens EmailVerificationToken[]
+  // Password reset tokens
+  passwordResetTokens     PasswordResetToken[]
 }
 
 model Team {
@@ -271,6 +273,19 @@ model EmailVerificationToken {
   token     String   @unique
   expiresAt DateTime
   createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+  usedAt    DateTime?
 
   user User @relation(fields: [userId], references: [id])
 

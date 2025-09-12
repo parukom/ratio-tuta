@@ -40,6 +40,23 @@
     "brandAlt": "Ваша компания",
     "dismiss": "Закрыть"
   },
+  "Password": {
+    "forgot": "Забыли пароль?",
+    "forgotTitle": "Забыли пароль",
+    "forgotSubtitle": "Введите email и мы отправим ссылку для сброса.",
+    "forgotCta": "Отправить ссылку",
+    "forgotSent": "Если такой email существует, мы отправили ссылку для сброса.",
+    "resetTitle": "Сброс пароля",
+    "newPassword": "Новый пароль",
+    "confirmPassword": "Подтвердите пароль",
+    "updated": "Пароль обновлён. Теперь вы можете войти.",
+    "errors": {
+      "emailRequired": "Требуется email",
+      "passwordLength": "Пароль должен быть 8–16 символов",
+      "mismatch": "Пароли не совпадают",
+      "invalidToken": "Ссылка недействительна или истекла"
+    }
+  },
   "Settings": {
     "tabs": {
       "user": "Профиль",

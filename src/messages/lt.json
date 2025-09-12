@@ -40,6 +40,23 @@
     "brandAlt": "Jūsų įmonė",
     "dismiss": "Uždaryti"
   },
+  "Password": {
+    "forgot": "Pamiršote slaptažodį?",
+    "forgotTitle": "Pamiršote slaptažodį",
+    "forgotSubtitle": "Įveskite el. pašto adresą ir atsiųsime nuorodą slaptažodžiui atstatyti.",
+    "forgotCta": "Siųsti nuorodą",
+    "forgotSent": "Jei toks el. paštas egzistuoja, išsiuntėme atkūrimo nuorodą.",
+    "resetTitle": "Atstatyti slaptažodį",
+    "newPassword": "Naujas slaptažodis",
+    "confirmPassword": "Pakartokite slaptažodį",
+    "updated": "Slaptažodis atnaujintas. Dabar galite prisijungti.",
+    "errors": {
+      "emailRequired": "Reikalingas el. paštas",
+      "passwordLength": "Slaptažodis turi būti 8–16 simbolių",
+      "mismatch": "Slaptažodžiai nesutampa",
+      "invalidToken": "Nuoroda neteisinga arba negaliojanti"
+    }
+  },
   "Settings": {
     "tabs": {
       "user": "Vartotojas",

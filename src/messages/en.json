@@ -40,6 +40,23 @@
     "brandAlt": "Your Company",
     "dismiss": "Dismiss"
   },
+  "Password": {
+    "forgot": "Forgot password?",
+    "forgotTitle": "Forgot password",
+    "forgotSubtitle": "Enter your email and we'll send you a reset link.",
+    "forgotCta": "Send reset link",
+    "forgotSent": "If that email exists, a reset link was sent.",
+    "resetTitle": "Reset password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "updated": "Password updated. You can now log in.",
+    "errors": {
+      "emailRequired": "Email required",
+      "passwordLength": "Password must be 8-16 characters",
+      "mismatch": "Passwords do not match",
+      "invalidToken": "Invalid or expired link"
+    }
+  },
   "Settings": {
     "tabs": {
       "user": "User",
