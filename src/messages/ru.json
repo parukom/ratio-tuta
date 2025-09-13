@@ -215,7 +215,10 @@
       "replace": "Заменить",
       "remove": "Удалить",
       "selectedImageAlt": "Предпросмотр выбранного изображения",
-      "imageFallbackName": "изображение"
+      "imageFallbackName": "изображение",
+      "chooseSource": "Выберите источник",
+      "takePhoto": "Сфотографировать",
+      "chooseFromFiles": "Выбрать из файлов"
     }
   },
   "Home": {

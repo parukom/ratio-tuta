@@ -215,7 +215,10 @@
       "replace": "Replace",
       "remove": "Remove",
       "selectedImageAlt": "Selected image preview",
-      "imageFallbackName": "image"
+      "imageFallbackName": "image",
+      "chooseSource": "Choose source",
+      "takePhoto": "Take photo",
+      "chooseFromFiles": "Choose from files"
     }
   },
   "Home": {

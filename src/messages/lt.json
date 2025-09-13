@@ -215,7 +215,10 @@
       "replace": "Pakeisti",
       "remove": "Pašalinti",
       "selectedImageAlt": "Pasirinkto vaizdo peržiūra",
-      "imageFallbackName": "vaizdas"
+      "imageFallbackName": "vaizdas",
+      "chooseSource": "Pasirinkite šaltinį",
+      "takePhoto": "Nufotografuoti",
+      "chooseFromFiles": "Pasirinkti iš failų"
     }
   },
   "Home": {
