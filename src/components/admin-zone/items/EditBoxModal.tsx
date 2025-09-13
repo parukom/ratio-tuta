@@ -68,7 +68,7 @@ export const EditBoxModal: React.FC<Props> = ({
                     value={editImage}
                     onChange={setEditImage}
                     hint={t('modals.editBox.pictureHint')}
-                    allowCamera
+
                 />
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     <Input type="number" placeholder={t('modals.editBox.price')} value={editPrice} onChange={(e) => setEditPrice(e.target.value)} />

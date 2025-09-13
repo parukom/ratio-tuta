@@ -12,6 +12,8 @@ type Props = {
   onChange: (file: File | null) => void
   hint?: string
   accept?: string
+  // kept for backwards compatibility; component intentionally uses a single native file input
+  // to allow the device to show the default chooser (camera vs files)
   allowCamera?: boolean
   disabled?: boolean
   maxSizeMB?: number
@@ -30,7 +32,6 @@ const ImageUploader = ({
   onChange,
   hint,
   accept = 'image/*',
-  allowCamera = false,
   disabled = false,
   maxSizeMB = 10,
   className,
@@ -41,8 +42,6 @@ const ImageUploader = ({
 }: Props) => {
   const t = useTranslations('Common')
   const inputRef = useRef<HTMLInputElement | null>(null)
-  const cameraInputRef = useRef<HTMLInputElement | null>(null)
-  const [showSourceChooser, setShowSourceChooser] = useState(false)
   const [dragOver, setDragOver] = useState(false)
   const [error, setError] = useState<string>('')
 
@@ -56,12 +55,8 @@ const ImageUploader = ({
 
   function pickFile() {
     if (disabled) return
-    if (allowCamera) {
-      // show small chooser so user can pick camera or files
-      setShowSourceChooser(true)
-    } else {
-      inputRef.current?.click()
-    }
+    // open the single hidden file input so the native menu appears on mobile
+    inputRef.current?.click()
   }
 
   function validateAndSet(file: File | null) {
@@ -89,14 +84,7 @@ const ImageUploader = ({
     e.preventDefault(); e.stopPropagation(); if (!disabled) setDragOver(over)
   }
 
-  function chooseSource(kind: 'camera' | 'file') {
-    setShowSourceChooser(false)
-    if (kind === 'camera') {
-      cameraInputRef.current?.click()
-    } else {
-      inputRef.current?.click()
-    }
-  }
+  // ...existing code...
 
   return (
     <div className={className}>
@@ -157,29 +145,7 @@ const ImageUploader = ({
           className="hidden"
           disabled={disabled}
         />
-        {/* camera-only input (for take photo) */}
-        <input
-          ref={cameraInputRef}
-          type="file"
-          accept={accept}
-          onChange={onInputChange}
-          capture={allowCamera ? 'environment' : undefined}
-          className="hidden"
-          disabled={disabled}
-        />
-
-        {/* small chooser overlay when allowCamera is true */}
-        {showSourceChooser && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30">
-            <div className="rounded-md bg-white p-3 shadow-md dark:bg-gray-800">
-              <div className="mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">{t('uploader.chooseSource')}</div>
-              <div className="flex gap-2">
-                <button type="button" onClick={(e) => { e.stopPropagation(); chooseSource('camera') }} className="rounded-md bg-indigo-600 px-3 py-1 text-xs font-semibold text-white hover:bg-indigo-700">{t('uploader.takePhoto')}</button>
-                <button type="button" onClick={(e) => { e.stopPropagation(); chooseSource('file') }} className="rounded-md bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-900 hover:bg-gray-200 dark:bg-white/5">{t('uploader.chooseFromFiles')}</button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* single hidden file input only (native chooser will appear on mobile) */}
       </div>
       {hint && <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{hint}</p>}
       {error && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{error}</p>}

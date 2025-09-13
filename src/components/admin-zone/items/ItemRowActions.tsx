@@ -260,7 +260,7 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
                                 else { const d = await r.json(); toast.error(d.error || ti('modals.image.removeFailed')) }
                             } catch { toast.error(ti('modals.image.removeFailed')) }
                         }}
-                        allowCamera
+
                     />
                     <Input id={`name-${item.id}`} name="name" type="text" className="" placeholder={t('name')} value={name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)} />
                     <Input id={`sku-${item.id}`} name="sku" type="text" className="" placeholder={ti('forms.sku')} value={sku} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSku(e.target.value)} />

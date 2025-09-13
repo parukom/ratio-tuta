@@ -409,7 +409,7 @@ export default function CreateItemOrBoxButton({
                                 value={it_imageFile}
                                 onChange={it_setImageFile}
                                 hint={t('forms.pictureHint')}
-                                allowCamera
+
                             />
                             <Input id="it_name" name="name" type="text" placeholder={tc('name')} value={it_name} onChange={(e) => it_setName(e.target.value)} />
                             <Input id="it_sku" name="sku" type="text" placeholder={t('forms.sku')} value={it_sku} onChange={(e) => it_setSku(e.target.value)} />
@@ -527,7 +527,7 @@ export default function CreateItemOrBoxButton({
                                 value={bx_imageFile}
                                 onChange={bx_setImageFile}
                                 hint={t('forms.pictureHint')}
-                                allowCamera
+
                             />
                             <Input id="bx_baseName" name="baseName" type="text" placeholder={t('forms.baseName')} value={bx_baseName} onChange={(e) => bx_setBaseName(e.target.value)} />
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">

@@ -203,7 +203,6 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
             value={imageFile}
             onChange={setImageFile}
             hint={t('forms.pictureHint')}
-            allowCamera
           />
           <Input id="name" name="name" type="text" className="" placeholder={tc('name')} value={name} onChange={(e) => setName(e.target.value)} />
           <Input id="sku" name="sku" type="text" className="" placeholder={t('forms.sku')} value={sku} onChange={(e) => setSku(e.target.value)} />
