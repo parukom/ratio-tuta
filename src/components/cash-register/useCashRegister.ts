@@ -1,4 +1,6 @@
+'use client';
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useSession } from '@/components/providers/SessionProvider';
 import type {
   CartItem,
@@ -12,8 +14,21 @@ import type { VariantChild } from './SelectVariantModal';
 // Fetch list of places and manage the activePlaceId
 export function usePlaces(queryPlaceId: string | null) {
   const session = useSession();
+  const router = useRouter();
   const [places, setPlaces] = useState<Place[] | null>(null);
-  const [activePlaceId, setActivePlaceId] = useState<string | null>(null);
+  const [activePlaceIdState, setActivePlaceIdState] = useState<string | null>(
+    null,
+  );
+  // Wrapped setter - updates internal state only. URL sync happens in an effect
+  // (after render) to avoid updating the Router during another component's
+  // render phase.
+  const setActivePlaceId = (value: React.SetStateAction<string | null>) => {
+    setActivePlaceIdState((prev) =>
+      typeof value === 'function'
+        ? (value as (p: string | null) => string | null)(prev)
+        : value,
+    );
+  };
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -64,7 +79,9 @@ export function usePlaces(queryPlaceId: string | null) {
             queryPlaceId && shaped.some((p) => p.id === queryPlaceId)
               ? queryPlaceId
               : shaped[0].id;
-          setActivePlaceId((id) => id ?? preferred);
+          // Initialize internal state without using the exported setter to
+          // avoid adding it to the effect dependencies.
+          setActivePlaceIdState((id) => id ?? preferred);
         }
       } catch (e: unknown) {
         const msg = e instanceof Error ? e.message : 'Error';
@@ -77,11 +94,28 @@ export function usePlaces(queryPlaceId: string | null) {
     };
   }, [queryPlaceId, session?.role]);
 
+  const activePlaceId = activePlaceIdState;
   const activePlace = useMemo(
     () => places?.find((p) => p.id === activePlaceId) || null,
     [places, activePlaceId],
   );
   const currency = activePlace?.currency || 'EUR';
+
+  // Keep the URL's `placeId` query param in sync with the active place after
+  // the component has rendered. Doing this in an effect avoids React errors
+  // about updating the Router during render.
+  useEffect(() => {
+    try {
+      const url = new URL(window.location.href);
+      if (activePlaceIdState)
+        url.searchParams.set('placeId', activePlaceIdState);
+      else url.searchParams.delete('placeId');
+      // Use replace so we don't add history entries when switching places
+      router.replace(url.pathname + url.search);
+    } catch {
+      // ignore URL update failures
+    }
+  }, [activePlaceIdState, router]);
 
   return {
     places,
@@ -271,9 +305,60 @@ export type SortKey = 'NAME_ASC' | 'PRICE_ASC' | 'PRICE_DESC' | 'STOCK_DESC';
 
 // Group duplicate place items by itemId and sum quantities + search/sort/filter state
 export function useGroupedSearch(placeItems: PlaceItem[] | null) {
-  const [search, setSearch] = useState('');
-  const [inStockOnly, setInStockOnly] = useState(false);
-  const [sortKey, setSortKey] = useState<SortKey>('NAME_ASC');
+  // Persisted filter state key
+  const COOKIE_KEY = 'pecunia_cash_filters';
+
+  function readFiltersFromCookie() {
+    try {
+      const kv = document.cookie
+        .split('; ')
+        .find((s) => s.startsWith(COOKIE_KEY + '='));
+      if (!kv) return null;
+      const val = decodeURIComponent(kv.split('=')[1] || '');
+      const parsed = JSON.parse(val);
+      return parsed;
+    } catch {
+      return null;
+    }
+  }
+
+  function writeFiltersToCookie(obj: {
+    search?: string;
+    inStockOnly?: boolean;
+    sortKey?: SortKey;
+  }) {
+    try {
+      const json = encodeURIComponent(JSON.stringify(obj));
+      // persist for 30 days
+      const maxAge = 30 * 24 * 60 * 60;
+      document.cookie = `${COOKIE_KEY}=${json}; path=/; max-age=${maxAge}; samesite=lax`;
+    } catch {
+      // ignore
+    }
+  }
+
+  const initialFilters = (() => {
+    if (typeof document === 'undefined') return null;
+    const read = readFiltersFromCookie();
+    return read;
+  })();
+
+  const [search, setSearch] = useState(() => initialFilters?.search ?? '');
+  const [inStockOnly, setInStockOnly] = useState<boolean>(
+    () => initialFilters?.inStockOnly ?? false,
+  );
+  const [sortKey, setSortKey] = useState<SortKey>(
+    () => initialFilters?.sortKey ?? 'NAME_ASC',
+  );
+
+  // Persist filter changes to a cookie so they survive page reloads
+  useEffect(() => {
+    try {
+      writeFiltersToCookie({ search, inStockOnly, sortKey });
+    } catch {
+      // ignore
+    }
+  }, [search, inStockOnly, sortKey]);
 
   const groupedItems: GroupedPlaceItem[] = useMemo(() => {
     const map = new Map<string, GroupedPlaceItem>();
@@ -319,7 +404,7 @@ export function useGroupedSearch(placeItems: PlaceItem[] | null) {
   const visiblePlaceItems = useMemo(() => {
     // Text search
     const q = search.trim().toLowerCase();
-    const tokens = q.split(/\s+/).filter(Boolean);
+    const tokens: string[] = q.split(/\s+/).filter(Boolean);
     let list = groupedItems;
     if (tokens.length > 0) {
       list = list.filter((gi) => {
@@ -327,7 +412,8 @@ export function useGroupedSearch(placeItems: PlaceItem[] | null) {
         const skus = gi.items.map((c) => c.sku?.toLowerCase() ?? '').join(' ');
         const color = (gi.color ?? '').toLowerCase();
         return tokens.every(
-          (t) => name.includes(t) || skus.includes(t) || color.includes(t),
+          (t: string) =>
+            name.includes(t) || skus.includes(t) || color.includes(t),
         );
       });
     }

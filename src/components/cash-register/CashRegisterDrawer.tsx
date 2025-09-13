@@ -41,26 +41,7 @@ export default function CashRegisterDrawer({ open, onClose, inStockOnly, setInSt
             <div className="space-y-6 flex flex-col h-full justify-between">
                 {/* Filters section */}
                 <section className="space-y-6">
-                    {/* Place selector when user has multiple places */}
-                    {Array.isArray(places) && places.length > 1 ? (
-                        <section>
-                            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                                {t('place', { default: 'Place' })}
-                            </h3>
-                            <Dropdown
-                                align="left"
-                                buttonLabel={
-                                    (places.find((p) => p.id === activePlaceId)?.name ?? places[0].name) +
-                                    (places.length > 1 ? ` (${places.length})` : '')
-                                }
-                                items={places.map((p) => ({ key: p.id, label: p.name }))}
-                                onSelect={(key) => {
-                                    setActivePlaceId?.(key);
-                                    onClose();
-                                }}
-                            />
-                        </section>
-                    ) : null}
+
                     <section>
                         <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                             {t('filters', { default: 'Filters' })}
@@ -101,6 +82,41 @@ export default function CashRegisterDrawer({ open, onClose, inStockOnly, setInSt
                             onSelect={(key) => setSortKey(key as SortKey)}
                         />
                     </section>
+
+                    {/* Place selector when user has multiple places */}
+                    {Array.isArray(places) && places.length > 1 ? (
+                        <section>
+                            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                {t('place', { default: 'Place' })}
+                            </h3>
+
+                            {/* Replace Dropdown with a grid of place cards/buttons for quicker selection */}
+                            <div className="grid grid-cols-2 gap-2">
+                                {places.map((p) => {
+                                    const active = p.id === activePlaceId;
+                                    return (
+                                        <button
+                                            key={p.id}
+                                            type="button"
+                                            onClick={() => {
+                                                setActivePlaceId?.(p.id);
+                                                onClose();
+                                            }}
+                                            aria-pressed={active}
+                                            className={`flex flex-col items-start gap-1 px-3 py-2 rounded-lg border text-left text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500
+                                                ${active ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-800 border-gray-200 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700 dark:hover:bg-gray-700'}`}
+                                        >
+                                            <span className="truncate font-medium">{p.name}</span>
+                                            {p.currency ? (
+                                                <span className={`text-xs ${active ? 'text-indigo-100' : 'text-gray-500 dark:text-gray-400'}`}>{p.currency}</span>
+                                            ) : null}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </section>
+                    ) : null}
+
                 </section>
 
                 {/* Actions: Settings + Logout */}
