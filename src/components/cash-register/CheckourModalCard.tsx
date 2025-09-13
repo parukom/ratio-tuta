@@ -1,5 +1,6 @@
 "use client"
 import { CreditCard } from "lucide-react"
+import Spinner from '@/components/ui/Spinner';
 import type { CartItem } from '@/types/cash-register';
 import { useTranslations } from 'next-intl';
 
@@ -75,12 +76,14 @@ const CheckoutModalCard: React.FC<Props> = ({
                         onClick={() => {
                             completeSale();
                         }}
-                        className="w-full rounded-lg px-6 py-6 text-sm font-medium shadow-sm transition-colors bg-gray-800 text-white hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600"
+                        disabled={loading}
+                        className="w-full rounded-lg px-6 py-6 text-sm font-medium shadow-sm transition-colors bg-gray-800 text-white hover:bg-gray-700 disabled:opacity-50 dark:bg-gray-700 dark:hover:bg-gray-600"
                     >
-                        <span className="flex items-center justify-center">
-                            <CreditCard className="w-4 h-4 mr-2" />
-                            {loading ? <><span className='loader'></span>{t('processing')}</> : <span className="flex items-center justify-center"> {t('card')}</span>}
-                        </span>
+                        {loading ? (
+                            <span className="flex items-center justify-center"><Spinner size={24} className="text-white" aria-label={t('processing')} /></span>
+                        ) : (
+                            <span className="flex items-center justify-center"><CreditCard className="w-4 h-4 mr-2" /> {t('card')}</span>
+                        )}
                     </button>
 
                     {/* atsaukti */}

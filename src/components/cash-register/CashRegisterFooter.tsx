@@ -3,6 +3,7 @@ import { FooterProps } from '@/types/cash-register';
 import React from 'react'
 import { useTranslations } from 'next-intl';
 import { ShoppingCart, Trash2, ArrowRight, EuroIcon } from 'lucide-react';
+import Spinner from '@/components/ui/Spinner';
 
 export const CashRegisterFooter: React.FC<FooterProps> = ({
     totals,
@@ -55,7 +56,7 @@ export const CashRegisterFooter: React.FC<FooterProps> = ({
                             className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-gray-800 px-4 py-2.5 text-lg font-medium text-white transition-colors hover:bg-gray-700 disabled:opacity-50 dark:border-white/10 dark:bg-gray-700 dark:hover:bg-gray-600 sm:flex-none sm:px-6"
                         >
                             {checkingOut ? (
-                                <span>{t('processing')}</span>
+                                <Spinner size={22} className="text-white" aria-label={t('processing')} />
                             ) : (
                                 <>
                                     <span>{t('continue')}</span>

@@ -1,4 +1,6 @@
 import { Banknote } from "lucide-react"
+import Spinner from '@/components/ui/Spinner';
+import React from 'react';
 import type { CartItem } from '@/types/cash-register';
 import { useTranslations } from 'next-intl';
 
@@ -138,7 +140,11 @@ const CheckoutModalCash: React.FC<Props> = ({
                         disabled={(!showChange) || loading}
                         className="w-full cursor-pointer rounded-lg px-5 py-6 text-sm font-medium text-white shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-gray-800 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600"
                     >
-                        {loading ? <><span className='loader'></span>{t('processing')}</> : <span className="flex items-center justify-center"><Banknote className="w-5 h-5 mr-2" /> {t('cash')}</span>}
+                        {loading ? (
+                            <span className="flex items-center justify-center"><Spinner size={24} className="text-white" aria-label={t('processing')} /></span>
+                        ) : (
+                            <span className="flex items-center justify-center"><Banknote className="w-5 h-5 mr-2" /> {t('cash')}</span>
+                        )}
                     </button>
                     <button
                         type="button"
