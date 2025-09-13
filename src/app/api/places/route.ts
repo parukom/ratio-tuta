@@ -42,7 +42,7 @@ export async function GET(req: Request) {
 
   try {
     const places = await prisma.place.findMany({
-      where: { teamId: { in: filterTeamIds } },
+      where: { teamId: { in: filterTeamIds }, isActive: true },
       select: {
         id: true,
         teamId: true,
@@ -55,6 +55,12 @@ export async function GET(req: Request) {
         placeTypeId: true,
         createdAt: true,
         isActive: true,
+        // include a tiny indicator whether the current session user is explicitly assigned to the place
+        members: {
+          where: { userId: session.userId },
+          select: { id: true },
+          take: 1,
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -187,26 +193,32 @@ export async function GET(req: Request) {
       membersAgg.map((r) => [r.placeId, r._count.userId] as const),
     );
 
-    const shaped = places.map((p) => ({
-      id: p.id,
-      teamId: p.teamId,
-      name: p.name,
-      description: p.description,
-      city: p.city,
-      country: p.country,
-      currency: p.currency,
-      totalEarnings: p.totalEarnings,
-      placeTypeId: p.placeTypeId,
-      createdAt: p.createdAt,
-      isActive: p.isActive,
-      teamPeopleCount: membersMap.get(p.id) ?? 0, // number of members assigned to this place
-      itemsCount: itemsMap.get(p.id)?.itemsCount ?? 0,
-      stockUnits: itemsMap.get(p.id)?.stockUnits ?? 0,
-      receiptsToday: todayMap.get(p.id)?.receiptsToday ?? 0,
-      salesToday: todayMap.get(p.id)?.salesToday ?? 0,
-      receipts7d: weekMap.get(p.id) ?? 0,
-      lastActivityAt: lastActMap.get(p.id) ?? null,
-    }));
+    const shaped = places.map((p) => {
+      const membersForUser =
+        (p as { members?: Array<{ id: string }> }).members ?? [];
+      return {
+        id: p.id,
+        teamId: p.teamId,
+        name: p.name,
+        description: p.description,
+        city: p.city,
+        country: p.country,
+        currency: p.currency,
+        totalEarnings: p.totalEarnings,
+        placeTypeId: p.placeTypeId,
+        createdAt: p.createdAt,
+        isActive: p.isActive,
+        teamPeopleCount: membersMap.get(p.id) ?? 0, // number of members assigned to this place
+        itemsCount: itemsMap.get(p.id)?.itemsCount ?? 0,
+        stockUnits: itemsMap.get(p.id)?.stockUnits ?? 0,
+        receiptsToday: todayMap.get(p.id)?.receiptsToday ?? 0,
+        salesToday: todayMap.get(p.id)?.salesToday ?? 0,
+        receipts7d: weekMap.get(p.id) ?? 0,
+        lastActivityAt: lastActMap.get(p.id) ?? null,
+        // Whether the current user is explicitly assigned to this place
+        assignedToMe: membersForUser.length > 0,
+      };
+    });
 
     return NextResponse.json(shaped);
   } catch (e: unknown) {

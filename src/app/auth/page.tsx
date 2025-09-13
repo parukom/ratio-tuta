@@ -76,11 +76,16 @@ function AuthContent() {
                             router.replace('/');
                             return;
                         }
-                        const places = (await placesRes.json()) as Array<{ id: string }>;
+                        const places = (await placesRes.json()) as Array<{ id: string; assignedToMe?: boolean }>;
                         if (Array.isArray(places)) {
                             if (places.length === 0) router.replace('/no-events');
                             else if (places.length === 1) router.replace(`/cash-register?placeId=${places[0].id}`);
-                            else router.replace('/cash-register');
+                            else {
+                                // If exactly one of the returned places is assigned to the user, prefer that place
+                                const assigned = places.filter((p) => p.assignedToMe);
+                                if (assigned.length === 1) router.replace(`/cash-register?placeId=${assigned[0].id}`);
+                                else router.replace('/cash-register');
+                            }
                         } else {
                             router.replace('/');
                         }
