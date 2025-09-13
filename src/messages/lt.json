@@ -772,6 +772,7 @@
     }
   },
   "CashRegister": {
+    "place": "Vieta",
     "headerTitle": "Kasa",
     "settings": "Nustatymai",
     "language": "Kalba",

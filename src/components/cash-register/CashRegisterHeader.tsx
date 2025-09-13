@@ -14,6 +14,9 @@ type Props = {
     setInStockOnly: (value: React.SetStateAction<boolean>) => void;
     sortKey: 'NAME_ASC' | 'PRICE_ASC' | 'PRICE_DESC' | 'STOCK_DESC';
     setSortKey: (value: React.SetStateAction<'NAME_ASC' | 'PRICE_ASC' | 'PRICE_DESC' | 'STOCK_DESC'>) => void;
+    places?: { id: string; name: string; teamId: string; currency: string | null }[] | null;
+    activePlaceId?: string | null;
+    setActivePlaceId?: (id: string | null) => void;
 };
 
 export const CashRegisterHeader: React.FC<Props> = ({
@@ -23,6 +26,9 @@ export const CashRegisterHeader: React.FC<Props> = ({
     setInStockOnly,
     sortKey,
     setSortKey,
+    places,
+    activePlaceId,
+    setActivePlaceId,
 }) => {
     const t = useTranslations('CashRegister');
     const [open, setOpen] = React.useState(false);
@@ -68,6 +74,9 @@ export const CashRegisterHeader: React.FC<Props> = ({
                 setInStockOnly={setInStockOnly}
                 sortKey={sortKey}
                 setSortKey={setSortKey}
+                places={places}
+                activePlaceId={activePlaceId}
+                setActivePlaceId={setActivePlaceId}
             />
         </header>
     );

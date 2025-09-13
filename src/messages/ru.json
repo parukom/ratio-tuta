@@ -732,6 +732,7 @@
     }
   },
   "CashRegister": {
+    "place": "Площадка",
     "headerTitle": "Касса",
     "settings": "Настройки",
     "language": "Язык",

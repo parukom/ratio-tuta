@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useSession } from '@/components/providers/SessionProvider';
 import type {
   CartItem,
   CartLine,
@@ -10,6 +11,7 @@ import type { VariantChild } from './SelectVariantModal';
 
 // Fetch list of places and manage the activePlaceId
 export function usePlaces(queryPlaceId: string | null) {
+  const session = useSession();
   const [places, setPlaces] = useState<Place[] | null>(null);
   const [activePlaceId, setActivePlaceId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +26,7 @@ export function usePlaces(queryPlaceId: string | null) {
         const data: unknown = await res.json();
         if (!Array.isArray(data)) throw new Error('Invalid response');
         if (cancelled) return;
+        // If session role is ADMIN, include all returned places; otherwise only include places explicitly assigned to the user
         const shaped: Place[] = data
           .filter(
             (
@@ -33,15 +36,20 @@ export function usePlaces(queryPlaceId: string | null) {
               teamId: string;
               name: string;
               currency: string | null;
+              assignedToMe?: boolean;
             } => {
               if (!p || typeof p !== 'object') return false;
               const obj = p as Record<string, unknown>;
-              return (
+              // require id/team/name/currency
+              const baseOk =
                 typeof obj.id === 'string' &&
                 typeof obj.teamId === 'string' &&
                 typeof obj.name === 'string' &&
-                (obj.currency === null || typeof obj.currency === 'string')
-              );
+                (obj.currency === null || typeof obj.currency === 'string');
+              if (!baseOk) return false;
+              // admins see all places; other users only places assignedToMe
+              if (session?.role === 'ADMIN') return true;
+              return obj.assignedToMe === true;
             },
           )
           .map((p) => ({
@@ -67,7 +75,7 @@ export function usePlaces(queryPlaceId: string | null) {
     return () => {
       cancelled = true;
     };
-  }, [queryPlaceId]);
+  }, [queryPlaceId, session?.role]);
 
   const activePlace = useMemo(
     () => places?.find((p) => p.id === activePlaceId) || null,

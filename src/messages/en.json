@@ -731,6 +731,7 @@
     }
   },
   "CashRegister": {
+    "place": "Place",
     "headerTitle": "Cash Register",
     "settings": "Settings",
     "language": "Language",

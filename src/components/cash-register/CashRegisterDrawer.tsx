@@ -20,9 +20,12 @@ type Props = {
     setInStockOnly: (value: React.SetStateAction<boolean>) => void;
     sortKey: SortKey;
     setSortKey: (value: React.SetStateAction<SortKey>) => void;
+    places?: { id: string; name: string; teamId: string; currency: string | null }[] | null;
+    activePlaceId?: string | null;
+    setActivePlaceId?: (id: string | null) => void;
 };
 
-export default function CashRegisterDrawer({ open, onClose, inStockOnly, setInStockOnly, sortKey, setSortKey }: Props) {
+export default function CashRegisterDrawer({ open, onClose, inStockOnly, setInStockOnly, sortKey, setSortKey, places, activePlaceId, setActivePlaceId }: Props) {
     const [openSettings, setOpenSettings] = React.useState(false);
     const t = useTranslations('CashRegister');
     const common = useTranslations('Common');
@@ -38,6 +41,26 @@ export default function CashRegisterDrawer({ open, onClose, inStockOnly, setInSt
             <div className="space-y-6 flex flex-col h-full justify-between">
                 {/* Filters section */}
                 <section className="space-y-6">
+                    {/* Place selector when user has multiple places */}
+                    {Array.isArray(places) && places.length > 1 ? (
+                        <section>
+                            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                {t('place', { default: 'Place' })}
+                            </h3>
+                            <Dropdown
+                                align="left"
+                                buttonLabel={
+                                    (places.find((p) => p.id === activePlaceId)?.name ?? places[0].name) +
+                                    (places.length > 1 ? ` (${places.length})` : '')
+                                }
+                                items={places.map((p) => ({ key: p.id, label: p.name }))}
+                                onSelect={(key) => {
+                                    setActivePlaceId?.(key);
+                                    onClose();
+                                }}
+                            />
+                        </section>
+                    ) : null}
                     <section>
                         <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                             {t('filters', { default: 'Filters' })}

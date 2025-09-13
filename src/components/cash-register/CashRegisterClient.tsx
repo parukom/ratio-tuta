@@ -18,7 +18,7 @@ import { SortKey, useCart, useGroupedSearch, usePlaceItems, usePlaces } from './
 export default function CashRegisterClient() {
     const searchParams = useSearchParams();
     const queryPlaceId = searchParams.get('placeId');
-    const { places, activePlaceId, currency, error: placesError } = usePlaces(queryPlaceId);
+    const { places, activePlaceId, setActivePlaceId, currency, error: placesError } = usePlaces(queryPlaceId);
     const { placeItems, reload: reloadItems, reloadQuiet, error: itemsError, loading: loadingItems } = usePlaceItems(activePlaceId);
     const placesLoading = places === null;
     const isReady = !placesLoading && (!activePlaceId || !loadingItems);
@@ -113,6 +113,9 @@ export default function CashRegisterClient() {
                 setInStockOnly={setInStockOnly}
                 sortKey={sortKey as SortKey}
                 setSortKey={setSortKey as (v: React.SetStateAction<SortKey>) => void}
+                places={places}
+                activePlaceId={activePlaceId}
+                setActivePlaceId={setActivePlaceId}
             />
 
             {/* Content */}
