@@ -70,9 +70,7 @@ export async function GET(
             ? 'l'
             : item.measurementType === 'AREA'
               ? 'm2'
-              : item.measurementType === 'TIME'
-                ? 'h'
-                : 'pcs';
+              : 'pcs';
   return NextResponse.json({ ...item, unit });
 }
 
@@ -177,7 +175,6 @@ export async function PATCH(
       'LENGTH',
       'VOLUME',
       'AREA',
-      'TIME',
     ]);
     if (!valid.has(v))
       return NextResponse.json(
@@ -186,29 +183,14 @@ export async function PATCH(
       );
     (
       data as {
-        measurementType?:
-          | 'PCS'
-          | 'WEIGHT'
-          | 'LENGTH'
-          | 'VOLUME'
-          | 'AREA'
-          | 'TIME';
+  measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
       }
-    ).measurementType = v as
-      | 'PCS'
-      | 'WEIGHT'
-      | 'LENGTH'
-      | 'VOLUME'
-      | 'AREA'
-      | 'TIME';
+  ).measurementType = v as 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
   }
   // legacy 'unit' to measurementType mapping
   if ('unit' in body && typeof body.unit === 'string') {
     const u = body.unit.trim().toLowerCase();
-    const map: Record<
-      string,
-      'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'
-    > = {
+  const map: Record<string, 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'> = {
       pcs: 'PCS',
       piece: 'PCS',
       pieces: 'PCS',
@@ -231,15 +213,6 @@ export async function PATCH(
       m2: 'AREA',
       sqm: 'AREA',
       sq: 'AREA',
-      h: 'TIME',
-      hr: 'TIME',
-      hour: 'TIME',
-      hours: 'TIME',
-      min: 'TIME',
-      minute: 'TIME',
-      s: 'TIME',
-      sec: 'TIME',
-      second: 'TIME',
     };
     const mt = map[u];
     if (mt)
@@ -250,8 +223,7 @@ export async function PATCH(
             | 'WEIGHT'
             | 'LENGTH'
             | 'VOLUME'
-            | 'AREA'
-            | 'TIME';
+            | 'AREA';
         }
       ).measurementType = mt;
   }
@@ -343,9 +315,7 @@ export async function PATCH(
               ? 'l'
               : updated.measurementType === 'AREA'
                 ? 'm2'
-                : updated.measurementType === 'TIME'
-                  ? 'h'
-                  : 'pcs';
+                : 'pcs';
     return NextResponse.json({ ...updated, unit });
   } catch (e) {
     const err = e as { code?: string };

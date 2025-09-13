@@ -3,8 +3,7 @@ export type MeasurementTypeUI =
   | 'WEIGHT'
   | 'LENGTH'
   | 'VOLUME'
-  | 'AREA'
-  | 'TIME';
+  | 'AREA';
 
 function trimZeros(n: number, frac: number = 2) {
   const s = n.toFixed(frac);
@@ -30,11 +29,6 @@ export function formatQuantity(
       return `${qty} l`;
     case 'AREA':
       return `${qty} m2`;
-    case 'TIME': {
-      // qty assumed stored as hours; display minutes
-      const minutes = qty * 60;
-      return `${minutes} ${opts?.min || 'min'}`;
-    }
     case 'PCS':
     default:
       return `${qty} ${unit || opts?.pcs || 'pcs'}`;

@@ -34,7 +34,7 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
     const [price, setPrice] = useState('')
     const [boxCost, setBoxCost] = useState('')
     const [taxRateBps, setTaxRateBps] = useState('0')
-    const [measurementType, setMeasurementType] = useState<'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'>('PCS')
+    const [measurementType, setMeasurementType] = useState<'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'>('PCS')
     const [skuPrefix, setSkuPrefix] = useState('')
     const [imageFile, setImageFile] = useState<File | null>(null)
     // categories
@@ -73,7 +73,7 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
             const vTax = localStorage.getItem(LS_TAX)
             if (vTax != null) setTaxRateBps(vTax)
 
-            const allowed = ['PCS', 'WEIGHT', 'LENGTH', 'VOLUME', 'AREA', 'TIME'] as const
+            const allowed = ['PCS', 'WEIGHT', 'LENGTH', 'VOLUME', 'AREA'] as const
             const vMT = localStorage.getItem(LS_MT) as typeof measurementType | null
             if (vMT && (allowed as readonly string[]).includes(vMT)) setMeasurementType(vMT)
 
@@ -296,7 +296,6 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
                                             { key: 'LENGTH', label: t('forms.measurementOptions.LENGTH') },
                                             { key: 'VOLUME', label: t('forms.measurementOptions.VOLUME') },
                                             { key: 'AREA', label: t('forms.measurementOptions.AREA') },
-                                            { key: 'TIME', label: t('forms.measurementOptions.TIME') },
                                         ] as Array<{ key: typeof measurementType; label: string }>
                                     ).find(o => o.key === measurementType)?.label || t('forms.select')}
                                     items={[
@@ -305,7 +304,6 @@ export default function CreateBoxButton({ teamId, defaultCategoryId, onDone }: P
                                         { key: 'LENGTH', label: t('forms.measurementOptions.LENGTH') },
                                         { key: 'VOLUME', label: t('forms.measurementOptions.VOLUME') },
                                         { key: 'AREA', label: t('forms.measurementOptions.AREA') },
-                                        { key: 'TIME', label: t('forms.measurementOptions.TIME') },
                                     ]}
                                     onSelect={(key) => setMeasurementType(key as typeof measurementType)}
                                 />

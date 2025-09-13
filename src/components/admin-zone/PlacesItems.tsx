@@ -14,7 +14,7 @@ type AssignedItem = {
         name: string;
         sku?: string | null;
         price: number;
-        measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME';
+    measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
     };
 }
 
@@ -47,8 +47,8 @@ export const PlacesItems = ({ placeId, currency = 'EUR', onCountChange }: Props)
         price: number;
         taxRateBps: number;
         isActive: boolean;
-        unit: string;
-        measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME';
+    unit: string;
+    measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
         stockQuantity: number;
         createdAt: string;
         updatedAt: string;
@@ -212,12 +212,11 @@ export const PlacesItems = ({ placeId, currency = 'EUR', onCountChange }: Props)
                                         <div className={`transition-opacity duration-1000 ${assignedReveal ? 'opacity-100' : 'opacity-0'}`}>
                                             {(() => {
                                                 const q = Number(row.quantity || 0)
-                                                const mt = row.item?.measurementType as undefined | 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'
+                                                const mt = row.item?.measurementType as undefined | 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'
                                                 if (mt === 'WEIGHT') return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`
                                                 if (mt === 'LENGTH') return `${q} m (${q * 100} cm)`
                                                 if (mt === 'VOLUME') return `${q} l`
                                                 if (mt === 'AREA') return `${q} m2`
-                                                if (mt === 'TIME') return `${q} h (${q * 60} min)`
                                                 return `${q} pcs`
                                             })()}
                                         </div>
@@ -258,8 +257,8 @@ export const PlacesItems = ({ placeId, currency = 'EUR', onCountChange }: Props)
                         <div><span className="font-medium">{t('place.items.price')}:</span> {new Intl.NumberFormat('en-US', { style: 'currency', currency: currency || 'EUR' }).format(info.price || 0)}</div>
                         <div><span className="font-medium">{t('place.items.tax')}:</span> {(info.taxRateBps / 100).toFixed(2)}%</div>
                         <div><span className="font-medium">{t('place.items.active')}:</span> {info.isActive ? tc('yes') : tc('no')}</div>
-                        <div><span className="font-medium">{t('place.items.warehouseStock')}:</span> {(() => { const q = Number(info.stockQuantity || 0); if (info.measurementType === 'WEIGHT') return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`; if (info.measurementType === 'LENGTH') return `${q} m (${q * 100} cm)`; if (info.measurementType === 'VOLUME') return `${q} l`; if (info.measurementType === 'AREA') return `${q} m2`; if (info.measurementType === 'TIME') return `${q} h (${q * 60} min)`; return q; })()}</div>
-                        <div><span className="font-medium">{t('place.items.assignedHere')}:</span> {(() => { const q = Number(info.placeQuantity || 0); if (info.measurementType === 'WEIGHT') return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`; if (info.measurementType === 'LENGTH') return `${q} m (${q * 100} cm)`; if (info.measurementType === 'VOLUME') return `${q} l`; if (info.measurementType === 'AREA') return `${q} m2`; if (info.measurementType === 'TIME') return `${q} h (${q * 60} min)`; return q; })()}</div>
+                        <div><span className="font-medium">{t('place.items.warehouseStock')}:</span> {(() => { const q = Number(info.stockQuantity || 0); if (info.measurementType === 'WEIGHT') return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`; if (info.measurementType === 'LENGTH') return `${q} m (${q * 100} cm)`; if (info.measurementType === 'VOLUME') return `${q} l`; if (info.measurementType === 'AREA') return `${q} m2`; return q; })()}</div>
+                        <div><span className="font-medium">{t('place.items.assignedHere')}:</span> {(() => { const q = Number(info.placeQuantity || 0); if (info.measurementType === 'WEIGHT') return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`; if (info.measurementType === 'LENGTH') return `${q} m (${q * 100} cm)`; if (info.measurementType === 'VOLUME') return `${q} l`; if (info.measurementType === 'AREA') return `${q} m2`; return q; })()}</div>
                         <div><span className="font-medium">{t('place.items.createdAt')}:</span> {new Date(info.createdAt).toLocaleString()}</div>
                         <div><span className="font-medium">{t('place.items.updatedAt')}:</span> {new Date(info.updatedAt).toLocaleString()}</div>
                     </div>

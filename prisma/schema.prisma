@@ -327,5 +327,4 @@ enum MeasurementType {
   LENGTH // m, cm
   VOLUME // l, ml
   AREA // m2
-  TIME // valandos, minutės
 }

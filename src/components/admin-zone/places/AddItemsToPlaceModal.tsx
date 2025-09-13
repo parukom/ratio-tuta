@@ -18,7 +18,7 @@ type Item = {
     isActive: boolean
     unit?: string | null
     stockQuantity?: number
-    measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'
+    measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'
     color?: string | null
 }
 
@@ -146,16 +146,17 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
     const groups = useMemo(() => {
         const map = new Map<string, Group>()
         for (const it of visibleItems) {
-            const base = (it.name || '').split(' - ')[0] || it.name
+            const name = it.name || ''
+            const base = name.split(' - ')[0] || name
             const color = it.color ?? null
             const key = `${base}|${color || ''}`
             const stock = typeof it.stockQuantity === 'number' ? it.stockQuantity : 0
             const existing = map.get(key)
             if (!existing) {
-                map.set(key, { key, label: base, color: color ?? null, items: [it], totalStock: stock ?? 0 })
+                map.set(key, { key, label: base, color, items: [it], totalStock: stock })
             } else {
                 existing.items.push(it)
-                existing.totalStock += stock ?? 0
+                existing.totalStock += stock
             }
         }
         // Sort items within group by inferred size/name
@@ -307,7 +308,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                                                 <span>{it.sku || '—'}</span>
                                                 {it.categoryName && <span>• {it.categoryName}</span>}
                                                 <span className="inline-flex items-center rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700 ring-1 ring-inset ring-gray-200 dark:bg-white/5 dark:text-gray-300 dark:ring-white/10">
-                                                    {t('place.items.assignModal.inWarehouse')}: {(() => { const q = Number(it.stockQuantity ?? 0); if (it.measurementType === 'WEIGHT') return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`; if (it.measurementType === 'LENGTH') return `${q} m (${q * 100} cm)`; if (it.measurementType === 'VOLUME') return `${q} l`; if (it.measurementType === 'AREA') return `${q} m2`; if (it.measurementType === 'TIME') return `${q} h (${q * 60} min)`; return `${q} ${it.unit ?? 'pcs'}`; })()}
+                                                    {t('place.items.assignModal.inWarehouse')}: {(() => { const q = Number(it.stockQuantity ?? 0); if (it.measurementType === 'WEIGHT') return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`; if (it.measurementType === 'LENGTH') return `${q} m (${q * 100} cm)`; if (it.measurementType === 'VOLUME') return `${q} l`; if (it.measurementType === 'AREA') return `${q} m2`; return `${q} ${it.unit ?? 'pcs'}`; })()}
                                                 </span>
                                             </div>
                                         </div>
@@ -369,7 +370,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                                                         g.totalStock,
                                                         g.items[0]?.measurementType,
                                                         g.items[0]?.unit,
-                                                        { pcs: ti('units.pcsShort'), min: ti('units.minShort') }
+                                                        { pcs: ti('units.pcsShort') }
                                                     )}</div>
                                                 </div>
                                             </div>
@@ -401,7 +402,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                                                                             it.stockQuantity ?? 0,
                                                                             it.measurementType,
                                                                             it.unit,
-                                                                            { pcs: ti('units.pcsShort'), min: ti('units.minShort') }
+                                                                            { pcs: ti('units.pcsShort') }
                                                                         )}
                                                                     </span>
                                                                 </div>

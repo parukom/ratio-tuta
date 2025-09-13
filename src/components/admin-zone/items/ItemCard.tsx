@@ -16,7 +16,7 @@ type ItemRow = {
     taxRateBps: number
     isActive: boolean
     unit?: string
-    measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'
+    measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'
     stockQuantity?: number
     createdAt: string
     currency: string
@@ -196,7 +196,6 @@ export function ItemCard({
                         <div className="text-sm font-medium text-gray-900 dark:text-white">{(() => {
                             switch (item.measurementType) {
                                 case 'WEIGHT': return 'kg/g'
-                                case 'TIME': return 'min'
                                 case 'LENGTH': return 'm'
                                 case 'VOLUME': return 'l'
                                 case 'AREA': return 'm2'
@@ -211,7 +210,7 @@ export function ItemCard({
                             item.stockQuantity ?? 0,
                             item.measurementType,
                             item.unit,
-                            { pcs: t('units.pcsShort'), min: t('units.minShort') }
+                            { pcs: t('units.pcsShort') }
                         )}</div>
                     </div>
                 </div>

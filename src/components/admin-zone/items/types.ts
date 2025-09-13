@@ -10,7 +10,7 @@ export type ItemRow = {
   taxRateBps: number;
   isActive: boolean;
   unit?: string;
-  measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME';
+  measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
   stockQuantity?: number;
   createdAt: string;
   currency: string;

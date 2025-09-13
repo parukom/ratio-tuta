@@ -6,7 +6,7 @@ export type CartItem = {
   quantity: number;
   // Optional precomputed subtotal for display (e.g., weight uses kg pricing)
   subtotal?: number;
-  measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME';
+  measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
 };
 export type CartLine = {
   itemId: string;
@@ -14,7 +14,7 @@ export type CartLine = {
   price: number;
   quantity: number;
   // For LENGTH items, quantity can be decimal meters; otherwise integer
-  measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME';
+  measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
 };
 
 export type FooterProps = {
@@ -52,7 +52,7 @@ export type PlaceItem = {
     color?: string | null;
     size?: string | null;
     unit?: string | null;
-    measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME';
+  measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
   };
 };
 
@@ -73,6 +73,6 @@ export type GroupedPlaceItem = {
     image?: string | null;
     size?: string | null;
     unit?: string | null;
-    measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME';
+  measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
   }>;
 };

@@ -648,8 +648,7 @@
         "WEIGHT": "Weight",
         "LENGTH": "Length",
         "VOLUME": "Volume",
-        "AREA": "Area",
-        "TIME": "Time"
+        "AREA": "Area"
       },
       "select": "Select",
       "initialStock": {
@@ -657,16 +656,14 @@
         "WEIGHT": "Initial stock (kg)",
         "LENGTH": "Initial stock (m)",
         "VOLUME": "Initial stock (l)",
-        "AREA": "Initial stock (m2)",
-        "TIME": "Initial stock (h)"
+        "AREA": "Initial stock (m2)"
       },
       "stock": {
         "PCS": "Stock (pcs)",
         "WEIGHT": "Stock (kg)",
         "LENGTH": "Stock (m)",
         "VOLUME": "Stock (l)",
-        "AREA": "Stock (m2)",
-        "TIME": "Stock (h)"
+        "AREA": "Stock (m2)"
       },
       "descriptionOptional": "Description (optional)",
       "colorOptional": "Color (optional)",
@@ -729,8 +726,7 @@
       "failedToUploadImage": "Failed to upload image"
     },
     "units": {
-      "pcsShort": "pcs",
-      "minShort": "min"
+      "pcsShort": "pcs"
     }
   },
   "CashRegister": {
@@ -767,9 +763,7 @@
       "WEIGHT": "Weight",
       "LENGTH": "Length",
       "VOLUME": "Volume",
-      "AREA": "Area",
-      "TIME": "Time",
-      "kilograms": "Kilograms"
+      "AREA": "Area"
     }
   }
 }

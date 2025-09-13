@@ -91,9 +91,7 @@ export default function ItemsTableView({ items, loading, onItemUpdated, onItemDe
                                         if (it.measurementType === 'LENGTH') {
                                             return `${q} m (${q * 100} cm)`
                                         }
-                                        if (it.measurementType === 'TIME') {
-                                            return `${q} h (${q * 60} min)`
-                                        }
+                                        
                                         return q
                                     })()}
                                 </td>

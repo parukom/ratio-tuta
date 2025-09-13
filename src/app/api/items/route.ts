@@ -80,7 +80,7 @@ export async function GET(req: Request) {
   }
 
   // Build filters
-  type MT = 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME';
+  type MT = 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
   const whereClause: Prisma.ItemWhereInput = {
     teamId: { in: filterTeamIds },
     ...(filterPlaceId ? { places: { some: { placeId: filterPlaceId } } } : {}),
@@ -95,7 +95,7 @@ export async function GET(req: Request) {
       : {}),
     ...(categoryIdParam ? { categoryId: categoryIdParam } : {}),
     ...(measurementTypeParam &&
-    ['PCS', 'WEIGHT', 'LENGTH', 'VOLUME', 'AREA', 'TIME'].includes(
+  ['PCS', 'WEIGHT', 'LENGTH', 'VOLUME', 'AREA'].includes(
       measurementTypeParam.toUpperCase(),
     )
       ? { measurementType: measurementTypeParam.toUpperCase() as MT }
@@ -212,9 +212,7 @@ export async function GET(req: Request) {
               ? 'l'
               : it.measurementType === 'AREA'
                 ? 'm2'
-                : it.measurementType === 'TIME'
-                  ? 'h'
-                  : 'pcs';
+                : 'pcs';
     return {
       id: it.id,
       teamId: it.teamId,
@@ -293,7 +291,7 @@ export async function POST(req: Request) {
   // normalize measurement type with legacy unit mapping
   const fromUnit = (u: string): MeasurementType => {
     const m = u.trim().toLowerCase();
-    const map: Record<string, MeasurementType> = {
+  const map: Record<string, MeasurementType> = {
       pcs: 'PCS',
       piece: 'PCS',
       pieces: 'PCS',
@@ -316,15 +314,6 @@ export async function POST(req: Request) {
       m2: 'AREA',
       sqm: 'AREA',
       sq: 'AREA',
-      h: 'TIME',
-      hr: 'TIME',
-      hour: 'TIME',
-      hours: 'TIME',
-      min: 'TIME',
-      minute: 'TIME',
-      s: 'TIME',
-      sec: 'TIME',
-      second: 'TIME',
     };
     return map[m] ?? 'PCS';
   };
@@ -366,7 +355,6 @@ export async function POST(req: Request) {
     'LENGTH',
     'VOLUME',
     'AREA',
-    'TIME',
   ]);
   if (!validMeasurementTypes.has(measurementType as MeasurementType)) {
     return NextResponse.json(
@@ -502,9 +490,7 @@ export async function POST(req: Request) {
               ? 'l'
               : created.measurementType === 'AREA'
                 ? 'm2'
-                : created.measurementType === 'TIME'
-                  ? 'h'
-                  : 'pcs';
+                : 'pcs';
     return NextResponse.json(
       { ...created, unit: createdUnit },
       { status: 201 },

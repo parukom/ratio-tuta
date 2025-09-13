@@ -41,7 +41,7 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
   const [pricePaid, setPricePaid] = useState('')
   const [taxRateBps, setTaxRateBps] = useState('0')
   const [isActive, setIsActive] = useState(true)
-  const [measurementType, setMeasurementType] = useState<'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'>('PCS')
+  const [measurementType, setMeasurementType] = useState<'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'>('PCS')
   const [stockQuantity, setStockQuantity] = useState('0')
   // For WEIGHT items allow entering quantity in kg or g, but we will save as grams (int)
   const [weightUnit, setWeightUnit] = useState<'kg' | 'g'>('kg')
@@ -248,7 +248,6 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
                       { key: 'LENGTH', label: t('forms.measurementOptions.LENGTH') },
                       { key: 'VOLUME', label: t('forms.measurementOptions.VOLUME') },
                       { key: 'AREA', label: t('forms.measurementOptions.AREA') },
-                      { key: 'TIME', label: t('forms.measurementOptions.TIME') },
                     ] as Array<{ key: typeof measurementType; label: string }>
                   ).find(o => o.key === measurementType)?.label || t('forms.select')}
                   items={[
@@ -257,7 +256,6 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
                     { key: 'LENGTH', label: t('forms.measurementOptions.LENGTH') },
                     { key: 'VOLUME', label: t('forms.measurementOptions.VOLUME') },
                     { key: 'AREA', label: t('forms.measurementOptions.AREA') },
-                    { key: 'TIME', label: t('forms.measurementOptions.TIME') },
                   ]}
                   onSelect={(key) => { setMeasurementType(key as typeof measurementType); if (key !== 'WEIGHT') setWeightUnit('kg') }}
                 />
@@ -281,7 +279,7 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
                       : measurementType === 'LENGTH' ? t('forms.initialStock.LENGTH')
                         : measurementType === 'VOLUME' ? t('forms.initialStock.VOLUME')
                           : measurementType === 'AREA' ? t('forms.initialStock.AREA')
-                            : t('forms.initialStock.TIME')
+                            : t('forms.initialStock.PCS')
                 }
                 value={stockQuantity}
                 onChange={(e) => setStockQuantity(e.target.value)}

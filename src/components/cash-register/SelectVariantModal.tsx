@@ -12,7 +12,7 @@ export type VariantChild = {
     sku: string | null
     size?: string | null
     unit?: string | null
-    measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'
+    measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'
 }
 
 export type VariantGroup = {
@@ -42,8 +42,6 @@ const measurementLabel = (mt?: VariantChild['measurementType'], unit?: string | 
             return unit || (units?.VOLUME ?? 'Volume')
         case 'AREA':
             return unit || (units?.AREA ?? 'Area')
-        case 'TIME':
-            return unit || (units?.TIME ?? 'Time')
         case 'PCS':
         default:
             return unit || (units?.PCS ?? 'Pieces')
@@ -59,7 +57,6 @@ export default function SelectVariantModal({ open, onClose, group, onConfirm, cu
         LENGTH: string;
         VOLUME: string;
         AREA: string;
-        TIME: string;
         kilograms: string;
     }
     const units = t.raw('units') as UnitsMap

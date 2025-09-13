@@ -20,7 +20,7 @@ type ItemRow = {
     taxRateBps: number
     isActive: boolean
     unit?: string
-    measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'
+    measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'
     stockQuantity?: number
     createdAt: string
     currency: string
@@ -59,7 +59,6 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
         if (['m', 'cm', 'mm', 'meter', 'metres'].includes(m)) return 'LENGTH'
         if (['l', 'ml', 'litre', 'liters'].includes(m)) return 'VOLUME'
         if (['m2', 'sqm', 'sq'].includes(m)) return 'AREA'
-        if (['h', 'hr', 'hour', 'hours', 'min', 'minute', 's', 'sec', 'second'].includes(m)) return 'TIME'
         return 'PCS'
     }
     const [measurementType, setMeasurementType] = useState<ItemRow['measurementType']>(item.measurementType ?? mapUnitToMT(item.unit ?? 'pcs'))
@@ -329,7 +328,6 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
                                         { key: 'LENGTH', label: ti('forms.measurementOptions.LENGTH') },
                                         { key: 'VOLUME', label: ti('forms.measurementOptions.VOLUME') },
                                         { key: 'AREA', label: ti('forms.measurementOptions.AREA') },
-                                        { key: 'TIME', label: ti('forms.measurementOptions.TIME') },
                                     ] as Array<{ key: ItemRow['measurementType']; label: string }>).find(o => o.key === measurementType)?.label || ti('forms.select')}
                                     items={[
                                         { key: 'PCS', label: ti('forms.measurementOptions.PCS') },
@@ -337,7 +335,6 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
                                         { key: 'LENGTH', label: ti('forms.measurementOptions.LENGTH') },
                                         { key: 'VOLUME', label: ti('forms.measurementOptions.VOLUME') },
                                         { key: 'AREA', label: ti('forms.measurementOptions.AREA') },
-                                        { key: 'TIME', label: ti('forms.measurementOptions.TIME') },
                                     ]}
                                     onSelect={(key) => { setMeasurementType(key as ItemRow['measurementType']); if (key !== 'WEIGHT') setWeightUnit('kg') }}
                                 />
@@ -361,7 +358,7 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
                                             : measurementType === 'LENGTH' ? ti('forms.stock.LENGTH')
                                                 : measurementType === 'VOLUME' ? ti('forms.stock.VOLUME')
                                                     : measurementType === 'AREA' ? ti('forms.stock.AREA')
-                                                        : ti('forms.stock.TIME')
+                                                    : ti('forms.stock.PCS')
                                 }
                                 value={stockQuantity}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStockQuantity(e.target.value)}

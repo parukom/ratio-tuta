@@ -44,7 +44,7 @@ export default function InnerItems() {
             setOnlyActive(vOnlyActive === "1" || vOnlyActive === "true")
             setCategoryId(localStorage.getItem("items:categoryId") || "")
             const vMT = localStorage.getItem("items:measurementType") as ItemRow["measurementType"] | "" | null
-            const allowed = ["PCS", "WEIGHT", "LENGTH", "VOLUME", "AREA", "TIME"] as const
+            const allowed = ["PCS", "WEIGHT", "LENGTH", "VOLUME", "AREA"] as const
             setMeasurementType(vMT && (allowed as readonly string[]).includes(vMT) ? vMT : "")
             const vInStock = localStorage.getItem("items:inStock")
             setInStock(vInStock === "1" || vInStock === "true")

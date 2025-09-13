@@ -86,7 +86,7 @@ export default function CreateItemOrBoxButton({
     const [it_pricePaid, it_setPricePaid] = useState('')
     const [it_taxRateBps, it_setTaxRateBps] = useState('0')
     const [it_isActive, it_setIsActive] = useState(true)
-    const [it_measurementType, it_setMeasurementType] = useState<'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'>('PCS')
+    const [it_measurementType, it_setMeasurementType] = useState<'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'>('PCS')
     const [it_stockQuantity, it_setStockQuantity] = useState('0')
     const [it_weightUnit, it_setWeightUnit] = useState<'kg' | 'g'>('kg')
     const [it_description, it_setDescription] = useState('')
@@ -206,7 +206,7 @@ export default function CreateItemOrBoxButton({
     const [bx_price, bx_setPrice] = useState('')
     const [bx_boxCost, bx_setBoxCost] = useState('')
     const [bx_taxRateBps, bx_setTaxRateBps] = useState('0')
-    const [bx_measurementType, bx_setMeasurementType] = useState<'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME'>('PCS')
+    const [bx_measurementType, bx_setMeasurementType] = useState<'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'>('PCS')
     const [bx_skuPrefix, bx_setSkuPrefix] = useState('')
     const [bx_imageFile, bx_setImageFile] = useState<File | null>(null)
     const [bx_categoryId, bx_setCategoryId] = useState<string | ''>(defaultCategoryId || '')
@@ -224,7 +224,7 @@ export default function CreateItemOrBoxButton({
             const vTax = localStorage.getItem(LS_TAX)
             if (vTax != null) bx_setTaxRateBps(vTax)
 
-            const allowed = ['PCS', 'WEIGHT', 'LENGTH', 'VOLUME', 'AREA', 'TIME'] as const
+            const allowed = ['PCS', 'WEIGHT', 'LENGTH', 'VOLUME', 'AREA'] as const
             const vMT = localStorage.getItem(LS_MT) as typeof bx_measurementType | null
             if (vMT && (allowed as readonly string[]).includes(vMT)) bx_setMeasurementType(vMT)
 
@@ -455,7 +455,6 @@ export default function CreateItemOrBoxButton({
                                                     { key: 'LENGTH', label: t('forms.measurementOptions.LENGTH') },
                                                     { key: 'VOLUME', label: t('forms.measurementOptions.VOLUME') },
                                                     { key: 'AREA', label: t('forms.measurementOptions.AREA') },
-                                                    { key: 'TIME', label: t('forms.measurementOptions.TIME') },
                                                 ] as Array<{ key: typeof it_measurementType; label: string }>
                                             ).find(o => o.key === it_measurementType)?.label || t('forms.select')}
                                             items={[
@@ -464,7 +463,6 @@ export default function CreateItemOrBoxButton({
                                                 { key: 'LENGTH', label: t('forms.measurementOptions.LENGTH') },
                                                 { key: 'VOLUME', label: t('forms.measurementOptions.VOLUME') },
                                                 { key: 'AREA', label: t('forms.measurementOptions.AREA') },
-                                                { key: 'TIME', label: t('forms.measurementOptions.TIME') },
                                             ]}
                                             onSelect={(key) => { it_setMeasurementType(key as typeof it_measurementType); if (key !== 'WEIGHT') it_setWeightUnit('kg') }}
                                         />
@@ -487,7 +485,7 @@ export default function CreateItemOrBoxButton({
                                                     : it_measurementType === 'LENGTH' ? t('forms.initialStock.LENGTH')
                                                         : it_measurementType === 'VOLUME' ? t('forms.initialStock.VOLUME')
                                                             : it_measurementType === 'AREA' ? t('forms.initialStock.AREA')
-                                                                : t('forms.initialStock.TIME')
+                                                                : t('forms.initialStock.PCS')
                                         }
                                         value={it_stockQuantity}
                                         onChange={(e) => it_setStockQuantity(e.target.value)}
@@ -575,7 +573,6 @@ export default function CreateItemOrBoxButton({
                                                     { key: 'LENGTH', label: t('forms.measurementOptions.LENGTH') },
                                                     { key: 'VOLUME', label: t('forms.measurementOptions.VOLUME') },
                                                     { key: 'AREA', label: t('forms.measurementOptions.AREA') },
-                                                    { key: 'TIME', label: t('forms.measurementOptions.TIME') },
                                                 ] as Array<{ key: typeof bx_measurementType; label: string }>
                                             ).find(o => o.key === bx_measurementType)?.label || t('forms.select')}
                                             items={[
@@ -584,7 +581,6 @@ export default function CreateItemOrBoxButton({
                                                 { key: 'LENGTH', label: t('forms.measurementOptions.LENGTH') },
                                                 { key: 'VOLUME', label: t('forms.measurementOptions.VOLUME') },
                                                 { key: 'AREA', label: t('forms.measurementOptions.AREA') },
-                                                { key: 'TIME', label: t('forms.measurementOptions.TIME') },
                                             ]}
                                             onSelect={(key) => bx_setMeasurementType(key as typeof bx_measurementType)}
                                         />
@@ -600,7 +596,7 @@ export default function CreateItemOrBoxButton({
                                 <div className="mb-1 text-sm font-medium text-gray-800 dark:text-gray-200">{t('forms.sizesInBox')}</div>
                                 <p className="mb-2 text-xs text-gray-600 dark:text-gray-400">
                                     Each row represents a size/variant (e.g., 35, M). Quantity adds stock per item using the selected measurement
-                                    type ({bx_measurementType === 'PCS' ? 'pieces' : bx_measurementType === 'WEIGHT' ? 'kg' : bx_measurementType === 'LENGTH' ? 'm' : bx_measurementType === 'VOLUME' ? 'l' : bx_measurementType === 'AREA' ? 'm²' : 'hours'}).
+                                    type ({bx_measurementType === 'PCS' ? 'pieces' : bx_measurementType === 'WEIGHT' ? 'kg' : bx_measurementType === 'LENGTH' ? 'm' : bx_measurementType === 'VOLUME' ? 'l' : bx_measurementType === 'AREA' ? 'm²' : ''}).
                                 </p>
                                 <div className="space-y-2">
                                     {bx_sizes.map((row, idx) => (
@@ -613,7 +609,7 @@ export default function CreateItemOrBoxButton({
                                                         <button type="button" onClick={() => bx_setWeightUnits(prev => ({ ...prev, [row.id]: 'g' }))} className={`px-2 py-1 text-xs ${((bx_weightUnits[row.id] || 'kg') === 'g') ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>g</button>
                                                     </div>
                                                 )}
-                                                <Input id={`bx_qty-${row.id}`} name={`quantity-${idx}`} type="number" placeholder={`Quantity (${bx_measurementType === 'PCS' ? 'pcs' : bx_measurementType === 'WEIGHT' ? (bx_weightUnits[row.id] || 'kg') : bx_measurementType === 'LENGTH' ? 'm' : bx_measurementType === 'VOLUME' ? 'l' : bx_measurementType === 'AREA' ? 'm2' : 'h'})`} value={row.quantity} onChange={(e) => bx_updateRow(row.id, { quantity: e.target.value })} />
+                                                <Input id={`bx_qty-${row.id}`} name={`quantity-${idx}`} type="number" placeholder={`Quantity (${bx_measurementType === 'PCS' ? 'pcs' : bx_measurementType === 'WEIGHT' ? (bx_weightUnits[row.id] || 'kg') : bx_measurementType === 'LENGTH' ? 'm' : bx_measurementType === 'VOLUME' ? 'l' : bx_measurementType === 'AREA' ? 'm2' : ''})`} value={row.quantity} onChange={(e) => bx_updateRow(row.id, { quantity: e.target.value })} />
                                                 {bx_measurementType === 'WEIGHT' && row.quantity && Number(row.quantity) > 0 && (
                                                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                                                         {(bx_weightUnits[row.id] || 'kg') === 'kg' ? `${Math.round(Number(row.quantity) * 1000)} g will be saved` : `${(Number(row.quantity) / 1000).toFixed(3)} kg`}

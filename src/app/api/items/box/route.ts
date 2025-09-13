@@ -92,21 +92,14 @@ export async function POST(req: Request) {
   const boxCost = Number(typeof body.boxCost === 'number' ? body.boxCost : 0);
   const taxRateBps = Number(body.taxRateBps ?? 0);
   // Determine measurement type with legacy unit mapping
-  type MT = 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA' | 'TIME';
+  type MT = 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
   const mtRaw = (body.measurementType || '').toString().toUpperCase();
-  const validMT = new Set<MT>([
-    'PCS',
-    'WEIGHT',
-    'LENGTH',
-    'VOLUME',
-    'AREA',
-    'TIME',
-  ]);
+  const validMT = new Set<MT>(['PCS', 'WEIGHT', 'LENGTH', 'VOLUME', 'AREA']);
   let measurementType: MT = 'PCS';
   if (validMT.has(mtRaw as MT)) measurementType = mtRaw as MT;
   else if (typeof body.unit === 'string') {
     const u = body.unit.trim().toLowerCase();
-    const map: Record<string, MT> = {
+  const map: Record<string, MT> = {
       pcs: 'PCS',
       piece: 'PCS',
       pieces: 'PCS',
@@ -126,13 +119,6 @@ export async function POST(req: Request) {
       litre: 'VOLUME',
       m2: 'AREA',
       sqm: 'AREA',
-      h: 'TIME',
-      hr: 'TIME',
-      hour: 'TIME',
-      min: 'TIME',
-      minute: 'TIME',
-      s: 'TIME',
-      sec: 'TIME',
     };
     measurementType = map[u] ?? 'PCS';
   }

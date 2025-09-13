@@ -161,7 +161,7 @@ export default function ItemsCardsView({ items, groups, grouped, loading, openGr
                                             g.totalStock,
                                             g.items[0]?.measurementType,
                                             g.items[0]?.unit,
-                                            { pcs: t('units.pcsShort'), min: t('units.minShort') }
+                                            { pcs: t('units.pcsShort') }
                                         )}</span>
                                         {!openGroups[g.key] && (
                                             <span className="truncate hidden sm:inline-block">• {t('cards.sizes')}: {g.items.map((i) => i.size).filter(Boolean).slice(0, 4).join(", ")}{g.items.filter((i) => i.size).length > 4 ? "…" : ""}</span>

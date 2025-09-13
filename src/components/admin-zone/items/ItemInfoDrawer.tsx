@@ -56,9 +56,7 @@ const ItemInfoDrawer = ({ open, onClose, item }: Props) => {
                             if (item?.measurementType === 'LENGTH') {
                                 return `${q} m (${q * 100} cm)`
                             }
-                            if (item?.measurementType === 'TIME') {
-                                return `${q} h (${q * 60} min)`
-                            }
+                            
                             return String(q)
                         })()} />
                         <InfoRow label={t('labels.unit')} value={item?.unit || (item?.measurementType === 'WEIGHT' ? 'kg (saved as g)' : 'pcs')} />

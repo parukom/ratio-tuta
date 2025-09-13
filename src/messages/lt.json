@@ -689,8 +689,7 @@
         "WEIGHT": "Svoris",
         "LENGTH": "Ilgis",
         "VOLUME": "Tūris",
-        "AREA": "Plotas",
-        "TIME": "Laikas"
+  "AREA": "Plotas"
       },
       "select": "Pasirinkti",
       "initialStock": {
@@ -698,16 +697,14 @@
         "WEIGHT": "Pradinis likutis (kg)",
         "LENGTH": "Pradinis likutis (m)",
         "VOLUME": "Pradinis likutis (l)",
-        "AREA": "Pradinis likutis (m2)",
-        "TIME": "Pradinis likutis (val)"
+  "AREA": "Pradinis likutis (m2)"
       },
       "stock": {
         "PCS": "Likutis (vnt)",
         "WEIGHT": "Likutis (kg)",
         "LENGTH": "Likutis (m)",
         "VOLUME": "Likutis (l)",
-        "AREA": "Likutis (m2)",
-        "TIME": "Likutis (val)"
+  "AREA": "Likutis (m2)"
       },
       "descriptionOptional": "Aprašymas (pasirinktinai)",
       "colorOptional": "Spalva (pasirinktinai)",
@@ -808,8 +805,7 @@
       "WEIGHT": "Svoris",
       "LENGTH": "Ilgis",
       "VOLUME": "Tūris",
-      "AREA": "Plotas",
-      "TIME": "Laikas",
+  "AREA": "Plotas",
       "kilograms": "Kilogramai"
     }
   }
