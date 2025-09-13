@@ -1,11 +1,12 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
+import Image from 'next/image'
+import { ChevronDown, ChevronRight, Edit3, Trash2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Group, ItemRow } from './types'
 import ItemCard from './ItemCard'
 import Spinner from '@/components/ui/Spinner'
-import { ChevronDown, ChevronRight, Edit3, Trash2 } from 'lucide-react'
-import { useTranslations } from 'next-intl'
 import { formatQuantity } from './format'
 
 type ItemsCardsViewProps = {
@@ -130,13 +131,26 @@ export default function ItemsCardsView({ items, groups, grouped, loading, openGr
                         <div className="flex items-center justify-between gap-3">
                             <div className={`flex min-w-0 items-center gap-3 ${headerFadeCls}`}>
                                 {openGroups[g.key] ? (<ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400" />) : (<ChevronRight className="h-4 w-4 text-gray-500 dark:text-gray-400" />)}
-                                <div
-                                    className="h-10 w-10 rounded-md ring-1 ring-inset ring-gray-200 dark:ring-white/10"
-                                    style={{
-                                        ...(g.color ? { backgroundColor: g.color } : {}),
-                                        ...(g.imageUrl ? { backgroundImage: `url(${g.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}),
-                                    }}
-                                />
+                                {g.imageUrl ? (
+                                    <div
+                                        className="min-h-10 max-h-10 min-w-10 max-w-10 rounded-md ring-1 ring-inset ring-gray-200 dark:ring-white/10 overflow-hidden"
+                                        style={g.color ? { backgroundColor: g.color } : undefined}
+                                    >
+                                        <Image
+                                            src={g.imageUrl}
+                                            alt={g.label || ''}
+                                            width={40}
+                                            height={40}
+                                            style={{ objectFit: 'cover', objectPosition: 'center' }}
+                                            className="h-10 w-10 rounded-md"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div
+                                        className="h-10 w-10 rounded-md ring-1 ring-inset ring-gray-200 dark:ring-white/10"
+                                        style={g.color ? { backgroundColor: g.color } : {}}
+                                    />
+                                )}
                                 <div className="min-w-0">
                                     <div className="truncate text-sm font-semibold text-gray-900 dark:text-white capitalize" title={g.label}>{g.label}</div>
                                     <div className={`flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400 ${headerFadeCls}`}>
@@ -150,12 +164,12 @@ export default function ItemsCardsView({ items, groups, grouped, loading, openGr
                                             { pcs: t('units.pcsShort'), min: t('units.minShort') }
                                         )}</span>
                                         {!openGroups[g.key] && (
-                                            <span className="truncate">• {t('cards.sizes')}: {g.items.map((i) => i.size).filter(Boolean).slice(0, 4).join(", ")}{g.items.filter((i) => i.size).length > 4 ? "…" : ""}</span>
+                                            <span className="truncate hidden sm:inline-block">• {t('cards.sizes')}: {g.items.map((i) => i.size).filter(Boolean).slice(0, 4).join(", ")}{g.items.filter((i) => i.size).length > 4 ? "…" : ""}</span>
                                         )}
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="flex flex-col sm:flex-row items-center gap-3">
                                 <div className={`hidden sm:block text-right text-xs text-gray-600 dark:text-gray-300 ${headerFadeCls}`}>
                                     <div>{t('cards.price')}: {new Intl.NumberFormat(undefined, { style: "currency", currency: g.items[0]?.currency || "EUR" }).format(g.price)}</div>
                                     {typeof g.pricePaid === 'number' && (
@@ -174,8 +188,11 @@ export default function ItemsCardsView({ items, groups, grouped, loading, openGr
                                         <Edit3 className="h-4 w-4" />
                                     </button>
                                 ) : (
-                                    <span className='h-4 w-4 m-2'></span>
+                                    <span className='hidden sm:block h-4 w-4 m-2'></span>
                                 )}
+                                {g.items.length <= 1 ? (
+                                    <span className="sm:hidden inline-block w-6 h-6"></span>
+                                ) : null}
                                 <button
                                     type="button"
                                     onClick={(e) => { e.stopPropagation(); onAskDeleteBox(g.key) }}
@@ -185,6 +202,7 @@ export default function ItemsCardsView({ items, groups, grouped, loading, openGr
                                 >
                                     <Trash2 className="h-4 w-4" />
                                 </button>
+
                             </div>
                         </div>
                     </div>
