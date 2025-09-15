@@ -60,7 +60,9 @@ model Team {
   items          Item[]
 
   // Back-reference: audit logs associated with this team
-  auditLogsForTeam AuditLog[] @relation("AuditTeam")
+  auditLogsForTeam AuditLog[]         @relation("AuditTeam")
+  // Package subscriptions for this team (history + active)
+  subscriptions    TeamSubscription[]
 }
 
 model TeamMember {
@@ -290,6 +292,52 @@ model PasswordResetToken {
   user User @relation(fields: [userId], references: [id])
 
   @@index([userId])
+}
+
+// Subscription packages available for teams
+model Package {
+  id                String             @id @default(uuid())
+  slug              String             @unique
+  name              String
+  description       String?
+  // prices stored in cents (EUR)
+  monthlyCents      Int                @default(0)
+  annualCents       Int                @default(0)
+  // freeform list of features/limits
+  features          String[]           @default([])
+  // metadata for future expansion (image quality, document storage, extra price, etc.)
+  metadata          Json?
+  isActive          Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  // Teams subscribed to this package
+  teamSubscriptions TeamSubscription[]
+}
+
+// Team subscriptions to packages (supports history and active subscriptions)
+model TeamSubscription {
+  id                String    @id @default(uuid())
+  teamId            String
+  packageId         String
+  isActive          Boolean   @default(true)
+  isAnnual          Boolean   @default(false)
+  // price at time of purchase (cents)
+  priceCents        Int
+  // seats or teammates allowed (nullable when unlimited)
+  seats             Int?
+  // extra paid storage in cents for extras
+  extraStorageCents Int?
+  metadata          Json?
+  startedAt         DateTime  @default(now())
+  expiresAt         DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  team    Team    @relation(fields: [teamId], references: [id])
+  package Package @relation(fields: [packageId], references: [id])
+
+  @@index([teamId])
+  @@index([packageId])
 }
 
 enum TeamRole {
