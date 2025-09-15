@@ -1,4 +1,5 @@
-import { PrismaClient } from '../src/generated/prisma';
+// Explicitly import the generated Prisma client entry file to avoid Node ESM directory import error
+import { PrismaClient } from '../src/generated/prisma/index.js';
 
 const prisma = new PrismaClient();
 

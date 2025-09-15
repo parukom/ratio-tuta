@@ -3,7 +3,6 @@ import Tabs from "@/components/ui/Tabs";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import SearchInput from "@/components/ui/SearchInput";
 import React, { Suspense, useEffect, useMemo, useState } from "react";
-import Spinner from "@/components/ui/Spinner";
 import BottomPaginationBar from "@/components/ui/BottomPaginationBar";
 import { useRouter, useSearchParams } from "next/navigation";
 import Modal from "@/components/modals/Modal";

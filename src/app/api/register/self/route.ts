@@ -92,6 +92,22 @@ export async function POST(req: Request) {
         select: { id: true, name: true, ownerId: true, createdAt: true },
       });
 
+      // Assign FREE package (by slug) as an initial subscription if exists
+      const freePkg = await tx.package.findUnique({ where: { slug: 'free' }, select: { id: true, monthlyCents: true } });
+      if (freePkg) {
+        await tx.teamSubscription.create({
+          data: {
+            teamId: team.id,
+            packageId: freePkg.id,
+            isActive: true,
+            isAnnual: false,
+            priceCents: 0, // free tier
+            seats: null,
+            metadata: { assignedOnRegistration: true },
+          },
+        });
+      }
+
       // Add membership as OWNER
       await tx.teamMember.create({
         data: { teamId: team.id, userId: createdUser.id, role: 'OWNER' },
