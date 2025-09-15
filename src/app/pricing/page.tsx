@@ -5,13 +5,13 @@ import Image from 'next/image'
 import { Dialog, DialogPanel, Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
 import { Bars3Icon, MinusSmallIcon, PlusSmallIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { CheckIcon } from '@heroicons/react/20/solid'
+import Link from 'next/link'
+import Logo from '../../components/ui/Logo'
 
-const navigation = [
-    { name: 'Product', href: '#' },
-    { name: 'Features', href: '#' },
-    { name: 'Marketplace', href: '#' },
-    { name: 'Company', href: '#' },
-]
+import { useTranslations } from 'next-intl'
+import LanguageSwitcher from "../../components/layout/LanguageSwitcher";
+
+
 // user's packages
 const packages = [
     {
@@ -159,29 +159,23 @@ const footerNavigation = {
 
 export default function Example() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const t = useTranslations('Home')
+
+    const navigation = [
+        { name: t('hero.nav.features'), href: '#features' },
+        { name: t('hero.nav.howItWorks'), href: '#how-it-works' },
+        { name: t('hero.nav.pricing'), href: '#' },
+        { name: t('hero.nav.contact'), href: '#' },
+    ]
 
     return (
         <div className="bg-white dark:bg-gray-900">
-            <header>
-                <nav aria-label="Global" className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8">
+            <header className="absolute inset-x-0 top-0 z-50">
+                <nav aria-label="Global" className="flex items-center justify-between p-6 lg:px-8">
                     <div className="flex lg:flex-1">
-                        <a href="#" className="-m-1.5 p-1.5">
-                            <span className="sr-only">Your Company</span>
-                            <Image
-                                width={32}
-                                height={32}
-                                alt=""
-                                src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-                                className="h-8 w-auto dark:hidden"
-                            />
-                            <Image
-                                width={32}
-                                height={32}
-                                alt=""
-                                src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
-                                className="h-8 w-auto not-dark:hidden"
-                            />
-                        </a>
+                        <Link href="#" className="-m-1.5 p-1.5 text-lg font-semibold text-gray-900 dark:text-white">
+                            <Logo />
+                        </Link>
                     </div>
                     <div className="flex lg:hidden">
                         <button
@@ -200,29 +194,18 @@ export default function Example() {
                             </a>
                         ))}
                     </div>
-                    <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-                        <a href="#" className="text-sm/6 font-semibold text-gray-900 dark:text-white">
+                    <div className="hidden lg:flex lg:items-center lg:gap-4 lg:flex-1 lg:justify-end">
+                        <LanguageSwitcher />
+                        <Link href="/auth" className="text-sm/6 font-semibold text-gray-900 dark:text-white">
                             Log in <span aria-hidden="true">&rarr;</span>
-                        </a>
+                        </Link>
                     </div>
                 </nav>
                 <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
                     <div className="fixed inset-0 z-50" />
                     <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10 dark:bg-gray-900 dark:sm:ring-gray-100/10">
                         <div className="flex items-center justify-between">
-                            <a href="#" className="-m-1.5 p-1.5">
-                                <span className="sr-only">Your Company</span>
-                                <Image
-                                    alt=""
-                                    src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-                                    className="h-8 w-auto dark:hidden"
-                                />
-                                <Image
-                                    alt=""
-                                    src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
-                                    className="h-8 w-auto not-dark:hidden"
-                                />
-                            </a>
+                            <a href="#" className="-m-1.5 p-1.5 text-lg font-semibold text-gray-900 dark:text-white">Ratio tuta</a>
                             <button
                                 type="button"
                                 onClick={() => setMobileMenuOpen(false)}
@@ -246,12 +229,15 @@ export default function Example() {
                                     ))}
                                 </div>
                                 <div className="py-6">
-                                    <a
-                                        href="#"
+                                    <div className="px-3 pb-4">
+                                        <LanguageSwitcher className="w-full" side="top" align="left" />
+                                    </div>
+                                    <Link
+                                        href="/auth?form=login"
                                         className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
                                     >
                                         Log in
-                                    </a>
+                                    </Link>
                                 </div>
                             </div>
                         </div>
