@@ -99,20 +99,44 @@ export async function getTeamUsage(): Promise<TeamUsage | null> {
   if (subscription?.package?.metadata) {
     type Meta = { maxPlaces?: number; maxItems?: number; maxReceipts30d?: number; seats?: number };
     const m = subscription.package.metadata as Meta;
-    if (typeof m.maxPlaces === 'number') placesLimit = m.maxPlaces;
-    if (typeof m.maxItems === 'number') itemsLimit = m.maxItems;
-    if (typeof m.maxReceipts30d === 'number') receipts30dLimit = m.maxReceipts30d;
-    if (membersLimit == null && typeof m.seats === 'number') membersLimit = m.seats;
+    const anyMeta = m as Record<string, unknown>;
+    const pickNumber = (...keys: string[]) => {
+      for (const k of keys) {
+        const v = anyMeta[k];
+        if (typeof v === 'number') return v;
+        if (typeof v === 'string' && /^\d+$/.test(v)) return parseInt(v, 10);
+      }
+      return null;
+    };
+    if (placesLimit == null) placesLimit = pickNumber('maxPlaces','placesLimit','places_limit','max_places');
+    if (itemsLimit == null) itemsLimit = pickNumber('maxItems','itemsLimit','items_limit','max_items');
+    if (receipts30dLimit == null) receipts30dLimit = pickNumber('maxReceipts30d','receipts30dLimit','receipts_limit','maxReceipts','max_receipts_30d');
+    if (membersLimit == null) membersLimit = pickNumber('seats','membersLimit','maxMembers','max_members');
   }
 
   // Fallback: infer basic limits from package slug naming convention
   if (subscription?.package?.slug) {
     const slug = subscription.package.slug;
-    if (slug.includes('free')) {
-      if (!membersLimit) membersLimit = 2;         // owner + 1 teammate
-      if (!placesLimit) placesLimit = 1;           // free tier places cap
-      if (!itemsLimit) itemsLimit = 30;            // free tier items cap
-      if (!receipts30dLimit) receipts30dLimit = 2000; // free tier monthly receipts cap
+    // Structured mapping derived from seed features (metadata currently undefined)
+    interface Limits { members: number | null; places: number | null; items: number | null; receipts: number | null; }
+    const slugLimits: Record<string, Limits> = {
+      free:        { members: 2,  places: 1,  items: 30,  receipts: 2000 },
+      pro10:       { members: 5,  places: 2,  items: 120, receipts: 8000 }, // 4 team mates + owner = 5 total seats
+      premium20:   { members: 26, places: 5,  items: 250, receipts: 20000 }, // 25 workers + owner = 26
+      enterprise:  { members: null, places: null, items: null, receipts: null }, // unlimited
+    };
+
+    const limits = slugLimits[slug as keyof typeof slugLimits];
+    if (limits) {
+      if (membersLimit == null && limits.members != null) membersLimit = limits.members;
+      if (placesLimit == null && limits.places != null) placesLimit = limits.places;
+      if (itemsLimit == null && limits.items != null) itemsLimit = limits.items;
+      if (receipts30dLimit == null && limits.receipts != null) receipts30dLimit = limits.receipts;
+    } else if (slug.includes('free')) { // legacy heuristic fallback
+      if (membersLimit == null) membersLimit = 2;
+      if (placesLimit == null) placesLimit = 1;
+      if (itemsLimit == null) itemsLimit = 30;
+      if (receipts30dLimit == null) receipts30dLimit = 2000;
     }
   }
 

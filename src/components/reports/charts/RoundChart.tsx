@@ -31,15 +31,15 @@ const RoundChart: React.FC = () => {
                 // Selected usage metrics (including places)
                 const labels: string[] = [];
                 const series: number[] = [];
-                const fmt = (used: number, limit: number | null, name: string) => limit ? `${name} ${used}/${limit}` : `${name} ${used}`;
+                const fmt = (used: number, limit: number | null, name: string) => (limit && limit > 0) ? `${name} ${used}/${limit}` : `${name} ${used}`;
                 labels.push(fmt(agg.members, agg.membersLimit, 'Members'));
-                series.push(agg.membersLimit ? (agg.members / agg.membersLimit) * 100 : agg.members);
+                series.push(agg.membersLimit && agg.membersLimit > 0 ? (agg.members / agg.membersLimit) * 100 : agg.members);
                 labels.push(fmt(agg.places, agg.placesLimit, 'Places'));
-                series.push(agg.placesLimit ? (agg.places / agg.placesLimit) * 100 : agg.places);
+                series.push(agg.placesLimit && agg.placesLimit > 0 ? (agg.places / agg.placesLimit) * 100 : agg.places);
                 labels.push(fmt(agg.items, agg.itemsLimit, 'Items'));
-                series.push(agg.itemsLimit ? (agg.items / agg.itemsLimit) * 100 : agg.items);
+                series.push(agg.itemsLimit && agg.itemsLimit > 0 ? (agg.items / agg.itemsLimit) * 100 : agg.items);
                 labels.push(fmt(agg.receipts30d, agg.receipts30dLimit, 'Receipts 30d'));
-                series.push(agg.receipts30dLimit ? (agg.receipts30d / agg.receipts30dLimit) * 100 : agg.receipts30d);
+                series.push(agg.receipts30dLimit && agg.receipts30dLimit > 0 ? (agg.receipts30d / agg.receipts30dLimit) * 100 : agg.receipts30d);
                 if (alive) setData({ labels, series });
             } catch (e) {
                 const msg = e instanceof Error ? e.message : 'Failed to load';
@@ -72,11 +72,10 @@ const RoundChart: React.FC = () => {
                     formatter: function (originalLabel: string, opts: { w: { globals: { series: number[] } }; seriesIndex: number }) {
                         const val = opts.w.globals.series[opts.seriesIndex];
                         const percent = val.toFixed(1).replace(/\.0$/, '');
-                        // If label has used/limit pattern show percentage in parentheses
                         if (/\d+\/\d+/.test(originalLabel)) {
                             return `${originalLabel} (${percent}%)`;
                         }
-                        return `${originalLabel}: ${percent}`;
+                        return originalLabel; // raw count label (no limit)
                     }
                 }
             }
