@@ -477,7 +477,17 @@
       "updateFailed": "Failed to update user"
     },
     "noMembers": "No members yet.",
-    "searchPlaceholder": "Search members"
+    "searchPlaceholder": "Search members",
+    "limit": {
+      "title": "Member limit reached",
+      "body": "You have reached the maximum of {max} members allowed on your current plan.",
+      "bodyUnlimited": "You have reached a member limit.",
+      "usageLabel": "Usage",
+      "reachedHint": "You have used all available member slots for this plan.",
+      "benefitMoreMembers": "Invite more teammates to collaborate.",
+      "benefitHigherPlan": "Higher plans unlock more items and places too.",
+      "upgradeCta": "Upgrade plan"
+    }
   },
   "Documents": {
     "breadcrumbs": {

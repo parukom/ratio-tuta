@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@lib/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
+import { canAddTeamMember } from '@/lib/limits';
 import { randomBytes } from 'crypto';
 import { sendVerificationEmail } from '@lib/mail';
 import { hmacEmail, normalizeEmail, redactEmail } from '@lib/crypto';
@@ -98,6 +99,16 @@ export async function POST(req: Request) {
   }
 
   try {
+    // Enforce member limit
+    try {
+      const limit = await canAddTeamMember(teamId)
+      if (!limit.allowed) {
+        await logAudit({ action: 'team.member.add.auto', status: 'DENIED', actor, teamId, message: 'Member limit reached', metadata: { current: limit.current, max: limit.max } })
+        return NextResponse.json({ error: 'Member limit reached. Upgrade your plan.' }, { status: 403 })
+      }
+    } catch {
+      await logAudit({ action: 'team.member.limitCheck', status: 'ERROR', actor, teamId, message: 'Failed to check member limit' })
+    }
     const tm = await prisma.teamMember.create({
       data: { teamId, userId: user.id, role: role ?? 'MEMBER' },
       select: { id: true, teamId: true, userId: true, role: true },

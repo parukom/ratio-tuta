@@ -371,9 +371,9 @@ export async function POST(req: Request) {
           })
           return NextResponse.json({ error: 'Place limit reached. Upgrade your plan.' }, { status: 403 })
         }
-      } catch (e) {
+      } catch (e: unknown) {
         // On failure to determine limits, allow creation (fail open) but log
-        await logAudit({ action: 'place.limitCheck', status: 'ERROR', actor: session, teamId: targetTeamId, message: 'Failed to check place limit' })
+        await logAudit({ action: 'place.limitCheck', status: 'ERROR', actor: session, teamId: targetTeamId, message: `Failed to check place limit: ${e instanceof Error ? e.message : 'Unknown error'}` })
       }
     }
     const created = await prisma.place.create({

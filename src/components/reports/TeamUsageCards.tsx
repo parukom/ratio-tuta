@@ -10,7 +10,7 @@ import React from 'react';
 
  export const TeamUsageCards: React.FC = () => {
   const [metrics, setMetrics] = React.useState<Metric[]>([]);
-  const [teamName, setTeamName] = React.useState<string>('');
+  // const [teamName, setTeamName] = React.useState<string>('');
   const [packageName, setPackageName] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -30,7 +30,7 @@ import React from 'react';
           { key: 'receipts30d', label: 'Receipts (30d)', value: data.receipts30d, limit: data.receipts30dLimit },
         ];
         setMetrics(m);
-        setTeamName(data.teamName);
+        // setTeamName(data.teamName);
         setPackageName(data.packageName);
       } catch (e) {
         const msg = e instanceof Error ? e.message : 'Failed to load';
