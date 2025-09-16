@@ -3,6 +3,7 @@ import { prisma } from '@lib/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
 import type { Prisma } from '@/generated/prisma';
+import { canCreatePlace } from '@/lib/limits';
 
 export async function GET(req: Request) {
   const session = await getSession();
@@ -355,6 +356,26 @@ export async function POST(req: Request) {
   }
 
   try {
+    // Enforce package place limit before creation
+    if (targetTeamId) {
+      try {
+        const limit = await canCreatePlace(targetTeamId)
+        if (!limit.allowed) {
+          await logAudit({
+            action: 'place.create',
+            status: 'DENIED',
+            actor: session,
+            teamId: targetTeamId,
+            message: 'Place limit reached',
+            metadata: { current: limit.current, max: limit.max }
+          })
+          return NextResponse.json({ error: 'Place limit reached. Upgrade your plan.' }, { status: 403 })
+        }
+      } catch (e) {
+        // On failure to determine limits, allow creation (fail open) but log
+        await logAudit({ action: 'place.limitCheck', status: 'ERROR', actor: session, teamId: targetTeamId, message: 'Failed to check place limit' })
+      }
+    }
     const created = await prisma.place.create({
       data: {
         teamId: targetTeamId!,

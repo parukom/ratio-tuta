@@ -5,6 +5,7 @@ import Input from '@/components/ui/Input'
 import toast from 'react-hot-toast'
 import Spinner from '@/components/ui/Spinner'
 import { useTranslations } from 'next-intl'
+import Link from 'next/link'
 
 type Props = {
     teamId?: string
@@ -16,6 +17,9 @@ export default function CreatePlaceButton({ teamId, onCreated }: Props) {
     const th = useTranslations('Home')
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [limitModal, setLimitModal] = useState(false)
+    const [limitInfo, setLimitInfo] = useState<null | { allowed: boolean; remaining: number | null; max: number | null }>(null)
+    const [limitsLoading, setLimitsLoading] = useState(false)
     const [message, setMessage] = useState('')
 
     // form fields
@@ -52,7 +56,27 @@ export default function CreatePlaceButton({ teamId, onCreated }: Props) {
                 body: JSON.stringify({ teamId, name, placeTypeId, description, address1, address2, city, country, timezone, currency, isActive }),
             })
             const data = await res.json()
-            if (!res.ok) { const err = data.error || th('place.create.messages.failedCreate'); setMessage(err); toast.error(err); return }
+            if (!res.ok) {
+                // Detect server-side limit enforcement 403
+                if (res.status === 403 && typeof data.error === 'string' && data.error.toLowerCase().includes('limit')) {
+                    setOpen(false)
+                    // attempt to load fresh limit info for modal
+                    if (teamId) {
+                        try {
+                            const r2 = await fetch(`/api/teams/${teamId}/limits/places`)
+                            if (r2.ok) {
+                                const li = await r2.json() as { allowed: boolean; remaining: number | null; max: number | null }
+                                setLimitInfo(li)
+                            }
+                        } catch { /* ignore */ }
+                    }
+                    setLimitModal(true)
+                    toast.error(th('place.limit.title', { default: 'Plan limit reached' }))
+                    return
+                }
+                const err = data.error || th('place.create.messages.failedCreate');
+                setMessage(err); toast.error(err); return
+            }
             const okMsg = th('place.create.messages.created')
             setMessage(okMsg)
             toast.success(okMsg)
@@ -74,11 +98,70 @@ export default function CreatePlaceButton({ teamId, onCreated }: Props) {
         <>
             <button
                 type="button"
-                onClick={() => setOpen(true)}
-                className="inline-flex text-nowrap items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+                onClick={async () => {
+                    if (!teamId) { // if no explicit teamId just open (server will validate)
+                        setOpen(true); return
+                    }
+                    setLimitsLoading(true)
+                    try {
+                        const r = await fetch(`/api/teams/${teamId}/limits/places`)
+                        if (r.ok) {
+                            const data = await r.json() as { allowed: boolean; remaining: number | null; max: number | null }
+                            setLimitInfo(data)
+                            if (!data.allowed) { setLimitModal(true); return }
+                            setOpen(true)
+                        } else {
+                            setOpen(true) // fallback do not block
+                        }
+                    } catch { setOpen(true) } finally { setLimitsLoading(false) }
+                }}
+                className="inline-flex text-nowrap items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+                disabled={limitsLoading}
             >
-                {t('createPlace')}
+                {limitsLoading && <Spinner size={14} className="text-white mr-1" />} {t('createPlace')}
             </button>
+
+            <Modal open={limitModal} onClose={() => setLimitModal(false)}>
+                <div className="space-y-5">
+                    <div className="flex items-start gap-3">
+                        <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-full bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-5" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.2 16c-.77 1.33.19 3 1.73 3Z" /></svg>
+                        </div>
+                        <div className="flex-1 space-y-2">
+                            <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">{th('place.limit.title', { default: 'Plan limit reached' })}</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
+                                {limitInfo?.max != null ? (
+                                    th('place.limit.body', { max: limitInfo.max, default: `You have reached the maximum of ${limitInfo.max} places allowed on your current plan.` })
+                                ) : th('place.limit.bodyUnlimited', { default: 'You have reached a limit.' })}
+                            </p>
+                            {limitInfo?.max != null && (
+                                <div className="space-y-1">
+                                    <div className="flex items-center justify-between text-xs font-medium text-gray-500 dark:text-gray-400">
+                                        <span>{th('place.limit.usageLabel', { default: 'Usage' })}</span>
+                                        <span>{Math.max(limitInfo.max - (limitInfo.remaining ?? 0), 0)}/{limitInfo.max}</span>
+                                    </div>
+                                    <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-white/10">
+                                        <div className="h-full bg-indigo-600 dark:bg-indigo-500 transition-all" style={{ width: `${Math.min(100, ((limitInfo.max - (limitInfo.remaining ?? 0)) / limitInfo.max) * 100)}%` }} />
+                                    </div>
+                                    {limitInfo.remaining === 0 && (
+                                        <p className="text-xs text-amber-600 dark:text-amber-400">{th('place.limit.reachedHint', { default: 'You have used all available places for this plan.' })}</p>
+                                    )}
+                                </div>
+                            )}
+                            <ul className="mt-3 space-y-1 text-xs text-gray-500 dark:text-gray-400 list-disc pl-5">
+                                <li>{th('place.limit.benefitMorePlaces', { default: 'Add more places to separate sales and reports.' })}</li>
+                                <li>{th('place.limit.benefitTeam', { default: 'Higher plans unlock more teammates and items.' })}</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
+                        <button onClick={() => setLimitModal(false)} className="inline-flex justify-center rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">{t('close', { default: 'Close' })}</button>
+                        <Link href="/pricing" className="inline-flex justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400">
+                            {th('place.limit.upgradeCta', { default: 'Upgrade plan' })}
+                        </Link>
+                    </div>
+                </div>
+            </Modal>
 
             <Modal open={open} onClose={() => setOpen(false)}>
                 <div className="sm:flex sm:items-start">

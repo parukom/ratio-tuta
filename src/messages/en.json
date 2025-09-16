@@ -367,6 +367,16 @@
           "hours": "{h}h ago",
           "days": "{d}d ago"
         }
+      },
+      "limit": {
+        "title": "Plan limit reached",
+        "body": "You have reached the maximum of {max} places allowed on your current plan.",
+        "bodyUnlimited": "You have reached a limit.",
+        "upgradeCta": "Upgrade plan",
+        "usageLabel": "Usage",
+        "reachedHint": "You have used all available places for this plan.",
+        "benefitMorePlaces": "Add more places to separate sales and reports.",
+        "benefitTeam": "Higher plans unlock more teammates and items."
       }
     },
     "mission": {
