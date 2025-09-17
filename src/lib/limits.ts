@@ -1,90 +1,157 @@
-import { prisma } from '@lib/prisma'
+import { prisma } from '@lib/prisma';
 
 // Derive numeric limits from package features list (simple parse based on wording)
-export async function getTeamPlaceLimit(teamId: string): Promise<{ maxPlaces: number | null }> {
+export async function getTeamPlaceLimit(
+  teamId: string,
+): Promise<{ maxPlaces: number | null }> {
   // Find active subscription with package
   const sub = await prisma.teamSubscription.findFirst({
     where: { teamId, isActive: true },
     include: { package: true },
-  })
-  if (!sub?.package) return { maxPlaces: 1 } // default free fallback
-  const pkg = sub.package
+  });
+  if (!sub?.package) return { maxPlaces: 1 }; // default free fallback
+  const pkg = sub.package;
   // Try to parse feature like "Up to X place" or "Unlimited places"
-  let max: number | null = null
+  let max: number | null = null;
   for (const f of pkg.features) {
-    const lower = f.toLowerCase()
-    if (lower.includes('unlimited places')) { max = null; break }
-    const m = /up to (\d+) place/.exec(lower)
-    if (m) { max = parseInt(m[1], 10); break }
+    const lower = f.toLowerCase();
+    if (lower.includes('unlimited places')) {
+      max = null;
+      break;
+    }
+    const m = /up to (\d+) place/.exec(lower);
+    if (m) {
+      max = parseInt(m[1], 10);
+      break;
+    }
   }
-  if (max === null) return { maxPlaces: null }
-  return { maxPlaces: max }
+  if (max === null) return { maxPlaces: null };
+  return { maxPlaces: max };
 }
 
-export async function canCreatePlace(teamId: string): Promise<{ allowed: boolean; remaining: number | null; max: number | null; current: number }> {
+export async function canCreatePlace(
+  teamId: string,
+): Promise<{
+  allowed: boolean;
+  remaining: number | null;
+  max: number | null;
+  current: number;
+}> {
   const [{ maxPlaces }, count] = await Promise.all([
     getTeamPlaceLimit(teamId),
     prisma.place.count({ where: { teamId } }),
-  ])
-  if (maxPlaces == null) return { allowed: true, remaining: null, max: null, current: count }
-  const remaining = maxPlaces - count
-  return { allowed: remaining > 0, remaining, max: maxPlaces, current: count }
+  ]);
+  if (maxPlaces == null)
+    return { allowed: true, remaining: null, max: null, current: count };
+  const remaining = maxPlaces - count;
+  return { allowed: remaining > 0, remaining, max: maxPlaces, current: count };
 }
 
 // === Team member limits ===
-export async function getTeamMemberLimit(teamId: string): Promise<{ maxMembers: number | null }> {
+export async function getTeamMemberLimit(
+  teamId: string,
+): Promise<{ maxMembers: number | null }> {
   const sub = await prisma.teamSubscription.findFirst({
     where: { teamId, isActive: true },
     include: { package: true },
-  })
-  if (!sub?.package) return { maxMembers: 1 } // free fallback: 1 teammate (owner counts separately in business logic?)
-  let max: number | null = null
+  });
+  if (!sub?.package) return { maxMembers: 1 }; // free fallback: 1 teammate (owner counts separately in business logic?)
+  let max: number | null = null;
   for (const f of sub.package.features) {
-    const lower = f.toLowerCase()
-    if (lower.includes('unlimited workers') || lower.includes('unlimited team') || lower.includes('unlimited teammates')) { max = null; break }
+    const lower = f.toLowerCase();
+    if (
+      lower.includes('unlimited workers') ||
+      lower.includes('unlimited team') ||
+      lower.includes('unlimited teammates')
+    ) {
+      max = null;
+      break;
+    }
     // patterns like: Up to 4 team mates / Up to 25 workers
-    const m = /up to (\d+) (team mate|teammate|team mates|workers?)/.exec(lower)
-    if (m) { max = parseInt(m[1], 10); break }
+    const m = /up to (\d+) (team mate|teammate|team mates|workers?)/.exec(
+      lower,
+    );
+    if (m) {
+      max = parseInt(m[1], 10);
+      break;
+    }
   }
-  if (max === null) return { maxMembers: null }
-  return { maxMembers: max }
+  if (max === null) return { maxMembers: null };
+  return { maxMembers: max };
 }
 
-export async function canAddTeamMember(teamId: string): Promise<{ allowed: boolean; remaining: number | null; max: number | null; current: number }> {
+export async function canAddTeamMember(
+  teamId: string,
+): Promise<{
+  allowed: boolean;
+  remaining: number | null;
+  max: number | null;
+  current: number;
+}> {
   const [{ maxMembers }, count] = await Promise.all([
     getTeamMemberLimit(teamId),
     prisma.teamMember.count({ where: { teamId } }),
-  ])
-  if (maxMembers == null) return { allowed: true, remaining: null, max: null, current: count }
-  const remaining = maxMembers - count
-  return { allowed: remaining > 0, remaining, max: maxMembers, current: count }
+  ]);
+  if (maxMembers == null)
+    return { allowed: true, remaining: null, max: null, current: count };
+  const remaining = maxMembers - count;
+  return { allowed: remaining > 0, remaining, max: maxMembers, current: count };
 }
 
 // === Item limits ===
-export async function getTeamItemLimit(teamId: string): Promise<{ maxItems: number | null }> {
+export async function getTeamItemLimit(
+  teamId: string,
+): Promise<{ maxItems: number | null }> {
   const sub = await prisma.teamSubscription.findFirst({
     where: { teamId, isActive: true },
     include: { package: true },
-  })
-  if (!sub?.package) return { maxItems: 25 } // free fallback
-  let max: number | null = null
+  });
+  if (!sub?.package) return { maxItems: 25 }; // free fallback
+  let max: number | null = null;
   for (const f of sub.package.features) {
-    const lower = f.toLowerCase()
-    if (lower.includes('unlimited items')) { max = null; break }
+    const lower = f.toLowerCase();
+    if (lower.includes('unlimited items')) {
+      max = null;
+      break;
+    }
     // patterns like: Up to 100 items
-    const m = /up to (\d+) item/.exec(lower)
-    if (m) { max = parseInt(m[1], 10); break }
+    const m = /up to (\d+) item/.exec(lower);
+    if (m) {
+      max = parseInt(m[1], 10);
+      break;
+    }
   }
-  if (max === null) return { maxItems: null }
-  return { maxItems: max }
+  if (max === null) return { maxItems: null };
+  return { maxItems: max };
 }
 
-export async function canCreateItem(teamId: string): Promise<{ allowed: boolean; remaining: number | null; max: number | null; current: number }> {
-  const [{ maxItems }, count] = await Promise.all([
+export async function canCreateItem(
+  teamId: string,
+): Promise<{
+  allowed: boolean;
+  remaining: number | null;
+  max: number | null;
+  current: number;
+}> {
+  // Count "catalog" items by grouping items that share the same name prefix
+  // (box items are named like: "Base name (Color) - Size"). We consider the
+  // prefix before the first " - " to be the catalog entry. This makes a box
+  // (many sizes) count as a single item for limits.
+  const [{ maxItems }, itemRows] = await Promise.all([
     getTeamItemLimit(teamId),
-    prisma.item.count({ where: { teamId } }),
-  ])
-  if (maxItems == null) return { allowed: true, remaining: null, max: null, current: count }
-  const remaining = maxItems - count
-  return { allowed: remaining > 0, remaining, max: maxItems, current: count }
+    prisma.item.findMany({ where: { teamId }, select: { name: true } }),
+  ]);
+  const count = (() => {
+    const set = new Set<string>();
+    for (const r of itemRows) {
+      const name = r.name ?? '';
+      const prefix = name.split(' - ')[0];
+      set.add(prefix);
+    }
+    return set.size;
+  })();
+  if (maxItems == null)
+    return { allowed: true, remaining: null, max: null, current: count };
+  const remaining = maxItems - count;
+  return { allowed: remaining > 0, remaining, max: maxItems, current: count };
 }

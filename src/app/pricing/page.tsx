@@ -1,16 +1,10 @@
 'use client'
 
-import { useState } from 'react'
 import Image from 'next/image'
-import { Dialog, DialogPanel, Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
-import { Bars3Icon, MinusSmallIcon, PlusSmallIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
+import { MinusSmallIcon, PlusSmallIcon } from '@heroicons/react/24/outline'
 import { CheckIcon } from '@heroicons/react/20/solid'
-import Link from 'next/link'
-import Logo from '../../components/ui/Logo'
-
-import { useTranslations } from 'next-intl'
-import LanguageSwitcher from "../../components/layout/LanguageSwitcher";
-
+import { FirstPagesHeader } from '@/components/FirstPagesHeader'
 
 // user's packages
 const packages = [
@@ -157,93 +151,11 @@ const footerNavigation = {
     ],
 }
 
-export default function Example() {
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-    const t = useTranslations('Home')
-
-    const navigation = [
-        { name: t('hero.nav.features'), href: '#features' },
-        { name: t('hero.nav.howItWorks'), href: '#how-it-works' },
-        { name: t('hero.nav.pricing'), href: '#' },
-        { name: t('hero.nav.contact'), href: '#' },
-    ]
+export default function PricingPage() {
 
     return (
         <div className="bg-white dark:bg-gray-900">
-            <header className="absolute inset-x-0 top-0 z-50">
-                <nav aria-label="Global" className="flex items-center justify-between p-6 lg:px-8">
-                    <div className="flex lg:flex-1">
-                        <Link href="#" className="-m-1.5 p-1.5 text-lg font-semibold text-gray-900 dark:text-white">
-                            <Logo />
-                        </Link>
-                    </div>
-                    <div className="flex lg:hidden">
-                        <button
-                            type="button"
-                            onClick={() => setMobileMenuOpen(true)}
-                            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700 dark:text-gray-200"
-                        >
-                            <span className="sr-only">Open main menu</span>
-                            <Bars3Icon aria-hidden="true" className="size-6" />
-                        </button>
-                    </div>
-                    <div className="hidden lg:flex lg:gap-x-12">
-                        {navigation.map((item) => (
-                            <a key={item.name} href={item.href} className="text-sm/6 font-semibold text-gray-900 dark:text-white">
-                                {item.name}
-                            </a>
-                        ))}
-                    </div>
-                    <div className="hidden lg:flex lg:items-center lg:gap-4 lg:flex-1 lg:justify-end">
-                        <LanguageSwitcher />
-                        <Link href="/auth" className="text-sm/6 font-semibold text-gray-900 dark:text-white">
-                            Log in <span aria-hidden="true">&rarr;</span>
-                        </Link>
-                    </div>
-                </nav>
-                <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
-                    <div className="fixed inset-0 z-50" />
-                    <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10 dark:bg-gray-900 dark:sm:ring-gray-100/10">
-                        <div className="flex items-center justify-between">
-                            <a href="#" className="-m-1.5 p-1.5 text-lg font-semibold text-gray-900 dark:text-white">Ratio tuta</a>
-                            <button
-                                type="button"
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="-m-2.5 rounded-md p-2.5 text-gray-700 dark:text-gray-200"
-                            >
-                                <span className="sr-only">Close menu</span>
-                                <XMarkIcon aria-hidden="true" className="size-6" />
-                            </button>
-                        </div>
-                        <div className="mt-6 flow-root">
-                            <div className="-my-6 divide-y divide-gray-500/10 dark:divide-white/10">
-                                <div className="space-y-2 py-6">
-                                    {navigation.map((item) => (
-                                        <a
-                                            key={item.name}
-                                            href={item.href}
-                                            className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-                                        >
-                                            {item.name}
-                                        </a>
-                                    ))}
-                                </div>
-                                <div className="py-6">
-                                    <div className="px-3 pb-4">
-                                        <LanguageSwitcher className="w-full" side="top" align="left" />
-                                    </div>
-                                    <Link
-                                        href="/auth?form=login"
-                                        className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-                                    >
-                                        Log in
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
-                    </DialogPanel>
-                </Dialog>
-            </header>
+            <FirstPagesHeader />
 
             <main>
                 {/* Pricing section */}
@@ -320,13 +232,23 @@ export default function Example() {
                                             </span>
                                             <span className="text-sm/6 font-semibold text-gray-600 dark:text-gray-400">/year</span>
                                         </p>
-                                        <button
-                                            // href={tier.href}
-                                            aria-describedby={tier.id}
-                                            className="mt-6 block w-full rounded-md px-3 py-2 text-center text-sm/6 font-semibold text-indigo-600 inset-ring-1 inset-ring-indigo-200 group-data-featured/tier:bg-indigo-600 group-data-featured/tier:text-white group-data-featured/tier:shadow-xs group-data-featured/tier:inset-ring-0 hover:inset-ring-indigo-300 group-data-featured/tier:hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-white/10 dark:text-white dark:inset-ring dark:inset-ring-white/5 dark:group-data-featured/tier:bg-indigo-500 dark:group-data-featured/tier:shadow-none dark:hover:bg-white/20 dark:hover:inset-ring-white/5 dark:group-data-featured/tier:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500 dark:group-not-data-featured/tier:focus-visible:outline-white/75"
-                                        >
-                                            {tier.contact ? 'Contact sales' : 'Buy plan'}
-                                        </button>
+                                        <div className="relative group mt-6">
+                                            <button
+                                                disabled={true}
+                                                aria-describedby={`tooltip-${tier.id}`}
+                                                className={`opacity-50 cursor-not-allowed block w-full rounded-md px-3 py-2 text-center text-sm/6 font-semibold text-indigo-600 inset-ring-1 inset-ring-indigo-200 group-data-featured/tier:bg-indigo-600 group-data-featured/tier:text-white group-data-featured/tier:shadow-xs group-data-featured/tier:inset-ring-0 hover:inset-ring-indigo-300 group-data-featured/tier:hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-white/10 dark:text-white dark:inset-ring dark:inset-ring-white/5 dark:group-data-featured/tier:bg-indigo-500 dark:group-data-featured/tier:shadow-none dark:hover:bg-white/20 dark:hover:inset-ring-white/5 dark:group-data-featured/tier:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500 dark:group-not-data-featured/tier:focus-visible:outline-white/75`}
+                                            >
+                                                {tier.contact ? 'Contact sales' : 'Buy plan'}
+                                            </button>
+
+                                            <div
+                                                id={`tooltip-${tier.id}`}
+                                                role="tooltip"
+                                                className="pointer-events-none absolute left-1/2 bottom-full mb-2 w-max -translate-x-1/2 rounded bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 dark:bg-gray-700"
+                                            >
+                                                This functionality is under construction — <br /> only the Free version is available now.
+                                            </div>
+                                        </div>
                                         <ul role="list" className="mt-8 space-y-3 text-sm/6 text-gray-600 dark:text-gray-300">
                                             {tier.features.map((feature: string) => (
                                                 <li key={feature} className="flex gap-x-3">

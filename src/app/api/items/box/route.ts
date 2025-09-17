@@ -6,7 +6,7 @@ import type { Prisma } from '@/generated/prisma';
 import { deleteObjectByKey } from '@lib/s3';
 import { processImageToWebp } from '@lib/image';
 import { putObjectFromBuffer } from '@lib/s3';
-import {  getTeamItemLimit } from '@/lib/limits';
+import { getTeamItemLimit } from '@/lib/limits';
 
 type SizeSpec = { size: string; quantity: number; sku?: string | null };
 
@@ -100,7 +100,7 @@ export async function POST(req: Request) {
   if (validMT.has(mtRaw as MT)) measurementType = mtRaw as MT;
   else if (typeof body.unit === 'string') {
     const u = body.unit.trim().toLowerCase();
-  const map: Record<string, MT> = {
+    const map: Record<string, MT> = {
       pcs: 'PCS',
       piece: 'PCS',
       pieces: 'PCS',
@@ -256,28 +256,52 @@ export async function POST(req: Request) {
       );
       // Item limit enforcement (count existing + how many new items would be created)
       try {
-        const existingCount = await tx.item.count({ where: { teamId: targetTeamId! } })
-        // Determine how many of the sizes would create new items (those not found by name)
-        let wouldCreate = 0
-        for (const spec of sizes) {
-          const sizeStr = String(spec.size).trim()
-          const name = makeName(sizeStr)
-          const existing = await tx.item.findFirst({ where: { teamId: targetTeamId!, name }, select: { id: true } })
-          if (!existing) wouldCreate++
+        const existingCount = await tx.item.count({
+          where: { teamId: targetTeamId! },
+        });
+        // Determine whether this box will create a new "box group" of items.
+        // We treat a box (items sharing the same `boxNamePrefix`) as a single
+        // catalog entry for the purposes of item limits. If any item already
+        // exists with the same prefix, adding/updating sizes does not consume an
+        // additional item slot. Otherwise the whole box counts as one new item.
+        let wouldCreate = 0;
+        const anyWithPrefix = await tx.item.findFirst({
+          where: { teamId: targetTeamId!, name: { startsWith: boxNamePrefix } },
+          select: { id: true },
+        });
+        if (!anyWithPrefix) {
+          // No existing box items found: this box will create one catalog entry
+          wouldCreate = 1;
         }
-        const { maxItems } = await getTeamItemLimit(targetTeamId!)
+        const { maxItems } = await getTeamItemLimit(targetTeamId!);
         if (maxItems != null) {
           if (existingCount + wouldCreate > maxItems) {
-            await logAudit({ action: 'item.box.add', status: 'DENIED', actor: session, teamId: targetTeamId!, message: 'Item limit reached (box)', metadata: { existingCount, wouldCreate, max: maxItems } })
-            throw new Error('Item limit reached. Upgrade your plan.')
+            await logAudit({
+              action: 'item.box.add',
+              status: 'DENIED',
+              actor: session,
+              teamId: targetTeamId!,
+              message: 'Item limit reached (box)',
+              metadata: { existingCount, wouldCreate, max: maxItems },
+            });
+            throw new Error('Item limit reached. Upgrade your plan.');
           }
         }
       } catch (limitErr) {
         // if the thrown error is the limit reached message, rethrow; else fail open
-        if (limitErr instanceof Error && /Item limit reached/.test(limitErr.message)) {
-          throw limitErr
+        if (
+          limitErr instanceof Error &&
+          /Item limit reached/.test(limitErr.message)
+        ) {
+          throw limitErr;
         }
-        await logAudit({ action: 'item.limitCheck', status: 'ERROR', actor: session, teamId: targetTeamId!, message: 'Failed to check item limit (box)' })
+        await logAudit({
+          action: 'item.limitCheck',
+          status: 'ERROR',
+          actor: session,
+          teamId: targetTeamId!,
+          message: 'Failed to check item limit (box)',
+        });
       }
       if (sizes.length > 0) {
         if (boxCost > 0 && totalQty <= 0) {

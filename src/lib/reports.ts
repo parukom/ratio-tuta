@@ -15,16 +15,20 @@ export async function getUserActivityBreakdown(): Promise<UserActivityBreakdown 
 
   // Parallel queries
   const [receiptAgg, auditAgg] = await Promise.all([
-    prisma.receipt.groupBy({
-      by: ['status'],
-      where: { userId },
-      _count: { _all: true }
-    }).catch(() => []),
-    prisma.auditLog.groupBy({
-      by: ['status'],
-      where: { actorUserId: userId },
-      _count: { _all: true }
-    }).catch(() => [])
+    prisma.receipt
+      .groupBy({
+        by: ['status'],
+        where: { userId },
+        _count: { _all: true },
+      })
+      .catch(() => []),
+    prisma.auditLog
+      .groupBy({
+        by: ['status'],
+        where: { actorUserId: userId },
+        _count: { _all: true },
+      })
+      .catch(() => []),
   ]);
 
   const labels: string[] = [];
@@ -63,7 +67,10 @@ export type TeamUsage = {
 async function resolveActiveTeam(userId: string) {
   const owned = await prisma.team.findFirst({ where: { ownerId: userId } });
   if (owned) return owned;
-  const membership = await prisma.teamMember.findFirst({ where: { userId }, include: { team: true } });
+  const membership = await prisma.teamMember.findFirst({
+    where: { userId },
+    include: { team: true },
+  });
   return membership?.team || null;
 }
 
@@ -78,18 +85,36 @@ export async function getTeamUsage(): Promise<TeamUsage | null> {
   const subscription = await prisma.teamSubscription.findFirst({
     where: { teamId: team.id, isActive: true },
     orderBy: { startedAt: 'desc' },
-    include: { package: true }
+    include: { package: true },
   });
 
   const now = new Date();
   const from = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-  const [members, places, items, receipts30d] = await Promise.all([
+  // Count catalog items by grouping items that share the same name prefix
+  // (we treat the portion before " - " as the catalog entry, so a box with
+  // multiple sizes/colors counts as a single item).
+  const [members, places, itemRows, receipts30d] = await Promise.all([
     prisma.teamMember.count({ where: { teamId: team.id } }),
     prisma.place.count({ where: { teamId: team.id } }),
-    prisma.item.count({ where: { teamId: team.id } }),
-    prisma.receipt.count({ where: { place: { teamId: team.id }, timestamp: { gte: from } } })
+    prisma.item.findMany({
+      where: { teamId: team.id },
+      select: { name: true },
+    }),
+    prisma.receipt.count({
+      where: { place: { teamId: team.id }, timestamp: { gte: from } },
+    }),
   ]);
+
+  const items = (() => {
+    const set = new Set<string>();
+    for (const r of itemRows) {
+      const name = r.name ?? '';
+      const prefix = name.split(' - ')[0];
+      set.add(prefix);
+    }
+    return set.size;
+  })();
 
   // Determine limits (metadata based, safe parse)
   let membersLimit: number | null = subscription?.seats ?? null;
@@ -97,7 +122,12 @@ export async function getTeamUsage(): Promise<TeamUsage | null> {
   let itemsLimit: number | null = null;
   let receipts30dLimit: number | null = null;
   if (subscription?.package?.metadata) {
-    type Meta = { maxPlaces?: number; maxItems?: number; maxReceipts30d?: number; seats?: number };
+    type Meta = {
+      maxPlaces?: number;
+      maxItems?: number;
+      maxReceipts30d?: number;
+      seats?: number;
+    };
     const m = subscription.package.metadata as Meta;
     const anyMeta = m as Record<string, unknown>;
     const pickNumber = (...keys: string[]) => {
@@ -108,31 +138,65 @@ export async function getTeamUsage(): Promise<TeamUsage | null> {
       }
       return null;
     };
-    if (placesLimit == null) placesLimit = pickNumber('maxPlaces','placesLimit','places_limit','max_places');
-    if (itemsLimit == null) itemsLimit = pickNumber('maxItems','itemsLimit','items_limit','max_items');
-    if (receipts30dLimit == null) receipts30dLimit = pickNumber('maxReceipts30d','receipts30dLimit','receipts_limit','maxReceipts','max_receipts_30d');
-    if (membersLimit == null) membersLimit = pickNumber('seats','membersLimit','maxMembers','max_members');
+    if (placesLimit == null)
+      placesLimit = pickNumber(
+        'maxPlaces',
+        'placesLimit',
+        'places_limit',
+        'max_places',
+      );
+    if (itemsLimit == null)
+      itemsLimit = pickNumber(
+        'maxItems',
+        'itemsLimit',
+        'items_limit',
+        'max_items',
+      );
+    if (receipts30dLimit == null)
+      receipts30dLimit = pickNumber(
+        'maxReceipts30d',
+        'receipts30dLimit',
+        'receipts_limit',
+        'maxReceipts',
+        'max_receipts_30d',
+      );
+    if (membersLimit == null)
+      membersLimit = pickNumber(
+        'seats',
+        'membersLimit',
+        'maxMembers',
+        'max_members',
+      );
   }
 
   // Fallback: infer basic limits from package slug naming convention
   if (subscription?.package?.slug) {
     const slug = subscription.package.slug;
     // Structured mapping derived from seed features (metadata currently undefined)
-    interface Limits { members: number | null; places: number | null; items: number | null; receipts: number | null; }
+    interface Limits {
+      members: number | null;
+      places: number | null;
+      items: number | null;
+      receipts: number | null;
+    }
     const slugLimits: Record<string, Limits> = {
-      free:        { members: 2,  places: 1,  items: 30,  receipts: 2000 },
-      pro10:       { members: 5,  places: 2,  items: 120, receipts: 8000 }, // 4 team mates + owner = 5 total seats
-      premium20:   { members: 26, places: 5,  items: 250, receipts: 20000 }, // 25 workers + owner = 26
-      enterprise:  { members: null, places: null, items: null, receipts: null }, // unlimited
+      free: { members: 2, places: 1, items: 30, receipts: 2000 },
+      pro10: { members: 5, places: 2, items: 120, receipts: 8000 }, // 4 team mates + owner = 5 total seats
+      premium20: { members: 26, places: 5, items: 250, receipts: 20000 }, // 25 workers + owner = 26
+      enterprise: { members: null, places: null, items: null, receipts: null }, // unlimited
     };
 
     const limits = slugLimits[slug as keyof typeof slugLimits];
     if (limits) {
-      if (membersLimit == null && limits.members != null) membersLimit = limits.members;
-      if (placesLimit == null && limits.places != null) placesLimit = limits.places;
+      if (membersLimit == null && limits.members != null)
+        membersLimit = limits.members;
+      if (placesLimit == null && limits.places != null)
+        placesLimit = limits.places;
       if (itemsLimit == null && limits.items != null) itemsLimit = limits.items;
-      if (receipts30dLimit == null && limits.receipts != null) receipts30dLimit = limits.receipts;
-    } else if (slug.includes('free')) { // legacy heuristic fallback
+      if (receipts30dLimit == null && limits.receipts != null)
+        receipts30dLimit = limits.receipts;
+    } else if (slug.includes('free')) {
+      // legacy heuristic fallback
       if (membersLimit == null) membersLimit = 2;
       if (placesLimit == null) placesLimit = 1;
       if (itemsLimit == null) itemsLimit = 30;
@@ -151,7 +215,7 @@ export async function getTeamUsage(): Promise<TeamUsage | null> {
     itemsLimit,
     receipts30d,
     receipts30dLimit,
-    packageName: subscription?.package?.name ?? null
+    packageName: subscription?.package?.name ?? null,
   };
 }
 
@@ -159,10 +223,14 @@ export type AggregatedUsage = {
   teamId: string | null;
   teamName: string | null;
   packageName: string | null;
-  members: number; membersLimit: number | null;
-  places: number; placesLimit: number | null;
-  items: number; itemsLimit: number | null;
-  receipts30d: number; receipts30dLimit: number | null;
+  members: number;
+  membersLimit: number | null;
+  places: number;
+  placesLimit: number | null;
+  items: number;
+  itemsLimit: number | null;
+  receipts30d: number;
+  receipts30dLimit: number | null;
   receiptCompleted: number;
   receiptRefunded: number;
   receiptCancelled: number;
@@ -184,21 +252,25 @@ export async function getAggregatedUsage(): Promise<AggregatedUsage | null> {
   type AuditStatus = 'SUCCESS' | 'ERROR' | 'DENIED';
   const receiptStatusesPromise = prisma.receipt
     .groupBy({ by: ['status'], where: { userId }, _count: { _all: true } })
-    .then(res => res as CountGroup<ReceiptStatus>[]) // constrain to expected subset
+    .then((res) => res as CountGroup<ReceiptStatus>[]) // constrain to expected subset
     .catch(() => [] as CountGroup<ReceiptStatus>[]);
 
   const auditStatusesPromise = prisma.auditLog
-    .groupBy({ by: ['status'], where: { actorUserId: userId }, _count: { _all: true } })
-    .then(res => res as CountGroup<AuditStatus>[])
+    .groupBy({
+      by: ['status'],
+      where: { actorUserId: userId },
+      _count: { _all: true },
+    })
+    .then((res) => res as CountGroup<AuditStatus>[])
     .catch(() => [] as CountGroup<AuditStatus>[]);
 
   const [receiptStatuses, auditStatuses] = await Promise.all([
     receiptStatusesPromise,
-    auditStatusesPromise
+    auditStatusesPromise,
   ]);
 
   function extract<T extends string>(list: CountGroup<T>[], key: T) {
-    return list.find(r => r.status === key)?._count._all ?? 0;
+    return list.find((r) => r.status === key)?._count._all ?? 0;
   }
 
   return {
