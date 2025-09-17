@@ -7,7 +7,7 @@ import Spinner from '@/components/ui/Spinner'
 import ImageUploader from '@/components/ui/ImageUploader'
 import toast from 'react-hot-toast'
 import { useTranslations } from 'next-intl'
-import { Plus } from 'lucide-react'
+import { Plus, PackageX } from 'lucide-react'
 
 type Mode = 'item' | 'box'
 
@@ -55,6 +55,9 @@ export default function CreateItemOrBoxButton({
     const tc = useTranslations('Common')
 
     const [open, setOpen] = useState(false)
+    const [limitModal, setLimitModal] = useState(false)
+    const [limitInfo, setLimitInfo] = useState<{ allowed: boolean; remaining: number | null; max: number | null; current: number } | null>(null)
+    const [checkingLimit, setCheckingLimit] = useState(false)
     const [mode, setMode] = useState<Mode>('item')
 
     // Shared categories list
@@ -378,12 +381,64 @@ export default function CreateItemOrBoxButton({
         <>
             <button
                 type="button"
-                onClick={() => setOpen(true)}
+                onClick={async () => {
+                    if (!teamId) { setOpen(true); return }
+                    setCheckingLimit(true)
+                    try {
+                        const r = await fetch(`/api/teams/${teamId}/limits/items`)
+                        if (r.ok) {
+                            const data = await r.json()
+                            setLimitInfo(data)
+                            if (data && data.allowed) setOpen(true)
+                            else setLimitModal(true)
+                        } else {
+                            setOpen(true) // fail open
+                        }
+                    } catch { setOpen(true) }
+                    finally { setCheckingLimit(false) }
+                }}
                 className="inline-flex items-center justify-center gap-1.5 rounded-md bg-indigo-600 px-3 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
             >
                 <Plus className="h-4 w-4" />
-                <span className='hidden md:inline-block'>{tc('create')}</span>
+                <span className='hidden md:inline-block'>{checkingLimit ? t('loading') : tc('create')}</span>
             </button>
+
+            {/* Limit modal */}
+            <Modal open={limitModal} onClose={() => setLimitModal(false)} size="sm">
+                <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-50 dark:bg-red-500/10">
+                        <PackageX className="h-5 w-5 text-red-500 dark:text-red-300" />
+                    </div>
+                    <div>
+                        <h3 className="text-base font-semibold text-gray-900 dark:text-white">{t('limit.title')}</h3>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                            {limitInfo?.max != null ? t('limit.body', { max: limitInfo.max }) : t('limit.bodyUnlimited')}
+                        </p>
+                        {limitInfo && (
+                            <div className="mt-4 space-y-2">
+                                <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
+                                    <span>{t('limit.usageLabel')}</span>
+                                    <span>{limitInfo.current}{limitInfo.max != null ? ` / ${limitInfo.max}` : ''}</span>
+                                </div>
+                                <div className="h-2 w-full rounded bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                                    <div className="h-full bg-indigo-500 dark:bg-indigo-400" style={{ width: `${limitInfo.max ? Math.min(100, Math.round((limitInfo.current / limitInfo.max) * 100)) : 100}%` }} />
+                                </div>
+                                {limitInfo.max != null && limitInfo.current >= limitInfo.max && (
+                                    <p className="text-xs text-red-600 dark:text-red-400">{t('limit.reachedHint')}</p>
+                                )}
+                                <ul className="mt-2 list-disc pl-5 text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                                    <li>{t('limit.benefitMoreItems')}</li>
+                                    <li>{t('limit.benefitHigherPlan')}</li>
+                                </ul>
+                            </div>
+                        )}
+                        <div className="mt-6 flex justify-end gap-2">
+                            <button type="button" onClick={() => setLimitModal(false)} className="rounded-md bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 dark:bg-white/10 dark:text-gray-200 dark:hover:bg-white/20">{tc('close')}</button>
+                            <a href="/pricing" className="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400">{t('limit.upgradeCta')}</a>
+                        </div>
+                    </div>
+                </div>
+            </Modal>
 
             <Modal open={open} onClose={() => setOpen(false)} size="lg">
                 <div className="flex items-start justify-between gap-3 pr-10">

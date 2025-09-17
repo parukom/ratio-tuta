@@ -59,3 +59,32 @@ export async function canAddTeamMember(teamId: string): Promise<{ allowed: boole
   const remaining = maxMembers - count
   return { allowed: remaining > 0, remaining, max: maxMembers, current: count }
 }
+
+// === Item limits ===
+export async function getTeamItemLimit(teamId: string): Promise<{ maxItems: number | null }> {
+  const sub = await prisma.teamSubscription.findFirst({
+    where: { teamId, isActive: true },
+    include: { package: true },
+  })
+  if (!sub?.package) return { maxItems: 25 } // free fallback
+  let max: number | null = null
+  for (const f of sub.package.features) {
+    const lower = f.toLowerCase()
+    if (lower.includes('unlimited items')) { max = null; break }
+    // patterns like: Up to 100 items
+    const m = /up to (\d+) item/.exec(lower)
+    if (m) { max = parseInt(m[1], 10); break }
+  }
+  if (max === null) return { maxItems: null }
+  return { maxItems: max }
+}
+
+export async function canCreateItem(teamId: string): Promise<{ allowed: boolean; remaining: number | null; max: number | null; current: number }> {
+  const [{ maxItems }, count] = await Promise.all([
+    getTeamItemLimit(teamId),
+    prisma.item.count({ where: { teamId } }),
+  ])
+  if (maxItems == null) return { allowed: true, remaining: null, max: null, current: count }
+  const remaining = maxItems - count
+  return { allowed: remaining > 0, remaining, max: maxItems, current: count }
+}

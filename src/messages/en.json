@@ -541,6 +541,16 @@
   },
   "Items": {
     "title": "Items",
+    "limit": {
+      "title": "Item limit reached",
+      "body": "You have reached the maximum of {max} items allowed on your current plan.",
+      "bodyUnlimited": "You have reached an item limit.",
+      "usageLabel": "Usage",
+      "reachedHint": "You have used all available item slots for this plan.",
+      "benefitMoreItems": "Add more items to expand your catalog.",
+      "benefitHigherPlan": "Higher plans unlock more places and teammates too.",
+      "upgradeCta": "Upgrade plan"
+    },
     "header": {
       "searchPlaceholder": "Search by name or SKU",
       "allCategories": "All categories",

@@ -409,6 +409,16 @@
           "days": "prieš {d} d."
         }
       },
+      "limit": {
+        "title": "Pasiektas vietų limitas",
+        "body": "Jūs pasiekėte maksimalų vietų skaičių ({max}), leidžiamą dabartiniame plane.",
+        "bodyUnlimited": "Pasiekėte limitą.",
+        "upgradeCta": "Atnaujinti planą",
+        "usageLabel": "Naudojimas",
+        "reachedHint": "Išnaudojote visas šiame plane prieinamas vietas.",
+        "benefitMorePlaces": "Pridėkite daugiau vietų pardavimams ir ataskaitoms atskirti.",
+        "benefitTeam": "Aukštesni planai atrakina daugiau komandos narių ir prekių."
+      },
       "mission": {
         "label": "Apie mus",
         "heading": "Mūsų misija – padėti jums sutaupyti laiko, pinigų ir būti informuotiems visuose objektuose",
@@ -508,7 +518,17 @@
       "updateFailed": "Nepavyko atnaujinti vartotojo"
     },
     "noMembers": "Narių kol kas nėra.",
-    "searchPlaceholder": "Ieškoti narių"
+    "searchPlaceholder": "Ieškoti narių",
+    "limit": {
+      "title": "Pasiektas narių limitas",
+      "body": "Pasiekėte maksimalų šiame plane leidžiamų narių skaičių ({max}).",
+      "bodyUnlimited": "Pasiekėte narių limitą.",
+      "usageLabel": "Naudojimas",
+      "reachedHint": "Išnaudojote visas šiame plane prieinamas narių vietas.",
+      "benefitMoreMembers": "Pakvieskite daugiau komandos narių bendradarbiauti.",
+      "benefitHigherPlan": "Aukštesni planai taip pat suteikia daugiau prekių ir vietų.",
+      "upgradeCta": "Atnaujinti planą"
+    }
   },
   "Documents": {
     "breadcrumbs": {
@@ -562,6 +582,16 @@
   },
   "Items": {
     "title": "Prekės",
+    "limit": {
+      "title": "Pasiektas prekių limitas",
+      "body": "Pasiekėte maksimalų šiame plane leidžiamų prekių skaičių ({max}).",
+      "bodyUnlimited": "Pasiekėte prekių limitą.",
+      "usageLabel": "Naudojimas",
+      "reachedHint": "Išnaudojote visas šiame plane prieinamas prekių vietas.",
+      "benefitMoreItems": "Pridėkite daugiau prekių, kad išplėstumėte katalogą.",
+      "benefitHigherPlan": "Aukštesni planai suteikia daugiau vietų ir komandos narių.",
+      "upgradeCta": "Atnaujinti planą"
+    },
     "header": {
       "searchPlaceholder": "Ieškoti pagal pavadinimą ar SKU",
       "allCategories": "Visos kategorijos",

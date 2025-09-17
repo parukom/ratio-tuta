@@ -4,6 +4,7 @@ import { Prisma } from '@/generated/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
 import type { MeasurementType } from '@/generated/prisma';
+import { canCreateItem } from '@/lib/limits';
 
 export async function GET(req: Request) {
   const session = await getSession();
@@ -427,6 +428,24 @@ export async function POST(req: Request) {
   }
 
   try {
+    // Enforce item limit before creation
+    try {
+      const limit = await canCreateItem(targetTeamId!)
+      if (!limit.allowed) {
+        await logAudit({
+          action: 'item.create',
+          status: 'DENIED',
+          actor: session,
+          teamId: targetTeamId!,
+          message: 'Item limit reached',
+          metadata: { current: limit.current, max: limit.max }
+        })
+        return NextResponse.json({ error: 'Item limit reached. Upgrade your plan.' }, { status: 403 })
+      }
+    } catch (e) {
+      await logAudit({ action: 'item.limitCheck', status: 'ERROR', actor: session, teamId: targetTeamId!, message: `Failed to check item limit ${e}` })
+      // Fail open
+    }
     const created = await prisma.item.create({
       data: {
         teamId: targetTeamId!,

@@ -6,6 +6,7 @@ import type { Prisma } from '@/generated/prisma';
 import { deleteObjectByKey } from '@lib/s3';
 import { processImageToWebp } from '@lib/image';
 import { putObjectFromBuffer } from '@lib/s3';
+import {  getTeamItemLimit } from '@/lib/limits';
 
 type SizeSpec = { size: string; quantity: number; sku?: string | null };
 
@@ -253,6 +254,31 @@ export async function POST(req: Request) {
         (acc, s) => acc + Number(s.quantity || 0),
         0,
       );
+      // Item limit enforcement (count existing + how many new items would be created)
+      try {
+        const existingCount = await tx.item.count({ where: { teamId: targetTeamId! } })
+        // Determine how many of the sizes would create new items (those not found by name)
+        let wouldCreate = 0
+        for (const spec of sizes) {
+          const sizeStr = String(spec.size).trim()
+          const name = makeName(sizeStr)
+          const existing = await tx.item.findFirst({ where: { teamId: targetTeamId!, name }, select: { id: true } })
+          if (!existing) wouldCreate++
+        }
+        const { maxItems } = await getTeamItemLimit(targetTeamId!)
+        if (maxItems != null) {
+          if (existingCount + wouldCreate > maxItems) {
+            await logAudit({ action: 'item.box.add', status: 'DENIED', actor: session, teamId: targetTeamId!, message: 'Item limit reached (box)', metadata: { existingCount, wouldCreate, max: maxItems } })
+            throw new Error('Item limit reached. Upgrade your plan.')
+          }
+        }
+      } catch (limitErr) {
+        // if the thrown error is the limit reached message, rethrow; else fail open
+        if (limitErr instanceof Error && /Item limit reached/.test(limitErr.message)) {
+          throw limitErr
+        }
+        await logAudit({ action: 'item.limitCheck', status: 'ERROR', actor: session, teamId: targetTeamId!, message: 'Failed to check item limit (box)' })
+      }
       if (sizes.length > 0) {
         if (boxCost > 0 && totalQty <= 0) {
           throw new Error('boxCost provided but total quantity is zero');

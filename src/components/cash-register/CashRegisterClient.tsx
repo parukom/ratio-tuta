@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import CheckoutModalCash from '@/components/cash-register/CheckoutModalCash';
 import CheckoutModalCard from '@/components/cash-register/CheckourModalCard';
@@ -37,6 +37,14 @@ export default function CashRegisterClient() {
     const [reloading, setReloading] = useState(false);
     const checkoutBtnRef = useRef<HTMLButtonElement | null>(null);
     const { search, setSearch, visiblePlaceItems, inStockOnly, setInStockOnly, sortKey, setSortKey } = useGroupedSearch(placeItems);
+
+    // Helper to reset payment related transient state when modals close without completing sale
+    const resetPaymentState = useCallback(() => {
+        setAmountGiven(0);
+        setChange(0);
+        setShowChange(false);
+        setPaymentOption('CASH');
+    }, []);
 
     async function completeSale() {
         if (!activePlaceId || cart.size === 0) return;
@@ -170,7 +178,14 @@ export default function CashRegisterClient() {
             </Modal>
 
             {/* Cash Modal */}
-            <Modal open={openCashModal} onClose={() => setOpenCashModal(false)} size="lg">
+            <Modal
+                open={openCashModal}
+                onClose={() => {
+                    setOpenCashModal(false);
+                    resetPaymentState();
+                }}
+                size="lg"
+            >
                 <CheckoutModalCash
                     setIsModalOpen={setOpenCashModal}
                     cart={cartArray}
@@ -192,7 +207,14 @@ export default function CashRegisterClient() {
             </Modal>
 
             {/* Card Modal */}
-            <Modal open={openCardModal} onClose={() => setOpenCardModal(false)} size="lg">
+            <Modal
+                open={openCardModal}
+                onClose={() => {
+                    setOpenCardModal(false);
+                    resetPaymentState();
+                }}
+                size="lg"
+            >
                 <CheckoutModalCard
                     setIsModalOpen={setOpenCardModal}
                     cart={cartArray}
