@@ -221,9 +221,6 @@ export default function CashRegisterClient() {
                     setCart={setCartFromModal}
                     id={activePlaceId ?? undefined}
                     cartTotal={totals.sum}
-                    setAmountGiven={setAmountGiven}
-                    setChange={setChange}
-                    setShowChange={setShowChange}
                     completeSale={async () => {
                         setPaymentOption('CARD');
                         await completeSale();

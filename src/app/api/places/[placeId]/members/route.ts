@@ -3,7 +3,7 @@ import { prisma } from '@lib/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
 import type { Prisma } from '@/generated/prisma';
-import { hmacEmail, normalizeEmail, redactEmail, decryptEmail } from '@lib/crypto';
+import { hmacEmail, normalizeEmail, decryptEmail } from '@lib/crypto';
 
 // GET /api/places/[placeId]/members -> list assigned users
 export async function GET(
@@ -45,11 +45,14 @@ export async function GET(
       select: { id: true, userId: true, createdAt: true },
       orderBy: { createdAt: 'asc' },
     });
-    const ids = Array.from(new Set(rows.map(r => r.userId)));
+    const ids = Array.from(new Set(rows.map((r) => r.userId)));
     const users = ids.length
-      ? await prisma.user.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, emailEnc: true } })
+      ? await prisma.user.findMany({
+          where: { id: { in: ids } },
+          select: { id: true, name: true, emailEnc: true },
+        })
       : [];
-    const userMap = new Map(users.map(u => [u.id, u] as const));
+    const userMap = new Map(users.map((u) => [u.id, u] as const));
     const members = rows.map((r) => {
       const u = userMap.get(r.userId);
       return {
@@ -68,10 +71,22 @@ export async function GET(
       action: 'place.members.list',
       status: 'ERROR',
       message: 'Server error',
-      metadata: { code: err?.code || null, message: typeof err?.message === 'string' ? err.message : null } as Prisma.InputJsonValue,
+      metadata: {
+        code: err?.code || null,
+        message: typeof err?.message === 'string' ? err.message : null,
+      } as Prisma.InputJsonValue,
     });
-    const detail = typeof err?.message === 'string' ? { message: err.message, code: err?.code } : undefined;
-    return NextResponse.json({ error: 'Server error', detail: process.env.NODE_ENV !== 'production' ? detail : undefined }, { status: 500 });
+    const detail =
+      typeof err?.message === 'string'
+        ? { message: err.message, code: err?.code }
+        : undefined;
+    return NextResponse.json(
+      {
+        error: 'Server error',
+        detail: process.env.NODE_ENV !== 'production' ? detail : undefined,
+      },
+      { status: 500 },
+    );
   }
 }
 
@@ -111,11 +126,17 @@ export async function POST(
     if (!allowed)
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const body = (await req.json().catch(() => null)) as { email?: string; userId?: string } | null;
-  const email = body?.email;
+    const body = (await req.json().catch(() => null)) as {
+      email?: string;
+      userId?: string;
+    } | null;
+    const email = body?.email;
     const userId = body?.userId;
     if (!email && !userId)
-      return NextResponse.json({ error: 'email or userId required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'email or userId required' },
+        { status: 400 },
+      );
 
     // resolve target user
     const user = userId
@@ -132,10 +153,7 @@ export async function POST(
     const targetInTeam = await prisma.team.findFirst({
       where: {
         id: place.teamId,
-        OR: [
-          { ownerId: user.id },
-          { members: { some: { userId: user.id } } },
-        ],
+        OR: [{ ownerId: user.id }, { members: { some: { userId: user.id } } }],
       },
       select: { id: true },
     });
@@ -146,7 +164,7 @@ export async function POST(
       );
     }
 
-  try {
+    try {
       const pm = await prisma.placeMember.create({
         data: { placeId, userId: user.id },
         select: { id: true, placeId: true, userId: true },
@@ -181,16 +199,37 @@ export async function POST(
         actor: session,
         teamId: place.teamId,
         message: 'Server error',
-        metadata: { code: err?.code || null, message: typeof err?.message === 'string' ? err.message : null } as Prisma.InputJsonValue,
+        metadata: {
+          code: err?.code || null,
+          message: typeof err?.message === 'string' ? err.message : null,
+        } as Prisma.InputJsonValue,
       });
-      const detail = typeof err?.message === 'string' ? { message: err.message, code: err?.code } : undefined;
-      return NextResponse.json({ error: 'Server error', detail: process.env.NODE_ENV !== 'production' ? detail : undefined }, { status: 500 });
+      const detail =
+        typeof err?.message === 'string'
+          ? { message: err.message, code: err?.code }
+          : undefined;
+      return NextResponse.json(
+        {
+          error: 'Server error',
+          detail: process.env.NODE_ENV !== 'production' ? detail : undefined,
+        },
+        { status: 500 },
+      );
     }
   } catch (e: unknown) {
     const err = e as { code?: string; message?: string };
     console.error('POST /api/places/[placeId]/members failed', err);
-    const detail = typeof err?.message === 'string' ? { message: err.message, code: err?.code } : undefined;
-    return NextResponse.json({ error: 'Server error', detail: process.env.NODE_ENV !== 'production' ? detail : undefined }, { status: 500 });
+    const detail =
+      typeof err?.message === 'string'
+        ? { message: err.message, code: err?.code }
+        : undefined;
+    return NextResponse.json(
+      {
+        error: 'Server error',
+        detail: process.env.NODE_ENV !== 'production' ? detail : undefined,
+      },
+      { status: 500 },
+    );
   }
 }
 
@@ -208,7 +247,9 @@ export async function DELETE(
   if (!placeId || typeof placeId !== 'string')
     return NextResponse.json({ error: 'Invalid placeId' }, { status: 400 });
 
-  const body = (await req.json().catch(() => null)) as { userId?: string } | null;
+  const body = (await req.json().catch(() => null)) as {
+    userId?: string;
+  } | null;
   const userId = body?.userId;
   if (!userId)
     return NextResponse.json({ error: 'userId required' }, { status: 400 });

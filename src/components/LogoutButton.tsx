@@ -1,5 +1,4 @@
 "use client";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Spinner from "@/components/ui/Spinner";
 import { useTranslations } from "next-intl";
@@ -10,7 +9,6 @@ type Props = {
 }
 
 export default function LogoutButton({ widthFull }: Props) {
-    const router = useRouter();
     const [loading, setLoading] = useState(false);
     const t = useTranslations('Common');
     async function handleLogout() {

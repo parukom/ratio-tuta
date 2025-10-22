@@ -10,9 +10,6 @@ type Props = {
     setCart: (value: React.SetStateAction<CartItem[]>) => void
     id: string | undefined
     cartTotal: number
-    setAmountGiven: (value: React.SetStateAction<number>) => void
-    setChange: (value: React.SetStateAction<number>) => void
-    setShowChange: (value: React.SetStateAction<boolean>) => void
     completeSale: () => Promise<void>
     loading: boolean
 }
@@ -22,9 +19,6 @@ const CheckoutModalCard: React.FC<Props> = ({
     cart,
     setCart,
     cartTotal,
-    setAmountGiven,
-    setChange,
-    setShowChange,
     completeSale,
     loading
 }) => {

@@ -14,8 +14,8 @@ import { rateLimit, strictAuthLimiter, RATE_LIMITS } from '@lib/rate-limit-redis
 // POST /api/password/forgot { email }
 export async function POST(req: Request) {
   try {
-    // Rate limiting: 3 attempts per hour
-    const rateLimitResult = await rateLimit(req, strictAuthLimiter, RATE_LIMITS.PASSWORD_FORGOT);
+    // Rate limiting: 3 attempts per hour (or 1000 in development)
+    const rateLimitResult = await rateLimit(req, strictAuthLimiter);
 
     if (!rateLimitResult.success) {
       await logAudit({

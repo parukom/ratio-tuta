@@ -37,9 +37,6 @@
     "resend": "^4.8.0",
     "sharp": "^0.34.3"
   },
-  "prisma": {
-    "seed": "ts-node -r tsconfig-paths/register prisma/seed.ts"
-  },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",

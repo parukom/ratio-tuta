@@ -21,14 +21,14 @@ function getRedisClient() {
   if (!url || !token) {
     if (process.env.NODE_ENV === 'production') {
       throw new Error(
-        'UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN must be set in production'
+        'UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN must be set in production',
       );
     }
 
     // Development fallback: warn and use ephemeral memory store
     console.warn(
       '[Rate Limit] Redis not configured. Using ephemeral in-memory store. ' +
-      'This is NOT suitable for production with multiple instances.'
+        'This is NOT suitable for production with multiple instances.',
     );
 
     // Return a mock Redis client for development
@@ -113,7 +113,10 @@ export const apiLimiter = new Ratelimit({
 export function getClientIdentifier(request: Request): string {
   const forwarded = request.headers.get('x-forwarded-for');
   const ip = forwarded
-    ? forwarded.split(',').map(s => s.trim()).pop() // rightmost = closest to server
+    ? forwarded
+        .split(',')
+        .map((s) => s.trim())
+        .pop() // rightmost = closest to server
     : request.headers.get('x-real-ip') || 'unknown';
 
   const userAgent = request.headers.get('user-agent') || 'unknown';
@@ -130,7 +133,6 @@ export function getClientIdentifier(request: Request): string {
 export async function rateLimit(
   request: Request,
   limiter: Ratelimit,
-  limit?: number // Optional custom limit override
 ): Promise<{
   success: boolean;
   limit: number;
@@ -157,8 +159,13 @@ export async function rateLimit(
  */
 export function createRateLimiter(
   limit: number,
-  window: `${number} ms` | `${number} s` | `${number} m` | `${number} h` | `${number} d`,
-  prefix: string
+  window:
+    | `${number} ms`
+    | `${number} s`
+    | `${number} m`
+    | `${number} h`
+    | `${number} d`,
+  prefix: string,
 ): Ratelimit {
   return new Ratelimit({
     redis,
