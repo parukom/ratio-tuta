@@ -4,7 +4,7 @@ import { verifyPassword } from '@lib/auth';
 import { setSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
 import { hmacEmail, decryptEmail, normalizeEmail, redactEmail } from '@lib/crypto';
-import { rateLimit, authLimiter, RATE_LIMITS } from '@lib/rate-limit-redis';
+import { rateLimit, authLimiter } from '@lib/rate-limit-redis';
 
 export async function OPTIONS() {
   return new NextResponse(null, {
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   try {
     // Rate limiting: 5 login attempts per 15 minutes (skip in development)
     if (process.env.NODE_ENV !== 'development') {
-      const rateLimitResult = await rateLimit(req, authLimiter, RATE_LIMITS.LOGIN);
+      const rateLimitResult = await rateLimit(req, authLimiter);
 
       if (!rateLimitResult.success) {
         await logAudit({

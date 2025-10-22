@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   }
 
   // SECURITY FIX: Rate limiting to prevent abuse of presigned URL generation
-  const rateLimitResult = await rateLimit(req, strictAuthLimiter, 10); // 10 per 15 min
+  const rateLimitResult = await rateLimit(req, strictAuthLimiter);
   if (!rateLimitResult.success) {
     await logAudit({
       action: 'avatar.presign',

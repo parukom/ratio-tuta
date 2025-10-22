@@ -2,14 +2,14 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@lib/prisma';
 import { logAudit } from '@lib/logger';
 import { hashPassword, verifyPassword } from '@lib/auth';
-import { rateLimit, strictAuthLimiter, RATE_LIMITS } from '@lib/rate-limit-redis';
+import { rateLimit, strictAuthLimiter } from '@lib/rate-limit-redis';
 import { validatePassword, checkPwnedPassword } from '@lib/password-validator';
 
 // POST /api/password/reset { token, password }
 export async function POST(req: Request) {
   try {
     // Rate limiting: 5 attempts per hour
-    const rateLimitResult = await rateLimit(req, strictAuthLimiter, RATE_LIMITS.PASSWORD_RESET);
+    const rateLimitResult = await rateLimit(req, strictAuthLimiter);
 
     if (!rateLimitResult.success) {
       await logAudit({

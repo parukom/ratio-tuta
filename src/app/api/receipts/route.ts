@@ -3,7 +3,7 @@ import { prisma } from '@lib/prisma';
 import type { Prisma } from '@/generated/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
-import { rateLimit, apiLimiter, RATE_LIMITS } from '@lib/rate-limit-redis';
+import { rateLimit, apiLimiter } from '@lib/rate-limit-redis';
 import { validateRequestSize, validateFieldSizes, REQUEST_SIZE_LIMITS, FIELD_LIMITS } from '@lib/request-validator';
 
 type PostBody = {
@@ -156,7 +156,7 @@ export async function POST(req: Request) {
 
   // Rate limiting: 30 receipts per minute per user (skip in development)
   if (process.env.NODE_ENV !== 'development') {
-    const rateLimitResult = await rateLimit(req, apiLimiter, RATE_LIMITS.RECEIPT_CREATE);
+    const rateLimitResult = await rateLimit(req, apiLimiter);
     if (!rateLimitResult.success) {
       await logAudit({
         action: 'receipt.create',

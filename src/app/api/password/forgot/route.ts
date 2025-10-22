@@ -9,7 +9,7 @@ import {
 } from '@lib/crypto';
 import { randomBytes } from 'crypto';
 import { sendPasswordResetEmail } from '@lib/mail';
-import { rateLimit, strictAuthLimiter, RATE_LIMITS } from '@lib/rate-limit-redis';
+import { rateLimit, strictAuthLimiter } from '@lib/rate-limit-redis';
 
 // POST /api/password/forgot { email }
 export async function POST(req: Request) {

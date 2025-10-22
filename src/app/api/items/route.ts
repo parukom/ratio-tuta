@@ -5,7 +5,7 @@ import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
 import type { MeasurementType } from '@/generated/prisma';
 import { canCreateItem } from '@/lib/limits';
-import { rateLimit, apiLimiter, RATE_LIMITS } from '@lib/rate-limit-redis';
+import { rateLimit, apiLimiter } from '@lib/rate-limit-redis';
 import { validateRequestSize, validateFieldSizes, REQUEST_SIZE_LIMITS, FIELD_LIMITS } from '@lib/request-validator';
 import { createSafeErrorResponse, getConstraintErrorMessage, isConstraintError } from '@lib/error-handler';
 
@@ -280,7 +280,7 @@ export async function POST(req: Request) {
 
   // Rate limiting: 50 items per minute (skip in development)
   if (process.env.NODE_ENV !== 'development') {
-    const rateLimitResult = await rateLimit(req, apiLimiter, RATE_LIMITS.ITEM_CREATE);
+    const rateLimitResult = await rateLimit(req, apiLimiter);
     if (!rateLimitResult.success) {
       await logAudit({
         action: 'item.create',
