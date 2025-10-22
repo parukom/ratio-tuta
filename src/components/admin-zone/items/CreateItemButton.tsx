@@ -325,10 +325,10 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
                 className=""
                 placeholder={
                   measurementType === 'PCS' ? t('forms.initialStock.PCS')
-                    : measurementType === 'WEIGHT' ? `${t('forms.initialStock.WEIGHT')}`.replace('(kg)', `(${weightUnit})`)
-                      : measurementType === 'LENGTH' ? t('forms.initialStock.LENGTH')
-                        : measurementType === 'VOLUME' ? t('forms.initialStock.VOLUME')
-                          : measurementType === 'AREA' ? t('forms.initialStock.AREA')
+                    : measurementType === 'WEIGHT' ? `Stock (${weightUnit})`
+                      : measurementType === 'LENGTH' ? `Stock (${lengthUnit})`
+                        : measurementType === 'VOLUME' ? `Stock (${volumeUnit})`
+                          : measurementType === 'AREA' ? `Stock (${areaUnit})`
                             : t('forms.initialStock.PCS')
                 }
                 value={stockQuantity}

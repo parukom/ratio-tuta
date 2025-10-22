@@ -412,11 +412,11 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
                                 className=""
                                 placeholder={
                                     measurementType === 'PCS' ? ti('forms.stock.PCS')
-                                        : measurementType === 'WEIGHT' ? `${ti('forms.stock.WEIGHT')}`.replace('(kg)', `(${weightUnit})`)
-                                            : measurementType === 'LENGTH' ? ti('forms.stock.LENGTH')
-                                                : measurementType === 'VOLUME' ? ti('forms.stock.VOLUME')
-                                                    : measurementType === 'AREA' ? ti('forms.stock.AREA')
-                                                    : ti('forms.stock.PCS')
+                                        : measurementType === 'WEIGHT' ? `Stock (${weightUnit})`
+                                            : measurementType === 'LENGTH' ? `Stock (${lengthUnit})`
+                                                : measurementType === 'VOLUME' ? `Stock (${volumeUnit})`
+                                                    : measurementType === 'AREA' ? `Stock (${areaUnit})`
+                                                        : ti('forms.stock.PCS')
                                 }
                                 value={stockQuantity}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStockQuantity(e.target.value)}
