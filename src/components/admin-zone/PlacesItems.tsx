@@ -1,7 +1,7 @@
 import { useTranslations } from 'next-intl'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import Spinner from '../ui/Spinner'
-import { PlusCircle } from 'lucide-react'
+import { PlusCircle, Search, ArrowUpDown } from 'lucide-react'
 import AddItemsToPlaceModal from '@/components/admin-zone/places/AddItemsToPlaceModal'
 import Modal from '@/components/modals/Modal'
 
@@ -24,6 +24,9 @@ type Props = {
     onCountChange?: (count: number) => void
 }
 
+type SortKey = 'name' | 'sku' | 'price' | 'qty'
+type SortDirection = 'asc' | 'desc'
+
 export const PlacesItems = ({ placeId, currency = 'EUR', onCountChange }: Props) => {
     const t = useTranslations('Home')
     const tc = useTranslations('Common')
@@ -34,6 +37,11 @@ export const PlacesItems = ({ placeId, currency = 'EUR', onCountChange }: Props)
     const [assignedLoading, setAssignedLoading] = useState(true)
     const [assignedError, setAssignedError] = useState<string | null>(null)
     const [assignedReveal, setAssignedReveal] = useState(false)
+
+    // Search and sort state
+    const [searchQuery, setSearchQuery] = useState('')
+    const [sortKey, setSortKey] = useState<SortKey>('name')
+    const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
 
     // item info modal
     const [infoOpen, setInfoOpen] = useState(false)
@@ -142,25 +150,93 @@ export const PlacesItems = ({ placeId, currency = 'EUR', onCountChange }: Props)
             setInfoLoading(false)
         }
     }
+
+    // Toggle sort: if same key, flip direction; if different key, start with asc
+    const toggleSort = (key: SortKey) => {
+        if (sortKey === key) {
+            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')
+        } else {
+            setSortKey(key)
+            setSortDirection('asc')
+        }
+    }
+
+    // Filtered and sorted items
+    const filteredAndSortedItems = useMemo(() => {
+        // Filter by search query
+        let filtered = assignedItems.filter(item => {
+            if (!searchQuery.trim()) return true
+            const query = searchQuery.toLowerCase()
+            const name = (item.item?.name ?? '').toLowerCase()
+            const sku = (item.item?.sku ?? '').toLowerCase()
+            return name.includes(query) || sku.includes(query)
+        })
+
+        // Sort
+        filtered.sort((a, b) => {
+            let aVal: string | number = ''
+            let bVal: string | number = ''
+
+            switch (sortKey) {
+                case 'name':
+                    aVal = (a.item?.name ?? '').toLowerCase()
+                    bVal = (b.item?.name ?? '').toLowerCase()
+                    break
+                case 'sku':
+                    aVal = (a.item?.sku ?? '').toLowerCase()
+                    bVal = (b.item?.sku ?? '').toLowerCase()
+                    break
+                case 'price':
+                    aVal = a.item?.price ?? 0
+                    bVal = b.item?.price ?? 0
+                    break
+                case 'qty':
+                    aVal = a.quantity
+                    bVal = b.quantity
+                    break
+            }
+
+            if (typeof aVal === 'string') {
+                return sortDirection === 'asc'
+                    ? aVal.localeCompare(bVal as string)
+                    : (bVal as string).localeCompare(aVal)
+            } else {
+                return sortDirection === 'asc'
+                    ? (aVal as number) - (bVal as number)
+                    : (bVal as number) - (aVal as number)
+            }
+        })
+
+        return filtered
+    }, [assignedItems, searchQuery, sortKey, sortDirection])
     return (
         <div className="rounded-lg border border-gray-200 dark:border-white/10">
-            <header className="flex items-center justify-between gap-3 border-b border-gray-200 dark:border-white/10 p-2">
-                <div className="text-sm font-medium text-gray-900 dark:text-white">
-                    {t('place.items.assigned')}
+            <header className="flex items-center gap-2 border-b border-gray-200 dark:border-white/10 p-2">
+                {/* Search input */}
+                <div className="relative flex-1">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <Search className="h-4 w-4 text-gray-400" />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder={tc('search')}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="block w-full rounded-md border border-gray-300 bg-white py-2 pl-10 pr-3 text-sm placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-gray-500"
+                    />
                 </div>
 
+                {/* Add items button */}
                 <button
                     type="button"
                     onClick={() => setIsAddItemsOpen(true)}
                     title={t('place.items.addItems')}
                     aria-label={t('place.items.addItems')}
-                    className=" md:rounded rounded-full bg-indigo-600 p-1 md:py-0 md:px-2 text-white hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    className="flex-shrink-0 inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
-                    <span className='hidden md:inline-block'>
+                    <PlusCircle className="h-4 w-4" />
+                    <span className='hidden sm:inline-block'>
                         {t('place.items.addItems')}
-                    </span>
-                    <span className='md:hidden'>
-                        <PlusCircle className="h-5 w-5" />
                     </span>
                 </button>
             </header>
@@ -176,19 +252,57 @@ export const PlacesItems = ({ placeId, currency = 'EUR', onCountChange }: Props)
                     <div className="rounded border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-300">{assignedError}</div>
                 ) : assignedItems.length === 0 ? (
                     <div className="text-sm text-gray-500 p-2 dark:text-gray-400">{t('place.items.empty')}</div>
+                ) : filteredAndSortedItems.length === 0 ? (
+                    <div className="text-sm text-gray-500 p-2 dark:text-gray-400">{tc('noResults')}</div>
                 ) : (
                     <table className="w-full text-left">
                         <thead className="text-xs text-gray-500 dark:text-gray-400">
                             <tr className='border-b border-gray-200 dark:border-white/10'>
-                                <th className="p-2">{tc('name')}</th>
-                                <th className="p-2">SKU</th>
-                                <th className="p-2 text-right">{t('place.items.price')}</th>
-                                <th className="p-2 text-right">{t('place.items.qty')}</th>
+                                <th className="p-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => toggleSort('name')}
+                                        className="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-200"
+                                    >
+                                        {tc('name')}
+                                        <ArrowUpDown className={`h-3 w-3 ${sortKey === 'name' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
+                                    </button>
+                                </th>
+                                <th className="p-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => toggleSort('sku')}
+                                        className="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-200"
+                                    >
+                                        SKU
+                                        <ArrowUpDown className={`h-3 w-3 ${sortKey === 'sku' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
+                                    </button>
+                                </th>
+                                <th className="p-2 text-right">
+                                    <button
+                                        type="button"
+                                        onClick={() => toggleSort('price')}
+                                        className="ml-auto flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-200"
+                                    >
+                                        {t('place.items.price')}
+                                        <ArrowUpDown className={`h-3 w-3 ${sortKey === 'price' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
+                                    </button>
+                                </th>
+                                <th className="p-2 text-right">
+                                    <button
+                                        type="button"
+                                        onClick={() => toggleSort('qty')}
+                                        className="ml-auto flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-200"
+                                    >
+                                        {t('place.items.qty')}
+                                        <ArrowUpDown className={`h-3 w-3 ${sortKey === 'qty' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
+                                    </button>
+                                </th>
                                 <th className="p-2 text-right">{t('place.items.actions')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-white/5">
-                            {assignedItems.map((row) => (
+                            {filteredAndSortedItems.map((row) => (
                                 <tr key={row.id}>
                                     <td className="p-2 text-sm">
                                         <div className={`transition-opacity duration-1000 ${assignedReveal ? 'opacity-100' : 'opacity-0'}`}>

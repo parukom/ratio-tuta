@@ -16,6 +16,7 @@ type ReceiptItem = {
     title: string;
     price: number;
     quantity: number;
+    measurementType: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
 };
 
 type Receipt = {
@@ -41,6 +42,41 @@ const ReceiptsTab: React.FC = () => {
         CASH: t('payments.CASH'),
         CARD: t('payments.CARD'),
         REFUND: t('payments.REFUND'),
+    };
+
+    // Helper to format quantity with units
+    const formatQuantity = (q: number, type: ReceiptItem['measurementType']) => {
+        if (type === 'WEIGHT') {
+            return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`;
+        }
+        if (type === 'LENGTH') {
+            return q >= 100 ? `${(q / 100).toFixed(2)} m` : `${q} cm`;
+        }
+        if (type === 'VOLUME') {
+            return q >= 1000 ? `${(q / 1000).toFixed(2)} l` : `${q} ml`;
+        }
+        if (type === 'AREA') {
+            return q >= 10000 ? `${(q / 10000).toFixed(2)} m²` : `${q} cm²`;
+        }
+        return q.toString();
+    };
+
+    // Helper to calculate item total with unit conversion
+    const calculateItemTotal = (item: ReceiptItem) => {
+        const qty = item.quantity;
+        if (item.measurementType === 'WEIGHT') {
+            return item.price * (qty / 1000);
+        }
+        if (item.measurementType === 'LENGTH') {
+            return item.price * (qty / 100);
+        }
+        if (item.measurementType === 'VOLUME') {
+            return item.price * (qty / 1000);
+        }
+        if (item.measurementType === 'AREA') {
+            return item.price * (qty / 10000);
+        }
+        return item.price * qty;
     };
     const [data, setData] = useState<Receipt[]>([]);
     const [total, setTotal] = useState<number>(0);
@@ -184,8 +220,8 @@ const ReceiptsTab: React.FC = () => {
                                         <tr key={it.id}>
                                             <td className="px-3 py-2 text-gray-900 dark:text-white">{it.title}</td>
                                             <td className="px-3 py-2 text-right text-gray-700 dark:text-gray-300">EUR {it.price.toFixed(2)}</td>
-                                            <td className="px-3 py-2 text-right text-gray-700 dark:text-gray-300">{it.quantity}</td>
-                                            <td className="px-3 py-2 text-right text-gray-900 dark:text-white">EUR {(it.price * it.quantity).toFixed(2)}</td>
+                                            <td className="px-3 py-2 text-right text-gray-700 dark:text-gray-300">{formatQuantity(it.quantity, it.measurementType)}</td>
+                                            <td className="px-3 py-2 text-right text-gray-900 dark:text-white">EUR {calculateItemTotal(it).toFixed(2)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -194,9 +230,9 @@ const ReceiptsTab: React.FC = () => {
 
                         <div className="">
                             <div className="w-full space-y-1 text-sm">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-gray-600 dark:text-gray-400">{t('modal.subtotal')}</span>
-                                    <span className="text-gray-900 dark:text-white">EUR {selected.items.reduce((s, i) => s + i.price * i.quantity, 0).toFixed(2)}</span>
+                                <div className="flex items-center justify-between text-base font-semibold">
+                                    <span className="text-gray-900 dark:text-white">{t('modal.total')}</span>
+                                    <span className="text-gray-900 dark:text-white">EUR {selected.totalPrice.toFixed(2)}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <span className="text-gray-600 dark:text-gray-400">{t('modal.amountGiven')}</span>
@@ -205,11 +241,6 @@ const ReceiptsTab: React.FC = () => {
                                 <div className="flex items-center justify-between">
                                     <span className="text-gray-600 dark:text-gray-400">{t('modal.change')}</span>
                                     <span className="text-gray-900 dark:text-white">EUR {selected.change.toFixed(2)}</span>
-                                </div>
-                                <div className="mt-2 border-t border-gray-200 pt-2 dark:border-white/10" />
-                                <div className="flex items-center justify-between text-base font-semibold">
-                                    <span className="text-gray-900 dark:text-white">{t('modal.total')}</span>
-                                    <span className="text-gray-900 dark:text-white">EUR {selected.totalPrice.toFixed(2)}</span>
                                 </div>
                             </div>
                         </div>

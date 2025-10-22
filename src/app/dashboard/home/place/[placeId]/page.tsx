@@ -9,6 +9,7 @@ import { PlacesItems } from '@/components/admin-zone/PlacesItems'
 import type { Place } from '@/components/admin-zone/places/types'
 import { PlacesMembers } from '@/components/admin-zone/PlacesMembers'
 import { PlaceSettings } from '@/components/admin-zone/PlaceSettings'
+import { PlaceReceipts } from '@/components/admin-zone/PlaceReceipts'
 
 
 
@@ -23,8 +24,8 @@ export default function PlaceDetailPage() {
     const placeId = params?.placeId
     const searchParams = useSearchParams()
     const router = useRouter()
-    const tab = (searchParams.get('tab') ?? 'overview') as 'overview' | 'items' | 'members' | 'settings'
-    const setTab = (t: 'overview' | 'items' | 'members' | 'settings') => {
+    const tab = (searchParams.get('tab') ?? 'overview') as 'overview' | 'items' | 'members' | 'receipts' | 'settings'
+    const setTab = (t: 'overview' | 'items' | 'members' | 'receipts' | 'settings') => {
         const params = new URLSearchParams(searchParams?.toString() ?? '')
         params.set('tab', t)
         router.push(`?${params.toString()}`)
@@ -164,6 +165,7 @@ export default function PlaceDetailPage() {
                             { key: 'overview', label: t('place.tabs.overview') },
                             { key: 'items', label: `${t('place.tabs.items')}${itemsCount ? ` (${itemsCount})` : ''}` },
                             { key: 'members', label: `${t('place.tabs.members')}${membersCount ? ` (${membersCount})` : ''}` },
+                            { key: 'receipts', label: t('place.tabs.receipts') },
                             { key: 'settings', label: t('place.tabs.settings') },
                         ]}
                         activeKey={tab}
@@ -218,6 +220,10 @@ export default function PlaceDetailPage() {
 
                         {tab === 'items' && (
                             <PlacesItems placeId={String(placeId)} currency={place?.currency || 'EUR'} onCountChange={setItemsCount} />
+                        )}
+
+                        {tab === 'receipts' && (
+                            <PlaceReceipts placeId={String(placeId)} currency={place?.currency || 'EUR'} />
                         )}
                     </div>
                 )}

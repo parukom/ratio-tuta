@@ -115,6 +115,7 @@ export async function GET(req: Request) {
             title: true,
             price: true,
             quantity: true,
+            measurementType: true,
           },
         },
       },
@@ -270,6 +271,7 @@ export async function POST(req: Request) {
       // - AREA: square centimeters
       // - PCS: integer units
       quantity: it.quantity!,
+      measurementType: meta.measurementType,
     };
   });
 

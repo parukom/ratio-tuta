@@ -251,6 +251,7 @@
         "overview": "Overview",
         "items": "Items",
         "members": "Members",
+        "receipts": "Receipts",
         "settings": "Settings",
         "openRegister": "Open register"
       },
@@ -510,6 +511,9 @@
     "list": {
       "empty": "No receipts",
       "openReceipt": "Open receipt {id}"
+    },
+    "receipts": {
+      "empty": "No receipts found for this place."
     },
     "payments": {
       "CASH": "Cash",
