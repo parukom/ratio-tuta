@@ -19,27 +19,9 @@ async function migrateEmails(dryRun: boolean = false) {
     console.log('⚠️  DRY RUN MODE - No changes will be made\n');
   }
 
-  // Find users with legacy plaintext email but missing encrypted fields
-  const usersToMigrate = await prisma.user.findMany({
-    where: {
-      AND: [
-        { email: { not: null } },
-        {
-          OR: [
-            { emailHmac: null },
-            { emailEnc: null }
-          ]
-        }
-      ]
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      emailHmac: true,
-      emailEnc: true,
-    },
-  });
+  // NOTE: This script is deprecated - email field was removed and emailHmac/emailEnc are now required
+  // All users are created with these fields, so no migration is needed
+  const usersToMigrate: Array<{ id: string; name: string; email?: string | null; emailHmac: string | null; emailEnc: string | null }> = [];
 
   console.log(`📊 Found ${usersToMigrate.length} users to migrate\n`);
 

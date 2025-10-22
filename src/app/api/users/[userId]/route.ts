@@ -88,7 +88,7 @@ export async function PATCH(
   // Load current target user to compare changes
   const current = await prisma.user.findUnique({
     where: { id: targetUserId },
-    select: { id: true, name: true, email: true, role: true },
+    select: { id: true, name: true, emailHmac: true, role: true },
   });
   if (!current)
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -96,7 +96,7 @@ export async function PATCH(
   const emailChanged =
     typeof normEmail === 'string' &&
     normEmail.length > 0 &&
-    normEmail !== (current.email ? current.email.toLowerCase() : '');
+    hmacEmail(normEmail) !== current.emailHmac;
 
   try {
     const result = await prisma.$transaction(async (tx) => {
@@ -106,8 +106,6 @@ export async function PATCH(
           ...(name ? { name } : {}),
           ...(emailChanged
             ? {
-                // clear plaintext email and set privacy-preserving fields
-                email: null,
                 emailHmac: hmacEmail(normEmail!),
                 emailEnc: encryptEmail(normEmail!),
                 emailVerified: false,
@@ -118,7 +116,7 @@ export async function PATCH(
         select: {
           id: true,
           name: true,
-          email: true,
+          emailEnc: true,
           role: true,
           emailVerified: true,
           createdAt: true,

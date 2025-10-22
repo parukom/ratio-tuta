@@ -27,15 +27,11 @@ export async function POST(req: Request) {
 
     const user = await prisma.user.findFirst({
       where: {
-        OR: [
-          { emailHmac: emailH },
-          { email: { equals: norm, mode: 'insensitive' } }, // legacy plaintext fallback
-        ],
+        emailHmac: emailH,
       },
       select: {
         id: true,
         name: true,
-        email: true,
         emailEnc: true,
         emailVerified: true,
       },
@@ -80,7 +76,7 @@ export async function POST(req: Request) {
     } catch {
       /* ignore */
     }
-    if (!emailPlain) emailPlain = user.email ?? norm;
+    if (!emailPlain) emailPlain = norm;
 
     try {
       await sendVerificationEmail({ to: emailPlain, name: user.name, token });

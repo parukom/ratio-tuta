@@ -132,10 +132,7 @@ export async function POST(req: Request) {
   const normEmail = normalizeEmail(email);
   const user = await prisma.user.findFirst({
     where: {
-      OR: [
-        { emailHmac: hmacEmail(normEmail) },
-        { email: { equals: normEmail, mode: 'insensitive' } },
-      ],
+      emailHmac: hmacEmail(normEmail),
     },
   });
   if (!user) {

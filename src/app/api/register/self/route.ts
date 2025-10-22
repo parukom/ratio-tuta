@@ -123,8 +123,6 @@ export async function POST(req: Request) {
       const createdUser = await tx.user.create({
         data: {
           name,
-          // explicitly omit plaintext email
-          email: undefined,
           emailHmac: hmacEmail(normEmail),
           emailEnc: encryptEmail(normEmail),
           password: passwordHash,

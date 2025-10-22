@@ -230,7 +230,7 @@ export function useCart() {
 
   const totals = useMemo(() => {
     // qty = number of unique items in cart (cart lines), not raw quantity sum
-    let qty = cart.size;
+    const qty = cart.size;
     let sum = 0;
     for (const line of cart.values()) {
       if (line.measurementType === 'WEIGHT') {

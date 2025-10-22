@@ -43,7 +43,7 @@ function getRedisClient() {
       expire: async () => 1,
       incr: async () => 1,
       pttl: async () => 900000,
-    } as any;
+    } as unknown as Redis;
   }
 
   return new Redis({
@@ -157,7 +157,7 @@ export async function rateLimit(
  */
 export function createRateLimiter(
   limit: number,
-  window: string,
+  window: `${number} ms` | `${number} s` | `${number} m` | `${number} h` | `${number} d`,
   prefix: string
 ): Ratelimit {
   return new Ratelimit({

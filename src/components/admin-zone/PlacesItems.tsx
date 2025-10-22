@@ -164,7 +164,7 @@ export const PlacesItems = ({ placeId, currency = 'EUR', onCountChange }: Props)
     // Filtered and sorted items
     const filteredAndSortedItems = useMemo(() => {
         // Filter by search query
-        let filtered = assignedItems.filter(item => {
+        const filtered = assignedItems.filter(item => {
             if (!searchQuery.trim()) return true
             const query = searchQuery.toLowerCase()
             const name = (item.item?.name ?? '').toLowerCase()

@@ -6,10 +6,9 @@ import { prisma } from '@lib/prisma';
 import { hmacEmail, encryptEmail, normalizeEmail } from '@lib/crypto';
 
 async function main() {
-  const users = await prisma.user.findMany({
-    // @ts-ignore fields added by migration
-    select: { id: true, email: true, emailHmac: true, emailEnc: true },
-  }) as Array<{ id: string; email: string | null; emailHmac?: string | null; emailEnc?: string | null }>;
+  const users = (await prisma.user.findMany({
+    select: { id: true, emailHmac: true, emailEnc: true },
+  })) as Array<{ id: string; email: string | null; emailHmac?: string | null; emailEnc?: string | null }>;
   let updated = 0;
   for (const u of users) {
     const email = (u as any).email as string | null;

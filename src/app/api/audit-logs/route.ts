@@ -66,7 +66,7 @@ export async function GET(req: Request) {
       ],
     },
     include: {
-      actorUser: { select: { id: true, name: true, email: true } },
+      actorUser: { select: { id: true, name: true, emailEnc: true } },
       team: { select: { id: true, name: true } },
     },
     orderBy: { timestamp: 'desc' },
