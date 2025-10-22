@@ -100,12 +100,7 @@ export async function POST(req: Request) {
 
     const existingUser = await prisma.user.findFirst({
       where: {
-        OR: [
-          // new path (after backfill)
-          { emailHmac: hmacEmail(normEmail) },
-          // fallback to plaintext unique (case-insensitive)
-          { email: { equals: normEmail, mode: 'insensitive' } },
-        ],
+        emailHmac: hmacEmail(normEmail),
       },
     });
     if (existingUser) {
@@ -228,7 +223,10 @@ export async function POST(req: Request) {
       status: 'ERROR',
       message: 'Server error',
     });
-    console.error(err);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    console.error('[Register Error]', err);
+    return NextResponse.json({
+      error: 'Server error',
+      details: err instanceof Error ? err.message : 'Unknown error'
+    }, { status: 500 });
   }
 }

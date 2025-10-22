@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@lib/prisma';
 import { getSession } from '@lib/session';
+import { decryptEmail } from '@lib/crypto';
 // removed audit logging for GET to avoid noisy logs on navigation
 
 export async function GET(req: Request) {
@@ -57,7 +58,7 @@ export async function GET(req: Request) {
     select: {
       id: true,
       name: true,
-      email: true,
+      emailEnc: true,
       role: true,
       createdAt: true,
       avatarUrl: true,
@@ -65,7 +66,14 @@ export async function GET(req: Request) {
     orderBy: { name: 'asc' },
   });
 
-  return NextResponse.json(users);
+  // Decrypt emails before returning
+  const usersWithEmails = users.map(user => ({
+    ...user,
+    email: decryptEmail(user.emailEnc),
+    emailEnc: undefined, // Don't expose encrypted email
+  }));
+
+  return NextResponse.json(usersWithEmails);
 }
 
 export async function POST(req: Request) {

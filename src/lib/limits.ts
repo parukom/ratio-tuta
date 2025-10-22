@@ -88,14 +88,19 @@ export async function canAddTeamMember(
   max: number | null;
   current: number;
 }> {
-  const [{ maxMembers }, count] = await Promise.all([
+  const [{ maxMembers }, memberCount, team] = await Promise.all([
     getTeamMemberLimit(teamId),
     prisma.teamMember.count({ where: { teamId } }),
+    prisma.team.findUnique({ where: { id: teamId }, select: { ownerId: true } }),
   ]);
+
+  // Total members = team members + owner (if owner exists)
+  const totalCount = memberCount + (team?.ownerId ? 1 : 0);
+
   if (maxMembers == null)
-    return { allowed: true, remaining: null, max: null, current: count };
-  const remaining = maxMembers - count;
-  return { allowed: remaining > 0, remaining, max: maxMembers, current: count };
+    return { allowed: true, remaining: null, max: null, current: totalCount };
+  const remaining = maxMembers - totalCount;
+  return { allowed: remaining > 0, remaining, max: maxMembers, current: totalCount };
 }
 
 // === Item limits ===

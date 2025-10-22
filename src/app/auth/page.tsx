@@ -112,7 +112,14 @@ function AuthContent() {
                 body: JSON.stringify({ name, email, password, teamName }),
             });
             const data = await res.json();
-            if (!res.ok) setMessage(data.error || t("errors.register"));
+            if (!res.ok) {
+                console.error('Registration error:', data);
+                const errorMsg = data.error || t("errors.register");
+                const details = data.details && Array.isArray(data.details)
+                    ? ` (${data.details.join(', ')})`
+                    : '';
+                setMessage(errorMsg + details);
+            }
             else setMessage(data.message || t("createdCheckEmail"));
         } finally {
             setSubmitting(false);

@@ -157,7 +157,8 @@
       "items": "Items",
       "documents": "Documents",
       "reports": "Reports",
-      "settings": "Settings"
+      "settings": "Settings",
+      "docs": "Docs"
     },
     "yourPlaces": "Your places",
     "loading": "Loading…",
@@ -757,6 +758,164 @@
     },
     "units": {
       "pcsShort": "pcs"
+    }
+  },
+  "Docs": {
+    "title": "Documentation",
+    "subtitle": "Everything you need to know about using Ratio tuta effectively",
+    "searchPlaceholder": "Search documentation...",
+    "categories": {
+      "user": "User Guide",
+      "developer": "Developer Guide",
+      "api": "API Reference",
+      "security": "Security"
+    },
+    "userGuide": {
+      "title": "User Guide",
+      "description": "Learn how to use Ratio tuta effectively",
+      "sections": {
+        "gettingStarted": {
+          "title": "Getting Started",
+          "description": "Quick start guide for new users",
+          "content": {
+            "intro": "Welcome to Ratio tuta! This guide will help you get started with your secure online notebook.",
+            "step1Title": "Create your account",
+            "step1": "Sign up with your email and verify your account. You'll receive a verification link in your inbox.",
+            "step2Title": "Set up your first place",
+            "step2": "Places help you organize different locations or departments. Go to Dashboard → Home → Create Place to add your first location.",
+            "step3Title": "Add team members",
+            "step3": "Invite teammates from Dashboard → Team. Assign roles (Admin, Member, User) based on their responsibilities.",
+            "step4Title": "Create your inventory",
+            "step4": "Add items to your catalog from Dashboard → Items. You can create individual items or use boxes for multiple variants.",
+            "step5Title": "Start selling",
+            "step5": "Open the cash register for your place and start recording transactions. All data is automatically synced and secured."
+          }
+        },
+        "places": {
+          "title": "Managing Places",
+          "description": "How to create and manage your locations",
+          "content": {
+            "intro": "Places represent physical locations or departments in your organization. Each place has its own inventory, team members, and sales data.",
+            "creating": "To create a place, go to Dashboard → Home and click 'Create Place'. Fill in the name, address, timezone, and currency.",
+            "assigning": "Assign items to places by opening a place and going to the Items tab. You can control quantities for each location.",
+            "members": "Add team members to specific places to control access. Members can only see places they're assigned to."
+          }
+        },
+        "inventory": {
+          "title": "Inventory Management",
+          "description": "Managing items and stock levels",
+          "content": {
+            "intro": "Ratio tuta provides powerful inventory management with support for different measurement types, categories, and variants.",
+            "items": "Create individual items with prices, costs, tax rates, and stock levels. Items are team-wide and can be assigned to multiple places.",
+            "boxes": "Boxes let you create multiple size variants at once. Perfect for clothing, shoes, or any items with size variations.",
+            "categories": "Organize items into categories for easier navigation and reporting.",
+            "stock": "Track stock levels automatically. The system updates quantities as sales are made."
+          }
+        },
+        "cashRegister": {
+          "title": "Using the Cash Register",
+          "description": "Processing sales and transactions",
+          "content": {
+            "intro": "The cash register is optimized for fast, easy transactions on any device.",
+            "selecting": "Browse items by category or search by name. Click an item to add it to the cart.",
+            "variants": "For items with variants (sizes), select the variant before adding to cart.",
+            "payment": "Choose payment method (Cash or Card). For cash payments, enter the amount given to calculate change.",
+            "receipts": "All receipts are automatically saved and viewable in Documents section."
+          }
+        },
+        "reports": {
+          "title": "Reports & Analytics",
+          "description": "Understanding your business data",
+          "content": {
+            "intro": "View sales analytics, earnings, and performance metrics from the Reports section.",
+            "overview": "See total earnings, average ticket size, items sold, and trends over time.",
+            "filtering": "Filter by date range, place, payment method, or category.",
+            "exporting": "Export data for further analysis in spreadsheet applications."
+          }
+        }
+      }
+    },
+    "developerGuide": {
+      "title": "Developer Guide",
+      "description": "Technical documentation for developers",
+      "sections": {
+        "architecture": {
+          "title": "Architecture Overview",
+          "description": "System architecture and technology stack",
+          "content": {
+            "intro": "Ratio tuta is built with modern web technologies for performance, security, and scalability.",
+            "frontend": "Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS",
+            "backend": "Next.js API Routes, PostgreSQL, Prisma ORM",
+            "auth": "Custom session-based authentication with secure cookies",
+            "storage": "AWS S3 for images with automatic optimization",
+            "deployment": "Optimized for Vercel deployment with edge functions"
+          }
+        },
+        "database": {
+          "title": "Database Schema",
+          "description": "Understanding the data model",
+          "content": {
+            "intro": "The application uses PostgreSQL with Prisma ORM for type-safe database access.",
+            "models": "Key models: User, Team, Place, Item, Category, Receipt, PlaceMember, PlaceItem",
+            "relations": "Users belong to teams, places belong to teams, items are assigned to places with quantities.",
+            "migrations": "Use 'npx prisma migrate dev' to create new migrations."
+          }
+        },
+        "api": {
+          "title": "API Routes",
+          "description": "Available API endpoints",
+          "content": {
+            "intro": "All API routes are in /app/api/ directory and use Next.js Route Handlers.",
+            "auth": "POST /api/auth/login, /api/auth/register, /api/auth/logout",
+            "places": "GET/POST /api/places, GET/PATCH/DELETE /api/places/[id]",
+            "items": "GET/POST /api/items, GET/PATCH/DELETE /api/items/[id]",
+            "receipts": "GET /api/receipts, POST /api/receipts (create transaction)",
+            "team": "GET/POST /api/team, PATCH /api/team/[userId]"
+          }
+        },
+        "security": {
+          "title": "Security Practices",
+          "description": "Built-in security features",
+          "content": {
+            "intro": "Ratio tuta implements multiple layers of security to protect your data.",
+            "csrf": "CSRF protection on all mutating requests using double-submit cookie pattern.",
+            "xss": "XSS protection through React's built-in escaping and Content Security Policy.",
+            "sql": "SQL injection prevention via Prisma's parameterized queries.",
+            "sessions": "Secure HTTP-only cookies with SameSite=Lax, signed with HMAC-SHA256.",
+            "passwords": "Passwords hashed with bcrypt (12 rounds).",
+            "rate": "Rate limiting on authentication endpoints to prevent brute force attacks."
+          }
+        },
+        "deployment": {
+          "title": "Deployment Guide",
+          "description": "How to deploy your own instance",
+          "content": {
+            "intro": "Deploy Ratio tuta to Vercel or any Node.js hosting platform.",
+            "env": "Required environment variables: DATABASE_URL, SESSION_SECRET, AWS_* for S3, SMTP_* for emails.",
+            "database": "Use a PostgreSQL database (Neon, Supabase, or AWS RDS recommended).",
+            "storage": "Configure S3 bucket for image uploads with proper CORS and bucket policies.",
+            "build": "Run 'npm run build' to create production build. Ensure prisma generate runs first."
+          }
+        }
+      }
+    },
+    "apiReference": {
+      "title": "API Reference",
+      "description": "Complete API documentation",
+      "coming": "Detailed API documentation coming soon. See Developer Guide → API Routes for now."
+    },
+    "security": {
+      "title": "Security & Privacy",
+      "description": "How we protect your data",
+      "content": {
+        "intro": "Your data security and privacy are our top priorities.",
+        "encryption": "All data is encrypted in transit (TLS 1.3) and at rest in the database.",
+        "access": "Role-based access control ensures users only see what they're authorized to access.",
+        "audit": "Comprehensive audit logging tracks all important actions.",
+        "compliance": "Built with privacy-first principles and GDPR considerations.",
+        "updates": "Regular security updates and vulnerability scanning.",
+        "score": "Security audit score: 9.5/10 (see SECURITY_FIXES_COMPLETED.md)"
+      }
     }
   },
   "CashRegister": {

@@ -157,7 +157,8 @@
       "items": "Prekės",
       "documents": "Dokumentai",
       "reports": "Ataskaitos",
-      "settings": "Nustatymai"
+      "settings": "Nustatymai",
+      "docs": "Dokumentacija"
     },
     "yourPlaces": "Jūsų vietos",
     "loading": "Įkeliama…",
@@ -799,6 +800,34 @@
     "units": {
       "pcsShort": "vnt",
       "minShort": "min"
+    }
+  },
+  "Docs": {
+    "title": "Dokumentacija",
+    "subtitle": "Visa, ką reikia žinoti naudojantis Ratio tuta",
+    "searchPlaceholder": "Ieškoti dokumentacijoje...",
+    "categories": {
+      "user": "Vartotojo gidas",
+      "developer": "Programuotojo gidas",
+      "api": "API dokumentacija",
+      "security": "Saugumas"
+    },
+    "userGuide": {
+      "title": "Vartotojo gidas",
+      "description": "Sužinokite, kaip efektyviai naudotis Ratio tuta"
+    },
+    "developerGuide": {
+      "title": "Programuotojo gidas",
+      "description": "Techninė dokumentacija programuotojams"
+    },
+    "apiReference": {
+      "title": "API dokumentacija",
+      "description": "Išsami API dokumentacija",
+      "coming": "Išsami API dokumentacija netrukus. Kol kas žiūrėkite Programuotojo gidas → API maršrutai."
+    },
+    "security": {
+      "title": "Saugumas ir privatumas",
+      "description": "Kaip saugome jūsų duomenis"
     }
   },
   "CashRegister": {

@@ -32,10 +32,17 @@ function getRedisClient() {
     );
 
     // Return a mock Redis client for development
+    // Must implement all methods used by @upstash/ratelimit
+    // Always returns success (remaining: 999) to allow unlimited requests in dev
     return {
       get: async () => null,
       set: async () => 'OK',
       eval: async () => null,
+      evalsha: async () => [999, Date.now() + 900000], // Mock: always allow with 999 remaining
+      del: async () => 1,
+      expire: async () => 1,
+      incr: async () => 1,
+      pttl: async () => 900000,
     } as any;
   }
 
@@ -50,23 +57,26 @@ const redis = getRedisClient();
 /**
  * Rate limit configuration presets
  * These match the previous in-memory limits for consistency
+ * In development, limits are much higher to avoid blocking during testing
  */
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 export const RATE_LIMITS = {
   // Authentication endpoints
-  LOGIN: 5, // 5 attempts per 15 minutes
-  REGISTER: 3, // 3 attempts per 15 minutes
-  PASSWORD_FORGOT: 3, // 3 attempts per hour
-  PASSWORD_RESET: 5, // 5 attempts per hour
-  EMAIL_VERIFY_RESEND: 3, // 3 attempts per 15 minutes
+  LOGIN: isDevelopment ? 1000 : 5, // 1000 in dev, 5 in prod attempts per 15 minutes
+  REGISTER: isDevelopment ? 1000 : 3, // 1000 in dev, 3 in prod attempts per 15 minutes
+  PASSWORD_FORGOT: isDevelopment ? 1000 : 3, // 1000 in dev, 3 in prod attempts per hour
+  PASSWORD_RESET: isDevelopment ? 1000 : 5, // 1000 in dev, 5 in prod attempts per hour
+  EMAIL_VERIFY_RESEND: isDevelopment ? 1000 : 3, // 1000 in dev, 3 in prod attempts per 15 minutes
 
   // Financial endpoints (stricter limits)
-  RECEIPT_CREATE: 30, // 30 receipts per minute (high-volume businesses)
-  PLACE_CREATE: 10, // 10 places per 15 minutes
-  ITEM_CREATE: 50, // 50 items per minute
-  ITEM_UPDATE: 100, // 100 updates per minute
+  RECEIPT_CREATE: isDevelopment ? 1000 : 30, // 1000 in dev, 30 in prod receipts per minute
+  PLACE_CREATE: isDevelopment ? 1000 : 10, // 1000 in dev, 10 in prod places per 15 minutes
+  ITEM_CREATE: isDevelopment ? 1000 : 50, // 1000 in dev, 50 in prod items per minute
+  ITEM_UPDATE: isDevelopment ? 1000 : 100, // 1000 in dev, 100 in prod updates per minute
 
   // General API
-  API_DEFAULT: 60, // 60 requests per minute
+  API_DEFAULT: isDevelopment ? 1000 : 60, // 1000 in dev, 60 in prod requests per minute
 } as const;
 
 /**

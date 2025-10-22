@@ -1,19 +1,48 @@
 'use client'
 import { Dialog, DialogPanel } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import { LayoutDashboard } from 'lucide-react'
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl'
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import Logo from './ui/Logo';
 
+// Type for session data (keeping it simple)
+type SessionData = {
+    userId: string;
+    name: string;
+    role: 'USER' | 'ADMIN';
+} | null;
+
 export const FirstPagesHeader = () => {
     const t = useTranslations('Home')
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const [session, setSession] = useState<SessionData>(null)
+
+    // Check authentication state on component mount
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const res = await fetch("/api/me", { cache: "no-store" });
+                if (!cancelled && res.ok) {
+                    const data = await res.json();
+                    setSession(data);
+                }
+            } catch {
+                // Ignore errors - user is not logged in
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [])
 
     const navigation = [
         { name: t('hero.nav.features'), href: '#features', disabled: true },
         { name: t('hero.nav.howItWorks'), href: '#how-it-works', disabled: true },
+        { name: 'Docs', href: '/docs', disabled: false },
         { name: t('hero.nav.pricing'), href: '/pricing', disabled: false },
         { name: t('hero.nav.contact'), href: '#', disabled: true },
     ]
@@ -74,9 +103,19 @@ export const FirstPagesHeader = () => {
                 </div>
                 <div className="hidden lg:flex lg:items-center lg:gap-4 lg:flex-1 lg:justify-end">
                     <LanguageSwitcher />
-                    <Link href="/auth" className="text-sm/6 font-semibold text-gray-900 dark:text-white">
-                        Log in <span aria-hidden="true">&rarr;</span>
-                    </Link>
+                    {session ? (
+                        <Link
+                            href="/dashboard/home"
+                            className="flex items-center gap-2 text-sm/6 font-semibold text-gray-900 dark:text-white hover:text-gray-600 dark:hover:text-gray-300"
+                        >
+                            <LayoutDashboard size={18} />
+                            Dashboard
+                        </Link>
+                    ) : (
+                        <Link href="/auth" className="text-sm/6 font-semibold text-gray-900 dark:text-white">
+                            Log in <span aria-hidden="true">&rarr;</span>
+                        </Link>
+                    )}
                 </div>
             </nav>
             <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
@@ -138,12 +177,23 @@ export const FirstPagesHeader = () => {
                                 <div className="px-3 pb-4">
                                     <LanguageSwitcher className="w-full" side="top" align="left" />
                                 </div>
-                                <Link
-                                    href="/auth?form=login"
-                                    className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-                                >
-                                    Log in
-                                </Link>
+                                {session ? (
+                                    <Link
+                                        href="/dashboard/home"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className="-mx-3 flex items-center gap-2 rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
+                                    >
+                                        <LayoutDashboard size={18} />
+                                        Dashboard
+                                    </Link>
+                                ) : (
+                                    <Link
+                                        href="/auth?form=login"
+                                        className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
+                                    >
+                                        Log in
+                                    </Link>
+                                )}
                             </div>
                         </div>
                     </div>

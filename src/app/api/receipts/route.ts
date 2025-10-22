@@ -153,27 +153,29 @@ export async function POST(req: Request) {
     );
   }
 
-  // Rate limiting: 30 receipts per minute per user
-  const rateLimitResult = await rateLimit(req, apiLimiter, RATE_LIMITS.RECEIPT_CREATE);
-  if (!rateLimitResult.success) {
-    await logAudit({
-      action: 'receipt.create',
-      status: 'DENIED',
-      message: 'Rate limit exceeded',
-      actor: session,
-    });
-    return NextResponse.json(
-      { error: 'Too many receipt creations. Please slow down.' },
-      {
-        status: 429,
-        headers: {
-          'X-RateLimit-Limit': String(rateLimitResult.limit),
-          'X-RateLimit-Remaining': String(rateLimitResult.remaining),
-          'X-RateLimit-Reset': String(rateLimitResult.reset),
-          'Retry-After': String(Math.ceil((rateLimitResult.reset - Date.now()) / 1000)),
+  // Rate limiting: 30 receipts per minute per user (skip in development)
+  if (process.env.NODE_ENV !== 'development') {
+    const rateLimitResult = await rateLimit(req, apiLimiter, RATE_LIMITS.RECEIPT_CREATE);
+    if (!rateLimitResult.success) {
+      await logAudit({
+        action: 'receipt.create',
+        status: 'DENIED',
+        message: 'Rate limit exceeded',
+        actor: session,
+      });
+      return NextResponse.json(
+        { error: 'Too many receipt creations. Please slow down.' },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': String(rateLimitResult.limit),
+            'X-RateLimit-Remaining': String(rateLimitResult.remaining),
+            'X-RateLimit-Reset': String(rateLimitResult.reset),
+            'Retry-After': String(Math.ceil((rateLimitResult.reset - Date.now()) / 1000)),
+          }
         }
-      }
-    );
+      );
+    }
   }
 
   const body = (await req.json()) as PostBody;

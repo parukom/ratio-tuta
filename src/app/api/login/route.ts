@@ -17,27 +17,29 @@ export async function OPTIONS() {
 
 export async function POST(req: Request) {
   try {
-    // Rate limiting: 5 login attempts per 15 minutes
-    const rateLimitResult = await rateLimit(req, authLimiter, RATE_LIMITS.LOGIN);
+    // Rate limiting: 5 login attempts per 15 minutes (skip in development)
+    if (process.env.NODE_ENV !== 'development') {
+      const rateLimitResult = await rateLimit(req, authLimiter, RATE_LIMITS.LOGIN);
 
-    if (!rateLimitResult.success) {
-      await logAudit({
-        action: 'auth.login',
-        status: 'DENIED',
-        message: 'Rate limit exceeded',
-      });
-      return NextResponse.json(
-        { error: 'Too many login attempts. Please try again later.' },
-        {
-          status: 429,
-          headers: {
-            'X-RateLimit-Limit': String(rateLimitResult.limit),
-            'X-RateLimit-Remaining': String(rateLimitResult.remaining),
-            'X-RateLimit-Reset': String(rateLimitResult.reset),
-            'Retry-After': String(Math.ceil((rateLimitResult.reset - Date.now()) / 1000)),
+      if (!rateLimitResult.success) {
+        await logAudit({
+          action: 'auth.login',
+          status: 'DENIED',
+          message: 'Rate limit exceeded',
+        });
+        return NextResponse.json(
+          { error: 'Too many login attempts. Please try again later.' },
+          {
+            status: 429,
+            headers: {
+              'X-RateLimit-Limit': String(rateLimitResult.limit),
+              'X-RateLimit-Remaining': String(rateLimitResult.remaining),
+              'X-RateLimit-Reset': String(rateLimitResult.reset),
+              'Retry-After': String(Math.ceil((rateLimitResult.reset - Date.now()) / 1000)),
+            }
           }
-        }
-      );
+        );
+      }
     }
 
     const { email, password } = await req.json();

@@ -5,7 +5,7 @@ import { logAudit } from '@lib/logger';
 import { canAddTeamMember } from '@/lib/limits';
 import { randomBytes } from 'crypto';
 import { sendVerificationEmail } from '@lib/mail';
-import { hmacEmail, normalizeEmail, redactEmail } from '@lib/crypto';
+import { hmacEmail, normalizeEmail, redactEmail, decryptEmail } from '@lib/crypto';
 import {
   requireTeamMember,
   validateRoleAssignment,
@@ -46,7 +46,7 @@ export async function GET(
       userId: true,
       role: true,
       createdAt: true,
-      user: { select: { id: true, name: true, email: true } },
+      user: { select: { id: true, name: true, emailEnc: true } },
     },
     orderBy: { createdAt: 'asc' },
   });
@@ -55,7 +55,7 @@ export async function GET(
     userId: r.userId,
     role: r.role,
     name: r.user.name,
-    email: r.user.email,
+    email: decryptEmail(r.user.emailEnc),
     createdAt: r.createdAt,
   }));
   return NextResponse.json(members);
@@ -133,10 +133,7 @@ export async function POST(
   const normEmail = normalizeEmail(email);
   const user = await prisma.user.findFirst({
     where: {
-      OR: [
-        { emailHmac: hmacEmail(normEmail) },
-        { email: { equals: normEmail, mode: 'insensitive' } },
-      ],
+      emailHmac: hmacEmail(normEmail),
     },
   });
   if (!user) {

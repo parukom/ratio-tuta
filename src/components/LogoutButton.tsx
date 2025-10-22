@@ -21,7 +21,12 @@ export default function LogoutButton({ widthFull }: Props) {
                 // Best-effort redirect even if API returns error
                 console.warn('Logout failed', await res.text().catch(() => ''))
             }
-            router.replace("/");
+            // Force a full page reload to /auth to ensure session cookie is cleared
+            window.location.href = "/auth";
+        } catch (error) {
+            console.error('Logout error:', error);
+            // Even on error, try to redirect to auth page
+            window.location.href = "/auth";
         } finally {
             setLoading(false);
         }

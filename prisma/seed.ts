@@ -12,10 +12,10 @@ async function main() {
       monthlyCents: 0,
       annualCents: 0,
       features: [
-        'Up to one place',
-        'Up to 30 items',
+        'Up to 2 places',
+        'Up to 50 items',
         'Up to 2000 sales per month',
-        'Up to 1 team mate',
+        'Up to 3 team mates',
         '3 months of storing data',
       ],
       metadata: undefined,

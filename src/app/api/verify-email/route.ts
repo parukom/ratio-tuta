@@ -57,7 +57,7 @@ export async function GET(req: Request) {
   const user = await prisma.user.update({
       where: { id: record.userId },
       data: { emailVerified: true },
-      select: { id: true, email: true, name: true },
+      select: { id: true, name: true },
     });
     await prisma.emailVerificationToken.delete({ where: { id: record.id } });
 

@@ -31,9 +31,23 @@ export function validatePassword(password: string): PasswordValidationResult {
   const errors: string[] = [];
   let strength: 'weak' | 'medium' | 'strong' = 'weak';
 
-  // Minimum length check
+  // In development, skip ALL validation if DEV_SKIP_PASSWORD_VALIDATION is set
+  const skipAllValidation = process.env.NODE_ENV === 'development' &&
+                              process.env.DEV_SKIP_PASSWORD_VALIDATION === 'true';
+
+  if (skipAllValidation) {
+    // In development with skip flag, accept any password
+    return { valid: true, errors: [], strength: 'strong' };
+  }
+
+  // Minimum length check (8-16 characters as per UI)
   if (password.length < 8) {
     errors.push('Password must be at least 8 characters long');
+    return { valid: false, errors, strength: 'weak' };
+  }
+
+  if (password.length > 16) {
+    errors.push('Password must be at most 16 characters long');
     return { valid: false, errors, strength: 'weak' };
   }
 
@@ -136,8 +150,10 @@ export async function generateSecurePassword(length: number = 16): Promise<strin
  *
  * Set HIBP_FAIL_OPEN=true in .env to allow passwords when API is unavailable
  * Production default: fail closed (reject passwords if API fails)
+ * Development default: fail open (allow passwords if API fails)
  */
-const HIBP_FAIL_OPEN = process.env.HIBP_FAIL_OPEN === 'true';
+const HIBP_FAIL_OPEN = process.env.HIBP_FAIL_OPEN === 'true' ||
+                        process.env.NODE_ENV === 'development';
 
 /**
  * Check password against Have I Been Pwned API

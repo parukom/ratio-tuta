@@ -46,10 +46,7 @@ export async function POST(req: Request) {
 
     const existingUser = await prisma.user.findFirst({
       where: {
-        OR: [
-          { emailHmac: hmacEmail(normEmail) },
-          { email: { equals: normEmail, mode: 'insensitive' } },
-        ],
+        emailHmac: hmacEmail(normEmail),
       },
     });
     if (existingUser) {

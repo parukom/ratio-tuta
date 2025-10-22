@@ -4,7 +4,7 @@ import { prisma } from '@lib/prisma';
 import { logAudit } from '@lib/logger';
 import { randomBytes } from 'crypto';
 import { sendVerificationEmail } from '@lib/mail';
-import { hmacEmail, encryptEmail, normalizeEmail, redactEmail } from '@lib/crypto';
+import { hmacEmail, encryptEmail, normalizeEmail, redactEmail, decryptEmail } from '@lib/crypto';
 
 export async function GET() {
   const session = await getSession();
@@ -16,7 +16,7 @@ export async function GET() {
     select: {
       id: true,
       name: true,
-      email: true,
+      emailEnc: true,
       role: true,
       createdAt: true,
       emailVerified: true,
@@ -24,7 +24,12 @@ export async function GET() {
     },
   });
   if (!user) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-  return NextResponse.json(user);
+
+  return NextResponse.json({
+    ...user,
+    email: decryptEmail(user.emailEnc),
+    emailEnc: undefined,
+  });
 }
 
 export async function PATCH(req: Request) {
@@ -45,10 +50,12 @@ export async function PATCH(req: Request) {
     // Load current user to compare changes
     const current = await prisma.user.findUnique({
       where: { id: session.userId },
-  select: { id: true, name: true, email: true, role: true },
+      select: { id: true, name: true, emailEnc: true, emailHmac: true, role: true },
     });
     if (!current)
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+    const currentEmail = current.emailEnc ? decryptEmail(current.emailEnc) : '';
 
     // Build updates
     let nextName: string | undefined;
@@ -63,7 +70,7 @@ export async function PATCH(req: Request) {
 
     const emailChanged =
       normEmail !== undefined &&
-      normEmail !== (current.email ? current.email.toLowerCase() : '');
+      normEmail !== currentEmail.toLowerCase();
 
     // If nothing to update
     if (!nextName && !emailChanged) {
@@ -72,7 +79,7 @@ export async function PATCH(req: Request) {
         user: {
           id: current.id,
           name: current.name,
-          email: current.email,
+          email: currentEmail,
           role: current.role,
         },
       });
@@ -97,7 +104,7 @@ export async function PATCH(req: Request) {
         select: {
           id: true,
           name: true,
-          email: true,
+          emailEnc: true,
           role: true,
           emailVerified: true,
           createdAt: true,
@@ -158,7 +165,11 @@ export async function PATCH(req: Request) {
       message: emailChanged
         ? 'Profile updated. Please verify your new email address.'
         : 'Profile updated.',
-      user: result.updated,
+      user: {
+        ...result.updated,
+        email: decryptEmail(result.updated.emailEnc),
+        emailEnc: undefined,
+      },
     });
   } catch (e: unknown) {
     // Unique constraint (email)
