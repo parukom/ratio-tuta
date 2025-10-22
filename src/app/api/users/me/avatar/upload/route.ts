@@ -27,13 +27,46 @@ export async function POST(req: Request) {
     if (!(file instanceof File)) {
       return NextResponse.json({ error: 'File is required' }, { status: 400 });
     }
+
+    // Validate file size
     if (file.size > 5_000_000) {
       return NextResponse.json(
         { error: 'File too large (max 5MB)' },
         { status: 400 },
       );
     }
+
+    // Validate file type by MIME type (first check)
+    const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedMimeTypes.includes(file.type.toLowerCase())) {
+      return NextResponse.json(
+        { error: 'Invalid file type. Only images allowed (JPEG, PNG, WebP, GIF)' },
+        { status: 400 },
+      );
+    }
+
     const buf = Buffer.from(await file.arrayBuffer());
+
+    // Validate magic bytes (file signature)
+    const magicNumbers = {
+      jpeg: [0xFF, 0xD8, 0xFF],
+      png: [0x89, 0x50, 0x4E, 0x47],
+      gif: [0x47, 0x49, 0x46],
+      webp: [0x52, 0x49, 0x46, 0x46], // RIFF
+    };
+
+    const isValidImage =
+      (buf[0] === magicNumbers.jpeg[0] && buf[1] === magicNumbers.jpeg[1] && buf[2] === magicNumbers.jpeg[2]) ||
+      (buf[0] === magicNumbers.png[0] && buf[1] === magicNumbers.png[1] && buf[2] === magicNumbers.png[2] && buf[3] === magicNumbers.png[3]) ||
+      (buf[0] === magicNumbers.gif[0] && buf[1] === magicNumbers.gif[1] && buf[2] === magicNumbers.gif[2]) ||
+      (buf[0] === magicNumbers.webp[0] && buf[1] === magicNumbers.webp[1] && buf[2] === magicNumbers.webp[2] && buf[3] === magicNumbers.webp[3]);
+
+    if (!isValidImage) {
+      return NextResponse.json(
+        { error: 'Invalid image file. File signature verification failed.' },
+        { status: 400 },
+      );
+    }
 
     // If a previous avatar exists, remove it from S3 first
     const existing = await prisma.user.findUnique({

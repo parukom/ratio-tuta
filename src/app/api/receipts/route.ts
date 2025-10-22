@@ -3,6 +3,8 @@ import { prisma } from '@lib/prisma';
 import type { Prisma } from '@/generated/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
+import { rateLimit, apiLimiter, RATE_LIMITS } from '@lib/rate-limit-redis';
+import { validateRequestSize, validateFieldSizes, REQUEST_SIZE_LIMITS, FIELD_LIMITS } from '@lib/request-validator';
 
 type PostBody = {
   placeId?: string;
@@ -135,7 +137,64 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // SECURITY FIX: Request size validation (prevent DoS through large payloads)
+  const sizeValidation = validateRequestSize(req, REQUEST_SIZE_LIMITS.RECEIPT_CREATE);
+  if (!sizeValidation.valid) {
+    await logAudit({
+      action: 'receipt.create',
+      status: 'DENIED',
+      message: 'Request too large',
+      actor: session,
+      metadata: { contentLength: sizeValidation.contentLength, limit: sizeValidation.limit },
+    });
+    return NextResponse.json(
+      { error: sizeValidation.error },
+      { status: 413 } // 413 Payload Too Large
+    );
+  }
+
+  // Rate limiting: 30 receipts per minute per user
+  const rateLimitResult = await rateLimit(req, apiLimiter, RATE_LIMITS.RECEIPT_CREATE);
+  if (!rateLimitResult.success) {
+    await logAudit({
+      action: 'receipt.create',
+      status: 'DENIED',
+      message: 'Rate limit exceeded',
+      actor: session,
+    });
+    return NextResponse.json(
+      { error: 'Too many receipt creations. Please slow down.' },
+      {
+        status: 429,
+        headers: {
+          'X-RateLimit-Limit': String(rateLimitResult.limit),
+          'X-RateLimit-Remaining': String(rateLimitResult.remaining),
+          'X-RateLimit-Reset': String(rateLimitResult.reset),
+          'Retry-After': String(Math.ceil((rateLimitResult.reset - Date.now()) / 1000)),
+        }
+      }
+    );
+  }
+
   const body = (await req.json()) as PostBody;
+
+  // SECURITY FIX: Validate field sizes (array length limits)
+  const fieldValidation = validateFieldSizes(body as Record<string, unknown>, {
+    items: FIELD_LIMITS.RECEIPT_ITEMS,
+  });
+  if (!fieldValidation.valid) {
+    await logAudit({
+      action: 'receipt.create',
+      status: 'DENIED',
+      message: 'Invalid field sizes',
+      actor: session,
+      metadata: { errors: fieldValidation.errors },
+    });
+    return NextResponse.json(
+      { error: 'Validation failed', details: fieldValidation.errors },
+      { status: 400 }
+    );
+  }
   const placeId = body.placeId || '';
   const items = Array.isArray(body.items) ? body.items : [];
   const amountGiven = Number(body.amountGiven ?? 0);
@@ -186,30 +245,15 @@ export async function POST(req: Request) {
       { status: 400 },
     );
 
-  // Map and compute totals; also verify stock from PlaceItem if present
+  // Map and compute totals
   const dbItemMap = new Map(dbItems.map((d) => [d.id, d] as const));
   for (const it of items) {
     if (!Number.isInteger(it.quantity) || (it.quantity ?? 0) <= 0)
       return NextResponse.json({ error: 'Invalid quantity' }, { status: 400 });
   }
 
-  // Fetch current stock for the place for the involved items
-  const stockRows = await prisma.placeItem.findMany({
-    where: { placeId, itemId: { in: itemIds } },
-    select: { itemId: true, quantity: true },
-  });
-  const stockMap = new Map(
-    stockRows.map((r) => [r.itemId, r.quantity] as const),
-  );
-  for (const it of items) {
-    const available = stockMap.get(it.itemId!) ?? 0;
-    if (available < (it.quantity ?? 0)) {
-      return NextResponse.json(
-        { error: 'Insufficient stock', itemId: it.itemId, available },
-        { status: 409 },
-      );
-    }
-  }
+  // SECURITY FIX: Removed pre-check (TOCTOU vulnerability)
+  // Stock validation now happens atomically inside the transaction below
 
   const receiptItemsData = items.map((it) => {
     const meta = dbItemMap.get(it.itemId!)!;

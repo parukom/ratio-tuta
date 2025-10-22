@@ -1,13 +1,50 @@
 import { cookies } from 'next/headers';
 import { createHmac, timingSafeEqual } from 'crypto';
 import { prisma } from '@lib/prisma';
+import { validateEnvironmentSecrets } from '@lib/crypto';
 
 // Signed cookie session with HMAC and expiry. For full-featured auth, consider next-auth or similar.
 
-const SESSION_COOKIE = 'session';
+/**
+ * SECURITY FIX: Use __Host- prefix for session cookie
+ * This prefix enforces:
+ * - secure: true (HTTPS only)
+ * - path: / (entire domain)
+ * - no domain attribute (prevents subdomain attacks)
+ *
+ * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie#cookie_prefixes
+ */
+const SESSION_COOKIE = '__Host-pecunia-session';
 const DEFAULT_MAX_AGE_SEC = 60 * 60 * 24 * 7; // 7 days
 
+// SECURITY: Lazy validation of environment secrets
+// Validates on first use to avoid build-time failures
+// In production runtime, enforces strong secrets
+let secretValidationDone = false;
+function ensureSecretValidation() {
+  // Skip if already validated or during build time
+  if (secretValidationDone || typeof process.env.NEXT_RUNTIME === 'undefined') {
+    return;
+  }
+
+  secretValidationDone = true;
+
+  try {
+    validateEnvironmentSecrets();
+  } catch (error) {
+    if (process.env.NODE_ENV === 'production') {
+      // Production: Fail hard
+      console.error(error);
+      throw error;
+    } else {
+      // Development: Just warn (already logged by validateEnvironmentSecrets)
+    }
+  }
+}
+
 function getSecret(): string {
+  ensureSecretValidation(); // Validate on first actual use
+
   const secret = process.env.SESSION_SECRET;
   if (!secret) {
     throw new Error('SESSION_SECRET is not set');
@@ -59,9 +96,10 @@ export async function setSession(
 
   store.set(SESSION_COOKIE, value, {
     httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
+    sameSite: 'strict', // Strict CSRF protection - cookie only sent for same-site requests
+    secure: true, // SECURITY FIX: Always true (required by __Host- prefix)
+    path: '/', // Required by __Host- prefix
+    // Note: domain attribute is intentionally omitted (required by __Host- prefix)
     maxAge: maxAgeSec,
   });
 }
@@ -94,12 +132,13 @@ export async function getSession(
     // Optional server-side invalidation via sessionRevokedAt
     if (!opts?.skipDbCheck) {
       try {
-        const rows = await prisma.$queryRaw<
-          Array<{ sessionrevokedat: Date | null }>
-        >`
-          SELECT "sessionRevokedAt" as sessionrevokedat FROM "User" WHERE id = ${token.data.userId} LIMIT 1
-        `;
-        const revokedAt = rows[0]?.sessionrevokedat ?? null;
+        // SECURITY FIX: Replace raw SQL with safe Prisma query
+        const user = await prisma.user.findUnique({
+          where: { id: token.data.userId },
+          select: { sessionRevokedAt: true },
+        });
+
+        const revokedAt = user?.sessionRevokedAt ?? null;
         if (revokedAt) {
           const revokedSec = Math.floor(new Date(revokedAt).getTime() / 1000);
           // Invalidate tokens strictly older than the revoked timestamp

@@ -1,26 +1,58 @@
 import { NextResponse } from 'next/server';
-import { clearSession } from '@lib/session';
+import { clearSession, getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
+import { prisma } from '@lib/prisma';
 
 export async function POST() {
-  // Use response-bound cookie deletion for reliability
+  // SECURITY FIX: Revoke all sessions server-side on logout
+  let userId: string | undefined;
+  try {
+    // Get current session to identify the user
+    const session = await getSession({ skipDbCheck: true });
+    if (session) {
+      userId = session.userId;
+
+      // Update sessionRevokedAt to invalidate all existing tokens
+      await prisma.user.update({
+        where: { id: userId },
+        data: { sessionRevokedAt: new Date() },
+      });
+
+      await logAudit({
+        action: 'auth.logout',
+        status: 'SUCCESS',
+        actor: session,
+        message: 'All sessions revoked',
+      });
+    } else {
+      await logAudit({
+        action: 'auth.logout',
+        status: 'SUCCESS',
+        message: 'No active session',
+      });
+    }
+  } catch (e) {
+    console.warn('[logout] failed to revoke sessions', e);
+    // Continue with cookie deletion even if DB update fails
+    await logAudit({
+      action: 'auth.logout',
+      status: 'ERROR',
+      message: 'Failed to revoke sessions server-side',
+    });
+  }
+
+  // Clear session cookie
   const res = NextResponse.json({ ok: true }, { status: 200 });
   try {
     res.cookies.delete('session');
   } catch {
-    // Fallback to store-based deletion. Guard against any errors so the
-    // route never throws and the client gets a stable response.
+    // Fallback to store-based deletion
     try {
       await clearSession();
     } catch {
       console.warn('[logout] failed to clear session via store');
     }
   }
-  try {
-    await logAudit({ action: 'auth.logout', status: 'SUCCESS' });
-  } catch {
-    // logAudit is fire-and-forget internally but guard here as well
-    console.warn('[logout] logAudit failed');
-  }
+
   return res;
 }

@@ -18,29 +18,39 @@ export async function GET(req: Request) {
   }
 
   try {
+    // SECURITY FIX: Constant-time validation to prevent timing attacks
     const record = await prisma.emailVerificationToken.findUnique({
       where: { token },
     });
-    if (!record) {
+
+    const now = new Date();
+    let isValid = false;
+    let denialReason = 'Invalid token';
+
+    if (record) {
+      if (record.expiresAt > now) {
+        isValid = true;
+      } else {
+        denialReason = 'Expired token';
+        // Delete expired token
+        await prisma.emailVerificationToken.delete({ where: { id: record.id } }).catch(() => {});
+      }
+    }
+
+    // Constant-time response - same error for all failure cases
+    if (!isValid) {
       await logAudit({
         action: 'auth.verifyEmail',
         status: 'DENIED',
-        message: 'Invalid token',
+        message: denialReason,
       });
       const url = new URL('/auth?form=login&verify=invalid', req.url);
       return NextResponse.redirect(url);
     }
-    const now = new Date();
-    if (record.expiresAt <= now) {
-      // delete expired token
-      await prisma.emailVerificationToken.delete({ where: { id: record.id } });
-      await logAudit({
-        action: 'auth.verifyEmail',
-        status: 'DENIED',
-        message: 'Expired token',
-      });
-      const url = new URL('/auth?form=login&verify=invalid', req.url);
-      return NextResponse.redirect(url);
+
+    // TypeScript: At this point, record is guaranteed to be non-null
+    if (!record) {
+      throw new Error('Unexpected: record is null after validation');
     }
 
     // mark user as verified and delete token

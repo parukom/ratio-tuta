@@ -6,6 +6,11 @@ import { canAddTeamMember } from '@/lib/limits';
 import { randomBytes } from 'crypto';
 import { sendVerificationEmail } from '@lib/mail';
 import { hmacEmail, normalizeEmail, redactEmail } from '@lib/crypto';
+import {
+  getUserTeamRole,
+  validateRoleAssignment,
+  type TeamRole
+} from '@lib/authorization';
 
 export async function POST(req: Request) {
   const session = await getSession();
@@ -78,6 +83,52 @@ export async function POST(req: Request) {
 
   const teamId = teamIds[0];
 
+  // SECURITY FIX: Check requester's role before allowing member addition
+  const membership = await getUserTeamRole(actor.userId, teamId);
+  if (!membership) {
+    await logAudit({
+      action: 'team.member.add.auto',
+      status: 'DENIED',
+      message: 'Requester not in team',
+      actor,
+      teamId,
+    });
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  // Only OWNER or ADMIN can add members
+  if (membership.role === 'MEMBER') {
+    await logAudit({
+      action: 'team.member.add.auto',
+      status: 'DENIED',
+      message: 'Insufficient permissions. Admin or Owner role required.',
+      actor,
+      teamId,
+    });
+    return NextResponse.json(
+      { error: 'Admin or Owner role required to add team members' },
+      { status: 403 }
+    );
+  }
+
+  // Validate role assignment
+  const targetRole = (role ?? 'MEMBER') as TeamRole;
+  try {
+    validateRoleAssignment(membership.role, membership.isOwner, targetRole);
+  } catch (error) {
+    await logAudit({
+      action: 'team.member.add.auto',
+      status: 'DENIED',
+      message: error instanceof Error ? error.message : 'Role validation failed',
+      actor,
+      teamId,
+    });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Invalid role assignment' },
+      { status: 403 }
+    );
+  }
+
   const normEmail = normalizeEmail(email);
   const user = await prisma.user.findFirst({
     where: {
@@ -110,7 +161,7 @@ export async function POST(req: Request) {
       await logAudit({ action: 'team.member.limitCheck', status: 'ERROR', actor, teamId, message: 'Failed to check member limit' })
     }
     const tm = await prisma.teamMember.create({
-      data: { teamId, userId: user.id, role: role ?? 'MEMBER' },
+      data: { teamId, userId: user.id, role: targetRole },
       select: { id: true, teamId: true, userId: true, role: true },
     });
     await logAudit({

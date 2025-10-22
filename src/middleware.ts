@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { addCorsHeaders } from '@lib/cors';
 
 // Minimal verification of the session cookie structure, signature and role to protect /dashboard
 function verifySession(cookie: string | undefined): {
@@ -35,17 +36,24 @@ function verifySession(cookie: string | undefined): {
 }
 
 export function middleware(req: NextRequest) {
-  const cookie = req.cookies.get('session')?.value;
+  // Add CORS headers to all responses
+  let response: NextResponse;
+
+  // SECURITY FIX: Updated cookie name to match __Host-pecunia-session
+  const cookie = req.cookies.get('__Host-pecunia-session')?.value;
   const verified = verifySession(cookie);
   if (!verified.ok) {
     const url = new URL('/auth?form=login', req.url);
-    return NextResponse.redirect(url);
-  }
-  if (verified.role !== 'ADMIN') {
+    response = NextResponse.redirect(url);
+  } else if (verified.role !== 'ADMIN') {
     const url = new URL('/unallowed', req.url);
-    return NextResponse.redirect(url);
+    response = NextResponse.redirect(url);
+  } else {
+    response = NextResponse.next();
   }
-  return NextResponse.next();
+
+  // Apply CORS headers
+  return addCorsHeaders(response, req);
 }
 
 // Only run on dashboard routes

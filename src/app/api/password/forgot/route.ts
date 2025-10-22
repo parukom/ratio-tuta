@@ -9,10 +9,34 @@ import {
 } from '@lib/crypto';
 import { randomBytes } from 'crypto';
 import { sendPasswordResetEmail } from '@lib/mail';
+import { rateLimit, strictAuthLimiter, RATE_LIMITS } from '@lib/rate-limit-redis';
 
 // POST /api/password/forgot { email }
 export async function POST(req: Request) {
   try {
+    // Rate limiting: 3 attempts per hour
+    const rateLimitResult = await rateLimit(req, strictAuthLimiter, RATE_LIMITS.PASSWORD_FORGOT);
+
+    if (!rateLimitResult.success) {
+      await logAudit({
+        action: 'auth.password.forgot',
+        status: 'DENIED',
+        message: 'Rate limit exceeded',
+      });
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': String(rateLimitResult.limit),
+            'X-RateLimit-Remaining': String(rateLimitResult.remaining),
+            'X-RateLimit-Reset': String(rateLimitResult.reset),
+            'Retry-After': String(Math.ceil((rateLimitResult.reset - Date.now()) / 1000)),
+          }
+        }
+      );
+    }
+
     const body = (await req.json().catch(() => null)) as {
       email?: string;
     } | null;
@@ -23,19 +47,13 @@ export async function POST(req: Request) {
     const norm = normalizeEmail(emailRaw);
     const emailH = hmacEmail(norm);
 
-    // Find user (support legacy plaintext fallback)
-    const user = await prisma.user.findFirst({
-      where: {
-        OR: [
-          { emailHmac: emailH },
-          { email: { equals: norm, mode: 'insensitive' } },
-        ],
-      },
+    // Find user by HMAC hash
+    const user = await prisma.user.findUnique({
+      where: { emailHmac: emailH },
       select: {
         id: true,
         name: true,
         emailEnc: true,
-        email: true,
         emailVerified: true,
       },
     });
@@ -56,30 +74,22 @@ export async function POST(req: Request) {
     // Create token (one hour expiry). Optionally invalidate previous tokens.
     const token = randomBytes(32).toString('hex');
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
     // Clean old/used tokens for this user to keep table small (best-effort)
-    // ts-ignore to avoid transient type error if generated client not yet picked up by dev server
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     await prisma.passwordResetToken.deleteMany({
       where: {
         userId: user.id,
         OR: [{ expiresAt: { lt: new Date() } }, { usedAt: { not: null } }],
       },
     });
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+
+    // Create new password reset token
     await prisma.passwordResetToken.create({
       data: { userId: user.id, token, expiresAt },
     });
 
-    // Decrypt or fallback to plaintext email for sending
-    let emailPlain: string | null = null;
-    try {
-      if (user.emailEnc) emailPlain = decryptEmail(user.emailEnc);
-    } catch {
-      /* ignore */
-    }
-    if (!emailPlain) emailPlain = user.email ?? norm;
+    // Decrypt email for sending
+    const emailPlain = decryptEmail(user.emailEnc);
 
     try {
       await sendPasswordResetEmail({ to: emailPlain, name: user.name, token });

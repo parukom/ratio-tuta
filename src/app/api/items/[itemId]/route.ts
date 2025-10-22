@@ -18,8 +18,33 @@ export async function GET(
   if (!itemId || typeof itemId !== 'string')
     return NextResponse.json({ error: 'Invalid itemId' }, { status: 400 });
 
-  const item = await prisma.item.findUnique({
-    where: { id: itemId },
+  // SECURITY FIX: Find teams user belongs to FIRST
+  const [ownedTeams, memberTeams] = await Promise.all([
+    prisma.team.findMany({
+      where: { ownerId: session.userId },
+      select: { id: true },
+    }),
+    prisma.teamMember.findMany({
+      where: { userId: session.userId },
+      select: { teamId: true },
+    }),
+  ]);
+
+  const userTeamIds = [
+    ...ownedTeams.map((t) => t.id),
+    ...memberTeams.map((m) => m.teamId),
+  ];
+
+  if (userTeamIds.length === 0) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  // Fetch item ONLY if it belongs to user's teams (prevents enumeration)
+  const item = await prisma.item.findFirst({
+    where: {
+      id: itemId,
+      teamId: { in: userTeamIds }, // Only fetch if user has access
+    },
     select: {
       id: true,
       teamId: true,
@@ -43,21 +68,9 @@ export async function GET(
       imageKey: true,
     },
   });
-  if (!item) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  // permission: user must be in the item's team
-  const allowed = await prisma.team.findFirst({
-    where: {
-      id: item.teamId,
-      OR: [
-        { ownerId: session.userId },
-        { members: { some: { userId: session.userId } } },
-      ],
-    },
-    select: { id: true },
-  });
-  if (!allowed)
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  // Single error response - no information disclosure
+  if (!item) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const unit =
     item.measurementType === 'PCS'

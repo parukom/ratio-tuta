@@ -6,6 +6,12 @@ import { canAddTeamMember } from '@/lib/limits';
 import { randomBytes } from 'crypto';
 import { sendVerificationEmail } from '@lib/mail';
 import { hmacEmail, normalizeEmail, redactEmail } from '@lib/crypto';
+import {
+  requireTeamMember,
+  validateRoleAssignment,
+  handleAuthError,
+  type TeamRole
+} from '@lib/authorization';
 
 // GET /api/teams/[teamId]/members -> list members of a team (requires requester in team)
 export async function GET(
@@ -87,26 +93,40 @@ export async function POST(
     return NextResponse.json({ error: 'Missing email' }, { status: 400 });
   }
 
-  // Ensure requester belongs to this team (owner or member)
-  const membership = await prisma.team.findFirst({
-    where: {
-      id: teamId,
-      OR: [
-        { ownerId: session.userId },
-        { members: { some: { userId: session.userId } } },
-      ],
-    },
-    select: { id: true, ownerId: true },
-  });
-  if (!membership) {
+  // SECURITY FIX: Use centralized authorization
+  // Require at least ADMIN role to add members
+  try {
+    const membership = await requireTeamMember(session, teamId);
+
+    // Only OWNER or ADMIN can add members
+    if (membership.role === 'MEMBER') {
+      await logAudit({
+        action: 'team.member.add',
+        status: 'DENIED',
+        message: 'Insufficient permissions. Admin or Owner role required.',
+        actor: session,
+        teamId,
+      });
+      return NextResponse.json(
+        { error: 'Admin or Owner role required to add team members' },
+        { status: 403 }
+      );
+    }
+
+    // Validate role assignment permissions
+    const targetRole = (role ?? 'MEMBER') as TeamRole;
+    validateRoleAssignment(membership.role, membership.isOwner, targetRole);
+
+  } catch (error) {
+    const { error: message, status } = handleAuthError(error);
     await logAudit({
       action: 'team.member.add',
       status: 'DENIED',
-      message: 'Forbidden',
+      message: String(message),
       actor: session,
       teamId,
     });
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return NextResponse.json({ error: message }, { status });
   }
 
   // Find target user by email

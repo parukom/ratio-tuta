@@ -5,6 +5,9 @@ import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
 import type { MeasurementType } from '@/generated/prisma';
 import { canCreateItem } from '@/lib/limits';
+import { rateLimit, apiLimiter, RATE_LIMITS } from '@lib/rate-limit-redis';
+import { validateRequestSize, validateFieldSizes, REQUEST_SIZE_LIMITS, FIELD_LIMITS } from '@lib/request-validator';
+import { createSafeErrorResponse, getConstraintErrorMessage, isConstraintError } from '@lib/error-handler';
 
 export async function GET(req: Request) {
   const session = await getSession();
@@ -259,6 +262,45 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // SECURITY FIX: Request size validation
+  const sizeValidation = validateRequestSize(req, REQUEST_SIZE_LIMITS.ITEM_CREATE);
+  if (!sizeValidation.valid) {
+    await logAudit({
+      action: 'item.create',
+      status: 'DENIED',
+      message: 'Request too large',
+      actor: session,
+      metadata: { contentLength: sizeValidation.contentLength, limit: sizeValidation.limit },
+    });
+    return NextResponse.json(
+      { error: sizeValidation.error },
+      { status: 413 }
+    );
+  }
+
+  // Rate limiting: 50 items per minute
+  const rateLimitResult = await rateLimit(req, apiLimiter, RATE_LIMITS.ITEM_CREATE);
+  if (!rateLimitResult.success) {
+    await logAudit({
+      action: 'item.create',
+      status: 'DENIED',
+      message: 'Rate limit exceeded',
+      actor: session,
+    });
+    return NextResponse.json(
+      { error: 'Too many item creations. Please slow down.' },
+      {
+        status: 429,
+        headers: {
+          'X-RateLimit-Limit': String(rateLimitResult.limit),
+          'X-RateLimit-Remaining': String(rateLimitResult.remaining),
+          'X-RateLimit-Reset': String(rateLimitResult.reset),
+          'Retry-After': String(Math.ceil((rateLimitResult.reset - Date.now()) / 1000)),
+        }
+      }
+    );
+  }
+
   const body = (await req.json()) as {
     teamId?: string;
     name?: string;
@@ -279,6 +321,26 @@ export async function POST(req: Request) {
     imageUrl?: string | null;
     imageKey?: string | null;
   };
+
+  // SECURITY FIX: Validate field sizes
+  const fieldValidation = validateFieldSizes(body as Record<string, unknown>, {
+    name: FIELD_LIMITS.ITEM_NAME,
+    description: FIELD_LIMITS.ITEM_DESCRIPTION,
+    sku: FIELD_LIMITS.ITEM_SKU,
+  });
+  if (!fieldValidation.valid) {
+    await logAudit({
+      action: 'item.create',
+      status: 'DENIED',
+      message: 'Invalid field sizes',
+      actor: session,
+      metadata: { errors: fieldValidation.errors },
+    });
+    return NextResponse.json(
+      { error: 'Validation failed', details: fieldValidation.errors },
+      { status: 400 }
+    );
+  }
 
   const name = (body.name || '').trim();
   const price = Number(body.price);
@@ -515,22 +577,30 @@ export async function POST(req: Request) {
       { status: 201 },
     );
   } catch (e) {
-    const err = e as { code?: string };
-    if (err?.code === 'P2002') {
-      // Unique constraint failed (name or sku unique per team)
+    // SECURITY FIX: Use production-safe error messages
+    if (isConstraintError(e)) {
+      const message = getConstraintErrorMessage(e);
+      await logAudit({
+        action: 'item.create',
+        status: 'ERROR',
+        actor: session,
+        teamId: targetTeamId!,
+        message: `Constraint violation: ${message}`,
+      });
       return NextResponse.json(
-        { error: 'Duplicate name or SKU for this team' },
-        { status: 409 },
+        { error: message },
+        { status: 409 }
       );
     }
-    console.error(e);
-    await logAudit({
+
+    // Generic server error with safe messaging
+    return createSafeErrorResponse({
+      error: e,
       action: 'item.create',
-      status: 'ERROR',
-      actor: session,
+      session,
       teamId: targetTeamId!,
-      message: 'Server error',
+      developmentMessage: e instanceof Error ? e.message : 'Failed to create item',
+      productionMessage: 'Unable to create item. Please try again later.',
     });
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

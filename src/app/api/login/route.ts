@@ -4,6 +4,7 @@ import { verifyPassword } from '@lib/auth';
 import { setSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
 import { hmacEmail, decryptEmail, normalizeEmail, redactEmail } from '@lib/crypto';
+import { rateLimit, authLimiter, RATE_LIMITS } from '@lib/rate-limit-redis';
 
 export async function OPTIONS() {
   return new NextResponse(null, {
@@ -16,7 +17,30 @@ export async function OPTIONS() {
 
 export async function POST(req: Request) {
   try {
-  const { email, password } = await req.json();
+    // Rate limiting: 5 login attempts per 15 minutes
+    const rateLimitResult = await rateLimit(req, authLimiter, RATE_LIMITS.LOGIN);
+
+    if (!rateLimitResult.success) {
+      await logAudit({
+        action: 'auth.login',
+        status: 'DENIED',
+        message: 'Rate limit exceeded',
+      });
+      return NextResponse.json(
+        { error: 'Too many login attempts. Please try again later.' },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': String(rateLimitResult.limit),
+            'X-RateLimit-Remaining': String(rateLimitResult.remaining),
+            'X-RateLimit-Reset': String(rateLimitResult.reset),
+            'Retry-After': String(Math.ceil((rateLimitResult.reset - Date.now()) / 1000)),
+          }
+        }
+      );
+    }
+
+    const { email, password } = await req.json();
 
     if (!email || !password) {
       await logAudit({
@@ -29,14 +53,13 @@ export async function POST(req: Request) {
     }
 
     const emailH = hmacEmail(email);
-    // Use findFirst to support either new HMAC field or legacy plaintext until migration completes
-    const user = await prisma.user.findFirst({
-      where: { OR: [{ emailHmac: emailH }, { email: { equals: normalizeEmail(email), mode: 'insensitive' } }] },
+    // Find user by HMAC hash
+    const user = await prisma.user.findUnique({
+      where: { emailHmac: emailH },
       select: {
         id: true,
         name: true,
         emailEnc: true,
-        email: true,
         password: true,
         role: true,
         createdAt: true,
@@ -99,14 +122,8 @@ export async function POST(req: Request) {
       },
       metadata: { email: redactEmail(normalizeEmail(email)) },
     });
-  // Prefer decrypted email if available; fallback to legacy plaintext field if present
-  let emailPlain: string | null = null;
-  try {
-    if (user.emailEnc) emailPlain = decryptEmail(user.emailEnc);
-  } catch {
-    // ignore decrypt errors and fall back
-  }
-  if (!emailPlain) emailPlain = user.email ?? normalizeEmail(email);
+    // Decrypt email for response
+    const emailPlain = decryptEmail(user.emailEnc);
     return NextResponse.json(
       { id: user.id, name: user.name, email: emailPlain, role: user.role },
       { status: 200 },

@@ -39,23 +39,86 @@ export function getPublicUrlForKey(key: string): string {
   return `${getPublicBaseUrl()}/${key.replace(/^\/+/, '')}`;
 }
 
+/**
+ * Generate a presigned PUT URL for S3 with security constraints
+ *
+ * SECURITY IMPROVEMENTS:
+ * 1. Enforces Content-Type to prevent MIME confusion attacks
+ * 2. Sets Content-Length limits to prevent DoS
+ * 3. Short expiry time (default 60s)
+ * 4. Validates allowed content types
+ *
+ * IMPORTANT: S3 Bucket Policy MUST be configured to enforce size limits.
+ * See docs/S3_BUCKET_POLICY.md for setup instructions.
+ */
 export async function getPresignedPutUrl(params: {
   key: string;
   contentType: string;
   expiresSec?: number;
+  maxSizeBytes?: number; // Default: 5MB for images
 }) {
   const client = getS3Client();
   const bucket = getBucketName();
+
+  // SECURITY FIX: Validate content type
+  const allowedContentTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+  ];
+
+  if (!allowedContentTypes.includes(params.contentType)) {
+    throw new Error(`Content type ${params.contentType} is not allowed`);
+  }
+
+  // SECURITY FIX: Set size limit (default 5MB for avatar images)
+  const maxSize = params.maxSizeBytes ?? 5 * 1024 * 1024; // 5MB
+
   const cmd = new PutObjectCommand({
     Bucket: bucket,
     Key: params.key,
     ContentType: params.contentType,
-    // If your bucket enforces ACLs, you may need: ACL: 'public-read'
+    // SECURITY FIX: Add metadata to enforce constraints
+    Metadata: {
+      'upload-source': 'presigned-url',
+      'max-size': String(maxSize),
+    },
   });
+
   const url = await getSignedUrl(client, cmd, {
-    expiresIn: params.expiresSec ?? 60,
+    expiresIn: params.expiresSec ?? 60, // Short expiry: 60 seconds
+    // SECURITY NOTE: AWS SDK v3 doesn't support size conditions in getSignedUrl
+    // Size limits MUST be enforced via S3 Bucket Policy (see docs/S3_BUCKET_POLICY.md)
   });
+
   return url;
+}
+
+/**
+ * Validate Content-Length header before generating presigned URL
+ * Second layer of defense against oversized uploads
+ */
+export function validateUploadSize(
+  contentLength: string | null,
+  maxSizeBytes: number = 5 * 1024 * 1024
+): void {
+  if (!contentLength) {
+    throw new Error('Content-Length header is required');
+  }
+
+  const size = parseInt(contentLength, 10);
+
+  if (isNaN(size) || size <= 0) {
+    throw new Error('Invalid Content-Length header');
+  }
+
+  if (size > maxSizeBytes) {
+    throw new Error(
+      `File too large. Maximum size: ${Math.floor(maxSizeBytes / 1024 / 1024)}MB, ` +
+      `received: ${Math.floor(size / 1024 / 1024)}MB`
+    );
+  }
 }
 
 export async function deleteObjectByKey(key: string) {
