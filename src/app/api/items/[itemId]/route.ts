@@ -4,6 +4,7 @@ import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
 import { deleteObjectByKey } from '@lib/s3';
 import type { Prisma } from '@/generated/prisma';
+import { requireCsrfToken } from '@lib/csrf';
 
 // GET /api/items/[itemId] -> single item details
 export async function GET(
@@ -96,6 +97,16 @@ export async function PATCH(
   const session = await getSession();
   if (!session)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // SECURITY: CSRF protection for item updates
+  try {
+    requireCsrfToken(req, session);
+  } catch (e) {
+    return NextResponse.json(
+      { error: 'Invalid CSRF token' },
+      { status: 403 }
+    );
+  }
 
   if (!itemId || typeof itemId !== 'string')
     return NextResponse.json({ error: 'Invalid itemId' }, { status: 400 });
@@ -359,6 +370,16 @@ export async function DELETE(
   const session = await getSession();
   if (!session)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // SECURITY: CSRF protection for item deletion
+  try {
+    requireCsrfToken(_req, session);
+  } catch (e) {
+    return NextResponse.json(
+      { error: 'Invalid CSRF token' },
+      { status: 403 }
+    );
+  }
 
   if (!itemId || typeof itemId !== 'string')
     return NextResponse.json({ error: 'Invalid itemId' }, { status: 400 });

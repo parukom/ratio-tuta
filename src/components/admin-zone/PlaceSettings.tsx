@@ -5,6 +5,7 @@ import Spinner from '../ui/Spinner'
 import DeletePlaceButton from './places/DeletePlaceButton'
 import { Place } from './places/types'
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
+import { api, ApiError } from '@/lib/api-client'
 
 type Props = {
     place: Place | null
@@ -47,28 +48,27 @@ export const PlaceSettings = ({ place, router, onSaved }: Props) => {
         setSaveLoading(true)
         setSaveMessage(null)
         try {
-            const res = await fetch(`/api/places/${place.id}`, {
-                method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-                    name: editName.trim(),
-                    description: editDescription.trim() || null,
-                    address1: editAddress1.trim() || null,
-                    address2: editAddress2.trim() || null,
-                    city: editCity.trim() || null,
-                    country: editCountry.trim() || null,
-                    timezone: editTimezone.trim() || null,
-                    currency: editCurrency.trim() || null,
-                    isActive: !!editActive,
-                })
+            const data = await api.patch<Place>(`/api/places/${place.id}`, {
+                name: editName.trim(),
+                description: editDescription.trim() || null,
+                address1: editAddress1.trim() || null,
+                address2: editAddress2.trim() || null,
+                city: editCity.trim() || null,
+                country: editCountry.trim() || null,
+                timezone: editTimezone.trim() || null,
+                currency: editCurrency.trim() || null,
+                isActive: !!editActive,
             })
-            const data = await res.json().catch(() => ({}))
-            if (!res.ok) throw new Error(data?.error || tc('errors.failedToSave'))
             onSaved?.(data)
             try { localStorage.setItem(`place:${place.id}`, JSON.stringify(data)) } catch { }
             setSaveMessage(tc('saved'))
             setTimeout(() => setSaveMessage(null), 1500)
-        } catch (e: unknown) {
-            const err = e as { message?: string }
-            setSaveMessage(err?.message || tc('errors.failedToSave'))
+        } catch (err) {
+            if (err instanceof ApiError) {
+                setSaveMessage(err.message || tc('errors.failedToSave'))
+            } else {
+                setSaveMessage(tc('errors.failedToSave'))
+            }
         } finally {
             setSaveLoading(false)
         }

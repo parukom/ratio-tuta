@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 import Spinner from '@/components/ui/Spinner'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
+import { api, ApiError } from '@/lib/api-client'
 
 type Props = {
     teamId?: string
@@ -50,33 +51,9 @@ export default function CreatePlaceButton({ teamId, onCreated }: Props) {
                 setLoading(false)
                 return
             }
-            const res = await fetch('/api/places', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ teamId, name, placeTypeId, description, address1, address2, city, country, timezone, currency, isActive }),
+            const data = await api.post<{ id: string; name: string }>('/api/places', {
+                teamId, name, placeTypeId, description, address1, address2, city, country, timezone, currency, isActive
             })
-            const data = await res.json()
-            if (!res.ok) {
-                // Detect server-side limit enforcement 403
-                if (res.status === 403 && typeof data.error === 'string' && data.error.toLowerCase().includes('limit')) {
-                    setOpen(false)
-                    // attempt to load fresh limit info for modal
-                    if (teamId) {
-                        try {
-                            const r2 = await fetch(`/api/teams/${teamId}/limits/places`)
-                            if (r2.ok) {
-                                const li = await r2.json() as { allowed: boolean; remaining: number | null; max: number | null }
-                                setLimitInfo(li)
-                            }
-                        } catch { /* ignore */ }
-                    }
-                    setLimitModal(true)
-                    toast.error(th('place.limit.title', { default: 'Plan limit reached' }))
-                    return
-                }
-                const err = data.error || th('place.create.messages.failedCreate');
-                setMessage(err); toast.error(err); return
-            }
             const okMsg = th('place.create.messages.created')
             setMessage(okMsg)
             toast.success(okMsg)
@@ -85,10 +62,30 @@ export default function CreatePlaceButton({ teamId, onCreated }: Props) {
             try { window.dispatchEvent(new Event('places:changed')) } catch { /* noop */ }
             reset()
             setOpen(false)
-        } catch {
-            const err = th('place.create.messages.networkError')
-            setMessage(err)
-            toast.error(err)
+        } catch (err) {
+            if (err instanceof ApiError) {
+                // Detect server-side limit enforcement 403
+                if (err.status === 403 && err.message.toLowerCase().includes('limit')) {
+                    setOpen(false)
+                    // attempt to load fresh limit info for modal
+                    if (teamId) {
+                        try {
+                            const li = await api.get<{ allowed: boolean; remaining: number | null; max: number | null }>(`/api/teams/${teamId}/limits/places`)
+                            setLimitInfo(li)
+                        } catch { /* ignore */ }
+                    }
+                    setLimitModal(true)
+                    toast.error(th('place.limit.title', { default: 'Plan limit reached' }))
+                    return
+                }
+                const errMsg = err.message || th('place.create.messages.failedCreate')
+                setMessage(errMsg)
+                toast.error(errMsg)
+            } else {
+                const errMsg = th('place.create.messages.networkError')
+                setMessage(errMsg)
+                toast.error(errMsg)
+            }
         } finally {
             setLoading(false)
         }
@@ -104,15 +101,10 @@ export default function CreatePlaceButton({ teamId, onCreated }: Props) {
                     }
                     setLimitsLoading(true)
                     try {
-                        const r = await fetch(`/api/teams/${teamId}/limits/places`)
-                        if (r.ok) {
-                            const data = await r.json() as { allowed: boolean; remaining: number | null; max: number | null }
-                            setLimitInfo(data)
-                            if (!data.allowed) { setLimitModal(true); return }
-                            setOpen(true)
-                        } else {
-                            setOpen(true) // fallback do not block
-                        }
+                        const data = await api.get<{ allowed: boolean; remaining: number | null; max: number | null }>(`/api/teams/${teamId}/limits/places`)
+                        setLimitInfo(data)
+                        if (!data.allowed) { setLimitModal(true); return }
+                        setOpen(true)
                     } catch { setOpen(true) } finally { setLimitsLoading(false) }
                 }}
                 className="inline-flex text-nowrap items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400"

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@lib/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
+import { requireCsrfToken } from '@lib/csrf';
 
 // GET /api/places/[placeId] -> single place details
 export async function GET(
@@ -82,6 +83,16 @@ export async function DELETE(
   const session = await getSession();
   if (!session)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // SECURITY: CSRF protection for place deletion
+  try {
+    requireCsrfToken(req, session);
+  } catch (e) {
+    return NextResponse.json(
+      { error: 'Invalid CSRF token' },
+      { status: 403 }
+    );
+  }
 
   const { placeId: placeIdParam } = await context.params;
   const placeId = placeIdParam;
@@ -174,6 +185,16 @@ export async function PATCH(
   const session = await getSession();
   if (!session)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // SECURITY: CSRF protection for place updates
+  try {
+    requireCsrfToken(req, session);
+  } catch (e) {
+    return NextResponse.json(
+      { error: 'Invalid CSRF token' },
+      { status: 403 }
+    );
+  }
 
   const { placeId: placeIdParam } = await context.params;
   const placeId = placeIdParam;

@@ -22,7 +22,7 @@ export async function GET() {
     const csrfToken = generateCsrfToken(session);
 
     return NextResponse.json(
-      { csrfToken },
+      { token: csrfToken },
       {
         status: 200,
         headers: {

@@ -46,8 +46,8 @@ export function validatePassword(password: string): PasswordValidationResult {
     return { valid: false, errors, strength: 'weak' };
   }
 
-  if (password.length > 16) {
-    errors.push('Password must be at most 16 characters long');
+  if (password.length > 128) {
+    errors.push('Password must be at most 128 characters long');
     return { valid: false, errors, strength: 'weak' };
   }
 

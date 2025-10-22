@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import Spinner from '@/components/ui/Spinner'
 import toast from 'react-hot-toast'
 import { useTranslations } from 'next-intl'
+import { api, ApiError } from '@/lib/api-client'
 
 export const LogoutOtherSessions = () => {
     const t = useTranslations('Settings.logoutOthers')
@@ -14,24 +15,19 @@ export const LogoutOtherSessions = () => {
         setLoading(true)
         setMessage(null)
         try {
-            const res = await fetch('/api/logout-others', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password }),
-            })
-            const data = await res.json().catch(() => ({}))
-            if (!res.ok) {
-                const err = data?.error || t('errors.failed')
-                setMessage(err)
-                toast.error(err)
+            await api.post('/api/logout-others', { password })
+            setMessage(t('success'))
+            toast.success(t('success'))
+            setPassword('')
+        } catch (err) {
+            if (err instanceof ApiError) {
+                const errMsg = err.message || t('errors.failed')
+                setMessage(errMsg)
+                toast.error(errMsg)
             } else {
-                setMessage(t('success'))
-                toast.success(t('success'))
-                setPassword('')
+                setMessage(t('errors.network'))
+                toast.error(t('errors.network'))
             }
-        } catch {
-            setMessage(t('errors.network'))
-            toast.error(t('errors.network'))
         } finally {
             setLoading(false)
         }

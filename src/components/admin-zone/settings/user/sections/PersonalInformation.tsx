@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import Spinner from '@/components/ui/Spinner'
 import ImageUploader from '@/components/ui/ImageUploader'
 import { useTranslations } from 'next-intl'
+import { api, apiRequest, ApiError } from '@/lib/api-client'
 
 type Props = {
     firstName: string
@@ -34,8 +35,7 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName }) =>
         let cancelled = false
         async function loadAvatar() {
             try {
-                const res = await fetch('/api/users/me', { credentials: 'include' })
-                const data = await res.json().catch(() => ({}))
+                const data = await api.get<{ avatarUrl?: string }>('/api/users/me')
                 if (!cancelled) setAvatarUrl(data?.avatarUrl ?? null)
             } catch { }
         }
@@ -54,16 +54,20 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName }) =>
                 setUploading(true)
                 const fd = new FormData()
                 fd.append('file', f)
-                const res = await fetch('/api/users/me/avatar/upload', { method: 'POST', body: fd, credentials: 'include' })
-                const data = await res.json().catch(() => ({}))
-                if (!res.ok) {
-                    toast.error(data?.error || t('toasts.uploadFailed'))
-                    return
-                }
+                // FormData upload with CSRF - don't set Content-Type, browser handles it
+                const data = await apiRequest<{ avatarUrl?: string }>('/api/users/me/avatar/upload', {
+                    method: 'POST',
+                    body: fd,
+                    headers: {}, // Empty headers for FormData
+                })
                 setAvatarUrl(data?.avatarUrl ?? null)
                 toast.success(t('toasts.avatarUpdated'))
-            } catch {
-                toast.error(t('toasts.uploadError'))
+            } catch (err) {
+                if (err instanceof ApiError) {
+                    toast.error(err.message || t('toasts.uploadFailed'))
+                } else {
+                    toast.error(t('toasts.uploadError'))
+                }
             } finally {
                 setUploading(false)
                 // Clear local file so the uploader shows the latest server image
@@ -76,16 +80,15 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName }) =>
     async function handleDeleteAvatar() {
         try {
             setRemoving(true)
-            const res = await fetch('/api/users/me/avatar', { method: 'DELETE', credentials: 'include' })
-            const data = await res.json().catch(() => ({}))
-            if (!res.ok) {
-                toast.error(data?.error || t('toasts.removeFailed'))
-                return
-            }
+            await api.delete('/api/users/me/avatar')
             setAvatarUrl(null)
             toast.success(t('toasts.avatarRemoved'))
-        } catch {
-            toast.error(tc('errors.failed'))
+        } catch (err) {
+            if (err instanceof ApiError) {
+                toast.error(err.message || t('toasts.removeFailed'))
+            } else {
+                toast.error(tc('errors.failed'))
+            }
         } finally {
             setRemoving(false)
         }
@@ -96,25 +99,19 @@ export const PersonalInformation: React.FC<Props> = ({ firstName, lastName }) =>
         setMessage(null)
         setSaving(true)
         try {
-            const res = await fetch('/api/users/me', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ firstName: first, lastName: last }),
-            })
-            const data = await res.json().catch(() => ({}))
-            if (!res.ok) {
-                const err = typeof data?.error === 'string' ? data.error : tc('errors.failedToSave')
-                setMessage(err)
-                toast.error(err)
-                return
-            }
+            await api.patch('/api/users/me', { firstName: first, lastName: last })
             const msg = t('toasts.profileUpdated')
             setMessage(msg)
             toast.success(msg)
-        } catch {
-            setMessage(t('toasts.networkError'))
-            toast.error(t('toasts.networkError'))
+        } catch (err) {
+            if (err instanceof ApiError) {
+                const errMsg = err.message || tc('errors.failedToSave')
+                setMessage(errMsg)
+                toast.error(errMsg)
+            } else {
+                setMessage(t('toasts.networkError'))
+                toast.error(t('toasts.networkError'))
+            }
         } finally {
             setSaving(false)
         }

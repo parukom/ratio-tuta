@@ -5,6 +5,7 @@ import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
 import { rateLimit, apiLimiter } from '@lib/rate-limit-redis';
 import { validateRequestSize, validateFieldSizes, REQUEST_SIZE_LIMITS, FIELD_LIMITS } from '@lib/request-validator';
+import { requireCsrfToken } from '@lib/csrf';
 
 type PostBody = {
   placeId?: string;
@@ -136,6 +137,22 @@ export async function POST(req: Request) {
       message: 'Unauthorized',
     });
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // SECURITY: CSRF protection for receipt creation
+  try {
+    requireCsrfToken(req, session);
+  } catch (e) {
+    await logAudit({
+      action: 'receipt.create',
+      status: 'DENIED',
+      message: 'Invalid CSRF token',
+      actor: session,
+    });
+    return NextResponse.json(
+      { error: 'Invalid CSRF token' },
+      { status: 403 }
+    );
   }
 
   // SECURITY FIX: Request size validation (prevent DoS through large payloads)

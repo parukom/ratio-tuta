@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react'
 import Modal from '@/components/modals/Modal'
 import { DocumentDuplicateIcon } from '@heroicons/react/24/outline'
 import { useTranslations } from 'next-intl'
+import { api, ApiError } from '@/lib/api-client'
 
 export const DeleteAccount = () => {
     const t = useTranslations('Settings.delete')
@@ -17,17 +18,17 @@ export const DeleteAccount = () => {
         setMessage(null)
         try {
             setSubmitting(true)
-            const res = await fetch('/api/users/me', { method: 'DELETE' })
-            const data = await res.json().catch(() => ({}))
-            if (!res.ok) {
-                setMessage(data?.error || t('errors.failed'))
-                return
-            }
+            // CSRF token automatically included via api.delete()
+            await api.delete('/api/users/me')
             setMessage(t('success'))
             setOpen(false)
             setTimeout(() => { window.location.href = '/' }, 1000)
-        } catch {
-            setMessage(t('errors.failed'))
+        } catch (err) {
+            if (err instanceof ApiError) {
+                setMessage(err.message || t('errors.failed'))
+            } else {
+                setMessage(t('errors.failed'))
+            }
         } finally {
             setSubmitting(false)
         }

@@ -12,6 +12,7 @@ import { CashRegisterMainSection } from './CashRegisterMainSection';
 import { CashRegisterHeader } from './CashRegisterHeader';
 import { ChoosePaymentModal } from './ChoosePaymentModal';
 import { SortKey, useCart, useGroupedSearch, usePlaceItems, usePlaces } from './useCashRegister';
+import { api, ApiError } from '@/lib/api-client';
 
 
 
@@ -64,24 +65,7 @@ export default function CashRegisterClient() {
                 amountGiven: paymentOption === 'CARD' ? totals.sum : amountGiven,
                 paymentOption,
             };
-            const res = await fetch('/api/receipts', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-            if (!res.ok) {
-                let errMsg = 'Checkout failed';
-                try {
-                    const data: unknown = await res.json();
-                    if (data && typeof data === 'object' && 'error' in (data as Record<string, unknown>)) {
-                        const v = (data as Record<string, unknown>).error;
-                        if (typeof v === 'string') errMsg = v;
-                    }
-                } catch {
-                    // ignore
-                }
-                throw new Error(errMsg);
-            }
+            await api.post('/api/receipts', payload);
             // success
             clearCart();
             setOpenCashModal(false);
@@ -102,9 +86,14 @@ export default function CashRegisterClient() {
             } else {
                 await reloadItems();
             }
-        } catch (e: unknown) {
-            const msg = e instanceof Error ? e.message : 'Checkout failed';
-            setError(msg);
+        } catch (err) {
+            if (err instanceof ApiError) {
+                setError(err.message || 'Checkout failed');
+            } else if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                setError('Checkout failed');
+            }
         } finally {
             setCheckingOut(false);
         }

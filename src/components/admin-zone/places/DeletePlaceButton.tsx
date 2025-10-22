@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Modal from '@/components/modals/Modal'
 import { useTranslations } from 'next-intl'
+import { apiRequest, ApiError } from '@/lib/api-client'
 
 type Props = {
   placeId: string
@@ -26,24 +27,21 @@ export default function DeletePlaceButton({ placeId, placeName, onDeleted, size 
     try {
       setLoading(true)
       setError(null)
-      const res = await fetch(`/api/places/${placeId}`, {
+      await apiRequest(`/api/places/${placeId}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ confirmName }),
+        body: { confirmName }
       })
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        throw new Error(data?.error || th('place.delete.failed'))
-      }
       onDeleted?.(placeId)
       // notify sidebar/layout to refresh places list
       try { window.dispatchEvent(new Event('places:changed')) } catch { /* noop */ }
       setOpen(false)
       setConfirmName('')
-    } catch (e) {
-      const err = e as Error
-      setError(err.message)
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.message || th('place.delete.failed'))
+      } else {
+        setError(th('place.delete.failed'))
+      }
     } finally {
       setLoading(false)
     }

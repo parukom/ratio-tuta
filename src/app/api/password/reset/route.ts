@@ -4,10 +4,33 @@ import { logAudit } from '@lib/logger';
 import { hashPassword, verifyPassword } from '@lib/auth';
 import { rateLimit, strictAuthLimiter } from '@lib/rate-limit-redis';
 import { validatePassword, checkPwnedPassword } from '@lib/password-validator';
+import { getSession } from '@lib/session';
+import { requireCsrfToken } from '@lib/csrf';
 
 // POST /api/password/reset { token, password }
 export async function POST(req: Request) {
   try {
+    // SECURITY: CSRF protection for password reset (CRITICAL!)
+    // Note: Password reset typically doesn't have an active session,
+    // but we check anyway for defense-in-depth
+    const session = await getSession();
+    if (session) {
+      try {
+        requireCsrfToken(req, session);
+      } catch (e) {
+        await logAudit({
+          action: 'auth.password.reset',
+          status: 'DENIED',
+          message: 'Invalid CSRF token',
+          actor: session,
+        });
+        return NextResponse.json(
+          { error: 'Invalid CSRF token' },
+          { status: 403 }
+        );
+      }
+    }
+
     // Rate limiting: 5 attempts per hour
     const rateLimitResult = await rateLimit(req, strictAuthLimiter);
 

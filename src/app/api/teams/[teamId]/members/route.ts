@@ -12,6 +12,7 @@ import {
   handleAuthError,
   type TeamRole
 } from '@lib/authorization';
+import { requireCsrfToken } from '@lib/csrf';
 
 // GET /api/teams/[teamId]/members -> list members of a team (requires requester in team)
 export async function GET(
@@ -75,6 +76,23 @@ export async function POST(
       teamId: teamIdParam,
     });
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // SECURITY: CSRF protection for adding team members
+  try {
+    requireCsrfToken(_req, session);
+  } catch (e) {
+    await logAudit({
+      action: 'team.member.add',
+      status: 'DENIED',
+      message: 'Invalid CSRF token',
+      actor: session,
+      teamId: teamIdParam,
+    });
+    return NextResponse.json(
+      { error: 'Invalid CSRF token' },
+      { status: 403 }
+    );
   }
 
   const teamId = teamIdParam;

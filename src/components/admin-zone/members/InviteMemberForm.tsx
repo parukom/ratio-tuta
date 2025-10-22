@@ -7,6 +7,7 @@ import Spinner from '@/components/ui/Spinner'
 import { useTranslations } from 'next-intl'
 import Modal from '@/components/modals/Modal'
 import Link from 'next/link'
+import { api, ApiError } from '@/lib/api-client'
 
 type Props = {
     teamId?: string
@@ -64,7 +65,7 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
         setSubmitting(true)
         try {
             const trimmed = password.trim()
-            if (trimmed && (trimmed.length < 8 || trimmed.length > 16)) {
+            if (trimmed && (trimmed.length < 8 || trimmed.length > 128)) {
                 setMessage(tt('toasts.passwordRule'))
                 toast.error(tt('toasts.passwordRule'))
                 return
@@ -73,42 +74,20 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
             if (teamId) {
                 try {
                     setCheckingLimit(true)
-                    const r = await fetch(`/api/teams/${teamId}/limits/members`)
-                    if (r.ok) {
-                        const li = await r.json() as { allowed: boolean; remaining: number | null; max: number | null }
-                        setLimitInfo(li)
-                        if (!li.allowed) {
-                            setLimitModal(true)
-                            toast.error(tt('limit.title', { default: 'Member limit reached' }))
-                            return
-                        }
+                    const li = await api.get<{ allowed: boolean; remaining: number | null; max: number | null }>(`/api/teams/${teamId}/limits/members`)
+                    setLimitInfo(li)
+                    if (!li.allowed) {
+                        setLimitModal(true)
+                        toast.error(tt('limit.title', { default: 'Member limit reached' }))
+                        return
                     }
                 } catch { /* ignore */ } finally { setCheckingLimit(false) }
             }
             const payload: Record<string, unknown> = { name, email, role, teamId }
             if (trimmed.length > 0) payload.password = trimmed
-            const res = await fetch('/api/register/worker', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            })
-            const data: { error?: string; generatedPassword?: string } = await res.json()
-            if (!res.ok) {
-                if (res.status === 403 && (data.error || '').toLowerCase().includes('limit')) {
-                    if (teamId) {
-                        try {
-                            const r2 = await fetch(`/api/teams/${teamId}/limits/members`)
-                            if (r2.ok) setLimitInfo(await r2.json())
-                        } catch { /* noop */ }
-                    }
-                    setLimitModal(true)
-                    toast.error(tt('limit.title', { default: 'Member limit reached' }))
-                    return
-                }
-                setMessage(data.error || tt('toasts.errorRegistering'))
-                toast.error(data.error || tt('toasts.errorRegistering'))
-                return
-            }
+
+            const data = await api.post<{ error?: string; generatedPassword?: string }>('/api/register/worker', payload)
+
             if (data.generatedPassword) {
                 setPassword(String(data.generatedPassword))
                 setShowPassword(true)
@@ -123,9 +102,25 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
             setRole('USER')
             setPassword('')
             onSuccess?.()
-        } catch {
-            setMessage(tt('toasts.networkError'))
-            toast.error(tt('toasts.networkError'))
+        } catch (err) {
+            if (err instanceof ApiError) {
+                if (err.status === 403 && (err.message || '').toLowerCase().includes('limit')) {
+                    if (teamId) {
+                        try {
+                            const li = await api.get<{ allowed: boolean; remaining: number | null; max: number | null }>(`/api/teams/${teamId}/limits/members`)
+                            setLimitInfo(li)
+                        } catch { /* noop */ }
+                    }
+                    setLimitModal(true)
+                    toast.error(tt('limit.title', { default: 'Member limit reached' }))
+                    return
+                }
+                setMessage(err.message || tt('toasts.errorRegistering'))
+                toast.error(err.message || tt('toasts.errorRegistering'))
+            } else {
+                setMessage(tt('toasts.networkError'))
+                toast.error(tt('toasts.networkError'))
+            }
         } finally {
             setSubmitting(false)
         }
@@ -185,7 +180,7 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
                         placeholder={tt('password.leaveBlank')}
                         className="flex-1"
                         minLength={8}
-                        maxLength={16}
+                        maxLength={128}
                         onChange={(e) => setPassword(e.target.value)}
                     />
                     <button

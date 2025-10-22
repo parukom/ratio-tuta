@@ -5,6 +5,7 @@ import { logAudit } from '@lib/logger';
 import { randomBytes } from 'crypto';
 import { sendVerificationEmail } from '@lib/mail';
 import { hmacEmail, encryptEmail, normalizeEmail, redactEmail, decryptEmail } from '@lib/crypto';
+import { requireCsrfToken } from '@lib/csrf';
 
 export async function GET() {
   const session = await getSession();
@@ -36,6 +37,22 @@ export async function PATCH(req: Request) {
   const session = await getSession();
   if (!session)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // SECURITY: CSRF protection for profile updates
+  try {
+    requireCsrfToken(req, session);
+  } catch (e) {
+    await logAudit({
+      action: 'user.update.me',
+      status: 'DENIED',
+      message: 'Invalid CSRF token',
+      actor: session,
+    });
+    return NextResponse.json(
+      { error: 'Invalid CSRF token' },
+      { status: 403 }
+    );
+  }
 
   try {
     const body = await req.json();
@@ -198,10 +215,26 @@ export async function PATCH(req: Request) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(req: Request) {
   const session = await getSession();
   if (!session)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // SECURITY: CSRF protection for account deletion (CRITICAL!)
+  try {
+    requireCsrfToken(req, session);
+  } catch (e) {
+    await logAudit({
+      action: 'user.delete.account',
+      status: 'DENIED',
+      message: 'Invalid CSRF token',
+      actor: session,
+    });
+    return NextResponse.json(
+      { error: 'Invalid CSRF token' },
+      { status: 403 }
+    );
+  }
 
   try {
     const result = await prisma.$transaction(async (tx) => {

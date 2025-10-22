@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslations } from 'next-intl'
+import { api, ApiError } from '@/lib/api-client'
 
 export const ChangePassword = () => {
     const t = useTranslations('Settings.password')
@@ -25,7 +26,7 @@ export const ChangePassword = () => {
             toast.error(msg)
             return
         }
-        if (nw.length < 8 || nw.length > 16) {
+        if (nw.length < 8 || nw.length > 128) {
             const msg = t('errors.length')
             setMessage(msg)
             toast.error(msg)
@@ -40,26 +41,24 @@ export const ChangePassword = () => {
 
         try {
             setSubmitting(true)
-            const res = await fetch('/api/users/me/password', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ currentPassword: cur, newPassword: nw }),
+            await api.patch('/api/users/me/password', {
+                currentPassword: cur,
+                newPassword: nw
             })
-            const data = await res.json().catch(() => ({}))
-            if (!res.ok) {
-                const err = data?.error || t('errors.failed')
-                setMessage(err)
-                toast.error(err)
-                return
-            }
             setMessage(t('updated'))
             toast.success(t('updated'))
             setCurrentPassword('')
             setNewPassword('')
             setConfirmPassword('')
-        } catch {
-            setMessage(t('errors.failed'))
-            toast.error(t('errors.failed'))
+        } catch (err) {
+            if (err instanceof ApiError) {
+                const errMsg = err.message || t('errors.failed')
+                setMessage(errMsg)
+                toast.error(errMsg)
+            } else {
+                setMessage(t('errors.failed'))
+                toast.error(t('errors.failed'))
+            }
         } finally {
             setSubmitting(false)
         }

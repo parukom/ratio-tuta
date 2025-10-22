@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import Spinner from "@/components/ui/Spinner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { api, ApiError } from "@/lib/api-client";
 
 function AuthContent() {
     const t = useTranslations("Auth");
@@ -53,74 +54,74 @@ function AuthContent() {
 
         if (mode === "login") {
             try {
-                const res = await fetch("/api/login", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify({ email, password, remember }),
-                });
-                const data = await res.json();
-                if (!res.ok) {
-                    setMessage(data.error || t("errors.login"));
-                } else {
-                    // Decide where to go next based on role and place memberships
-                    const role = (data?.role as string) || "USER";
-                    if (role === 'ADMIN') {
-                        router.replace('/dashboard/home');
-                        return;
-                    }
-                    try {
-                        // Check explicit place memberships
-                        const placesRes = await fetch('/api/places', { cache: 'no-store' });
-                        if (!placesRes.ok) {
-                            router.replace('/');
-                            return;
+                // Login is a public endpoint (no session yet), so skip CSRF
+                const data = await api.post<{ role?: string }>("/api/login", { email, password, remember }, { skipCsrf: true });
+
+                // Decide where to go next based on role and place memberships
+                const role = (data?.role as string) || "USER";
+                if (role === 'ADMIN') {
+                    router.replace('/dashboard/home');
+                    // Keep submitting=true during redirect
+                    return;
+                }
+                try {
+                    // Check explicit place memberships
+                    const places = await api.get<Array<{ id: string; assignedToMe?: boolean }>>('/api/places');
+                    if (Array.isArray(places)) {
+                        if (places.length === 0) router.replace('/no-events');
+                        else if (places.length === 1) router.replace(`/cash-register?placeId=${places[0].id}`);
+                        else {
+                            // If exactly one of the returned places is assigned to the user, prefer that place
+                            const assigned = places.filter((p) => p.assignedToMe);
+                            if (assigned.length === 1) router.replace(`/cash-register?placeId=${assigned[0].id}`);
+                            else router.replace('/cash-register');
                         }
-                        const places = (await placesRes.json()) as Array<{ id: string; assignedToMe?: boolean }>;
-                        if (Array.isArray(places)) {
-                            if (places.length === 0) router.replace('/no-events');
-                            else if (places.length === 1) router.replace(`/cash-register?placeId=${places[0].id}`);
-                            else {
-                                // If exactly one of the returned places is assigned to the user, prefer that place
-                                const assigned = places.filter((p) => p.assignedToMe);
-                                if (assigned.length === 1) router.replace(`/cash-register?placeId=${assigned[0].id}`);
-                                else router.replace('/cash-register');
-                            }
-                        } else {
-                            router.replace('/');
-                        }
-                    } catch {
+                    } else {
                         router.replace('/');
                     }
+                    // Keep submitting=true during redirect
+                } catch {
+                    router.replace('/');
+                    // Keep submitting=true during redirect
                 }
-            } finally {
+            } catch (err) {
+                // Only re-enable on error
                 setSubmitting(false);
+                if (err instanceof ApiError) {
+                    setMessage(err.message || t("errors.login"));
+                } else {
+                    setMessage(t("errors.login"));
+                }
             }
             return;
         }
 
         // register
-        if (password.length < 8 || password.length > 16) {
+        if (password.length < 8 || password.length > 128) {
             setMessage(t("errors.passwordLength"));
+            setSubmitting(false);
             return;
         }
         try {
-            const res = await fetch("/api/register/self", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({ name, email, password, teamName }),
-            });
-            const data = await res.json();
-            if (!res.ok) {
-                console.error('Registration error:', data);
-                const errorMsg = data.error || t("errors.register");
-                const details = data.details && Array.isArray(data.details)
-                    ? ` (${data.details.join(', ')})`
+            // Registration is a public endpoint (no session yet), so skip CSRF
+            const data = await api.post<{ message?: string }>("/api/register/self", {
+                name,
+                email,
+                password,
+                teamName
+            }, { skipCsrf: true });
+            setMessage(data.message || t("createdCheckEmail"));
+        } catch (err) {
+            if (err instanceof ApiError) {
+                console.error('Registration error:', err.data);
+                const errorMsg = err.message || t("errors.register");
+                const details = err.data && typeof err.data === 'object' && 'details' in err.data && Array.isArray(err.data.details)
+                    ? ` (${err.data.details.join(', ')})`
                     : '';
                 setMessage(errorMsg + details);
+            } else {
+                setMessage(t("errors.register"));
             }
-            else setMessage(data.message || t("createdCheckEmail"));
         } finally {
             setSubmitting(false);
         }
@@ -209,7 +210,7 @@ function AuthContent() {
                                     required
                                     autoComplete={mode === "login" ? "current-password" : "new-password"}
                                     minLength={mode === "register" ? 8 : undefined}
-                                    maxLength={mode === "register" ? 16 : undefined}
+                                    maxLength={mode === "register" ? 128 : undefined}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
@@ -322,14 +323,9 @@ function AuthContent() {
                                         setResendMessage(null);
                                         setResendLoading(true);
                                         try {
-                                            const res = await fetch('/api/verify-email/resend', {
-                                                method: 'POST',
-                                                headers: { 'Content-Type': 'application/json' },
-                                                body: JSON.stringify({ email }),
-                                            });
-                                            const ok = res.ok;
-                                            if (ok) setResendMessage(t('verify.resend.sent'));
-                                            else setResendMessage(t('verify.resend.error'));
+                                            // Email verification resend is public endpoint, skip CSRF
+                                            await api.post('/api/verify-email/resend', { email }, { skipCsrf: true });
+                                            setResendMessage(t('verify.resend.sent'));
                                         } catch {
                                             setResendMessage(t('verify.resend.error'));
                                         } finally {
