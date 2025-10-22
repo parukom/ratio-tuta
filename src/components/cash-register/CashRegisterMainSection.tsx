@@ -176,15 +176,18 @@ export const CashRegisterMainSection: React.FC<RegisterMainProps> = ({
                                             {(() => {
                                                 const anyWeight = pi.items.some((c) => c.measurementType === 'WEIGHT')
                                                 const anyLength = pi.items.some((c) => c.measurementType === 'LENGTH')
-                                                const formatWeight = (grams: number) => {
-                                                    if (grams >= 1000) return `${(grams / 1000).toFixed(1)} kg`
-                                                    return `${grams} g`
-                                                }
-                                                const text = anyWeight
-                                                    ? formatWeight(pi.quantity)
-                                                    : anyLength
-                                                        ? `${pi.quantity} m`
-                                                        : `${pi.quantity}`
+                                                const anyVolume = pi.items.some((c) => c.measurementType === 'VOLUME')
+                                                const anyArea = pi.items.some((c) => c.measurementType === 'AREA')
+                                                const qty = pi.quantity
+                                                const formatWeight = (g: number) => g >= 1000 ? `${(g / 1000).toFixed(1)} kg` : `${g} g`
+                                                const formatLength = (cm: number) => cm >= 100 ? `${(cm / 100).toFixed(1)} m` : `${cm} cm`
+                                                const formatVolume = (ml: number) => ml >= 1000 ? `${(ml / 1000).toFixed(1)} l` : `${ml} ml`
+                                                const formatArea = (cm2: number) => cm2 >= 10000 ? `${(cm2 / 10000).toFixed(1)} m²` : `${cm2} cm²`
+                                                const text = anyWeight ? formatWeight(qty) :
+                                                             anyLength ? formatLength(qty) :
+                                                             anyVolume ? formatVolume(qty) :
+                                                             anyArea ? formatArea(qty) :
+                                                             `${qty}`
                                                 return (
                                                     <span className="mt-0.5 rounded bg-black/40 px-1 py-0.5 text-[9px] leading-none ring-1 ring-white/20 backdrop-blur-sm">
                                                         {t('stock')}: {text}

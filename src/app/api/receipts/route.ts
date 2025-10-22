@@ -265,7 +265,10 @@ export async function POST(req: Request) {
       price: meta.price,
       // Store raw quantity as provided:
       // - WEIGHT: grams
-      // - LENGTH/PCS/etc: integer units (client rounds for LENGTH for now)
+      // - LENGTH: centimeters
+      // - VOLUME: milliliters
+      // - AREA: square centimeters
+      // - PCS: integer units
       quantity: it.quantity!,
     };
   });
@@ -282,6 +285,19 @@ export async function POST(req: Request) {
         // price per kg, qty in grams -> convert to kg
         return sum + meta.price * (qty / 1000);
       }
+      if (meta.measurementType === 'LENGTH') {
+        // price per meter, qty in cm -> convert to meters
+        return sum + meta.price * (qty / 100);
+      }
+      if (meta.measurementType === 'VOLUME') {
+        // price per liter, qty in ml -> convert to liters
+        return sum + meta.price * (qty / 1000);
+      }
+      if (meta.measurementType === 'AREA') {
+        // price per m², qty in cm² -> convert to m²
+        return sum + meta.price * (qty / 10000);
+      }
+      // PCS - price per unit, qty in units
       return sum + meta.price * qty;
     }, 0),
   );

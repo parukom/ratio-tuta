@@ -944,7 +944,9 @@
     "noVariants": "No variants available.",
     "quantity": "Quantity",
     "quantityGrams": "Quantity (grams)",
-    "quantityMeters": "Quantity (meters)",
+    "quantityCentimeters": "Quantity (centimeters)",
+    "quantityMilliliters": "Quantity (milliliters)",
+    "quantitySquareCentimeters": "Quantity (cm²)",
     "max": "Max",
     "addToCart": "Add to cart",
     "units": {
@@ -952,7 +954,8 @@
       "WEIGHT": "Weight",
       "LENGTH": "Length",
       "VOLUME": "Volume",
-      "AREA": "Area"
+      "AREA": "Area",
+      "kilograms": "Kilograms"
     }
   }
 }

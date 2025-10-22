@@ -43,8 +43,11 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
   const [isActive, setIsActive] = useState(true)
   const [measurementType, setMeasurementType] = useState<'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'>('PCS')
   const [stockQuantity, setStockQuantity] = useState('0')
-  // For WEIGHT items allow entering quantity in kg or g, but we will save as grams (int)
+  // For measurement items allow entering/editing in large or small units
   const [weightUnit, setWeightUnit] = useState<'kg' | 'g'>('kg')
+  const [lengthUnit, setLengthUnit] = useState<'m' | 'cm'>('m')
+  const [volumeUnit, setVolumeUnit] = useState<'l' | 'ml'>('l')
+  const [areaUnit, setAreaUnit] = useState<'m²' | 'cm²'>('m²')
   const [description, setDescription] = useState('')
   const [color, setColor] = useState('')
   const [brand, setBrand] = useState('')
@@ -73,7 +76,7 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
   useEffect(() => { if (open) loadCategories() }, [open, loadCategories])
 
   function reset() {
-    setName(''); setSku(''); setPrice(''); setTaxRateBps('0'); setIsActive(true); setMeasurementType('PCS'); setStockQuantity('0'); setWeightUnit('kg'); setDescription(''); setColor(''); setBrand(''); setTagsCSV(''); setCategoryId(''); setCreatingCat(false); setNewCatName(''); setCatMsg(''); setImageFile(null)
+    setName(''); setSku(''); setPrice(''); setTaxRateBps('0'); setIsActive(true); setMeasurementType('PCS'); setStockQuantity('0'); setWeightUnit('kg'); setLengthUnit('m'); setVolumeUnit('l'); setAreaUnit('m²'); setDescription(''); setColor(''); setBrand(''); setTagsCSV(''); setCategoryId(''); setCreatingCat(false); setNewCatName(''); setCatMsg(''); setImageFile(null)
   }
 
   async function submit(e: React.FormEvent) {
@@ -100,12 +103,21 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
           taxRateBps: Number(taxRateBps) || 0,
           isActive,
           measurementType,
-          // Save grams for WEIGHT items; otherwise use integer units as entered
+          // Convert to small units for storage
           stockQuantity: (() => {
             const v = Number(stockQuantity)
             if (!Number.isFinite(v) || v < 0) return 0
             if (measurementType === 'WEIGHT') {
-              return Math.round((weightUnit === 'kg' ? v * 1000 : v))
+              return Math.round(weightUnit === 'kg' ? v * 1000 : v)
+            }
+            if (measurementType === 'LENGTH') {
+              return Math.round(lengthUnit === 'm' ? v * 100 : v)
+            }
+            if (measurementType === 'VOLUME') {
+              return Math.round(volumeUnit === 'l' ? v * 1000 : v)
+            }
+            if (measurementType === 'AREA') {
+              return Math.round(areaUnit === 'm²' ? v * 10000 : v)
             }
             return Math.round(v)
           })(),
@@ -231,7 +243,21 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
             {catMsg && <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">{catMsg}</p>}
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <Input id="price" name="price" type="number" className="" placeholder={t('labels.price')} value={price} onChange={(e) => setPrice(e.target.value)} />
+            <Input
+              id="price"
+              name="price"
+              type="number"
+              className=""
+              placeholder={
+                measurementType === 'WEIGHT' ? `${t('labels.price')} (per kg)`
+                  : measurementType === 'LENGTH' ? `${t('labels.price')} (per m)`
+                    : measurementType === 'VOLUME' ? `${t('labels.price')} (per l)`
+                      : measurementType === 'AREA' ? `${t('labels.price')} (per m²)`
+                        : t('labels.price')
+              }
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
             <Input id="pricePaid" name="pricePaid" type="number" className="" placeholder={t('card.cost')} value={pricePaid} onChange={(e) => setPricePaid(e.target.value)} />
             <Input id="taxRateBps" name="taxRateBps" type="number" className="" placeholder={`${t('labels.tax')} (bps)`} value={taxRateBps} onChange={(e) => setTaxRateBps(e.target.value)} />
           </div>
@@ -257,7 +283,13 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
                     { key: 'VOLUME', label: t('forms.measurementOptions.VOLUME') },
                     { key: 'AREA', label: t('forms.measurementOptions.AREA') },
                   ]}
-                  onSelect={(key) => { setMeasurementType(key as typeof measurementType); if (key !== 'WEIGHT') setWeightUnit('kg') }}
+                  onSelect={(key) => {
+                    setMeasurementType(key as typeof measurementType)
+                    if (key !== 'WEIGHT') setWeightUnit('kg')
+                    if (key !== 'LENGTH') setLengthUnit('m')
+                    if (key !== 'VOLUME') setVolumeUnit('l')
+                    if (key !== 'AREA') setAreaUnit('m²')
+                  }}
                 />
               </div>
             </div>
@@ -266,6 +298,24 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
                 <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
                   <button type="button" onClick={() => setWeightUnit('kg')} className={`px-2 py-1 text-xs ${weightUnit === 'kg' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>kg</button>
                   <button type="button" onClick={() => setWeightUnit('g')} className={`px-2 py-1 text-xs ${weightUnit === 'g' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>g</button>
+                </div>
+              )}
+              {measurementType === 'LENGTH' && (
+                <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                  <button type="button" onClick={() => setLengthUnit('m')} className={`px-2 py-1 text-xs ${lengthUnit === 'm' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>m</button>
+                  <button type="button" onClick={() => setLengthUnit('cm')} className={`px-2 py-1 text-xs ${lengthUnit === 'cm' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>cm</button>
+                </div>
+              )}
+              {measurementType === 'VOLUME' && (
+                <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                  <button type="button" onClick={() => setVolumeUnit('l')} className={`px-2 py-1 text-xs ${volumeUnit === 'l' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>l</button>
+                  <button type="button" onClick={() => setVolumeUnit('ml')} className={`px-2 py-1 text-xs ${volumeUnit === 'ml' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>ml</button>
+                </div>
+              )}
+              {measurementType === 'AREA' && (
+                <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                  <button type="button" onClick={() => setAreaUnit('m²')} className={`px-2 py-1 text-xs ${areaUnit === 'm²' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>m²</button>
+                  <button type="button" onClick={() => setAreaUnit('cm²')} className={`px-2 py-1 text-xs ${areaUnit === 'cm²' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>cm²</button>
                 </div>
               )}
               <Input
@@ -287,6 +337,21 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
               {measurementType === 'WEIGHT' && stockQuantity && Number(stockQuantity) > 0 && (
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   {weightUnit === 'kg' ? `${Math.round(Number(stockQuantity) * 1000)} g will be saved` : `${(Number(stockQuantity) / 1000).toFixed(3)} kg`}
+                </p>
+              )}
+              {measurementType === 'LENGTH' && stockQuantity && Number(stockQuantity) > 0 && (
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  {lengthUnit === 'm' ? `${Math.round(Number(stockQuantity) * 100)} cm will be saved` : `${(Number(stockQuantity) / 100).toFixed(2)} m`}
+                </p>
+              )}
+              {measurementType === 'VOLUME' && stockQuantity && Number(stockQuantity) > 0 && (
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  {volumeUnit === 'l' ? `${Math.round(Number(stockQuantity) * 1000)} ml will be saved` : `${(Number(stockQuantity) / 1000).toFixed(3)} l`}
+                </p>
+              )}
+              {measurementType === 'AREA' && stockQuantity && Number(stockQuantity) > 0 && (
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  {areaUnit === 'm²' ? `${Math.round(Number(stockQuantity) * 10000)} cm² will be saved` : `${(Number(stockQuantity) / 10000).toFixed(2)} m²`}
                 </p>
               )}
             </div>

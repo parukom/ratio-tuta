@@ -83,25 +83,54 @@ export default function SelectVariantModal({ open, onClose, group, onConfirm, cu
 
     const isWeight = selected?.measurementType === 'WEIGHT'
     const isLength = selected?.measurementType === 'LENGTH'
+    const isVolume = selected?.measurementType === 'VOLUME'
+    const isArea = selected?.measurementType === 'AREA'
+
     const formatWeight = (grams: number) => {
         if (!Number.isFinite(grams)) return '0 g'
         if (grams >= 1000) {
             const kg = grams / 1000
-            // Trim .0
             const text = (Math.round(kg * 100) / 100).toString()
             return `${text} kg`
         }
         return `${grams} g`
     }
+
+    const formatLength = (cm: number) => {
+        if (!Number.isFinite(cm)) return '0 cm'
+        if (cm >= 100) {
+            const m = cm / 100
+            const text = (Math.round(m * 100) / 100).toString()
+            return `${text} m`
+        }
+        return `${cm} cm`
+    }
+
+    const formatVolume = (ml: number) => {
+        if (!Number.isFinite(ml)) return '0 ml'
+        if (ml >= 1000) {
+            const l = ml / 1000
+            const text = (Math.round(l * 100) / 100).toString()
+            return `${text} l`
+        }
+        return `${ml} ml`
+    }
+
+    const formatArea = (cm2: number) => {
+        if (!Number.isFinite(cm2)) return '0 cm²'
+        if (cm2 >= 10000) {
+            const m2 = cm2 / 10000
+            const text = (Math.round(m2 * 100) / 100).toString()
+            return `${text} m²`
+        }
+        return `${cm2} cm²`
+    }
+
     const qtyNumber = Number(qty)
     const approxKg = isWeight && Number.isFinite(qtyNumber) ? (qtyNumber / 1000) : null
-    const approxCm = isLength && Number.isFinite(qtyNumber) ? Math.round(qtyNumber * 100) : null
-
-    // For LENGTH, stock quantity currently comes from API in meters (integer).
-    const formatLengthMeters = (m: number) => {
-        if (!Number.isFinite(m)) return '0 m'
-        return `${m} m`
-    }
+    const approxM = isLength && Number.isFinite(qtyNumber) ? (qtyNumber / 100) : null
+    const approxL = isVolume && Number.isFinite(qtyNumber) ? (qtyNumber / 1000) : null
+    const approxM2 = isArea && Number.isFinite(qtyNumber) ? (qtyNumber / 10000) : null
 
     return (
         <Modal open={open} onClose={onClose} size="md">
@@ -150,7 +179,13 @@ export default function SelectVariantModal({ open, onClose, group, onConfirm, cu
                                             {measurementLabel(v.measurementType, v.unit, units)}{v.sku ? ` • SKU: ${v.sku}` : ''}
                                         </div>
                                         <div className="mt-0.5 flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
-                                            <span>{t('stock')}: {v.measurementType === 'WEIGHT' ? formatWeight(v.quantity) : (v.measurementType === 'LENGTH' ? formatLengthMeters(v.quantity) : v.quantity)}</span>
+                                            <span>{t('stock')}: {
+                                                v.measurementType === 'WEIGHT' ? formatWeight(v.quantity) :
+                                                v.measurementType === 'LENGTH' ? formatLength(v.quantity) :
+                                                v.measurementType === 'VOLUME' ? formatVolume(v.quantity) :
+                                                v.measurementType === 'AREA' ? formatArea(v.quantity) :
+                                                v.quantity
+                                            }</span>
                                             <span>{new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(v.price)}</span>
                                         </div>
                                     </div>
@@ -164,25 +199,41 @@ export default function SelectVariantModal({ open, onClose, group, onConfirm, cu
                             {isWeight
                                 ? t('quantityGrams')
                                 : isLength
-                                    ? t('quantityMeters')
-                                    : `${t('quantity')} (${measurementLabel(selected?.measurementType, selected?.unit, units)})`}
+                                    ? t('quantityCentimeters')
+                                    : isVolume
+                                        ? t('quantityMilliliters')
+                                        : isArea
+                                            ? t('quantitySquareCentimeters')
+                                            : `${t('quantity')} (${measurementLabel(selected?.measurementType, selected?.unit, units)})`}
                         </label>
                         <div className="mt-1 flex items-center gap-2">
                             <Input
                                 type="number"
-                                min={isLength ? 0.01 : (isWeight ? 1 : 1)}
-                                step={isLength ? 0.01 : 1}
+                                min={1}
+                                step={1}
                                 value={qty}
                                 onChange={(e) => setQty(e.target.value)}
                                 className="w-40"
                             />
-                            <span className="text-xs text-gray-500 dark:text-gray-400">{t('max')}: {isWeight ? formatWeight(maxQty) : (isLength ? formatLengthMeters(maxQty) : maxQty)}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">{t('max')}: {
+                                isWeight ? formatWeight(maxQty) :
+                                isLength ? formatLength(maxQty) :
+                                isVolume ? formatVolume(maxQty) :
+                                isArea ? formatArea(maxQty) :
+                                maxQty
+                            }</span>
                         </div>
                         {isWeight && Number.isFinite(qtyNumber) && qtyNumber > 0 && (
                             <div className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">≈ {approxKg?.toFixed(2)} kg</div>
                         )}
                         {isLength && Number.isFinite(qtyNumber) && qtyNumber > 0 && (
-                            <div className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">≈ {approxCm} cm</div>
+                            <div className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">≈ {approxM?.toFixed(2)} m</div>
+                        )}
+                        {isVolume && Number.isFinite(qtyNumber) && qtyNumber > 0 && (
+                            <div className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">≈ {approxL?.toFixed(2)} l</div>
+                        )}
+                        {isArea && Number.isFinite(qtyNumber) && qtyNumber > 0 && (
+                            <div className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">≈ {approxM2?.toFixed(2)} m²</div>
                         )}
                     </div>
                 </div>
@@ -201,8 +252,8 @@ export default function SelectVariantModal({ open, onClose, group, onConfirm, cu
                         onClick={() => {
                             const n = Number(qty)
                             const valid = Number.isFinite(n) && n > 0
-                            // Keep LENGTH quantity in meters (can be decimal) for cart and pricing
-                            const desired = valid ? n : 1
+                            // Quantity is stored in base units: grams, cm, ml, cm², or pieces
+                            const desired = valid ? Math.floor(n) : 1
                             const capped = Math.min(desired, maxQty)
                             if (selected) onConfirm({ child: selected, quantity: capped })
                         }}

@@ -52,12 +52,18 @@ const CheckoutModalCash: React.FC<Props> = ({
                             <span className="font-medium text-2xl text-gray-900 dark:text-white">{item.name}</span>
                             <span className="text-gray-500 text-sm ml-2 dark:text-gray-400">
                                 x{(() => {
+                                    const qty = Number(item.quantity || 0);
                                     if (item.measurementType === 'WEIGHT') {
-                                        const g = Number(item.quantity || 0);
-                                        return g >= 1000 ? `${(g / 1000).toFixed(2)} kg` : `${g} g`;
+                                        return qty >= 1000 ? `${(qty / 1000).toFixed(2)} kg` : `${qty} g`;
                                     }
                                     if (item.measurementType === 'LENGTH') {
-                                        return `${item.quantity} m`;
+                                        return qty >= 100 ? `${(qty / 100).toFixed(2)} m` : `${qty} cm`;
+                                    }
+                                    if (item.measurementType === 'VOLUME') {
+                                        return qty >= 1000 ? `${(qty / 1000).toFixed(2)} l` : `${qty} ml`;
+                                    }
+                                    if (item.measurementType === 'AREA') {
+                                        return qty >= 10000 ? `${(qty / 10000).toFixed(2)} m²` : `${qty} cm²`;
                                     }
                                     return item.quantity;
                                 })()}

@@ -235,9 +235,19 @@ export function useCart() {
       // cart quantity can be decimal for LENGTH, integer otherwise
       qty += line.quantity;
       if (line.measurementType === 'WEIGHT') {
-        // price is per kilogram; quantity is grams
+        // price per kg, quantity in grams -> convert to kg
         sum += line.price * (line.quantity / 1000);
+      } else if (line.measurementType === 'LENGTH') {
+        // price per meter, quantity in cm -> convert to meters
+        sum += line.price * (line.quantity / 100);
+      } else if (line.measurementType === 'VOLUME') {
+        // price per liter, quantity in ml -> convert to liters
+        sum += line.price * (line.quantity / 1000);
+      } else if (line.measurementType === 'AREA') {
+        // price per m², quantity in cm² -> convert to m²
+        sum += line.price * (line.quantity / 10000);
       } else {
+        // PCS - price per unit, quantity in units
         sum += line.price * line.quantity;
       }
     }
@@ -247,10 +257,20 @@ export function useCart() {
   // Adapt cart Map to modal's array-based API
   const cartArray: CartItem[] = useMemo(() => {
     return Array.from(cart.values()).map((l) => {
-      const subtotal =
-        l.measurementType === 'WEIGHT'
-          ? l.price * (l.quantity / 1000)
-          : l.price * l.quantity;
+      let subtotal = l.price * l.quantity;
+      if (l.measurementType === 'WEIGHT') {
+        // price per kg, quantity in grams -> convert to kg
+        subtotal = l.price * (l.quantity / 1000);
+      } else if (l.measurementType === 'LENGTH') {
+        // price per meter, quantity in cm -> convert to meters
+        subtotal = l.price * (l.quantity / 100);
+      } else if (l.measurementType === 'VOLUME') {
+        // price per liter, quantity in ml -> convert to liters
+        subtotal = l.price * (l.quantity / 1000);
+      } else if (l.measurementType === 'AREA') {
+        // price per m², quantity in cm² -> convert to m²
+        subtotal = l.price * (l.quantity / 10000);
+      }
       return {
         id: l.itemId,
         name: l.title,

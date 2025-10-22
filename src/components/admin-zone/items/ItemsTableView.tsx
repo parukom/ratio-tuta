@@ -89,9 +89,17 @@ export default function ItemsTableView({ items, loading, onItemUpdated, onItemDe
                                             return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`
                                         }
                                         if (it.measurementType === 'LENGTH') {
-                                            return `${q} m (${q * 100} cm)`
+                                            // q is saved in centimeters
+                                            return q >= 100 ? `${(q / 100).toFixed(2)} m` : `${q} cm`
                                         }
-                                        
+                                        if (it.measurementType === 'VOLUME') {
+                                            // q is saved in milliliters
+                                            return q >= 1000 ? `${(q / 1000).toFixed(2)} l` : `${q} ml`
+                                        }
+                                        if (it.measurementType === 'AREA') {
+                                            // q is saved in square centimeters
+                                            return q >= 10000 ? `${(q / 10000).toFixed(2)} m²` : `${q} cm²`
+                                        }
                                         return q
                                     })()}
                                 </td>

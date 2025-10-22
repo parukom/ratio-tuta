@@ -54,9 +54,14 @@ const ItemInfoDrawer = ({ open, onClose, item }: Props) => {
                                 return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`
                             }
                             if (item?.measurementType === 'LENGTH') {
-                                return `${q} m (${q * 100} cm)`
+                                return q >= 100 ? `${(q / 100).toFixed(2)} m` : `${q} cm`
                             }
-                            
+                            if (item?.measurementType === 'VOLUME') {
+                                return q >= 1000 ? `${(q / 1000).toFixed(2)} l` : `${q} ml`
+                            }
+                            if (item?.measurementType === 'AREA') {
+                                return q >= 10000 ? `${(q / 10000).toFixed(2)} m²` : `${q} cm²`
+                            }
                             return String(q)
                         })()} />
                         <InfoRow label={t('labels.unit')} value={item?.unit || (item?.measurementType === 'WEIGHT' ? 'kg (saved as g)' : 'pcs')} />

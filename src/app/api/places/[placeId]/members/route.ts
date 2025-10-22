@@ -3,7 +3,7 @@ import { prisma } from '@lib/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
 import type { Prisma } from '@/generated/prisma';
-import { hmacEmail, normalizeEmail, redactEmail } from '@lib/crypto';
+import { hmacEmail, normalizeEmail, redactEmail, decryptEmail } from '@lib/crypto';
 
 // GET /api/places/[placeId]/members -> list assigned users
 export async function GET(
@@ -47,7 +47,7 @@ export async function GET(
     });
     const ids = Array.from(new Set(rows.map(r => r.userId)));
     const users = ids.length
-      ? await prisma.user.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, email: true } })
+      ? await prisma.user.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, emailEnc: true } })
       : [];
     const userMap = new Map(users.map(u => [u.id, u] as const));
     const members = rows.map((r) => {
@@ -56,7 +56,7 @@ export async function GET(
         id: r.id,
         userId: r.userId,
         name: u?.name ?? 'Unknown',
-        email: u?.email ?? 'unknown',
+        email: u?.emailEnc ? decryptEmail(u.emailEnc) : 'unknown',
         createdAt: r.createdAt,
       };
     });
@@ -122,10 +122,7 @@ export async function POST(
       ? await prisma.user.findUnique({ where: { id: userId } })
       : await prisma.user.findFirst({
           where: {
-            OR: [
-              { emailHmac: hmacEmail(normalizeEmail(String(email))) },
-              { email: { equals: normalizeEmail(String(email)), mode: 'insensitive' } },
-            ],
+            emailHmac: hmacEmail(normalizeEmail(String(email))),
           },
         });
     if (!user)
@@ -160,7 +157,7 @@ export async function POST(
         actor: session,
         teamId: place.teamId,
         target: { table: 'PlaceMember', id: pm.id },
-  metadata: { placeId, userId: user.id, email: redactEmail(user.email) },
+        metadata: { placeId, userId: user.id },
       });
       return NextResponse.json(pm, { status: 201 });
     } catch (e: unknown) {

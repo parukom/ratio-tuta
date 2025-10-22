@@ -63,11 +63,22 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
     }
     const [measurementType, setMeasurementType] = useState<ItemRow['measurementType']>(item.measurementType ?? mapUnitToMT(item.unit ?? 'pcs'))
     const [stockQuantity, setStockQuantity] = useState(String(item.stockQuantity ?? 0))
-    // For WEIGHT items allow entering/editing in kg or g but save as grams
+    // For measurement items allow entering/editing in large or small units
     const [weightUnit, setWeightUnit] = useState<'kg' | 'g'>(() => {
-        // heuristics: if existing quantity is large, assume grams; otherwise default to kg
         const q = Number(item.stockQuantity || 0)
         return q >= 1000 ? 'g' : 'kg'
+    })
+    const [lengthUnit, setLengthUnit] = useState<'m' | 'cm'>(() => {
+        const q = Number(item.stockQuantity || 0)
+        return q >= 100 ? 'cm' : 'm'
+    })
+    const [volumeUnit, setVolumeUnit] = useState<'l' | 'ml'>(() => {
+        const q = Number(item.stockQuantity || 0)
+        return q >= 1000 ? 'ml' : 'l'
+    })
+    const [areaUnit, setAreaUnit] = useState<'m²' | 'cm²'>(() => {
+        const q = Number(item.stockQuantity || 0)
+        return q >= 10000 ? 'cm²' : 'm²'
     })
     const [description, setDescription] = useState(item.description ?? '')
     const [color, setColor] = useState(item.color ?? '')
@@ -122,7 +133,16 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
                         const v = Number(stockQuantity)
                         if (!Number.isFinite(v) || v < 0) return 0
                         if (measurementType === 'WEIGHT') {
-                            return Math.round((weightUnit === 'kg' ? v * 1000 : v))
+                            return Math.round(weightUnit === 'kg' ? v * 1000 : v)
+                        }
+                        if (measurementType === 'LENGTH') {
+                            return Math.round(lengthUnit === 'm' ? v * 100 : v)
+                        }
+                        if (measurementType === 'VOLUME') {
+                            return Math.round(volumeUnit === 'l' ? v * 1000 : v)
+                        }
+                        if (measurementType === 'AREA') {
+                            return Math.round(areaUnit === 'm²' ? v * 10000 : v)
                         }
                         return Math.round(v)
                     })(),
@@ -312,7 +332,21 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
                         {catMsg && <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">{catMsg}</p>}
                     </div>
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                        <Input id={`price-${item.id}`} name="price" type="number" className="" placeholder={ti('labels.price')} value={price} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPrice(e.target.value)} />
+                        <Input
+                            id={`price-${item.id}`}
+                            name="price"
+                            type="number"
+                            className=""
+                            placeholder={
+                                measurementType === 'WEIGHT' ? `${ti('labels.price')} (per kg)`
+                                    : measurementType === 'LENGTH' ? `${ti('labels.price')} (per m)`
+                                        : measurementType === 'VOLUME' ? `${ti('labels.price')} (per l)`
+                                            : measurementType === 'AREA' ? `${ti('labels.price')} (per m²)`
+                                                : ti('labels.price')
+                            }
+                            value={price}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPrice(e.target.value)}
+                        />
                         <Input id={`pricePaid-${item.id}`} name="pricePaid" type="number" className="" placeholder={ti('labels.cost')} value={pricePaid} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPricePaid(e.target.value)} />
                         <Input id={`tax-${item.id}`} name="tax" type="number" className="" placeholder={`${ti('labels.tax')} (bps)`} value={taxRateBps} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTaxRateBps(e.target.value)} />
                     </div>
@@ -336,7 +370,13 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
                                         { key: 'VOLUME', label: ti('forms.measurementOptions.VOLUME') },
                                         { key: 'AREA', label: ti('forms.measurementOptions.AREA') },
                                     ]}
-                                    onSelect={(key) => { setMeasurementType(key as ItemRow['measurementType']); if (key !== 'WEIGHT') setWeightUnit('kg') }}
+                                    onSelect={(key) => {
+                                        setMeasurementType(key as ItemRow['measurementType'])
+                                        if (key !== 'WEIGHT') setWeightUnit('kg')
+                                        if (key !== 'LENGTH') setLengthUnit('m')
+                                        if (key !== 'VOLUME') setVolumeUnit('l')
+                                        if (key !== 'AREA') setAreaUnit('m²')
+                                    }}
                                 />
                             </div>
                         </div>
@@ -345,6 +385,24 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
                                 <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
                                     <button type="button" onClick={() => setWeightUnit('kg')} className={`px-2 py-1 text-xs ${weightUnit === 'kg' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>kg</button>
                                     <button type="button" onClick={() => setWeightUnit('g')} className={`px-2 py-1 text-xs ${weightUnit === 'g' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>g</button>
+                                </div>
+                            )}
+                            {measurementType === 'LENGTH' && (
+                                <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                                    <button type="button" onClick={() => setLengthUnit('m')} className={`px-2 py-1 text-xs ${lengthUnit === 'm' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>m</button>
+                                    <button type="button" onClick={() => setLengthUnit('cm')} className={`px-2 py-1 text-xs ${lengthUnit === 'cm' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>cm</button>
+                                </div>
+                            )}
+                            {measurementType === 'VOLUME' && (
+                                <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                                    <button type="button" onClick={() => setVolumeUnit('l')} className={`px-2 py-1 text-xs ${volumeUnit === 'l' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>l</button>
+                                    <button type="button" onClick={() => setVolumeUnit('ml')} className={`px-2 py-1 text-xs ${volumeUnit === 'ml' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>ml</button>
+                                </div>
+                            )}
+                            {measurementType === 'AREA' && (
+                                <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                                    <button type="button" onClick={() => setAreaUnit('m²')} className={`px-2 py-1 text-xs ${areaUnit === 'm²' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>m²</button>
+                                    <button type="button" onClick={() => setAreaUnit('cm²')} className={`px-2 py-1 text-xs ${areaUnit === 'cm²' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>cm²</button>
                                 </div>
                             )}
                             <Input
@@ -366,6 +424,21 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
                             {measurementType === 'WEIGHT' && stockQuantity && Number(stockQuantity) > 0 && (
                                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                                     {weightUnit === 'kg' ? `${Math.round(Number(stockQuantity) * 1000)} g will be saved` : `${(Number(stockQuantity) / 1000).toFixed(3)} kg`}
+                                </p>
+                            )}
+                            {measurementType === 'LENGTH' && stockQuantity && Number(stockQuantity) > 0 && (
+                                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                    {lengthUnit === 'm' ? `${Math.round(Number(stockQuantity) * 100)} cm will be saved` : `${(Number(stockQuantity) / 100).toFixed(2)} m`}
+                                </p>
+                            )}
+                            {measurementType === 'VOLUME' && stockQuantity && Number(stockQuantity) > 0 && (
+                                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                    {volumeUnit === 'l' ? `${Math.round(Number(stockQuantity) * 1000)} ml will be saved` : `${(Number(stockQuantity) / 1000).toFixed(3)} l`}
+                                </p>
+                            )}
+                            {measurementType === 'AREA' && stockQuantity && Number(stockQuantity) > 0 && (
+                                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                    {areaUnit === 'm²' ? `${Math.round(Number(stockQuantity) * 10000)} cm² will be saved` : `${(Number(stockQuantity) / 10000).toFixed(2)} m²`}
                                 </p>
                             )}
                         </div>

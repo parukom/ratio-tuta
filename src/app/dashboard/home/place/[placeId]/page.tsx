@@ -35,6 +35,8 @@ export default function PlaceDetailPage() {
     // lightweight counts for tab badges
     const [itemsCount, setItemsCount] = useState(0)
     const [membersCount, setMembersCount] = useState(0)
+    // statistics
+    const [stats, setStats] = useState<{ returnedItems: number; itemsSold: number; activeItems: number } | null>(null)
 
     useEffect(() => {
         let cancelled = false
@@ -56,13 +58,22 @@ export default function PlaceDetailPage() {
             // ignore parse errors
         }
 
-        fetch(`/api/places/${placeId}`)
-            .then((r) => (r.ok ? r.json() : r.json().then((d) => Promise.reject(d?.error || 'Error'))))
-            .then((data: Place) => {
+        Promise.all([
+            fetch(`/api/places/${placeId}`),
+            fetch(`/api/places/${placeId}/stats`),
+        ])
+            .then(([placeRes, statsRes]) =>
+                Promise.all([
+                    placeRes.ok ? placeRes.json() : placeRes.json().then((d) => Promise.reject(d?.error || 'Error')),
+                    statsRes.ok ? statsRes.json() : Promise.resolve(null),
+                ])
+            )
+            .then(([placeData, statsData]) => {
                 if (!cancelled) {
-                    setPlace(data)
+                    setPlace(placeData as Place)
+                    setStats(statsData)
                     try {
-                        localStorage.setItem(`place:${placeId}`, JSON.stringify(data))
+                        localStorage.setItem(`place:${placeId}`, JSON.stringify(placeData))
                     } catch {
                         // ignore storage errors (e.g., quota)
                     }
@@ -94,17 +105,17 @@ export default function PlaceDetailPage() {
     }
 
 
-    const stats = useMemo(() => {
+    const statsDisplay = useMemo(() => {
         const currency = place?.currency || 'EUR'
         const total = place?.totalEarnings ?? 0
         // Use a fixed locale to avoid server/client locale differences during hydration
         return [
             { name: 'Total earnings', value: new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(total) },
-            { name: 'Average ticket', value: '—' },
-            { name: 'Items sold', value: '—' },
-            { name: 'Active items', value: '—' },
+            { name: 'Returned items', value: stats?.returnedItems?.toString() ?? '—' },
+            { name: 'Items sold', value: stats?.itemsSold?.toString() ?? '—' },
+            { name: 'Active items', value: stats?.activeItems?.toString() ?? '—' },
         ]
-    }, [place])
+    }, [place, stats])
 
     return (
         <div>
@@ -163,7 +174,7 @@ export default function PlaceDetailPage() {
                 {/* Overview stats */}
                 {tab === 'overview' && (
                     <div className="grid grid-cols-1 bg-gray-50 sm:grid-cols-2 lg:grid-cols-4 dark:bg-gray-700/10">
-                        {stats.map((stat, statIdx) => (
+                        {statsDisplay.map((stat, statIdx) => (
                             <div
                                 key={stat.name}
                                 className={classNames(

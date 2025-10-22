@@ -23,12 +23,21 @@ export function formatQuantity(
       if (qty >= 1000) return `${trimZeros(qty / 1000, 2)} kg`;
       return `${qty} g`;
     }
-    case 'LENGTH':
-      return `${qty} m`;
-    case 'VOLUME':
-      return `${qty} l`;
-    case 'AREA':
-      return `${qty} m2`;
+    case 'LENGTH': {
+      // qty is stored in centimeters; show m when >= 100cm
+      if (qty >= 100) return `${trimZeros(qty / 100, 2)} m`;
+      return `${qty} cm`;
+    }
+    case 'VOLUME': {
+      // qty is stored in milliliters; show l when >= 1000ml
+      if (qty >= 1000) return `${trimZeros(qty / 1000, 2)} l`;
+      return `${qty} ml`;
+    }
+    case 'AREA': {
+      // qty is stored in square centimeters; show m² when >= 10000cm²
+      if (qty >= 10000) return `${trimZeros(qty / 10000, 2)} m²`;
+      return `${qty} cm²`;
+    }
     case 'PCS':
     default:
       return `${qty} ${unit || opts?.pcs || 'pcs'}`;

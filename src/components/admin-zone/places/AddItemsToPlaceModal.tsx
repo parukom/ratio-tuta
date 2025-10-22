@@ -63,6 +63,8 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
     const [viewMode, setViewMode] = useState<'items' | 'boxes'>('boxes')
     const [addingIds, setAddingIds] = useState<Set<string>>(new Set())
     const [qtyMap, setQtyMap] = useState<Record<string, string>>({})
+    // Unit preference per item: 'small' (cm, g, ml, cm²) or 'large' (m, kg, l, m²)
+    const [unitModeMap, setUnitModeMap] = useState<Record<string, 'small' | 'large'>>({})
     // Collapsible boxes state
     const [openGroupsState, setOpenGroupsState] = useState<Record<string, boolean>>({})
     const [addingGroup, setAddingGroup] = useState<Set<string>>(new Set())
@@ -169,9 +171,20 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
     const handleAdd = async (itemId: string, quantityOverride?: number) => {
         try {
             setAddingIds((s) => new Set(s).add(itemId))
-            const chosen = Number(
+            const item = items.find((i) => i.id === itemId)
+            const unitMode = unitModeMap[itemId] || 'small'
+            let chosen = Number(
                 typeof quantityOverride === 'number' ? quantityOverride : Number(qtyMap[itemId] ?? '1'),
             )
+
+            // Convert large units to small units for storage
+            if (unitMode === 'large' && item) {
+                if (item.measurementType === 'WEIGHT') chosen = Math.floor(chosen * 1000) // kg → g
+                else if (item.measurementType === 'LENGTH') chosen = Math.floor(chosen * 100) // m → cm
+                else if (item.measurementType === 'VOLUME') chosen = Math.floor(chosen * 1000) // l → ml
+                else if (item.measurementType === 'AREA') chosen = Math.floor(chosen * 10000) // m² → cm²
+            }
+
             const quantity = Number.isInteger(chosen) && chosen > 0 ? chosen : 1
             const res = await fetch(`/api/places/${placeId}/items`, {
                 method: 'POST',
@@ -202,6 +215,15 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
     }
 
     // Add entire box (group) in one go. Mode 'custom' uses qty inputs; 'all' uses full warehouse stock.
+    // Get unit options based on measurement type
+    const getUnitOptions = (mt?: Item['measurementType']) => {
+        if (mt === 'WEIGHT') return { small: 'g', large: 'kg' }
+        if (mt === 'LENGTH') return { small: 'cm', large: 'm' }
+        if (mt === 'VOLUME') return { small: 'ml', large: 'l' }
+        if (mt === 'AREA') return { small: 'cm²', large: 'm²' }
+        return null
+    }
+
     const handleAddBox = async (groupKey: string, itemIds: string[], mode: 'custom' | 'all') => {
         if (addingGroup.has(groupKey)) return
         setAddingGroup((prev) => new Set(prev).add(groupKey))
@@ -213,7 +235,17 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                 const it = items.find((i) => i.id === itemId)
                 if (!it) continue
                 const stock = Number(it.stockQuantity ?? 0)
+                const unitMode = unitModeMap[itemId] || 'small'
                 let quantity = mode === 'all' ? stock : Number(qtyMap[itemId] ?? '1')
+
+                // Convert large units to small units for storage
+                if (mode !== 'all' && unitMode === 'large') {
+                    if (it.measurementType === 'WEIGHT') quantity = Math.floor(quantity * 1000) // kg → g
+                    else if (it.measurementType === 'LENGTH') quantity = Math.floor(quantity * 100) // m → cm
+                    else if (it.measurementType === 'VOLUME') quantity = Math.floor(quantity * 1000) // l → ml
+                    else if (it.measurementType === 'AREA') quantity = Math.floor(quantity * 10000) // m² → cm²
+                }
+
                 if (!Number.isFinite(quantity) || quantity <= 0) continue
                 if (mode !== 'all') {
                     // clamp to available stock if provided
@@ -308,21 +340,36 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                                                 <span>{it.sku || '—'}</span>
                                                 {it.categoryName && <span>• {it.categoryName}</span>}
                                                 <span className="inline-flex items-center rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700 ring-1 ring-inset ring-gray-200 dark:bg-white/5 dark:text-gray-300 dark:ring-white/10">
-                                                    {t('place.items.assignModal.inWarehouse')}: {(() => { const q = Number(it.stockQuantity ?? 0); if (it.measurementType === 'WEIGHT') return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`; if (it.measurementType === 'LENGTH') return `${q} m (${q * 100} cm)`; if (it.measurementType === 'VOLUME') return `${q} l`; if (it.measurementType === 'AREA') return `${q} m2`; return `${q} ${it.unit ?? 'pcs'}`; })()}
+                                                    {t('place.items.assignModal.inWarehouse')}: {formatQuantity(it.stockQuantity ?? 0, it.measurementType, it.unit, { pcs: ti('units.pcsShort') })}
                                                 </span>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-1">
                                                 <Input
                                                     type="number"
                                                     min={1}
                                                     max={Math.max(1, it.stockQuantity ?? 1)}
                                                     value={qtyMap[it.id] ?? '1'}
                                                     onChange={(e) => setQtyMap((m) => ({ ...m, [it.id]: e.target.value }))}
-                                                    className="w-24 rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+                                                    className="w-20 rounded-md bg-white px-2 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
                                                 />
-                                                <span className="text-xs text-gray-600 dark:text-gray-400">{it.measurementType === 'WEIGHT' ? 'g' : (it.unit ?? 'pcs')}</span>
+                                                {(() => {
+                                                    const opts = getUnitOptions(it.measurementType)
+                                                    if (!opts) {
+                                                        return <span className="text-xs text-gray-600 dark:text-gray-400">{it.unit ?? 'pcs'}</span>
+                                                    }
+                                                    return (
+                                                        <select
+                                                            value={unitModeMap[it.id] || 'small'}
+                                                            onChange={(e) => setUnitModeMap((m) => ({ ...m, [it.id]: e.target.value as 'small' | 'large' }))}
+                                                            className="rounded-md border-0 bg-white py-1.5 px-2 text-xs text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 dark:bg-white/5 dark:text-white dark:ring-white/10"
+                                                        >
+                                                            <option value="small">{opts.small}</option>
+                                                            <option value="large">{opts.large}</option>
+                                                        </select>
+                                                    )
+                                                })()}
                                             </div>
                                             <div className='flex flex-col'>
                                                 <button
@@ -407,15 +454,33 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                                                                     </span>
                                                                 </div>
                                                             </div>
-                                                            <div className="flex items-center gap-2">
-                                                                <Input
-                                                                    type="number"
-                                                                    min={1}
-                                                                    max={Math.max(1, it.stockQuantity ?? 1)}
-                                                                    value={qtyMap[it.id] ?? '1'}
-                                                                    onChange={(e) => setQtyMap((m) => ({ ...m, [it.id]: e.target.value }))}
-                                                                    className="w-20 rounded-md bg-white px-2 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
-                                                                />
+                                                            <div className="flex items-center gap-1">
+                                                                <div className="flex items-center gap-1">
+                                                                    <Input
+                                                                        type="number"
+                                                                        min={1}
+                                                                        max={Math.max(1, it.stockQuantity ?? 1)}
+                                                                        value={qtyMap[it.id] ?? '1'}
+                                                                        onChange={(e) => setQtyMap((m) => ({ ...m, [it.id]: e.target.value }))}
+                                                                        className="w-16 rounded-md bg-white px-2 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+                                                                    />
+                                                                    {(() => {
+                                                                        const opts = getUnitOptions(it.measurementType)
+                                                                        if (!opts) {
+                                                                            return <span className="text-xs text-gray-600 dark:text-gray-400">{it.unit ?? 'pcs'}</span>
+                                                                        }
+                                                                        return (
+                                                                            <select
+                                                                                value={unitModeMap[it.id] || 'small'}
+                                                                                onChange={(e) => setUnitModeMap((m) => ({ ...m, [it.id]: e.target.value as 'small' | 'large' }))}
+                                                                                className="rounded-md border-0 bg-white py-1.5 px-1.5 text-xs text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 dark:bg-white/5 dark:text-white dark:ring-white/10"
+                                                                            >
+                                                                                <option value="small">{opts.small}</option>
+                                                                                <option value="large">{opts.large}</option>
+                                                                            </select>
+                                                                        )
+                                                                    })()}
+                                                                </div>
                                                                 <button
                                                                     onClick={() => handleAdd(it.id)}
                                                                     disabled={addingIds.has(it.id)}
