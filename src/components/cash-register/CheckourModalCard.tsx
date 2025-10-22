@@ -1,5 +1,5 @@
 "use client"
-import { CreditCard } from "lucide-react"
+import { CreditCard, Trash2 } from "lucide-react"
 import Spinner from '@/components/ui/Spinner';
 import type { CartItem } from '@/types/cash-register';
 import { useTranslations } from 'next-intl';
@@ -42,20 +42,44 @@ const CheckoutModalCard: React.FC<Props> = ({
             <div className="mb-4 max-h-64 overflow-y-auto">
                 {cart.map(item => (
                     <div key={item.id} className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-white/10">
-                        <div>
-                            <span className="font-medium text-2xl text-gray-900 dark:text-white">{item.name}</span>
-                            <span className="text-gray-500 text-sm ml-2 dark:text-gray-400">
-                                x{(() => {
-                                    if (item.measurementType === 'WEIGHT') {
-                                        const g = Number(item.quantity || 0);
-                                        return g >= 1000 ? `${(g / 1000).toFixed(2)} kg` : `${g} g`;
-                                    }
-                                    if (item.measurementType === 'LENGTH') {
-                                        return `${item.quantity} m`;
-                                    }
-                                    return item.quantity;
-                                })()}
-                            </span>
+                        <div className="flex items-center gap-2 min-w-0">
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setCart(prevCart => {
+                                        return prevCart.filter(cartItem => cartItem.id !== item.id);
+                                    });
+                                }}
+                                className="p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-lg transition-colors flex-shrink-0"
+                                title="Ištrinti prekę"
+                            >
+                                <Trash2 className="w-5 h-5" />
+                            </button>
+                            <div className="min-w-0">
+                                <span className="font-medium text-2xl text-gray-900 dark:text-white block truncate">{item.name}</span>
+                                <span className="text-gray-500 text-sm dark:text-gray-400">
+                                    x{(() => {
+                                        const qty = Number(item.quantity || 0);
+                                        if (item.measurementType === 'WEIGHT') {
+                                            return qty >= 1000 ? `${(qty / 1000).toFixed(2)} kg` : `${qty} g`;
+                                        }
+                                        if (item.measurementType === 'LENGTH') {
+                                            return qty >= 100 ? `${(qty / 100).toFixed(2)} m` : `${qty} cm`;
+                                        }
+                                        if (item.measurementType === 'VOLUME') {
+                                            return qty >= 1000 ? `${(qty / 1000).toFixed(2)} l` : `${qty} ml`;
+                                        }
+                                        if (item.measurementType === 'AREA') {
+                                            return qty >= 10000 ? `${(qty / 10000).toFixed(2)} m²` : `${qty} cm²`;
+                                        }
+                                        return item.quantity;
+                                    })()}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="flex-shrink-0">
+                            <span className="text-2xl font-medium text-gray-900 dark:text-white">€{(item.subtotal ?? (item.price * item.quantity)).toFixed(2)}</span>
                         </div>
                     </div>
                 ))}
@@ -91,10 +115,6 @@ const CheckoutModalCard: React.FC<Props> = ({
                         type="button"
                         onClick={() => {
                             setIsModalOpen(false);
-                            setCart([]);
-                            setAmountGiven(0);
-                            setChange(0);
-                            setShowChange(false);
                         }}
                         className="w-full cursor-pointer rounded-md border px-4 py-6 transition-colors text-gray-800 border-gray-300 hover:bg-gray-50 dark:text-gray-200 dark:border-white/10 dark:hover:bg-white/5"
                     >

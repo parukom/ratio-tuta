@@ -1,5 +1,5 @@
 
-import { Banknote, CreditCard } from "lucide-react"
+import { Banknote, CreditCard, Trash2 } from "lucide-react"
 import Spinner from '@/components/ui/Spinner';
 import type { CartItem } from '@/types/cash-register';
 
@@ -51,9 +51,41 @@ const CheckoutModal: React.FC<Props> = ({
             <div className="mb-4 max-h-64 overflow-y-auto">
                 {cart.map(item => (
                     <div key={item.id} className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-white/10">
-                        <div>
-                            <span className="font-medium text-2xl text-gray-900 dark:text-white">{item.name}</span>
-                            <span className="text-gray-500 text-sm ml-2 dark:text-gray-400">x{item.quantity}</span>
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setCart(prevCart => {
+                                        return prevCart.filter(cartItem => cartItem.id !== item.id);
+                                    });
+                                }}
+                                className="p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                title="Ištrinti prekę"
+                            >
+                                <Trash2 className="w-5 h-5" />
+                            </button>
+                            <div>
+                                <span className="font-medium text-2xl text-gray-900 dark:text-white">{item.name}</span>
+                                <span className="text-gray-500 text-sm ml-2 dark:text-gray-400">
+                                    x{(() => {
+                                        const q = item.quantity
+                                        if (item.measurementType === 'WEIGHT') {
+                                            return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`
+                                        }
+                                        if (item.measurementType === 'LENGTH') {
+                                            return q >= 100 ? `${(q / 100).toFixed(2)} m` : `${q} cm`
+                                        }
+                                        if (item.measurementType === 'VOLUME') {
+                                            return q >= 1000 ? `${(q / 1000).toFixed(2)} l` : `${q} ml`
+                                        }
+                                        if (item.measurementType === 'AREA') {
+                                            return q >= 10000 ? `${(q / 10000).toFixed(2)} m²` : `${q} cm²`
+                                        }
+                                        return q
+                                    })()}
+                                </span>
+                            </div>
                         </div>
                         <div className="flex items-center gap-2">
                             <button

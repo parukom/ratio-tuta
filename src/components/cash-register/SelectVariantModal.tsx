@@ -255,7 +255,10 @@ export default function SelectVariantModal({ open, onClose, group, onConfirm, cu
                             // Quantity is stored in base units: grams, cm, ml, cm², or pieces
                             const desired = valid ? Math.floor(n) : 1
                             const capped = Math.min(desired, maxQty)
-                            if (selected) onConfirm({ child: selected, quantity: capped })
+                            if (selected) {
+                                onConfirm({ child: selected, quantity: capped })
+                                setQty('1') // Reset quantity input after adding to cart
+                            }
                         }}
                         className="rounded-md bg-indigo-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400"
                     >

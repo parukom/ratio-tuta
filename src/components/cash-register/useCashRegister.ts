@@ -229,11 +229,10 @@ export function useCart() {
   const clearCart = () => setCart(new Map());
 
   const totals = useMemo(() => {
-    let qty = 0;
+    // qty = number of unique items in cart (cart lines), not raw quantity sum
+    let qty = cart.size;
     let sum = 0;
     for (const line of cart.values()) {
-      // cart quantity can be decimal for LENGTH, integer otherwise
-      qty += line.quantity;
       if (line.measurementType === 'WEIGHT') {
         // price per kg, quantity in grams -> convert to kg
         sum += line.price * (line.quantity / 1000);
