@@ -40,8 +40,8 @@ export default async function Home() {
   return (
     <>
       <HeroSection session={session} />
-      <HowItWorks />
       <OurMission />
+      <HowItWorks />
       {/* <FeaturesSection /> */}
       {/* <PricingSection /> */}
       {/* <FAQ />

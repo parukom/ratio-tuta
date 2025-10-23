@@ -921,5 +921,65 @@
       "AREA": "Plotas",
       "kilograms": "Kilogramai"
     }
+  },
+  "Pricing": {
+    "title": "Kainodarа",
+    "subtitle": "Kainodara, kuri auga kartu su jumis",
+    "description": "Pasirinkite prieinamą planą, kuris turi geriausias funkcijas jūsų auditorijai įtraukti, klientų lojalumui kurti ir pardavimams skatinti.",
+    "selectTeam": "Pasirinkite komandą:",
+    "noTeams": "Jūs neturite komandų. Prisijunkite ir sukurkite komandą, kad galėtumėte įsigyti paketą.",
+    "frequency": {
+      "monthly": "Kas mėnesį",
+      "annually": "Kas metus"
+    },
+    "badges": {
+      "active": "Aktyvus",
+      "popular": "Populiariausias"
+    },
+    "perMonth": "/mėn",
+    "perYear": "/metai",
+    "actions": {
+      "buyPlan": "Pirkti planą",
+      "currentPlan": "Dabartinis planas",
+      "contactSales": "Susisiekti",
+      "loading": "Kraunama...",
+      "redirecting": "Nukreipiama..."
+    },
+    "tooltips": {
+      "selectTeamFirst": "Pirmiausia pasirinkite komandą",
+      "currentPlan": "Tai yra jūsų dabartinis aktyvus planas",
+      "contactForPricing": "Susisiekite dėl įmonės kainodaros"
+    },
+    "paymentCanceled": "Mokėjimas atšauktas"
+  },
+  "Reports": {
+    "title": "Ataskaitos",
+    "subtitle": "Apžvalga ir naudojimas",
+    "currentPlan": "Dabartinis planas",
+    "upgradePackage": "Atnaujinti paketą",
+    "loading": {
+      "usage": "Kraunamas naudojimas...",
+      "chart": "Kraunama diagrama...",
+      "activity": "Kraunama veikla..."
+    },
+    "errors": {
+      "failed": "Nepavyko įkelti",
+      "noData": "Nėra duomenų"
+    },
+    "metrics": {
+      "members": "Nariai",
+      "places": "Vietos",
+      "items": "Prekės",
+      "receipts30d": "Čekiai (30d)"
+    },
+    "chart": {
+      "title": "Komandos naudojimas"
+    },
+    "usage": {
+      "outOf": "{value} iš {limit}",
+      "used": "{value} panaudota",
+      "noLimit": "nėra limito",
+      "unlimitedFeature": "Neribotas planas"
+    }
   }
 }

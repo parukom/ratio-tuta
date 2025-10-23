@@ -2,6 +2,7 @@
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { FirstPagesHeader } from '@/components/FirstPagesHeader'
+import { useEffect, useState } from 'react'
 import {
   WrenchScrewdriverIcon,
   CircleStackIcon,
@@ -10,13 +11,40 @@ import {
   ArrowLeftIcon,
 } from '@heroicons/react/24/outline'
 
+type SessionData = {
+  userId: string;
+  name: string;
+  role: 'USER' | 'ADMIN';
+} | null;
+
 export default function DeveloperGuidePage() {
   const t = useTranslations('Docs')
   const tSections = useTranslations('Docs.developerGuide.sections')
+  const [session, setSession] = useState<SessionData>(null)
+
+  useEffect(() => {
+    fetchSession()
+  }, [])
+
+  async function fetchSession() {
+    try {
+      const res = await fetch('/api/me')
+      if (res.ok) {
+        const data = await res.json()
+        setSession({
+          userId: data.id,
+          name: data.name,
+          role: data.role
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching session:', error)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
-      <FirstPagesHeader />
+      <FirstPagesHeader session={session} />
 
       <div className="relative isolate px-6 pt-24 lg:px-8">
         <div className="mx-auto max-w-4xl py-12">

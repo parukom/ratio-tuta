@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import Stripe from 'stripe';
 import { prisma } from '@lib/prisma';
+import type {
+  StripeSubscriptionWebhook,
+  StripeInvoiceWebhook,
+} from '@/types/stripe-webhooks';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-09-30.clover',
@@ -76,11 +80,20 @@ export async function POST(req: Request) {
       }
 
       case 'customer.subscription.created': {
-        const subscription = event.data.object as Stripe.Subscription;
+        const subscription = event.data.object as StripeSubscriptionWebhook;
         console.log('Subscription created:', subscription.id);
 
         const teamId = subscription.metadata?.teamId;
-        if (teamId) {
+        if (teamId && subscription.current_period_start && subscription.current_period_end) {
+          const currentPeriodStart =
+            typeof subscription.current_period_start === 'number'
+              ? subscription.current_period_start
+              : Math.floor(new Date(subscription.current_period_start).getTime() / 1000);
+          const currentPeriodEnd =
+            typeof subscription.current_period_end === 'number'
+              ? subscription.current_period_end
+              : Math.floor(new Date(subscription.current_period_end).getTime() / 1000);
+
           await prisma.teamSubscription.updateMany({
             where: {
               teamId,
@@ -88,8 +101,8 @@ export async function POST(req: Request) {
             },
             data: {
               isActive: subscription.status === 'active',
-              startedAt: new Date(subscription.current_period_start * 1000),
-              expiresAt: new Date(subscription.current_period_end * 1000),
+              startedAt: new Date(currentPeriodStart * 1000),
+              expiresAt: new Date(currentPeriodEnd * 1000),
             },
           });
         }
@@ -97,10 +110,21 @@ export async function POST(req: Request) {
       }
 
       case 'customer.subscription.updated': {
-        const subscription = event.data.object as Stripe.Subscription;
+        const subscription = event.data.object as StripeSubscriptionWebhook;
         console.log('Subscription updated:', subscription.id);
 
         const isActive = subscription.status === 'active';
+
+        if (!subscription.current_period_end) {
+          console.error('Subscription missing current_period_end');
+          break;
+        }
+
+        const currentPeriodEnd =
+          typeof subscription.current_period_end === 'number'
+            ? subscription.current_period_end
+            : Math.floor(new Date(subscription.current_period_end).getTime() / 1000);
+
         const updateData: {
           isActive: boolean;
           expiresAt: Date;
@@ -108,15 +132,23 @@ export async function POST(req: Request) {
           canceledAt?: Date | null;
         } = {
           isActive,
-          expiresAt: new Date(subscription.current_period_end * 1000),
+          expiresAt: new Date(currentPeriodEnd * 1000),
         };
 
         if (subscription.cancel_at) {
-          updateData.cancelAt = new Date(subscription.cancel_at * 1000);
+          const cancelAt =
+            typeof subscription.cancel_at === 'number'
+              ? subscription.cancel_at
+              : Math.floor(new Date(subscription.cancel_at).getTime() / 1000);
+          updateData.cancelAt = new Date(cancelAt * 1000);
         }
 
         if (subscription.canceled_at) {
-          updateData.canceledAt = new Date(subscription.canceled_at * 1000);
+          const canceledAt =
+            typeof subscription.canceled_at === 'number'
+              ? subscription.canceled_at
+              : Math.floor(new Date(subscription.canceled_at).getTime() / 1000);
+          updateData.canceledAt = new Date(canceledAt * 1000);
         }
 
         await prisma.teamSubscription.updateMany({
@@ -133,7 +165,7 @@ export async function POST(req: Request) {
       }
 
       case 'customer.subscription.deleted': {
-        const subscription = event.data.object as Stripe.Subscription;
+        const subscription = event.data.object as StripeSubscriptionWebhook;
         console.log('Subscription deleted:', subscription.id);
 
         await prisma.teamSubscription.updateMany({
@@ -151,7 +183,7 @@ export async function POST(req: Request) {
       }
 
       case 'invoice.paid': {
-        const invoice = event.data.object as Stripe.Invoice;
+        const invoice = event.data.object as StripeInvoiceWebhook;
         console.log('Invoice paid:', invoice.id);
 
         const subscriptionId =
@@ -174,7 +206,7 @@ export async function POST(req: Request) {
       }
 
       case 'invoice.payment_failed': {
-        const invoice = event.data.object as Stripe.Invoice;
+        const invoice = event.data.object as StripeInvoiceWebhook;
         console.log('Invoice payment failed:', invoice.id);
 
         const subscriptionId =

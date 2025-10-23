@@ -1015,5 +1015,65 @@
       "AREA": "Area",
       "kilograms": "Kilograms"
     }
+  },
+  "Pricing": {
+    "title": "Pricing",
+    "subtitle": "Pricing that grows with you",
+    "description": "Choose an affordable plan that's packed with the best features for engaging your audience, creating customer loyalty, and driving sales.",
+    "selectTeam": "Select a team:",
+    "noTeams": "You don't have any teams. Log in and create a team to purchase a package.",
+    "frequency": {
+      "monthly": "Monthly",
+      "annually": "Annually"
+    },
+    "badges": {
+      "active": "Active",
+      "popular": "Popular"
+    },
+    "perMonth": "/month",
+    "perYear": "/year",
+    "actions": {
+      "buyPlan": "Buy plan",
+      "currentPlan": "Current plan",
+      "contactSales": "Contact sales",
+      "loading": "Loading...",
+      "redirecting": "Redirecting..."
+    },
+    "tooltips": {
+      "selectTeamFirst": "Please select a team first",
+      "currentPlan": "This is your current active plan",
+      "contactForPricing": "Contact us for enterprise pricing"
+    },
+    "paymentCanceled": "Payment canceled"
+  },
+  "Reports": {
+    "title": "Reports",
+    "subtitle": "Overview & Usage",
+    "currentPlan": "Current Plan",
+    "upgradePackage": "Upgrade Package",
+    "loading": {
+      "usage": "Loading usage...",
+      "chart": "Loading chart...",
+      "activity": "Loading activity..."
+    },
+    "errors": {
+      "failed": "Failed to load",
+      "noData": "No data"
+    },
+    "metrics": {
+      "members": "Members",
+      "places": "Places",
+      "items": "Items",
+      "receipts30d": "Receipts (30d)"
+    },
+    "chart": {
+      "title": "Team Usage"
+    },
+    "usage": {
+      "outOf": "{value} out of {limit}",
+      "used": "{value} used",
+      "noLimit": "no limit",
+      "unlimitedFeature": "Unlimited plan feature"
+    }
   }
 }

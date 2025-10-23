@@ -1,5 +1,8 @@
 "use client";
 import React from 'react';
+import Link from 'next/link';
+import { ArrowUpCircleIcon } from '@heroicons/react/24/outline';
+import { useTranslations } from 'next-intl';
 
  type Metric = {
   key: string;
@@ -9,6 +12,7 @@ import React from 'react';
  };
 
  export const TeamUsageCards: React.FC = () => {
+  const t = useTranslations('Reports');
   const [metrics, setMetrics] = React.useState<Metric[]>([]);
   // const [teamName, setTeamName] = React.useState<string>('');
   const [packageName, setPackageName] = React.useState<string | null>(null);
@@ -24,10 +28,10 @@ import React from 'react';
         const data = await res.json();
         if (!alive) return;
         const m: Metric[] = [
-          { key: 'members', label: 'Members', value: data.members, limit: data.membersLimit },
-          { key: 'places', label: 'Places', value: data.places, limit: data.placesLimit },
-          { key: 'items', label: 'Items', value: data.items, limit: data.itemsLimit },
-          { key: 'receipts30d', label: 'Receipts (30d)', value: data.receipts30d, limit: data.receipts30dLimit },
+          { key: 'members', label: t('metrics.members'), value: data.members, limit: data.membersLimit },
+          { key: 'places', label: t('metrics.places'), value: data.places, limit: data.placesLimit },
+          { key: 'items', label: t('metrics.items'), value: data.items, limit: data.itemsLimit },
+          { key: 'receipts30d', label: t('metrics.receipts30d'), value: data.receipts30d, limit: data.receipts30dLimit },
         ];
         setMetrics(m);
         // setTeamName(data.teamName);
@@ -42,12 +46,33 @@ import React from 'react';
     return () => { alive = false; };
   }, []);
 
-  if (loading) return <div className="text-sm text-gray-500">Loading usage...</div>;
+  if (loading) return <div className="text-sm text-gray-500">{t('loading.usage')}</div>;
   if (error) return <div className="text-sm text-red-600">{error}</div>;
-  if (!metrics.length) return <div className="text-sm text-gray-500">No usage data.</div>;
+  if (!metrics.length) return <div className="text-sm text-gray-500">{t('errors.noData')}</div>;
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="space-y-4">
+      {/* Package Info Banner */}
+      <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 border border-indigo-100 dark:border-indigo-800/50">
+        <div>
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            {t('currentPlan')}
+          </p>
+          <p className="text-lg font-semibold text-indigo-900 dark:text-indigo-100">
+            {packageName || 'FREE'}
+          </p>
+        </div>
+        <Link
+          href="/pricing"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-medium text-sm transition-colors shadow-sm"
+        >
+          <ArrowUpCircleIcon className="h-5 w-5" />
+          {t('upgradePackage')}
+        </Link>
+      </div>
+
+      {/* Usage Metrics Grid */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {metrics.map(m => {
   const effectiveLimit = (m.key === 'members' && m.limit == null ? 2 : (m.key === 'places' && m.limit == null ? 1 : m.limit)); // fallback for free tier
         const hasLimit = effectiveLimit != null;
@@ -78,11 +103,12 @@ import React from 'react';
                 <div className="h-full bg-indigo-500 dark:bg-indigo-400" style={{ width: `${percent}%` }} />
               </div>
             ) : (
-              <div className="mt-2 text-[10px] text-gray-400 dark:text-gray-500">Unlimited plan feature</div>
+              <div className="mt-2 text-[10px] text-gray-400 dark:text-gray-500">{t('usage.unlimitedFeature')}</div>
             )}
           </div>
         );
       })}
+      </div>
     </div>
   );
  };

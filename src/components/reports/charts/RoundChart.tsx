@@ -3,9 +3,10 @@
 import React from 'react';
 import type { ApexOptions } from 'apexcharts';
 import dynamic from 'next/dynamic';
+import { useTranslations } from 'next-intl';
 
-// Dynamically import to avoid SSR issues
-const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false, loading: () => <div className="text-sm text-gray-500">Loading chart...</div> });
+// Dynamically import to avoid SSR issues - loading component is separate and can't use hooks
+const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 type AggregatedApi = {
     members: number; membersLimit: number | null;
@@ -16,6 +17,7 @@ type AggregatedApi = {
 type ChartData = { labels: string[]; series: number[] };
 
 const RoundChart: React.FC = () => {
+    const t = useTranslations('Reports');
     const [data, setData] = React.useState<ChartData | null>(null);
     // no separate ratio label state; incorporate used/limit directly into label text
     const [error, setError] = React.useState<string | null>(null);
@@ -32,28 +34,28 @@ const RoundChart: React.FC = () => {
                 const labels: string[] = [];
                 const series: number[] = [];
                 const fmt = (used: number, limit: number | null, name: string) => (limit && limit > 0) ? `${name} ${used}/${limit}` : `${name} ${used}`;
-                labels.push(fmt(agg.members, agg.membersLimit, 'Members'));
+                labels.push(fmt(agg.members, agg.membersLimit, t('metrics.members')));
                 series.push(agg.membersLimit && agg.membersLimit > 0 ? (agg.members / agg.membersLimit) * 100 : agg.members);
-                labels.push(fmt(agg.places, agg.placesLimit, 'Places'));
+                labels.push(fmt(agg.places, agg.placesLimit, t('metrics.places')));
                 series.push(agg.placesLimit && agg.placesLimit > 0 ? (agg.places / agg.placesLimit) * 100 : agg.places);
-                labels.push(fmt(agg.items, agg.itemsLimit, 'Items'));
+                labels.push(fmt(agg.items, agg.itemsLimit, t('metrics.items')));
                 series.push(agg.itemsLimit && agg.itemsLimit > 0 ? (agg.items / agg.itemsLimit) * 100 : agg.items);
-                labels.push(fmt(agg.receipts30d, agg.receipts30dLimit, 'Receipts 30d'));
+                labels.push(fmt(agg.receipts30d, agg.receipts30dLimit, t('metrics.receipts30d')));
                 series.push(agg.receipts30dLimit && agg.receipts30dLimit > 0 ? (agg.receipts30d / agg.receipts30dLimit) * 100 : agg.receipts30d);
                 if (alive) setData({ labels, series });
             } catch (e) {
-                const msg = e instanceof Error ? e.message : 'Failed to load';
+                const msg = e instanceof Error ? e.message : t('errors.failed');
                 if (alive) setError(msg);
             } finally {
                 if (alive) setLoading(false);
             }
         })();
         return () => { alive = false; };
-    }, []);
+    }, [t]);
 
-    if (loading) return <div className="p-4 rounded-md bg-white dark:bg-gray-800 shadow-sm">Loading activity...</div>;
+    if (loading) return <div className="p-4 rounded-md bg-white dark:bg-gray-800 shadow-sm">{t('loading.activity')}</div>;
     if (error) return <div className="p-4 rounded-md bg-red-50 text-red-700 text-sm">{error}</div>;
-    if (!data) return <div className="p-4 rounded-md bg-white dark:bg-gray-800">No data</div>;
+    if (!data) return <div className="p-4 rounded-md bg-white dark:bg-gray-800">{t('errors.noData')}</div>;
 
     const options: ApexOptions = {
         chart: { type: 'radialBar', height: 390 },
@@ -90,7 +92,7 @@ const RoundChart: React.FC = () => {
 
     return (
         <div className="p-4 rounded-md bg-white dark:bg-gray-800 shadow-sm">
-            <h3 className="text-sm font-medium mb-3 text-gray-700 dark:text-gray-200">Team Usage</h3>
+            <h3 className="text-sm font-medium mb-3 text-gray-700 dark:text-gray-200">{t('chart.title')}</h3>
             <div>
                 <ReactApexChart options={options} series={data.series} type="radialBar" height={390} />
             </div>

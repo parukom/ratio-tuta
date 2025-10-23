@@ -8,6 +8,7 @@ import { FirstPagesHeader } from '@/components/FirstPagesHeader'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
+import { useTranslations } from 'next-intl'
 
 // user's packages
 const packages = [
@@ -154,22 +155,55 @@ const footerNavigation = {
     ],
 }
 
+type SessionData = {
+    userId: string;
+    name: string;
+    role: 'USER' | 'ADMIN';
+} | null;
+
 export default function PricingPage() {
+    const t = useTranslations('Pricing')
     const searchParams = useSearchParams()
     const [teams, setTeams] = useState<{ id: string; name: string }[]>([])
     const [selectedTeam, setSelectedTeam] = useState<string>('')
     const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
     const [isAnnual, setIsAnnual] = useState(false)
+    const [activePackageSlug, setActivePackageSlug] = useState<string>('free')
+    const [subscriptionLoading, setSubscriptionLoading] = useState(false)
+    const [session, setSession] = useState<SessionData>(null)
 
     useEffect(() => {
         if (searchParams.get('canceled') === 'true') {
-            toast.error('Mokėjimas atšauktas')
+            toast.error(t('paymentCanceled'))
         }
-    }, [searchParams])
+    }, [searchParams, t])
 
     useEffect(() => {
+        fetchSession()
         fetchTeams()
     }, [])
+
+    useEffect(() => {
+        if (selectedTeam) {
+            fetchActiveSubscription()
+        }
+    }, [selectedTeam])
+
+    async function fetchSession() {
+        try {
+            const res = await fetch('/api/me')
+            if (res.ok) {
+                const data = await res.json()
+                setSession({
+                    userId: data.id,
+                    name: data.name,
+                    role: data.role
+                })
+            }
+        } catch (error) {
+            console.error('Error fetching session:', error)
+        }
+    }
 
     async function fetchTeams() {
         try {
@@ -185,9 +219,29 @@ export default function PricingPage() {
         }
     }
 
+    async function fetchActiveSubscription() {
+        if (!selectedTeam) return
+
+        setSubscriptionLoading(true)
+        try {
+            const res = await fetch(`/api/teams/${selectedTeam}/subscription`)
+            if (!res.ok) {
+                setActivePackageSlug('free')
+                return
+            }
+            const data = await res.json()
+            setActivePackageSlug(data.package?.slug || 'free')
+        } catch (error) {
+            console.error('Error fetching subscription:', error)
+            setActivePackageSlug('free')
+        } finally {
+            setSubscriptionLoading(false)
+        }
+    }
+
     async function handleCheckout(packageSlug: string, annual: boolean) {
         if (!selectedTeam) {
-            toast.error('Pasirinkite komandą')
+            toast.error(t('tooltips.selectTeamFirst'))
             return
         }
 
@@ -216,34 +270,33 @@ export default function PricingPage() {
             }
         } catch (error) {
             console.error('Checkout error:', error)
-            toast.error('Nepavyko sukurti mokėjimo sesijos')
+            toast.error('Failed to create checkout session')
             setCheckoutLoading(null)
         }
     }
 
     return (
         <div className="bg-white dark:bg-gray-900">
-            <FirstPagesHeader />
+            <FirstPagesHeader session={session} />
 
             <main>
                 {/* Pricing section */}
                 <form className="group/tiers bg-white pt-24 sm:pt-32 dark:bg-gray-900">
                     <div className="mx-auto max-w-7xl px-6 lg:px-8">
                         <div className="mx-auto max-w-4xl text-center">
-                            <h2 className="text-base/7 font-semibold text-indigo-600 dark:text-indigo-400">Pricing</h2>
+                            <h2 className="text-base/7 font-semibold text-indigo-600 dark:text-indigo-400">{t('title')}</h2>
                             <p className="mt-2 text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-6xl dark:text-white">
-                                Pricing that grows with you
+                                {t('subtitle')}
                             </p>
                         </div>
                         <p className="mx-auto mt-6 max-w-2xl text-center text-lg font-medium text-pretty text-gray-600 sm:text-xl/8 dark:text-gray-400">
-                            Choose an affordable plan that's packed with the best features for engaging your audience, creating
-                            customer loyalty, and driving sales.
+                            {t('description')}
                         </p>
                         {teams.length === 0 && (
                             <div className="mt-8 mx-auto max-w-md">
                                 <div className="rounded-lg bg-yellow-50 p-4 dark:bg-yellow-900/20">
                                     <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                                        Jūs neturite komandų. Prisijunkite prie sistemos ir sukurkite komandą, kad galėtumėte pirkti paketą.
+                                        {t('noTeams')}
                                     </p>
                                 </div>
                             </div>
@@ -252,7 +305,7 @@ export default function PricingPage() {
                             <div className="mt-10 flex justify-center">
                                 <div className="w-full max-w-md">
                                     <label htmlFor="team-select" className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
-                                        Pasirinkite komandą:
+                                        {t('selectTeam')}
                                     </label>
                                     <select
                                         id="team-select"
@@ -281,7 +334,7 @@ export default function PricingPage() {
                                             type="radio"
                                             className="absolute inset-0 appearance-none rounded-full"
                                         />
-                                        <span className="text-gray-500 group-has-checked:text-white dark:text-gray-400">Monthly</span>
+                                        <span className="text-gray-500 group-has-checked:text-white dark:text-gray-400">{t('frequency.monthly')}</span>
                                     </label>
                                     <label className="group relative rounded-full px-2.5 py-1 has-checked:bg-indigo-600 dark:has-checked:bg-indigo-500">
                                         <input
@@ -292,7 +345,7 @@ export default function PricingPage() {
                                             type="radio"
                                             className="absolute inset-0 appearance-none rounded-full"
                                         />
-                                        <span className="text-gray-500 group-has-checked:text-white dark:text-gray-400">Annually</span>
+                                        <span className="text-gray-500 group-has-checked:text-white dark:text-gray-400">{t('frequency.annually')}</span>
                                     </label>
                                 </div>
                             </fieldset>
@@ -301,11 +354,13 @@ export default function PricingPage() {
                             {packages.map((tier: PackageType) => {
                                 const monthly = tier.monthlyCents ?? 0
                                 const annual = annualFromMonthly(monthly)
+                                const isActivePlan = tier.id === activePackageSlug
                                 return (
                                     <div
                                         key={tier.id}
                                         data-featured={tier.featured ? 'true' : undefined}
-                                        className="group/tier rounded-3xl p-8 ring-1 ring-gray-200 data-featured:ring-2 data-featured:ring-indigo-600 dark:bg-gray-800/50 dark:ring-white/15 dark:data-featured:ring-indigo-400"
+                                        className={`group/tier rounded-3xl p-8 ring-1 ring-gray-200 data-featured:ring-2 data-featured:ring-indigo-600 dark:bg-gray-800/50 dark:ring-white/15 dark:data-featured:ring-indigo-400 ${isActivePlan ? 'ring-2 ring-green-500 dark:ring-green-400' : ''
+                                            }`}
                                     >
                                         <div className="flex items-center justify-between gap-x-4">
                                             <h3
@@ -314,9 +369,13 @@ export default function PricingPage() {
                                             >
                                                 {tier.name}
                                             </h3>
-                                            {tier.featured ? (
-                                                <p className="rounded-full bg-indigo-600/10 px-2.5 py-1 text-xs/5 font-semibold text-indigo-600 dark:bg-indigo-500 dark:text-white">
-                                                    Most popular
+                                            {isActivePlan ? (
+                                                <p className="rounded-full bg-green-600/10 px-2.5 py-1 text-xs/5 font-semibold text-green-700 dark:bg-green-500/20 dark:text-green-400 whitespace-nowrap">
+                                                    {t('badges.active')}
+                                                </p>
+                                            ) : tier.featured ? (
+                                                <p className="rounded-full bg-indigo-600/10 px-2.5 py-1 text-xs/5 font-semibold text-indigo-600 dark:bg-indigo-500 dark:text-white whitespace-nowrap">
+                                                    {t('badges.popular')}
                                                 </p>
                                             ) : null}
                                         </div>
@@ -325,51 +384,55 @@ export default function PricingPage() {
                                             <span className="text-4xl font-semibold tracking-tight text-gray-900 dark:text-white">
                                                 {monthly === 0 ? 'Free' : formatPrice(monthly)}
                                             </span>
-                                            <span className="text-sm/6 font-semibold text-gray-600 dark:text-gray-400">/month</span>
+                                            <span className="text-sm/6 font-semibold text-gray-600 dark:text-gray-400">{t('perMonth')}</span>
                                         </p>
                                         <p className="mt-6 flex items-baseline gap-x-1 group-not-has-[[name=frequency][value=annually]:checked]/tiers:hidden">
                                             <span className="text-4xl font-semibold tracking-tight text-gray-900 dark:text-white">
                                                 {annual === 0 ? 'Free' : formatPrice(annual)}
                                             </span>
-                                            <span className="text-sm/6 font-semibold text-gray-600 dark:text-gray-400">/year</span>
+                                            <span className="text-sm/6 font-semibold text-gray-600 dark:text-gray-400">{t('perYear')}</span>
                                         </p>
                                         <div className="relative group mt-6">
                                             <button
                                                 type="button"
                                                 disabled={
                                                     !selectedTeam ||
-                                                    tier.monthlyCents === 0 ||
+                                                    isActivePlan ||
                                                     tier.contact ||
+                                                    subscriptionLoading ||
                                                     checkoutLoading === `${tier.id}-${isAnnual ? 'annual' : 'monthly'}`
                                                 }
                                                 onClick={() => handleCheckout(tier.id, isAnnual)}
-                                                aria-describedby={tier.monthlyCents === 0 ? undefined : `tooltip-${tier.id}`}
-                                                className={`${
-                                                    tier.monthlyCents === 0 || tier.contact || !selectedTeam
+                                                aria-describedby={isActivePlan || tier.contact ? `tooltip-${tier.id}` : undefined}
+                                                className={`${!selectedTeam || isActivePlan || tier.contact || subscriptionLoading
                                                         ? 'opacity-50 cursor-not-allowed'
                                                         : ''
-                                                } block w-full rounded-md px-3 py-2 text-center text-sm/6 font-semibold text-indigo-600 inset-ring-1 inset-ring-indigo-200 group-data-featured/tier:bg-indigo-600 group-data-featured/tier:text-white group-data-featured/tier:shadow-xs group-data-featured/tier:inset-ring-0 hover:inset-ring-indigo-300 group-data-featured/tier:hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-white/10 dark:text-white dark:inset-ring dark:inset-ring-white/5 dark:group-data-featured/tier:bg-indigo-500 dark:group-data-featured/tier:shadow-none dark:hover:bg-white/20 dark:hover:inset-ring-white/5 dark:group-data-featured/tier:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500 dark:group-not-data-featured/tier:focus-visible:outline-white/75`}
+                                                    } block w-full rounded-md px-3 py-2 text-center text-sm/6 font-semibold text-indigo-600 inset-ring-1 inset-ring-indigo-200 group-data-featured/tier:bg-indigo-600 group-data-featured/tier:text-white group-data-featured/tier:shadow-xs group-data-featured/tier:inset-ring-0 hover:inset-ring-indigo-300 group-data-featured/tier:hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-white/10 dark:text-white dark:inset-ring dark:inset-ring-white/5 dark:group-data-featured/tier:bg-indigo-500 dark:group-data-featured/tier:shadow-none dark:hover:bg-white/20 dark:hover:inset-ring-white/5 dark:group-data-featured/tier:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500 dark:group-not-data-featured/tier:focus-visible:outline-white/75`}
                                             >
-                                                {checkoutLoading === `${tier.id}-${isAnnual ? 'annual' : 'monthly'}`
-                                                    ? 'Loading...'
-                                                    : tier.contact
-                                                      ? 'Contact sales'
-                                                      : tier.monthlyCents === 0
-                                                        ? 'Current plan'
-                                                        : 'Buy plan'}
+                                                {subscriptionLoading
+                                                    ? t('actions.loading')
+                                                    : checkoutLoading === `${tier.id}-${isAnnual ? 'annual' : 'monthly'}`
+                                                        ? t('actions.redirecting')
+                                                        : isActivePlan
+                                                            ? t('actions.currentPlan')
+                                                            : tier.contact
+                                                                ? t('actions.contactSales')
+                                                                : t('actions.buyPlan')}
                                             </button>
 
-                                            {(tier.monthlyCents === 0 || tier.contact || !selectedTeam) && (
+                                            {(isActivePlan || tier.contact || !selectedTeam) && (
                                                 <div
                                                     id={`tooltip-${tier.id}`}
                                                     role="tooltip"
                                                     className="pointer-events-none absolute left-1/2 bottom-full mb-2 w-max -translate-x-1/2 rounded bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 dark:bg-gray-700"
                                                 >
                                                     {!selectedTeam
-                                                        ? 'Please select a team first'
-                                                        : tier.contact
-                                                          ? 'Contact us for enterprise pricing'
-                                                          : 'Free plan - no purchase needed'}
+                                                        ? t('tooltips.selectTeamFirst')
+                                                        : isActivePlan
+                                                            ? t('tooltips.currentPlan')
+                                                            : tier.contact
+                                                                ? t('tooltips.contactForPricing')
+                                                                : ''}
                                                 </div>
                                             )}
                                         </div>
