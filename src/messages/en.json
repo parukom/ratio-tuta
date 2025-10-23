@@ -382,43 +382,43 @@
       }
     },
     "mission": {
-      "label": "About us",
-      "heading": "On a mission to empower you to save time, save money, and stay up to date across every place",
-      "description": "Ratio tuta is a secure online notebook that calculates everything for you. Keep notes, tables, and formulas together, stay informed about what\u2019s happening across places, and trust that your data is protected.",
-      "sectionTitle": "Our mission",
+      "label": "Our Mission",
+      "heading": "Empowering small businesses with simple, powerful tools to sell smarter and grow faster",
+      "description": "Pecunia is your all-in-one point-of-sale and business management platform. Track sales, manage inventory, and gain insights across all your locations — without the complexity or cost of traditional POS systems.",
+      "sectionTitle": "Why Pecunia exists",
       "saveTime": {
-        "title": "Save time:",
-        "body": "leave papers behind — save time with Ratio tuta \u2014 a user-friendly app that captures once, keeps everything organized for you, and lets you search instantly."
+        "title": "Save time on daily operations:",
+        "body": "Automate inventory tracking, generate instant receipts, and eliminate manual counting. Spend less time on paperwork and more time growing your business."
       },
       "saveMoney": {
-        "title": "Save money:",
-        "body": "reduce errors, see a clear picture of costs, and make faster decisions."
+        "title": "Keep more of what you earn:",
+        "body": "No expensive hardware, no hidden fees. Track profit margins in real-time, identify your best sellers, and reduce waste from overstocking or spoilage."
       },
       "stayUpdated": {
-        "title": "Stay updated across places:",
-        "body": "track what\u2019s happening at each place in real time."
+        "title": "Stay in control, anywhere:",
+        "body": "Monitor sales, inventory, and performance across multiple locations from any device. Get real-time alerts when stock runs low or when you hit sales milestones."
       },
       "beSecure": {
-        "title": "Be secure by default:",
-        "body": "privacy-first design \u2014 user data is encrypted in transit and at rest and anonymized where possible, with role-based access controls and audit trails."
+        "title": "Your data, protected:",
+        "body": "Bank-level encryption keeps your business data safe. Role-based permissions ensure team members only see what they need. Complete audit trails track every transaction."
       },
-      "whatYouGet": "What you get",
+      "whatYouGet": "Real results",
       "features": {
         "timeBack": {
-          "title": "Time back",
-          "desc": "Less manual work every week"
+          "title": "Hours saved",
+          "desc": "5-10 hours saved weekly per location"
         },
         "lowerCosts": {
-          "title": "Lower costs",
-          "desc": "Fewer mistakes, clearer insights"
+          "title": "Reduce costs",
+          "desc": "Save 15-30% on operational expenses"
         },
         "liveVisibility": {
-          "title": "Live visibility",
-          "desc": "Know what\u2019s happening in each place"
+          "title": "Real-time insights",
+          "desc": "Live sales & inventory across all locations"
         },
         "security": {
-          "title": "Security",
-          "desc": "Private by default, access you control"
+          "title": "Enterprise security",
+          "desc": "Bank-grade encryption & access control"
         }
       }
     },
@@ -435,6 +435,54 @@
         "howItWorks": "How it works",
         "pricing": "Pricing",
         "contact": "Contact"
+      }
+    },
+    "howItWorks": {
+      "badge": "Simple & Powerful",
+      "title": "How It Works",
+      "subtitle": "Get your business up and running in just 5 simple steps. From signup to tracking sales, we've got you covered.",
+      "steps": {
+        "signup": {
+          "title": "Sign Up & Create Your Team",
+          "description": "Start your journey by creating a free account. It takes less than a minute to get started.",
+          "detail1": "Fill in your name, email, and password (8-128 characters)",
+          "detail2": "Choose a team name for your business",
+          "detail3": "Verify your email address and you're ready to go"
+        },
+        "createPlace": {
+          "title": "Create Your First Place",
+          "description": "A 'Place' represents your business location—a store, restaurant, event, or any sales point.",
+          "detail1": "Add location details: name, address, city, and country",
+          "detail2": "Set timezone and currency (e.g., EUR, USD) for accurate reporting",
+          "detail3": "You can create multiple places to manage different locations separately"
+        },
+        "addItems": {
+          "title": "Add Your Products",
+          "description": "Build your inventory by adding items you sell. Upload product images, set prices, and organize by categories.",
+          "detail1": "Add item details: name, SKU, price, cost, and tax rate",
+          "detail2": "Upload product images (required for easy identification)",
+          "detail3": "Choose measurement type: pieces, weight (kg), length (m), volume (L), or area (m²)"
+        },
+        "startSelling": {
+          "title": "Start Selling with Cash Register",
+          "description": "Use our intuitive POS system to process sales in seconds. Accept cash or card payments.",
+          "detail1": "Browse or search for items, add them to cart with one click",
+          "detail2": "See real-time totals with tax calculations automatically done",
+          "detail3": "Complete the sale, print receipts, and stock updates happen automatically"
+        },
+        "analytics": {
+          "title": "Track Performance & Analytics",
+          "description": "Monitor your business with comprehensive reports. See what's selling, track revenue, and make data-driven decisions.",
+          "detail1": "View total sales, revenue, profit margins, and transaction counts",
+          "detail2": "Compare performance across different places and time periods",
+          "detail3": "Identify top-selling items, popular categories, and low-stock alerts"
+        }
+      },
+      "cta": {
+        "title": "Ready to Transform Your Business?",
+        "subtitle": "Join hundreds of businesses already using Pecunia to streamline their operations.",
+        "button": "Get Started for Free",
+        "docs": "Read Documentation"
       }
     }
   },

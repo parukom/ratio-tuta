@@ -421,43 +421,43 @@
         "benefitTeam": "Aukštesni planai atrakina daugiau komandos narių ir prekių."
       },
       "mission": {
-        "label": "Apie mus",
-        "heading": "Mūsų misija – padėti jums sutaupyti laiko, pinigų ir būti informuotiems visuose objektuose",
-        "description": "Ratio tuta yra saugi internetinė užrašų knygelė, kuri apskaičiuoja viską už jus. Laikykite pastabas, lenteles ir formules kartu, sekite, kas vyksta vietose, ir būkite tikri, kad jūsų duomenys yra apsaugoti.",
-        "sectionTitle": "Mūsų misija",
+        "label": "Mūsų misija",
+        "heading": "Įgaliname mažus verslus paprastomis, bet galingomis priemonėmis pardavinėti protingiau ir augti greičiau",
+        "description": "Pecunia – tai viskas viename kaso aparatas ir verslo valdymo platforma. Sekite pardavimus, valdykite inventorių ir gaukite įžvalgas iš visų savo vietų – be tradicinių kaso sistemų sudėtingumo ar kainos.",
+        "sectionTitle": "Kodėl sukūrėme Pecunia",
         "saveTime": {
-          "title": "Sutaupykite laiko:",
-          "body": "Atsisakykite popieriaus — sutaupykite laiko su Ratio tuta, patogia programa, kuri vieną kartą užfiksuoja duomenis, laiko juos tvarkingai ir leidžia greitai ieškoti."
+          "title": "Sutaupykite laiko kasdieniuose darbuose:",
+          "body": "Automatizuokite inventoriaus sekimą, generuokite momentines sąskaitas ir atsisakykite rankinio skaičiavimo. Skirkite mažiau laiko dokumentams ir daugiau – verslo augimui."
         },
         "saveMoney": {
-          "title": "Sutaupykite pinigų:",
-          "body": "Sumažinkite klaidas, aiškiau matykite išlaidas ir priimkite sprendimus greičiau."
+          "title": "Pasilaikykite daugiau to, ką uždirbate:",
+          "body": "Jokių brangių įrenginių, jokių paslėptų mokesčių. Sekite pelno maržas realiuoju laiku, nustatykite populiariausias prekes ir sumažinkite nuostolius dėl per didelių atsargų ar gendimo."
         },
         "stayUpdated": {
-          "title": "Būkite informuoti:",
-          "body": "Sekite, kas vyksta kiekvienoje vietoje realiu laiku."
+          "title": "Išlikite kontrolėje, bet kur:",
+          "body": "Stebėkite pardavimus, inventorių ir rezultatus keliose vietose iš bet kurio įrenginio. Gaukite realaus laiko pranešimus, kai baigiasi atsargos arba pasiekiate pardavimų tikslus."
         },
         "beSecure": {
-          "title": "Saugumas pagal numatytuosius nustatymus:",
-          "body": "Privatumas yra prioritetas — vartotojų duomenys yra šifruojami perduodant ir saugant, o kur įmanoma, anonimizuojami; taikomas vaidmenimis pagrįstas prieigos valdymas ir audito įrašai."
+          "title": "Jūsų duomenys apsaugoti:",
+          "body": "Banko lygio šifravimas apsaugo jūsų verslo duomenis. Vaidmenimis pagrįstos teisės užtikrina, kad komandos nariai mato tik tai, ko jiems reikia. Pilnas audito žurnalas stebi kiekvieną sandorį."
         },
-        "whatYouGet": "Ką gaunate",
+        "whatYouGet": "Realūs rezultatai",
         "features": {
           "timeBack": {
-            "title": "Atgautas laikas",
-            "desc": "Mažiau rankinio darbo kiekvieną savaitę"
+            "title": "Sutaupytos valandos",
+            "desc": "5-10 val. per savaitę kiekvienai vietai"
           },
           "lowerCosts": {
-            "title": "Mažesnės sąnaudos",
-            "desc": "Mažiau klaidų, aiškesnė įžvalga"
+            "title": "Sumažintos sąnaudos",
+            "desc": "Sutaupykite 15-30% operacinių išlaidų"
           },
           "liveVisibility": {
-            "title": "Tiesioginis matomumas",
-            "desc": "Sužinokite, kas vyksta kiekvienoje vietoje"
+            "title": "Įžvalgos realiuoju laiku",
+            "desc": "Gyvos pardavimų ir inventoriaus ataskaitos"
           },
           "security": {
-            "title": "Saugumas",
-            "desc": "Privatumas pagal numatytuosius nustatymus, prieiga po jūsų kontrole"
+            "title": "Įmonių saugumas",
+            "desc": "Banko lygio šifravimas ir prieigos valdymas"
           }
         }
       }
@@ -475,6 +475,54 @@
         "howItWorks": "Kaip tai veikia",
         "pricing": "Kainos",
         "contact": "Kontaktai"
+      }
+    },
+    "howItWorks": {
+      "badge": "Paprasta ir galinga",
+      "title": "Kaip tai veikia",
+      "subtitle": "Pradėkite naudotis vos per 5 paprastus žingsnius. Nuo registracijos iki pardavimų sekimo – mes jums padėsime.",
+      "steps": {
+        "signup": {
+          "title": "Užsiregistruokite ir sukurkite komandą",
+          "description": "Pradėkite savo kelionę sukurdami nemokamą paskyrą. Tai užtruks mažiau nei minutę.",
+          "detail1": "Įveskite vardą, el. paštą ir slaptažodį (8-128 simboliai)",
+          "detail2": "Pasirinkite komandos pavadinimą savo verslui",
+          "detail3": "Patvirtinkite el. pašto adresą ir galite pradėti"
+        },
+        "createPlace": {
+          "title": "Sukurkite pirmąją vietą",
+          "description": "Vieta – tai jūsų verslo lokacija: parduotuvė, restoranas, renginys ar bet kuri pardavimo vieta.",
+          "detail1": "Pridėkite lokacijos detales: pavadinimą, adresą, miestą ir šalį",
+          "detail2": "Nustatykite laiko juostą ir valiutą (pvz., EUR, USD) tikslesnėms ataskaitoms",
+          "detail3": "Galite sukurti kelias vietas, kad valdytumėte skirtingas lokacijas atskirai"
+        },
+        "addItems": {
+          "title": "Pridėkite produktus",
+          "description": "Sukurkite inventorių pridėdami prekes, kurias parduodate. Įkelkite produktų nuotraukas, nustatykite kainas ir organizuokite pagal kategorijas.",
+          "detail1": "Pridėkite prekės detales: pavadinimą, SKU, kainą, savikainą ir mokesčio tarifą",
+          "detail2": "Įkelkite produktų nuotraukas (būtina lengvam atpažinimui)",
+          "detail3": "Pasirinkite matavimo tipą: vienetus, svorį (kg), ilgį (m), tūrį (l) arba plotą (m²)"
+        },
+        "startSelling": {
+          "title": "Pradėkite pardavinėti su kasa",
+          "description": "Naudokite mūsų intuityvią POS sistemą pardavimams apdoroti per kelias sekundes. Priimkite mokėjimus grynaisiais ar kortele.",
+          "detail1": "Naršykite ar ieškokite prekių, pridėkite jas į krepšelį vienu paspaudimu",
+          "detail2": "Matysite bendrą sumą su automatiškai apskaičiuotais mokesčiais",
+          "detail3": "Užbaikite pardavimą, atspausdinkite čekį, ir inventorius atsinaujins automatiškai"
+        },
+        "analytics": {
+          "title": "Stebėkite veiklą ir analitiką",
+          "description": "Stebėkite savo verslą su išsamiomis ataskaitomis. Žiūrėkite, kas parduodama, sekite pajamas ir priimkite sprendimus pagal duomenis.",
+          "detail1": "Žiūrėkite bendrą pardavimą, pajamas, pelno maržas ir sandorių skaičių",
+          "detail2": "Lyginkite rezultatus skirtingose vietose ir laiko laikotarpiuose",
+          "detail3": "Nustatykite populiariausias prekes, kategorijas ir mažų atsargų įspėjimus"
+        }
+      },
+      "cta": {
+        "title": "Pasiruošę transformuoti savo verslą?",
+        "subtitle": "Prisijunkite prie šimtų verslų, kurie jau naudoja Pecunia savo veiklai supaprastinti.",
+        "button": "Pradėkite nemokamai",
+        "docs": "Skaitykite dokumentaciją"
       }
     }
   },
