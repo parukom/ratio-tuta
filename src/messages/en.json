@@ -1067,13 +1067,34 @@
       "receipts30d": "Receipts (30d)"
     },
     "chart": {
-      "title": "Team Usage"
+      "title": "Team Usage",
+      "description": "Visual breakdown of your team's resource usage"
     },
     "usage": {
       "outOf": "{value} out of {limit}",
       "used": "{value} used",
       "noLimit": "no limit",
       "unlimitedFeature": "Unlimited plan feature"
+    },
+    "sales": {
+      "title": "Sales Report",
+      "description": "Track your revenue and sales performance",
+      "loading": "Loading sales data...",
+      "noData": "No sales data available",
+      "noSales": "No sales in this period",
+      "periods": {
+        "week": "Week",
+        "month": "Month",
+        "year": "Year"
+      },
+      "metrics": {
+        "totalRevenue": "Total Revenue",
+        "totalSales": "Total Sales",
+        "averageOrder": "Avg. Order",
+        "topPayment": "Top Payment"
+      },
+      "chartTitle": "Revenue Over Time",
+      "revenue": "Revenue"
     }
   }
 }

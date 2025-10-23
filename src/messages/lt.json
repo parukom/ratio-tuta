@@ -973,13 +973,34 @@
       "receipts30d": "Čekiai (30d)"
     },
     "chart": {
-      "title": "Komandos naudojimas"
+      "title": "Komandos naudojimas",
+      "description": "Vizualus jūsų komandos išteklių naudojimo paskirstymas"
     },
     "usage": {
       "outOf": "{value} iš {limit}",
       "used": "{value} panaudota",
       "noLimit": "nėra limito",
       "unlimitedFeature": "Neribotas planas"
+    },
+    "sales": {
+      "title": "Pardavimų ataskaita",
+      "description": "Stebėkite savo pajamas ir pardavimų rezultatus",
+      "loading": "Kraunami pardavimų duomenys...",
+      "noData": "Nėra pardavimų duomenų",
+      "noSales": "Šiuo laikotarpiu nėra pardavimų",
+      "periods": {
+        "week": "Savaitė",
+        "month": "Mėnuo",
+        "year": "Metai"
+      },
+      "metrics": {
+        "totalRevenue": "Bendros pajamos",
+        "totalSales": "Iš viso pardavimų",
+        "averageOrder": "Vid. užsakymas",
+        "topPayment": "Populiariausias"
+      },
+      "chartTitle": "Pajamos per laiką",
+      "revenue": "Pajamos"
     }
   }
 }

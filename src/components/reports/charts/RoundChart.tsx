@@ -91,9 +91,12 @@ const RoundChart: React.FC = () => {
     };
 
     return (
-        <div className="p-4 rounded-md bg-white dark:bg-gray-800 shadow-sm">
-            <h3 className="text-sm font-medium mb-3 text-gray-700 dark:text-gray-200">{t('chart.title')}</h3>
-            <div>
+        <div className="p-6 rounded-lg bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700">
+            <div className="mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{t('chart.title')}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('chart.description')}</p>
+            </div>
+            <div className="flex items-center justify-center">
                 <ReactApexChart options={options} series={data.series} type="radialBar" height={390} />
             </div>
         </div>
