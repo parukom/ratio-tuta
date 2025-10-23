@@ -3,11 +3,21 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl'
 import { FirstPagesHeader } from './FirstPagesHeader';
 
-const HeroSection = () => {
+type SessionData = {
+    userId: string;
+    name: string;
+    role: 'USER' | 'ADMIN';
+} | null;
+
+type HeroSectionProps = {
+    session?: SessionData;
+}
+
+const HeroSection = ({ session }: HeroSectionProps) => {
     const t = useTranslations('Home')
     return (
         <div className="bg-white dark:bg-gray-900 flex items-center justify-center h-screen">
-            <FirstPagesHeader />
+            <FirstPagesHeader session={session} />
             <div className="relative isolate px-6 lg:px-8">
                 <div
                     aria-hidden="true"

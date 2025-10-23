@@ -15,10 +15,16 @@
     },
     "fields": {
       "name": "Vardas",
+      "nameHint": "Jūsų vardas nebūtinai turi būti tikras. Galite naudoti slapyvardį, pvz., \"Saulytė\" ar \"Mėlynas dangus\".",
       "email": "El. pašto adresas",
+      "emailHint": "Maksimaliam privatumui rekomenduojame naudoti privatų el. pašto tarnybą kaip ProtonMail ar Tutanota.",
       "password": "Slaptažodis",
       "teamName": "Komandos pavadinimas",
       "passwordRule": "Slaptažodis turi būti 8–16 simbolių."
+    },
+    "privacy": {
+      "title": "Jūsų privatumas mums yra prioritetas",
+      "message": "Tikime privatumu pagal numatytuosius nustatymus. Jūsų duomenys šifruojami, ir mes niekada neparduosime jūsų informacijos."
     },
     "rememberMe": "Prisiminti mane",
     "toggle": {
@@ -423,8 +429,8 @@
       "mission": {
         "label": "Mūsų misija",
         "heading": "Įgaliname mažus verslus paprastomis, bet galingomis priemonėmis pardavinėti protingiau ir augti greičiau",
-        "description": "Pecunia – tai viskas viename kaso aparatas ir verslo valdymo platforma. Sekite pardavimus, valdykite inventorių ir gaukite įžvalgas iš visų savo vietų – be tradicinių kaso sistemų sudėtingumo ar kainos.",
-        "sectionTitle": "Kodėl sukūrėme Pecunia",
+        "description": "Ratio tuta – tai viskas viename kaso aparatas ir verslo valdymo platforma. Sekite pardavimus, valdykite inventorių ir gaukite įžvalgas iš visų savo vietų – be tradicinių kaso sistemų sudėtingumo ar kainos.",
+        "sectionTitle": "Kodėl sukūrėme Ratio tuta",
         "saveTime": {
           "title": "Sutaupykite laiko kasdieniuose darbuose:",
           "body": "Automatizuokite inventoriaus sekimą, generuokite momentines sąskaitas ir atsisakykite rankinio skaičiavimo. Skirkite mažiau laiko dokumentams ir daugiau – verslo augimui."
@@ -520,7 +526,7 @@
       },
       "cta": {
         "title": "Pasiruošę transformuoti savo verslą?",
-        "subtitle": "Prisijunkite prie šimtų verslų, kurie jau naudoja Pecunia savo veiklai supaprastinti.",
+        "subtitle": "Prisijunkite prie šimtų verslų, kurie jau naudoja Ratio tuta savo veiklai supaprastinti.",
         "button": "Pradėkite nemokamai",
         "docs": "Skaitykite dokumentaciją"
       }
@@ -768,7 +774,7 @@
         "WEIGHT": "Svoris",
         "LENGTH": "Ilgis",
         "VOLUME": "Tūris",
-  "AREA": "Plotas"
+        "AREA": "Plotas"
       },
       "select": "Pasirinkti",
       "initialStock": {
@@ -776,14 +782,14 @@
         "WEIGHT": "Pradinis likutis (kg)",
         "LENGTH": "Pradinis likutis (m)",
         "VOLUME": "Pradinis likutis (l)",
-  "AREA": "Pradinis likutis (m2)"
+        "AREA": "Pradinis likutis (m2)"
       },
       "stock": {
         "PCS": "Likutis (vnt)",
         "WEIGHT": "Likutis (kg)",
         "LENGTH": "Likutis (m)",
         "VOLUME": "Likutis (l)",
-  "AREA": "Likutis (m2)"
+        "AREA": "Likutis (m2)"
       },
       "descriptionOptional": "Aprašymas (pasirinktinai)",
       "colorOptional": "Spalva (pasirinktinai)",
@@ -912,7 +918,7 @@
       "WEIGHT": "Svoris",
       "LENGTH": "Ilgis",
       "VOLUME": "Tūris",
-  "AREA": "Plotas",
+      "AREA": "Plotas",
       "kilograms": "Kilogramai"
     }
   }

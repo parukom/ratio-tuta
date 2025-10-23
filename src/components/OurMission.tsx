@@ -1,3 +1,4 @@
+'use client'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 
@@ -39,16 +40,44 @@ export default function OurMission() {
           <div className="pt-16 lg:row-span-2 ">
             <div className="-mx-8 grid grid-cols-2 gap-4 sm:-mx-16 sm:grid-cols-4 lg:mx-0 lg:grid-cols-2 xl:gap-8">
               <div className="relative aspect-square overflow-hidden rounded-xl shadow-xl outline-1 -outline-offset-1 outline-black/10 dark:shadow-none dark:outline-white/10">
-                <Image alt="" src="/images/index/hero/safe.jpg" fill priority={false} loading="lazy" className="object-cover" />
+                <Image
+                  alt="Safe and secure transactions"
+                  src="/images/index/hero/safe.jpg"
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 300px"
+                  loading="lazy"
+                  className="object-cover"
+                />
               </div>
               <div className="relative -mt-8 aspect-square overflow-hidden rounded-xl shadow-xl outline-1 -outline-offset-1 outline-black/10 lg:-mt-40 dark:shadow-none dark:outline-white/10">
-                <Image alt="" src="/images/index/hero/saveTime.jpg" fill priority={false} loading="lazy" className="object-cover" />
+                <Image
+                  alt="Save time with automation"
+                  src="/images/index/hero/saveTime.jpg"
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 300px"
+                  loading="lazy"
+                  className="object-cover"
+                />
               </div>
               <div className="relative aspect-square overflow-hidden rounded-xl shadow-xl outline-1 -outline-offset-1 outline-black/10 dark:shadow-none dark:outline-white/10">
-                <Image alt="" src="/images/index/hero/stayUpdated.jpg" fill priority={false} loading="lazy" className="object-cover" />
+                <Image
+                  alt="Stay updated with real-time data"
+                  src="/images/index/hero/stayUpdated.jpg"
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 300px"
+                  loading="lazy"
+                  className="object-cover"
+                />
               </div>
               <div className="relative -mt-8 aspect-square overflow-hidden rounded-xl shadow-xl outline-1 -outline-offset-1 outline-black/10 lg:-mt-40 dark:shadow-none dark:outline-white/10">
-                <Image alt="" src="/images/index/hero/secure.jpg" fill priority={false} loading="lazy" className="object-cover" />
+                <Image
+                  alt="Secure data protection"
+                  src="/images/index/hero/secure.jpg"
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 300px"
+                  loading="lazy"
+                  className="object-cover"
+                />
               </div>
             </div>
           </div>

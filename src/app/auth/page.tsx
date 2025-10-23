@@ -5,6 +5,7 @@ import Spinner from "@/components/ui/Spinner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { api, ApiError } from "@/lib/api-client";
+import { Eye, EyeOff } from "lucide-react";
 
 function AuthContent() {
     const t = useTranslations("Auth");
@@ -32,6 +33,7 @@ function AuthContent() {
     const [showVerifyBanner, setShowVerifyBanner] = useState(true);
     const router = useRouter();
     const [submitting, setSubmitting] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     // Redirect if already logged in
     useEffect(() => {
@@ -140,6 +142,19 @@ function AuthContent() {
 
             <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
                 <div className="bg-white px-6 py-12 shadow-sm sm:rounded-lg sm:px-12 dark:bg-gray-800/50 dark:shadow-none dark:outline dark:-outline-offset-1 dark:outline-white/10">
+                    {mode === "register" && (
+                        <div className="mb-6 rounded-lg bg-indigo-50 p-4 dark:bg-indigo-900/20">
+                            <div className="flex items-start gap-3">
+                                <svg className="h-5 w-5 text-indigo-600 dark:text-indigo-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                                </svg>
+                                <div>
+                                    <h3 className="text-sm font-semibold text-indigo-900 dark:text-indigo-200">{t("privacy.title")}</h3>
+                                    <p className="mt-1 text-sm text-indigo-700 dark:text-indigo-300">{t("privacy.message")}</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                     {verifyMessage && showVerifyBanner && (
                         <div
                             className={`mb-6 rounded-md p-3 text-sm ${verifyStatus === 'success'
@@ -177,6 +192,7 @@ function AuthContent() {
                                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
                                     />
                                 </div>
+                                <p className="mt-1.5 text-xs text-gray-600 dark:text-gray-400">{t("fields.nameHint")}</p>
                             </div>
                         )}
 
@@ -196,25 +212,40 @@ function AuthContent() {
                                     className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
                                 />
                             </div>
+                            {mode === "register" && (
+                                <p className="mt-1.5 text-xs text-gray-600 dark:text-gray-400">{t("fields.emailHint")}</p>
+                            )}
                         </div>
 
                         <div>
                             <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900 dark:text-white">
                                 {t("fields.password")}
                             </label>
-                            <div className="mt-2">
+                            <div className="mt-2 relative">
                                 <input
                                     id="password"
                                     name="password"
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     required
                                     autoComplete={mode === "login" ? "current-password" : "new-password"}
                                     minLength={mode === "register" ? 8 : undefined}
                                     maxLength={mode === "register" ? 128 : undefined}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+                                    className="block w-full rounded-md bg-white px-3 py-1.5 pr-10 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                >
+                                    {showPassword ? (
+                                        <EyeOff className="h-5 w-5" />
+                                    ) : (
+                                        <Eye className="h-5 w-5" />
+                                    )}
+                                </button>
                             </div>
                             {mode === "register" && (
                                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("fields.passwordRule")}</p>

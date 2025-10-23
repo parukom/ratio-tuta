@@ -21,7 +21,9 @@ const ALLOWED_ORIGINS = (() => {
     // SECURITY: In production, ONLY allow explicitly configured domain
     // Never allow localhost origins in production
     if (!appUrl) {
-      console.error('[CORS] CRITICAL: NEXT_PUBLIC_APP_URL not set in production!');
+      console.error(
+        '[CORS] CRITICAL: NEXT_PUBLIC_APP_URL not set in production!',
+      );
       return [];
     }
     return [appUrl];
@@ -31,8 +33,10 @@ const ALLOWED_ORIGINS = (() => {
   const devOrigins = [
     'http://localhost:3000',
     'http://localhost:3001',
+    'http://localhost:3002',
     'http://127.0.0.1:3000',
     'http://127.0.0.1:3001',
+    'http://127.0.0.1:3002',
   ];
 
   // Add app URL if configured (avoid duplicates)
@@ -48,10 +52,15 @@ const UNIQUE_ALLOWED_ORIGINS = [...new Set(ALLOWED_ORIGINS)];
 
 // Validate configuration on module load
 if (UNIQUE_ALLOWED_ORIGINS.length === 0) {
-  throw new Error('[CORS] SECURITY ERROR: No allowed origins configured! Set NEXT_PUBLIC_APP_URL.');
+  throw new Error(
+    '[CORS] SECURITY ERROR: No allowed origins configured! Set NEXT_PUBLIC_APP_URL.',
+  );
 }
 
-console.log(`[CORS] Allowed origins (${process.env.NODE_ENV}):`, UNIQUE_ALLOWED_ORIGINS);
+console.log(
+  `[CORS] Allowed origins (${process.env.NODE_ENV}):`,
+  UNIQUE_ALLOWED_ORIGINS,
+);
 
 export function corsHeaders(origin: string | null): Record<string, string> {
   const isAllowed = origin && UNIQUE_ALLOWED_ORIGINS.includes(origin);
@@ -88,7 +97,10 @@ export function handleCorsPreFlight(request: Request): NextResponse {
   });
 }
 
-export function addCorsHeaders(response: NextResponse, request: Request): NextResponse {
+export function addCorsHeaders(
+  response: NextResponse,
+  request: Request,
+): NextResponse {
   const origin = request.headers.get('origin');
   const headers = corsHeaders(origin);
 

@@ -1,11 +1,10 @@
 import React from "react";
-// import { getSession } from "@lib/session";
+import { getSession } from "@lib/session";
 // import { prisma } from "@lib/prisma";
 // import { redirect } from "next/navigation";
-import dynamic from 'next/dynamic';
-const HeroSection = dynamic(() => import('@/components/HeroSection'));
-const HowItWorks = dynamic(() => import('@/components/HowItWorks'));
-const OurMission = dynamic(() => import('@/components/OurMission'));
+import HeroSection from '@/components/HeroSection';
+import HowItWorks from '@/components/HowItWorks';
+import OurMission from '@/components/OurMission';
 // const FeaturesSection = dynamic(() => import('@/components/FeaturesSection'));
 // const FAQ = dynamic(() => import('@/components/Faq'));
 // const PricingSection = dynamic(() => import('@/components/PricingSection'));
@@ -13,7 +12,7 @@ const OurMission = dynamic(() => import('@/components/OurMission'));
 
 export default async function Home() {
   // Fast-path: verify cookie signature and expiry only; skip DB revocation check for a snappier homepage.
-  // const session = await getSession({ skipDbCheck: true });
+  const session = await getSession({ skipDbCheck: true });
 
   // If user is logged in and is explicitly assigned to a single place,
   // send them straight to the cash register for that place.
@@ -40,7 +39,7 @@ export default async function Home() {
 
   return (
     <>
-      <HeroSection />
+      <HeroSection session={session} />
       <HowItWorks />
       <OurMission />
       {/* <FeaturesSection /> */}

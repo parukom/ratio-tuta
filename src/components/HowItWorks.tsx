@@ -1,145 +1,152 @@
 'use client'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useTranslations } from 'next-intl'
-import {
-  UserPlusIcon,
-  BuildingStorefrontIcon,
-  CubeIcon,
-  CreditCardIcon,
-  ChartBarIcon,
-  CheckCircleIcon,
-} from '@heroicons/react/24/outline'
 
 export default function HowItWorks() {
   const t = useTranslations('Home')
 
-  const steps = [
-    {
-      number: '01',
-      title: t('howItWorks.steps.signup.title'),
-      description: t('howItWorks.steps.signup.description'),
-      icon: UserPlusIcon,
-      color: 'indigo',
-      details: [
-        t('howItWorks.steps.signup.detail1'),
-        t('howItWorks.steps.signup.detail2'),
-        t('howItWorks.steps.signup.detail3'),
-      ],
-    },
-    {
-      number: '02',
-      title: t('howItWorks.steps.createPlace.title'),
-      description: t('howItWorks.steps.createPlace.description'),
-      icon: BuildingStorefrontIcon,
-      color: 'emerald',
-      details: [
-        t('howItWorks.steps.createPlace.detail1'),
-        t('howItWorks.steps.createPlace.detail2'),
-        t('howItWorks.steps.createPlace.detail3'),
-      ],
-    },
-    {
-      number: '03',
-      title: t('howItWorks.steps.addItems.title'),
-      description: t('howItWorks.steps.addItems.description'),
-      icon: CubeIcon,
-      color: 'blue',
-      details: [
-        t('howItWorks.steps.addItems.detail1'),
-        t('howItWorks.steps.addItems.detail2'),
-        t('howItWorks.steps.addItems.detail3'),
-      ],
-    },
-    {
-      number: '04',
-      title: t('howItWorks.steps.startSelling.title'),
-      description: t('howItWorks.steps.startSelling.description'),
-      icon: CreditCardIcon,
-      color: 'purple',
-      details: [
-        t('howItWorks.steps.startSelling.detail1'),
-        t('howItWorks.steps.startSelling.detail2'),
-        t('howItWorks.steps.startSelling.detail3'),
-      ],
-    },
-    {
-      number: '05',
-      title: t('howItWorks.steps.analytics.title'),
-      description: t('howItWorks.steps.analytics.description'),
-      icon: ChartBarIcon,
-      color: 'rose',
-      details: [
-        t('howItWorks.steps.analytics.detail1'),
-        t('howItWorks.steps.analytics.detail2'),
-        t('howItWorks.steps.analytics.detail3'),
-      ],
-    },
-  ]
-
   return (
-    <div id="features" className="bg-gray-50 py-24 sm:py-32 dark:bg-gray-800">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+    <div id="features" className="bg-white py-24 sm:py-32 dark:bg-gray-900">
+      <div className="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
         {/* Header */}
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-base/7 font-semibold text-indigo-600 dark:text-indigo-400">
-            {t('howItWorks.badge')}
-          </p>
-          <h2 className="mt-2 text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-5xl dark:text-white">
-            {t('howItWorks.title')}
-          </h2>
-          <p className="mt-6 text-lg/8 text-balance text-gray-600 dark:text-gray-300">
-            {t('howItWorks.subtitle')}
-          </p>
-        </div>
+        <h2 className="text-base/7 font-semibold text-indigo-600 dark:text-indigo-400">
+          {t('howItWorks.badge')}
+        </h2>
+        <p className="mt-2 max-w-lg text-4xl font-semibold tracking-tight text-pretty text-gray-950 sm:text-5xl dark:text-white">
+          {t('howItWorks.title')}
+        </p>
 
-        {/* Steps */}
-        <div className="mx-auto mt-16 max-w-5xl">
-          <div className="space-y-12">
-            {steps.map((step, index) => (
-              <div
-                key={step.number}
-                className="relative flex flex-col gap-8 rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-900/5 transition-all hover:shadow-md dark:bg-gray-900 dark:ring-white/10 lg:flex-row lg:gap-12"
-              >
-                {/* Step Number & Icon */}
-                <div className="flex flex-col items-center lg:items-start lg:w-48 flex-shrink-0">
-                  <div className="flex items-center gap-4">
-                    <span className="text-5xl font-bold text-gray-200 dark:text-gray-700">
-                      {step.number}
-                    </span>
-                    <div className={`flex h-14 w-14 items-center justify-center rounded-xl bg-${step.color}-600 dark:bg-${step.color}-500`}>
-                      <step.icon className="h-8 w-8 text-white" aria-hidden="true" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="flex-1">
-                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    {step.title}
-                  </h3>
-                  <p className="mt-3 text-base/7 text-gray-600 dark:text-gray-400">
-                    {step.description}
-                  </p>
-
-                  {/* Details List */}
-                  <ul className="mt-6 space-y-3">
-                    {step.details.map((detail, detailIndex) => (
-                      <li key={detailIndex} className="flex items-start gap-3">
-                        <CheckCircleIcon className={`h-6 w-6 flex-shrink-0 text-${step.color}-600 dark:text-${step.color}-400`} />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">
-                          {detail}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Connecting Line (for visual flow between steps) */}
-                {index < steps.length - 1 && (
-                  <div className="absolute left-1/2 -bottom-6 hidden h-12 w-0.5 bg-gradient-to-b from-gray-200 to-transparent lg:block dark:from-gray-700" />
-                )}
+        {/* Bento Grid */}
+        <div className="mt-10 grid grid-cols-1 gap-4 sm:mt-16 lg:grid-cols-6 lg:grid-rows-2">
+          {/* Step 1: Signup - Large card (left top) */}
+          <div className="relative lg:col-span-3">
+            <div className="absolute inset-0 rounded-lg bg-white max-lg:rounded-t-[2rem] lg:rounded-tl-[2rem] dark:bg-gray-800" />
+            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] max-lg:rounded-t-[calc(2rem+1px)] lg:rounded-tl-[calc(2rem+1px)]">
+              <Image
+                alt={t('howItWorks.steps.signup.title')}
+                src="/images/index/howitworks/1-signup.jpg"
+                width={800}
+                height={320}
+                className="h-80 w-full object-cover object-center"
+              />
+              <div className="p-10 pt-4">
+                <h3 className="text-sm/4 font-semibold text-indigo-600 dark:text-indigo-400">
+                  {t('howItWorks.steps.signup.title')}
+                </h3>
+                <p className="mt-2 text-lg font-medium tracking-tight text-gray-950 dark:text-white">
+                  {t('howItWorks.steps.signup.description')}
+                </p>
+                <p className="mt-2 max-w-lg text-sm/6 text-gray-600 dark:text-gray-400">
+                  {t('howItWorks.steps.signup.detail1')}
+                </p>
               </div>
-            ))}
+            </div>
+            <div className="pointer-events-none absolute inset-0 rounded-lg shadow-sm outline outline-1 outline-black/5 max-lg:rounded-t-[2rem] lg:rounded-tl-[2rem] dark:outline-white/15" />
+          </div>
+
+          {/* Step 2: Create Place - Large card (right top) */}
+          <div className="relative lg:col-span-3">
+            <div className="absolute inset-0 rounded-lg bg-white lg:rounded-tr-[2rem] dark:bg-gray-800" />
+            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] lg:rounded-tr-[calc(2rem+1px)]">
+              <Image
+                alt={t('howItWorks.steps.createPlace.title')}
+                src="/images/index/howitworks/2-create-place.jpg"
+                width={800}
+                height={320}
+                className="h-80 w-full object-cover object-center lg:object-right"
+              />
+              <div className="p-10 pt-4">
+                <h3 className="text-sm/4 font-semibold text-indigo-600 dark:text-indigo-400">
+                  {t('howItWorks.steps.createPlace.title')}
+                </h3>
+                <p className="mt-2 text-lg font-medium tracking-tight text-gray-950 dark:text-white">
+                  {t('howItWorks.steps.createPlace.description')}
+                </p>
+                <p className="mt-2 max-w-lg text-sm/6 text-gray-600 dark:text-gray-400">
+                  {t('howItWorks.steps.createPlace.detail1')}
+                </p>
+              </div>
+            </div>
+            <div className="pointer-events-none absolute inset-0 rounded-lg shadow-sm outline outline-1 outline-black/5 lg:rounded-tr-[2rem] dark:outline-white/15" />
+          </div>
+
+          {/* Step 3: Add Items - Medium card (left bottom) */}
+          <div className="relative lg:col-span-2">
+            <div className="absolute inset-0 rounded-lg bg-white lg:rounded-bl-[2rem] dark:bg-gray-800" />
+            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] lg:rounded-bl-[calc(2rem+1px)]">
+              <Image
+                alt={t('howItWorks.steps.addItems.title')}
+                src="/images/index/howitworks/3-add-items.jpg"
+                width={600}
+                height={320}
+                className="h-80 w-full object-cover object-center"
+              />
+              <div className="p-10 pt-4">
+                <h3 className="text-sm/4 font-semibold text-indigo-600 dark:text-indigo-400">
+                  {t('howItWorks.steps.addItems.title')}
+                </h3>
+                <p className="mt-2 text-lg font-medium tracking-tight text-gray-950 dark:text-white">
+                  {t('howItWorks.steps.addItems.description')}
+                </p>
+                <p className="mt-2 max-w-lg text-sm/6 text-gray-600 dark:text-gray-400">
+                  {t('howItWorks.steps.addItems.detail1')}
+                </p>
+              </div>
+            </div>
+            <div className="pointer-events-none absolute inset-0 rounded-lg shadow-sm outline outline-1 outline-black/5 lg:rounded-bl-[2rem] dark:outline-white/15" />
+          </div>
+
+          {/* Step 4: Start Selling - Medium card (center bottom) */}
+          <div className="relative lg:col-span-2">
+            <div className="absolute inset-0 rounded-lg bg-white dark:bg-gray-800" />
+            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)]">
+              <Image
+                alt={t('howItWorks.steps.startSelling.title')}
+                src="/images/index/howitworks/4-start-selling.jpg"
+                width={600}
+                height={320}
+                className="h-80 w-full object-cover object-center"
+              />
+              <div className="p-10 pt-4">
+                <h3 className="text-sm/4 font-semibold text-indigo-600 dark:text-indigo-400">
+                  {t('howItWorks.steps.startSelling.title')}
+                </h3>
+                <p className="mt-2 text-lg font-medium tracking-tight text-gray-950 dark:text-white">
+                  {t('howItWorks.steps.startSelling.description')}
+                </p>
+                <p className="mt-2 max-w-lg text-sm/6 text-gray-600 dark:text-gray-400">
+                  {t('howItWorks.steps.startSelling.detail1')}
+                </p>
+              </div>
+            </div>
+            <div className="pointer-events-none absolute inset-0 rounded-lg shadow-sm outline outline-1 outline-black/5 dark:outline-white/15" />
+          </div>
+
+          {/* Step 5: Analytics - Medium card (right bottom) */}
+          <div className="relative lg:col-span-2">
+            <div className="absolute inset-0 rounded-lg bg-white max-lg:rounded-b-[2rem] lg:rounded-br-[2rem] dark:bg-gray-800" />
+            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] max-lg:rounded-b-[calc(2rem+1px)] lg:rounded-br-[calc(2rem+1px)]">
+              <Image
+                alt={t('howItWorks.steps.analytics.title')}
+                src="/images/index/howitworks/5-analytics.jpg"
+                width={600}
+                height={320}
+                className="h-80 w-full object-cover object-center"
+              />
+              <div className="p-10 pt-4">
+                <h3 className="text-sm/4 font-semibold text-indigo-600 dark:text-indigo-400">
+                  {t('howItWorks.steps.analytics.title')}
+                </h3>
+                <p className="mt-2 text-lg font-medium tracking-tight text-gray-950 dark:text-white">
+                  {t('howItWorks.steps.analytics.description')}
+                </p>
+                <p className="mt-2 max-w-lg text-sm/6 text-gray-600 dark:text-gray-400">
+                  {t('howItWorks.steps.analytics.detail1')}
+                </p>
+              </div>
+            </div>
+            <div className="pointer-events-none absolute inset-0 rounded-lg shadow-sm outline outline-1 outline-black/5 max-lg:rounded-b-[2rem] lg:rounded-br-[2rem] dark:outline-white/15" />
           </div>
         </div>
 

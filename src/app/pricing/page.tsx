@@ -5,6 +5,9 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react
 import { MinusSmallIcon, PlusSmallIcon } from '@heroicons/react/24/outline'
 import { CheckIcon } from '@heroicons/react/20/solid'
 import { FirstPagesHeader } from '@/components/FirstPagesHeader'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import toast from 'react-hot-toast'
 
 // user's packages
 const packages = [
@@ -152,6 +155,71 @@ const footerNavigation = {
 }
 
 export default function PricingPage() {
+    const searchParams = useSearchParams()
+    const [teams, setTeams] = useState<{ id: string; name: string }[]>([])
+    const [selectedTeam, setSelectedTeam] = useState<string>('')
+    const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
+    const [isAnnual, setIsAnnual] = useState(false)
+
+    useEffect(() => {
+        if (searchParams.get('canceled') === 'true') {
+            toast.error('Mokėjimas atšauktas')
+        }
+    }, [searchParams])
+
+    useEffect(() => {
+        fetchTeams()
+    }, [])
+
+    async function fetchTeams() {
+        try {
+            const res = await fetch('/api/teams')
+            if (!res.ok) return
+            const data = await res.json()
+            setTeams(data)
+            if (data.length > 0) {
+                setSelectedTeam(data[0].id)
+            }
+        } catch (error) {
+            console.error('Error fetching teams:', error)
+        }
+    }
+
+    async function handleCheckout(packageSlug: string, annual: boolean) {
+        if (!selectedTeam) {
+            toast.error('Pasirinkite komandą')
+            return
+        }
+
+        const checkoutKey = `${packageSlug}-${annual ? 'annual' : 'monthly'}`
+        setCheckoutLoading(checkoutKey)
+
+        try {
+            const res = await fetch('/api/packages/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    teamId: selectedTeam,
+                    packageSlug,
+                    annual,
+                }),
+            })
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                throw new Error(data.error || 'Failed to create checkout session')
+            }
+
+            if (data.url) {
+                window.location.href = data.url
+            }
+        } catch (error) {
+            console.error('Checkout error:', error)
+            toast.error('Nepavyko sukurti mokėjimo sesijos')
+            setCheckoutLoading(null)
+        }
+    }
 
     return (
         <div className="bg-white dark:bg-gray-900">
@@ -168,16 +236,47 @@ export default function PricingPage() {
                             </p>
                         </div>
                         <p className="mx-auto mt-6 max-w-2xl text-center text-lg font-medium text-pretty text-gray-600 sm:text-xl/8 dark:text-gray-400">
-                            Choose an affordable plan that’s packed with the best features for engaging your audience, creating
+                            Choose an affordable plan that's packed with the best features for engaging your audience, creating
                             customer loyalty, and driving sales.
                         </p>
-                        <div className="mt-16 flex justify-center">
+                        {teams.length === 0 && (
+                            <div className="mt-8 mx-auto max-w-md">
+                                <div className="rounded-lg bg-yellow-50 p-4 dark:bg-yellow-900/20">
+                                    <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                                        Jūs neturite komandų. Prisijunkite prie sistemos ir sukurkite komandą, kad galėtumėte pirkti paketą.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+                        {teams.length > 0 && (
+                            <div className="mt-10 flex justify-center">
+                                <div className="w-full max-w-md">
+                                    <label htmlFor="team-select" className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                                        Pasirinkite komandą:
+                                    </label>
+                                    <select
+                                        id="team-select"
+                                        value={selectedTeam}
+                                        onChange={(e) => setSelectedTeam(e.target.value)}
+                                        className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                                    >
+                                        {teams.map((team) => (
+                                            <option key={team.id} value={team.id}>
+                                                {team.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        )}
+                        <div className="mt-6 flex justify-center">
                             <fieldset aria-label="Payment frequency">
                                 <div className="grid grid-cols-2 gap-x-1 rounded-full p-1 text-center text-xs/5 font-semibold inset-ring inset-ring-gray-200 dark:inset-ring-white/10">
                                     <label className="group relative rounded-full px-2.5 py-1 has-checked:bg-indigo-600 dark:has-checked:bg-indigo-500">
                                         <input
-                                            defaultValue="monthly"
-                                            defaultChecked
+                                            value="monthly"
+                                            checked={!isAnnual}
+                                            onChange={() => setIsAnnual(false)}
                                             name="frequency"
                                             type="radio"
                                             className="absolute inset-0 appearance-none rounded-full"
@@ -186,7 +285,9 @@ export default function PricingPage() {
                                     </label>
                                     <label className="group relative rounded-full px-2.5 py-1 has-checked:bg-indigo-600 dark:has-checked:bg-indigo-500">
                                         <input
-                                            defaultValue="annually"
+                                            value="annually"
+                                            checked={isAnnual}
+                                            onChange={() => setIsAnnual(true)}
                                             name="frequency"
                                             type="radio"
                                             className="absolute inset-0 appearance-none rounded-full"
@@ -234,20 +335,43 @@ export default function PricingPage() {
                                         </p>
                                         <div className="relative group mt-6">
                                             <button
-                                                disabled={true}
-                                                aria-describedby={`tooltip-${tier.id}`}
-                                                className={`opacity-50 cursor-not-allowed block w-full rounded-md px-3 py-2 text-center text-sm/6 font-semibold text-indigo-600 inset-ring-1 inset-ring-indigo-200 group-data-featured/tier:bg-indigo-600 group-data-featured/tier:text-white group-data-featured/tier:shadow-xs group-data-featured/tier:inset-ring-0 hover:inset-ring-indigo-300 group-data-featured/tier:hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-white/10 dark:text-white dark:inset-ring dark:inset-ring-white/5 dark:group-data-featured/tier:bg-indigo-500 dark:group-data-featured/tier:shadow-none dark:hover:bg-white/20 dark:hover:inset-ring-white/5 dark:group-data-featured/tier:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500 dark:group-not-data-featured/tier:focus-visible:outline-white/75`}
+                                                type="button"
+                                                disabled={
+                                                    !selectedTeam ||
+                                                    tier.monthlyCents === 0 ||
+                                                    tier.contact ||
+                                                    checkoutLoading === `${tier.id}-${isAnnual ? 'annual' : 'monthly'}`
+                                                }
+                                                onClick={() => handleCheckout(tier.id, isAnnual)}
+                                                aria-describedby={tier.monthlyCents === 0 ? undefined : `tooltip-${tier.id}`}
+                                                className={`${
+                                                    tier.monthlyCents === 0 || tier.contact || !selectedTeam
+                                                        ? 'opacity-50 cursor-not-allowed'
+                                                        : ''
+                                                } block w-full rounded-md px-3 py-2 text-center text-sm/6 font-semibold text-indigo-600 inset-ring-1 inset-ring-indigo-200 group-data-featured/tier:bg-indigo-600 group-data-featured/tier:text-white group-data-featured/tier:shadow-xs group-data-featured/tier:inset-ring-0 hover:inset-ring-indigo-300 group-data-featured/tier:hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-white/10 dark:text-white dark:inset-ring dark:inset-ring-white/5 dark:group-data-featured/tier:bg-indigo-500 dark:group-data-featured/tier:shadow-none dark:hover:bg-white/20 dark:hover:inset-ring-white/5 dark:group-data-featured/tier:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500 dark:group-not-data-featured/tier:focus-visible:outline-white/75`}
                                             >
-                                                {tier.contact ? 'Contact sales' : 'Buy plan'}
+                                                {checkoutLoading === `${tier.id}-${isAnnual ? 'annual' : 'monthly'}`
+                                                    ? 'Loading...'
+                                                    : tier.contact
+                                                      ? 'Contact sales'
+                                                      : tier.monthlyCents === 0
+                                                        ? 'Current plan'
+                                                        : 'Buy plan'}
                                             </button>
 
-                                            <div
-                                                id={`tooltip-${tier.id}`}
-                                                role="tooltip"
-                                                className="pointer-events-none absolute left-1/2 bottom-full mb-2 w-max -translate-x-1/2 rounded bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 dark:bg-gray-700"
-                                            >
-                                                This functionality is under construction — <br /> only the Free version is available now.
-                                            </div>
+                                            {(tier.monthlyCents === 0 || tier.contact || !selectedTeam) && (
+                                                <div
+                                                    id={`tooltip-${tier.id}`}
+                                                    role="tooltip"
+                                                    className="pointer-events-none absolute left-1/2 bottom-full mb-2 w-max -translate-x-1/2 rounded bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 dark:bg-gray-700"
+                                                >
+                                                    {!selectedTeam
+                                                        ? 'Please select a team first'
+                                                        : tier.contact
+                                                          ? 'Contact us for enterprise pricing'
+                                                          : 'Free plan - no purchase needed'}
+                                                </div>
+                                            )}
                                         </div>
                                         <ul role="list" className="mt-8 space-y-3 text-sm/6 text-gray-600 dark:text-gray-300">
                                             {tier.features.map((feature: string) => (

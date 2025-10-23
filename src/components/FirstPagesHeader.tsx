@@ -3,7 +3,7 @@ import { Dialog, DialogPanel } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { LayoutDashboard } from 'lucide-react'
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl'
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import Logo from './ui/Logo';
@@ -15,29 +15,13 @@ type SessionData = {
     role: 'USER' | 'ADMIN';
 } | null;
 
-export const FirstPagesHeader = () => {
+type FirstPagesHeaderProps = {
+    session?: SessionData;
+}
+
+export const FirstPagesHeader = ({ session = null }: FirstPagesHeaderProps) => {
     const t = useTranslations('Home')
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-    const [session, setSession] = useState<SessionData>(null)
-
-    // Check authentication state on component mount
-    useEffect(() => {
-        let cancelled = false;
-        (async () => {
-            try {
-                const res = await fetch("/api/me", { cache: "no-store" });
-                if (!cancelled && res.ok) {
-                    const data = await res.json();
-                    setSession(data);
-                }
-            } catch {
-                // Ignore errors - user is not logged in
-            }
-        })();
-        return () => {
-            cancelled = true;
-        };
-    }, [])
 
     const navigation = [
         { name: t('hero.nav.features'), href: '#features', disabled: true },

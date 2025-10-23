@@ -296,48 +296,60 @@ model PasswordResetToken {
 
 // Subscription packages available for teams
 model Package {
-  id                String             @id @default(uuid())
-  slug              String             @unique
-  name              String
-  description       String?
+  id                   String             @id @default(uuid())
+  slug                 String             @unique
+  name                 String
+  description          String?
   // prices stored in cents (EUR)
-  monthlyCents      Int                @default(0)
-  annualCents       Int                @default(0)
+  monthlyCents         Int                @default(0)
+  annualCents          Int                @default(0)
+  // Stripe product and price IDs
+  stripeProductId      String?            @unique
+  stripeMonthlyPriceId String?
+  stripeAnnualPriceId  String?
   // freeform list of features/limits
-  features          String[]           @default([])
+  features             String[]           @default([])
   // metadata for future expansion (image quality, document storage, extra price, etc.)
-  metadata          Json?
-  isActive          Boolean            @default(true)
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
+  metadata             Json?
+  isActive             Boolean            @default(true)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
   // Teams subscribed to this package
-  teamSubscriptions TeamSubscription[]
+  teamSubscriptions    TeamSubscription[]
 }
 
 // Team subscriptions to packages (supports history and active subscriptions)
 model TeamSubscription {
-  id                String    @id @default(uuid())
-  teamId            String
-  packageId         String
-  isActive          Boolean   @default(true)
-  isAnnual          Boolean   @default(false)
+  id                     String    @id @default(uuid())
+  teamId                 String
+  packageId              String
+  isActive               Boolean   @default(true)
+  isAnnual               Boolean   @default(false)
   // price at time of purchase (cents)
-  priceCents        Int
+  priceCents             Int
+  // Stripe subscription and customer IDs
+  stripeSubscriptionId   String?   @unique
+  stripeCustomerId       String?
+  stripeCheckoutSessionId String?  @unique
+  stripePriceId          String?
   // seats or teammates allowed (nullable when unlimited)
-  seats             Int?
+  seats                  Int?
   // extra paid storage in cents for extras
-  extraStorageCents Int?
-  metadata          Json?
-  startedAt         DateTime  @default(now())
-  expiresAt         DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  extraStorageCents      Int?
+  metadata               Json?
+  startedAt              DateTime  @default(now())
+  expiresAt              DateTime?
+  cancelAt               DateTime?
+  canceledAt             DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 
   team    Team    @relation(fields: [teamId], references: [id])
   package Package @relation(fields: [packageId], references: [id])
 
   @@index([teamId])
   @@index([packageId])
+  @@index([stripeCustomerId])
 }
 
 enum TeamRole {

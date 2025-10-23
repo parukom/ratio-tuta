@@ -6,15 +6,18 @@ import { validateEnvironmentSecrets } from '@lib/crypto';
 // Signed cookie session with HMAC and expiry. For full-featured auth, consider next-auth or similar.
 
 /**
- * SECURITY FIX: Use __Host- prefix for session cookie
- * This prefix enforces:
+ * SECURITY FIX: Use __Host- prefix for session cookie in production
+ * __Host- prefix enforces:
  * - secure: true (HTTPS only)
  * - path: / (entire domain)
  * - no domain attribute (prevents subdomain attacks)
  *
+ * In development, use simple name since __Host- requires HTTPS
  * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie#cookie_prefixes
  */
-const SESSION_COOKIE = '__Host-pecunia-session';
+const SESSION_COOKIE = process.env.NODE_ENV === 'production'
+  ? '__Host-pecunia-session'
+  : 'pecunia-session';
 const DEFAULT_MAX_AGE_SEC = 60 * 60 * 24 * 7; // 7 days
 
 // SECURITY: Lazy validation of environment secrets
@@ -97,7 +100,7 @@ export async function setSession(
   store.set(SESSION_COOKIE, value, {
     httpOnly: true,
     sameSite: 'strict', // Strict CSRF protection - cookie only sent for same-site requests
-    secure: true, // SECURITY FIX: Always true (required by __Host- prefix)
+    secure: process.env.NODE_ENV === 'production', // HTTPS only in production
     path: '/', // Required by __Host- prefix
     // Note: domain attribute is intentionally omitted (required by __Host- prefix)
     maxAge: maxAgeSec,

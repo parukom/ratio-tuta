@@ -15,10 +15,16 @@
     },
     "fields": {
       "name": "Name",
+      "nameHint": "Your name doesn't have to be real. Use a nickname like \"Sunshine\" or \"Blue Sky\" if you prefer.",
       "email": "Email address",
+      "emailHint": "For maximum privacy, consider using a private email service like ProtonMail or Tutanota.",
       "password": "Password",
       "teamName": "Team name",
       "passwordRule": "Password must be 8-16 characters."
+    },
+    "privacy": {
+      "title": "Your privacy is our priority",
+      "message": "We believe in privacy by default. Your data is encrypted, and we'll never sell your information."
     },
     "rememberMe": "Remember me",
     "toggle": {
@@ -384,8 +390,8 @@
     "mission": {
       "label": "Our Mission",
       "heading": "Empowering small businesses with simple, powerful tools to sell smarter and grow faster",
-      "description": "Pecunia is your all-in-one point-of-sale and business management platform. Track sales, manage inventory, and gain insights across all your locations — without the complexity or cost of traditional POS systems.",
-      "sectionTitle": "Why Pecunia exists",
+      "description": "Ratio tuta is your all-in-one point-of-sale and business management platform. Track sales, manage inventory, and gain insights across all your locations — without the complexity or cost of traditional POS systems.",
+      "sectionTitle": "Why Ratio tuta exists",
       "saveTime": {
         "title": "Save time on daily operations:",
         "body": "Automate inventory tracking, generate instant receipts, and eliminate manual counting. Spend less time on paperwork and more time growing your business."
@@ -480,7 +486,7 @@
       },
       "cta": {
         "title": "Ready to Transform Your Business?",
-        "subtitle": "Join hundreds of businesses already using Pecunia to streamline their operations.",
+        "subtitle": "Join hundreds of businesses already using Ratio tuta to streamline their operations.",
         "button": "Get Started for Free",
         "docs": "Read Documentation"
       }

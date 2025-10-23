@@ -39,8 +39,11 @@ export function middleware(req: NextRequest) {
   // Add CORS headers to all responses
   let response: NextResponse;
 
-  // SECURITY FIX: Updated cookie name to match __Host-pecunia-session
-  const cookie = req.cookies.get('__Host-pecunia-session')?.value;
+  // SECURITY FIX: Use appropriate cookie name based on environment
+  const cookieName = process.env.NODE_ENV === 'production'
+    ? '__Host-pecunia-session'
+    : 'pecunia-session';
+  const cookie = req.cookies.get(cookieName)?.value;
   const verified = verifySession(cookie);
   if (!verified.ok) {
     const url = new URL('/auth?form=login', req.url);

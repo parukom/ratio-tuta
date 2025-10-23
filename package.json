@@ -13,7 +13,10 @@
     "db:migrate:dev": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:reset": "prisma migrate reset --force",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "screenshots": "node scripts/take-screenshots.mjs",
+    "screenshots:auth": "node scripts/take-screenshots-authenticated.mjs",
+    "stripe:sync": "ts-node -r tsconfig-paths/register scripts/sync-stripe-products.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.744.0",
@@ -35,13 +38,15 @@
     "react-hot-toast": "^2.6.0",
     "react-i18next": "^15.7.2",
     "resend": "^4.8.0",
-    "sharp": "^0.34.3"
+    "sharp": "^0.34.3",
+    "stripe": "^19.1.0"
   },
   "prisma": {
     "seed": "ts-node -r tsconfig-paths/register prisma/seed.ts"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.56.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
