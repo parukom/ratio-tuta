@@ -324,8 +324,6 @@ export default function InnerItems() {
                         groups={grouped ? pagedGroups : groups}
                         grouped={grouped}
                         loading={loading}
-                        openGroups={openGroups}
-                        setOpenGroups={(updater) => setOpenGroups((prev) => updater(prev))}
                         onItemUpdated={(updated) => {
                             setItems((prev) => prev.map((it) => it.id === updated.id ? { ...it, ...updated } : it))
                         }}

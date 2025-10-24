@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import type { ApexOptions } from 'apexcharts';
@@ -30,11 +30,7 @@ export const SalesReport: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchSalesData();
-  }, [period]);
-
-  async function fetchSalesData() {
+  const fetchSalesData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -47,7 +43,11 @@ export const SalesReport: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }
+  }, [period]);
+
+  useEffect(() => {
+    fetchSalesData();
+  }, [fetchSalesData]);
 
   if (loading) {
     return (
@@ -162,11 +162,10 @@ export const SalesReport: React.FC = () => {
             <button
               key={p}
               onClick={() => setPeriod(p)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                period === p
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${period === p
                   ? 'bg-indigo-600 text-white shadow-sm'
                   : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-              }`}
+                }`}
             >
               {t(`periods.${p}`)}
             </button>

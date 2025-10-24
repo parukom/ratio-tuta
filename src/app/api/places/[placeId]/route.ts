@@ -87,11 +87,8 @@ export async function DELETE(
   // SECURITY: CSRF protection for place deletion
   try {
     requireCsrfToken(req, session);
-  } catch (e) {
-    return NextResponse.json(
-      { error: 'Invalid CSRF token' },
-      { status: 403 }
-    );
+  } catch {
+    return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 });
   }
 
   const { placeId: placeIdParam } = await context.params;
@@ -189,11 +186,8 @@ export async function PATCH(
   // SECURITY: CSRF protection for place updates
   try {
     requireCsrfToken(req, session);
-  } catch (e) {
-    return NextResponse.json(
-      { error: 'Invalid CSRF token' },
-      { status: 403 }
-    );
+  } catch {
+    return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 });
   }
 
   const { placeId: placeIdParam } = await context.params;

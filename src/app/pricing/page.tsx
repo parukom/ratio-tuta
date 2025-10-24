@@ -5,7 +5,7 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react
 import { MinusSmallIcon, PlusSmallIcon } from '@heroicons/react/24/outline'
 import { CheckIcon } from '@heroicons/react/20/solid'
 import { FirstPagesHeader } from '@/components/FirstPagesHeader'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { useTranslations } from 'next-intl'
@@ -178,6 +178,26 @@ export default function PricingPage() {
         }
     }, [searchParams, t])
 
+    const fetchActiveSubscription = useCallback(async () => {
+        if (!selectedTeam) return
+
+        setSubscriptionLoading(true)
+        try {
+            const res = await fetch(`/api/teams/${selectedTeam}/subscription`)
+            if (!res.ok) {
+                setActivePackageSlug('free')
+                return
+            }
+            const data = await res.json()
+            setActivePackageSlug(data.package?.slug || 'free')
+        } catch (error) {
+            console.error('Error fetching subscription:', error)
+            setActivePackageSlug('free')
+        } finally {
+            setSubscriptionLoading(false)
+        }
+    }, [selectedTeam])
+
     useEffect(() => {
         fetchSession()
         fetchTeams()
@@ -187,7 +207,7 @@ export default function PricingPage() {
         if (selectedTeam) {
             fetchActiveSubscription()
         }
-    }, [selectedTeam])
+    }, [selectedTeam, fetchActiveSubscription])
 
     async function fetchSession() {
         try {
@@ -216,26 +236,6 @@ export default function PricingPage() {
             }
         } catch (error) {
             console.error('Error fetching teams:', error)
-        }
-    }
-
-    async function fetchActiveSubscription() {
-        if (!selectedTeam) return
-
-        setSubscriptionLoading(true)
-        try {
-            const res = await fetch(`/api/teams/${selectedTeam}/subscription`)
-            if (!res.ok) {
-                setActivePackageSlug('free')
-                return
-            }
-            const data = await res.json()
-            setActivePackageSlug(data.package?.slug || 'free')
-        } catch (error) {
-            console.error('Error fetching subscription:', error)
-            setActivePackageSlug('free')
-        } finally {
-            setSubscriptionLoading(false)
         }
     }
 
@@ -405,8 +405,8 @@ export default function PricingPage() {
                                                 onClick={() => handleCheckout(tier.id, isAnnual)}
                                                 aria-describedby={isActivePlan || tier.contact ? `tooltip-${tier.id}` : undefined}
                                                 className={`${!selectedTeam || isActivePlan || tier.contact || subscriptionLoading
-                                                        ? 'opacity-50 cursor-not-allowed'
-                                                        : ''
+                                                    ? 'opacity-50 cursor-not-allowed'
+                                                    : ''
                                                     } block w-full rounded-md px-3 py-2 text-center text-sm/6 font-semibold text-indigo-600 inset-ring-1 inset-ring-indigo-200 group-data-featured/tier:bg-indigo-600 group-data-featured/tier:text-white group-data-featured/tier:shadow-xs group-data-featured/tier:inset-ring-0 hover:inset-ring-indigo-300 group-data-featured/tier:hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-white/10 dark:text-white dark:inset-ring dark:inset-ring-white/5 dark:group-data-featured/tier:bg-indigo-500 dark:group-data-featured/tier:shadow-none dark:hover:bg-white/20 dark:hover:inset-ring-white/5 dark:group-data-featured/tier:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500 dark:group-not-data-featured/tier:focus-visible:outline-white/75`}
                                             >
                                                 {subscriptionLoading

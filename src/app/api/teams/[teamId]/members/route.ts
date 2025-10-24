@@ -5,12 +5,17 @@ import { logAudit } from '@lib/logger';
 import { canAddTeamMember } from '@/lib/limits';
 import { randomBytes } from 'crypto';
 import { sendVerificationEmail } from '@lib/mail';
-import { hmacEmail, normalizeEmail, redactEmail, decryptEmail } from '@lib/crypto';
+import {
+  hmacEmail,
+  normalizeEmail,
+  redactEmail,
+  decryptEmail,
+} from '@lib/crypto';
 import {
   requireTeamMember,
   validateRoleAssignment,
   handleAuthError,
-  type TeamRole
+  type TeamRole,
 } from '@lib/authorization';
 import { requireCsrfToken } from '@lib/csrf';
 
@@ -81,7 +86,7 @@ export async function POST(
   // SECURITY: CSRF protection for adding team members
   try {
     requireCsrfToken(_req, session);
-  } catch (e) {
+  } catch {
     await logAudit({
       action: 'team.member.add',
       status: 'DENIED',
@@ -89,10 +94,7 @@ export async function POST(
       actor: session,
       teamId: teamIdParam,
     });
-    return NextResponse.json(
-      { error: 'Invalid CSRF token' },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 });
   }
 
   const teamId = teamIdParam;
@@ -127,14 +129,13 @@ export async function POST(
       });
       return NextResponse.json(
         { error: 'Admin or Owner role required to add team members' },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     // Validate role assignment permissions
     const targetRole = (role ?? 'MEMBER') as TeamRole;
     validateRoleAssignment(membership.role, membership.isOwner, targetRole);
-
   } catch (error) {
     const { error: message, status } = handleAuthError(error);
     await logAudit({
@@ -161,7 +162,7 @@ export async function POST(
       message: 'User not found',
       actor: session,
       teamId,
-  metadata: { email: redactEmail(normEmail) },
+      metadata: { email: redactEmail(normEmail) },
     });
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
@@ -169,7 +170,7 @@ export async function POST(
   try {
     // Enforce member limit before adding
     try {
-      const limit = await canAddTeamMember(teamId)
+      const limit = await canAddTeamMember(teamId);
       if (!limit.allowed) {
         await logAudit({
           action: 'team.member.add',
@@ -177,12 +178,21 @@ export async function POST(
           actor: session,
           teamId,
           message: 'Member limit reached',
-          metadata: { current: limit.current, max: limit.max }
-        })
-        return NextResponse.json({ error: 'Member limit reached. Upgrade your plan.' }, { status: 403 })
+          metadata: { current: limit.current, max: limit.max },
+        });
+        return NextResponse.json(
+          { error: 'Member limit reached. Upgrade your plan.' },
+          { status: 403 },
+        );
       }
     } catch {
-      await logAudit({ action: 'team.member.limitCheck', status: 'ERROR', actor: session, teamId, message: 'Failed to check member limit' })
+      await logAudit({
+        action: 'team.member.limitCheck',
+        status: 'ERROR',
+        actor: session,
+        teamId,
+        message: 'Failed to check member limit',
+      });
     }
     const tm = await prisma.teamMember.create({
       data: { teamId, userId: user.id, role: role ?? 'MEMBER' },
@@ -194,11 +204,11 @@ export async function POST(
       actor: session,
       teamId,
       target: { table: 'TeamMember', id: tm.id },
-  metadata: { email: redactEmail(normEmail), role: role ?? 'MEMBER' },
+      metadata: { email: redactEmail(normEmail), role: role ?? 'MEMBER' },
     });
 
     // If the invited user's email is not verified, send them a verification email
-  if (!user.emailVerified) {
+    if (!user.emailVerified) {
       try {
         const token = randomBytes(32).toString('hex');
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);

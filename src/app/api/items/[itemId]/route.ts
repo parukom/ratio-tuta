@@ -101,11 +101,8 @@ export async function PATCH(
   // SECURITY: CSRF protection for item updates
   try {
     requireCsrfToken(req, session);
-  } catch (e) {
-    return NextResponse.json(
-      { error: 'Invalid CSRF token' },
-      { status: 403 }
-    );
+  } catch {
+    return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 });
   }
 
   if (!itemId || typeof itemId !== 'string')
@@ -193,13 +190,7 @@ export async function PATCH(
   // measurementType update (preferred)
   if ('measurementType' in body && typeof body.measurementType === 'string') {
     const v = body.measurementType.toUpperCase();
-    const valid = new Set([
-      'PCS',
-      'WEIGHT',
-      'LENGTH',
-      'VOLUME',
-      'AREA',
-    ]);
+    const valid = new Set(['PCS', 'WEIGHT', 'LENGTH', 'VOLUME', 'AREA']);
     if (!valid.has(v))
       return NextResponse.json(
         { error: 'Invalid measurementType' },
@@ -207,47 +198,43 @@ export async function PATCH(
       );
     (
       data as {
-  measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
+        measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
       }
-  ).measurementType = v as 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
+    ).measurementType = v as 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
   }
   // legacy 'unit' to measurementType mapping
   if ('unit' in body && typeof body.unit === 'string') {
     const u = body.unit.trim().toLowerCase();
-  const map: Record<string, 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'> = {
-      pcs: 'PCS',
-      piece: 'PCS',
-      pieces: 'PCS',
-      unit: 'PCS',
-      units: 'PCS',
-      kg: 'WEIGHT',
-      g: 'WEIGHT',
-      gram: 'WEIGHT',
-      grams: 'WEIGHT',
-      kilo: 'WEIGHT',
-      m: 'LENGTH',
-      cm: 'LENGTH',
-      mm: 'LENGTH',
-      meter: 'LENGTH',
-      metres: 'LENGTH',
-      l: 'VOLUME',
-      ml: 'VOLUME',
-      litre: 'VOLUME',
-      liters: 'VOLUME',
-      m2: 'AREA',
-      sqm: 'AREA',
-      sq: 'AREA',
-    };
+    const map: Record<string, 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'> =
+      {
+        pcs: 'PCS',
+        piece: 'PCS',
+        pieces: 'PCS',
+        unit: 'PCS',
+        units: 'PCS',
+        kg: 'WEIGHT',
+        g: 'WEIGHT',
+        gram: 'WEIGHT',
+        grams: 'WEIGHT',
+        kilo: 'WEIGHT',
+        m: 'LENGTH',
+        cm: 'LENGTH',
+        mm: 'LENGTH',
+        meter: 'LENGTH',
+        metres: 'LENGTH',
+        l: 'VOLUME',
+        ml: 'VOLUME',
+        litre: 'VOLUME',
+        liters: 'VOLUME',
+        m2: 'AREA',
+        sqm: 'AREA',
+        sq: 'AREA',
+      };
     const mt = map[u];
     if (mt)
       (
         data as {
-          measurementType?:
-            | 'PCS'
-            | 'WEIGHT'
-            | 'LENGTH'
-            | 'VOLUME'
-            | 'AREA';
+          measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
         }
       ).measurementType = mt;
   }
@@ -374,11 +361,8 @@ export async function DELETE(
   // SECURITY: CSRF protection for item deletion
   try {
     requireCsrfToken(_req, session);
-  } catch (e) {
-    return NextResponse.json(
-      { error: 'Invalid CSRF token' },
-      { status: 403 }
-    );
+  } catch {
+    return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 });
   }
 
   if (!itemId || typeof itemId !== 'string')

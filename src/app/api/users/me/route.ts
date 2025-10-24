@@ -4,7 +4,13 @@ import { prisma } from '@lib/prisma';
 import { logAudit } from '@lib/logger';
 import { randomBytes } from 'crypto';
 import { sendVerificationEmail } from '@lib/mail';
-import { hmacEmail, encryptEmail, normalizeEmail, redactEmail, decryptEmail } from '@lib/crypto';
+import {
+  hmacEmail,
+  encryptEmail,
+  normalizeEmail,
+  redactEmail,
+  decryptEmail,
+} from '@lib/crypto';
 import { requireCsrfToken } from '@lib/csrf';
 
 export async function GET() {
@@ -41,17 +47,14 @@ export async function PATCH(req: Request) {
   // SECURITY: CSRF protection for profile updates
   try {
     requireCsrfToken(req, session);
-  } catch (e) {
+  } catch {
     await logAudit({
       action: 'user.update.me',
       status: 'DENIED',
       message: 'Invalid CSRF token',
       actor: session,
     });
-    return NextResponse.json(
-      { error: 'Invalid CSRF token' },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 });
   }
 
   try {
@@ -67,7 +70,13 @@ export async function PATCH(req: Request) {
     // Load current user to compare changes
     const current = await prisma.user.findUnique({
       where: { id: session.userId },
-      select: { id: true, name: true, emailEnc: true, emailHmac: true, role: true },
+      select: {
+        id: true,
+        name: true,
+        emailEnc: true,
+        emailHmac: true,
+        role: true,
+      },
     });
     if (!current)
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -86,8 +95,7 @@ export async function PATCH(req: Request) {
     }
 
     const emailChanged =
-      normEmail !== undefined &&
-      normEmail !== currentEmail.toLowerCase();
+      normEmail !== undefined && normEmail !== currentEmail.toLowerCase();
 
     // If nothing to update
     if (!nextName && !emailChanged) {
@@ -129,7 +137,7 @@ export async function PATCH(req: Request) {
       });
 
       let token: string | null = null;
-  if (emailChanged && normEmail) {
+      if (emailChanged && normEmail) {
         token = randomBytes(32).toString('hex');
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
         await tx.emailVerificationToken.create({
@@ -140,10 +148,10 @@ export async function PATCH(req: Request) {
     });
 
     // Fire verification email outside transaction
-  if (emailChanged && result.token) {
+    if (emailChanged && result.token) {
       try {
         await sendVerificationEmail({
-      to: normEmail!,
+          to: normEmail!,
           name: nextName ?? current.name,
           token: result.token,
         });
@@ -175,7 +183,11 @@ export async function PATCH(req: Request) {
         name: result.updated.name,
         role: result.updated.role as 'USER' | 'ADMIN',
       },
-  metadata: { nameChanged: Boolean(nextName), emailChanged, email: emailChanged && normEmail ? redactEmail(normEmail) : undefined },
+      metadata: {
+        nameChanged: Boolean(nextName),
+        emailChanged,
+        email: emailChanged && normEmail ? redactEmail(normEmail) : undefined,
+      },
     });
 
     return NextResponse.json({
@@ -223,17 +235,14 @@ export async function DELETE(req: Request) {
   // SECURITY: CSRF protection for account deletion (CRITICAL!)
   try {
     requireCsrfToken(req, session);
-  } catch (e) {
+  } catch {
     await logAudit({
       action: 'user.delete.account',
       status: 'DENIED',
       message: 'Invalid CSRF token',
       actor: session,
     });
-    return NextResponse.json(
-      { error: 'Invalid CSRF token' },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 });
   }
 
   try {

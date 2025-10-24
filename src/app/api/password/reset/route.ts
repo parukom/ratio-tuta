@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     if (session) {
       try {
         requireCsrfToken(req, session);
-      } catch (e) {
+      } catch {
         await logAudit({
           action: 'auth.password.reset',
           status: 'DENIED',
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
         });
         return NextResponse.json(
           { error: 'Invalid CSRF token' },
-          { status: 403 }
+          { status: 403 },
         );
       }
     }
@@ -48,9 +48,11 @@ export async function POST(req: Request) {
             'X-RateLimit-Limit': String(rateLimitResult.limit),
             'X-RateLimit-Remaining': String(rateLimitResult.remaining),
             'X-RateLimit-Reset': String(rateLimitResult.reset),
-            'Retry-After': String(Math.ceil((rateLimitResult.reset - Date.now()) / 1000)),
-          }
-        }
+            'Retry-After': String(
+              Math.ceil((rateLimitResult.reset - Date.now()) / 1000),
+            ),
+          },
+        },
       );
     }
 
@@ -92,7 +94,8 @@ export async function POST(req: Request) {
       });
       return NextResponse.json(
         {
-          error: 'This password has been found in data breaches. Please choose a different password for your security.',
+          error:
+            'This password has been found in data breaches. Please choose a different password for your security.',
           strength: passwordValidation.strength,
         },
         { status: 400 },

@@ -51,12 +51,12 @@ export function ItemCard({
         currency,
         maximumFractionDigits: 2,
     }).format(item.price)
-    const taxPct = (item.taxRateBps / 100).toFixed(2)
-    const currencyFmt = (v: number) => new Intl.NumberFormat(undefined, {
-        style: 'currency', currency, maximumFractionDigits: 2,
-    }).format(v)
-    const cost = typeof item.pricePaid === 'number' ? currencyFmt(item.pricePaid) : undefined
-    const profit = typeof item.pricePaid === 'number' ? currencyFmt(item.price - item.pricePaid) : undefined
+    // const taxPct = (item.taxRateBps / 100).toFixed(2)
+    // const currencyFmt = (v: number) => new Intl.NumberFormat(undefined, {
+    //     style: 'currency', currency, maximumFractionDigits: 2,
+    // }).format(v)
+    // const cost = typeof item.pricePaid === 'number' ? currencyFmt(item.pricePaid) : undefined
+    // const profit = typeof item.pricePaid === 'number' ? currencyFmt(item.price - item.pricePaid) : undefined
 
     const colorStyle: React.CSSProperties | undefined = item.color
         ? { backgroundColor: item.color }

@@ -4,7 +4,12 @@ import type { Prisma } from '@/generated/prisma';
 import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
 import { rateLimit, apiLimiter } from '@lib/rate-limit-redis';
-import { validateRequestSize, validateFieldSizes, REQUEST_SIZE_LIMITS, FIELD_LIMITS } from '@lib/request-validator';
+import {
+  validateRequestSize,
+  validateFieldSizes,
+  REQUEST_SIZE_LIMITS,
+  FIELD_LIMITS,
+} from '@lib/request-validator';
 import { requireCsrfToken } from '@lib/csrf';
 
 type PostBody = {
@@ -142,32 +147,35 @@ export async function POST(req: Request) {
   // SECURITY: CSRF protection for receipt creation
   try {
     requireCsrfToken(req, session);
-  } catch (e) {
+  } catch {
     await logAudit({
       action: 'receipt.create',
       status: 'DENIED',
       message: 'Invalid CSRF token',
       actor: session,
     });
-    return NextResponse.json(
-      { error: 'Invalid CSRF token' },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 });
   }
 
   // SECURITY FIX: Request size validation (prevent DoS through large payloads)
-  const sizeValidation = validateRequestSize(req, REQUEST_SIZE_LIMITS.RECEIPT_CREATE);
+  const sizeValidation = validateRequestSize(
+    req,
+    REQUEST_SIZE_LIMITS.RECEIPT_CREATE,
+  );
   if (!sizeValidation.valid) {
     await logAudit({
       action: 'receipt.create',
       status: 'DENIED',
       message: 'Request too large',
       actor: session,
-      metadata: { contentLength: sizeValidation.contentLength, limit: sizeValidation.limit },
+      metadata: {
+        contentLength: sizeValidation.contentLength,
+        limit: sizeValidation.limit,
+      },
     });
     return NextResponse.json(
       { error: sizeValidation.error },
-      { status: 413 } // 413 Payload Too Large
+      { status: 413 }, // 413 Payload Too Large
     );
   }
 
@@ -189,9 +197,11 @@ export async function POST(req: Request) {
             'X-RateLimit-Limit': String(rateLimitResult.limit),
             'X-RateLimit-Remaining': String(rateLimitResult.remaining),
             'X-RateLimit-Reset': String(rateLimitResult.reset),
-            'Retry-After': String(Math.ceil((rateLimitResult.reset - Date.now()) / 1000)),
-          }
-        }
+            'Retry-After': String(
+              Math.ceil((rateLimitResult.reset - Date.now()) / 1000),
+            ),
+          },
+        },
       );
     }
   }
@@ -212,7 +222,7 @@ export async function POST(req: Request) {
     });
     return NextResponse.json(
       { error: 'Validation failed', details: fieldValidation.errors },
-      { status: 400 }
+      { status: 400 },
     );
   }
   const placeId = body.placeId || '';

@@ -12,8 +12,6 @@ type ItemsCardsViewProps = {
     groups: Group[]
     grouped: boolean
     loading: boolean
-    openGroups: Record<string, boolean>
-    setOpenGroups: (updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void
     onItemUpdated: (updated: ItemRow) => void
     onItemDeleted: (id: string) => void
     onConflict?: (info: { id: string; places: { placeId: string; placeName: string; quantity: number }[]; kind?: 'item' }) => void
@@ -23,7 +21,7 @@ type ItemsCardsViewProps = {
     onSelectGroup?: (group: Group) => void
 }
 
-export default function ItemsCardsView({ items, groups, grouped, loading, openGroups, setOpenGroups, onItemUpdated, onItemDeleted, onConflict, onAskDeleteBox, onAskEditBox, onSelectItem, onSelectGroup }: ItemsCardsViewProps) {
+export default function ItemsCardsView({ items, groups, grouped, loading, onItemUpdated, onItemDeleted, onConflict, onAskDeleteBox, onAskEditBox, onSelectItem, onSelectGroup }: ItemsCardsViewProps) {
     const t = useTranslations('Items')
     const [reveal, setReveal] = useState(false)
 
@@ -92,8 +90,6 @@ export default function ItemsCardsView({ items, groups, grouped, loading, openGr
                         group={g}
                         reveal={reveal}
                         onSelect={() => onSelectGroup?.(g)}
-                        onItemUpdated={onItemUpdated}
-                        onItemDeleted={onItemDeleted}
                         onAskEditBox={onAskEditBox}
                         onAskDeleteBox={onAskDeleteBox}
                     />

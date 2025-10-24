@@ -1,21 +1,18 @@
 'use client'
-import React, { useState, useRef } from 'react'
+import React, { useState } from 'react'
 import { formatQuantity } from './format'
 import { useTranslations } from 'next-intl'
 import type { Group } from './types'
-import { ItemRowActions } from './ItemRowActions'
 
 type Props = {
     group: Group
     reveal?: boolean
     onSelect?: () => void
-    onItemUpdated?: (updated: any) => void
-    onItemDeleted?: (id: string) => void
     onAskEditBox?: (groupKey: string) => void
     onAskDeleteBox?: (groupKey: string) => void
 }
 
-export function GroupCard({ group, reveal = true, onSelect, onItemUpdated, onItemDeleted, onAskEditBox, onAskDeleteBox }: Props) {
+export function GroupCard({ group, reveal = true, onSelect, onAskEditBox, onAskDeleteBox }: Props) {
     const t = useTranslations('Items')
     const [imgFailed, setImgFailed] = useState(false)
     const currency = group.items[0]?.currency || 'EUR'
