@@ -501,6 +501,59 @@
         "button": "Get Started for Free",
         "docs": "Read Documentation"
       }
+    },
+    "features": {
+      "badge": "Everything You Need",
+      "title": "Powerful features built for your business",
+      "subtitle": "From inventory management to advanced analytics, we provide all the tools you need to run your business efficiently and grow sustainably.",
+      "inventory": {
+        "title": "Smart Inventory Management",
+        "description": "Real-time stock tracking across all locations. Get low-stock alerts and automatic updates with every sale."
+      },
+      "multiLocation": {
+        "title": "Multi-Location Support",
+        "description": "Manage multiple stores, warehouses, or sales points from a single dashboard. Perfect for growing businesses."
+      },
+      "analytics": {
+        "title": "Advanced Analytics",
+        "description": "Detailed insights into sales trends, profit margins, and customer behavior. Make data-driven decisions."
+      },
+      "team": {
+        "title": "Team Collaboration",
+        "description": "Role-based access control ensures team members see only what they need. Complete audit trails for accountability."
+      },
+      "mobile": {
+        "title": "Mobile-Friendly POS",
+        "description": "Works seamlessly on tablets and smartphones. Perfect for pop-up stores, events, and on-the-go sales."
+      },
+      "security": {
+        "title": "Enterprise Security",
+        "description": "Bank-grade encryption, secure sessions, and complete data protection. Your business data is always safe."
+      },
+      "fast": {
+        "title": "Lightning Fast",
+        "description": "Optimized for speed. Process sales in seconds, search inventory instantly, and generate reports on the fly."
+      },
+      "realtime": {
+        "title": "Real-Time Updates",
+        "description": "Stock levels, sales data, and team activity update instantly across all devices. Stay synchronized effortlessly."
+      },
+      "whyChooseUs": {
+        "title": "Why choose Ratio Tuta?",
+        "subtitle": "We're not just another POS system. We're your partner in business growth.",
+        "noFees": {
+          "title": "No Hidden Fees",
+          "description": "Transparent pricing with no surprise charges. Pay only for what you need, scale as you grow."
+        },
+        "easySetup": {
+          "title": "5-Minute Setup",
+          "description": "Get started in minutes, not days. No complex installations or expensive hardware required."
+        },
+        "support": {
+          "title": "Always Here to Help",
+          "description": "Comprehensive documentation, video tutorials, and responsive support when you need it."
+        }
+      }
     }
   },
   "Team": {

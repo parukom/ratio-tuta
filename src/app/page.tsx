@@ -5,10 +5,7 @@ import { redirect } from "next/navigation";
 import HeroSection from '@/components/HeroSection';
 import HowItWorks from '@/components/HowItWorks';
 import OurMission from '@/components/OurMission';
-// const FeaturesSection = dynamic(() => import('@/components/FeaturesSection'));
-// const FAQ = dynamic(() => import('@/components/Faq'));
-// const PricingSection = dynamic(() => import('@/components/PricingSection'));
-// const Footer = dynamic(() => import('@/components/Footer'));
+import Features from '@/components/Features';
 
 export default async function Home() {
   // Fast-path: verify cookie signature and expiry only; skip DB revocation check for a snappier homepage.
@@ -42,11 +39,8 @@ export default async function Home() {
     <>
       <HeroSection session={session} />
       <OurMission />
+      <Features />
       <HowItWorks />
-      {/* <FeaturesSection /> */}
-      {/* <PricingSection /> */}
-      {/* <FAQ />
-      <Footer /> */}
     </>
   );
 }

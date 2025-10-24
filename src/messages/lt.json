@@ -541,6 +541,59 @@
         "button": "Pradėkite nemokamai",
         "docs": "Skaitykite dokumentaciją"
       }
+    },
+    "features": {
+      "badge": "Visa, ko reikia",
+      "title": "Galingos funkcijos jūsų verslui",
+      "subtitle": "Nuo inventoriaus valdymo iki išplėstinės analitikos – teikiame visas priemones, kurių reikia efektyviai valdyti jūsų verslą ir tvariai augti.",
+      "inventory": {
+        "title": "Išmanus inventoriaus valdymas",
+        "description": "Atsargų sekimas realiuoju laiku visose lokacijose. Gaukite pranešimus apie mažas atsargas ir automatinius atnaujinimus su kiekvienu pardavimu."
+      },
+      "multiLocation": {
+        "title": "Kelių lokacijų palaikymas",
+        "description": "Valdykite kelias parduotuves, sandėlius ar pardavimo vietas iš vieno skydelio. Tobula augančiam verslui."
+      },
+      "analytics": {
+        "title": "Išplėstinė analitika",
+        "description": "Išsamios įžvalgos apie pardavimų tendencijas, pelno maržas ir klientų elgesį. Priimkite sprendimus pagal duomenis."
+      },
+      "team": {
+        "title": "Komandinis darbas",
+        "description": "Vaidmenimis pagrįsta prieigos kontrolė užtikrina, kad komandos nariai matytų tik tai, ko jiems reikia. Išsamūs audito įrašai atskaitomybei."
+      },
+      "mobile": {
+        "title": "Mobilioji POS sistema",
+        "description": "Sklandžiai veikia planšetėse ir išmaniuosiuose telefonuose. Tobula laikinoms parduotuvėms, renginiams ir pardavimams kelyje."
+      },
+      "security": {
+        "title": "Įmonės saugumas",
+        "description": "Bankinio lygio šifravimas, saugios sesijos ir visiškas duomenų apsaugojimas. Jūsų verslo duomenys visada saugūs."
+      },
+      "fast": {
+        "title": "Žaibiškai greita",
+        "description": "Optimizuota greičiui. Apdorokite pardavimus per kelias sekundes, ieškokite inventoriaus akimirksniu ir generuokite ataskaitas iškart."
+      },
+      "realtime": {
+        "title": "Atnaujinimai realiuoju laiku",
+        "description": "Atsargų lygiai, pardavimų duomenys ir komandos veikla atsinaujina akimirksniu visuose įrenginiuose. Likite sinchronizuoti be jokių pastangų."
+      },
+      "whyChooseUs": {
+        "title": "Kodėl rinktis Ratio Tuta?",
+        "subtitle": "Mes ne tik dar viena POS sistema. Esame jūsų partneriai verslo augime.",
+        "noFees": {
+          "title": "Be paslėptų mokesčių",
+          "description": "Skaidrus kainodavimas be netikėtų mokesčių. Mokėkite tik už tai, ko reikia, ir augkite kartu."
+        },
+        "easySetup": {
+          "title": "5 minučių sąranka",
+          "description": "Pradėkite per kelias minutes, o ne dienas. Nereikia sudėtingų diegimų ar brangios įrangos."
+        },
+        "support": {
+          "title": "Visada pasirengę padėti",
+          "description": "Išsami dokumentacija, vaizdo pamokos ir atsakanti pagalba, kai jos reikia."
+        }
+      }
     }
   },
   "Team": {
