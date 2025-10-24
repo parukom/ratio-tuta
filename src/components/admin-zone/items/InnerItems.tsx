@@ -14,11 +14,13 @@ import { ConfirmDeleteBoxModal } from "./ConfirmDeleteBoxModal"
 import { EditBoxModal } from "./EditBoxModal"
 import ItemsHeader from "./ItemsHeader"
 import ItemsPagination from "./ItemsPagination"
+import { useCsrfToken } from '@/hooks/useCsrfToken'
 
 // ItemRow and Group types moved to ./types for reuse across components
 
 export default function InnerItems() {
     const t = useTranslations('Items')
+    const { token: csrfToken } = useCsrfToken()
     // filters/sort/view
     // Stable SSR-safe defaults to prevent hydration mismatches; load persisted values on mount
     const [q, setQ] = useState("")
@@ -35,6 +37,7 @@ export default function InnerItems() {
     // Item info drawer
     const [infoOpen, setInfoOpen] = useState(false)
     const [selectedItem, setSelectedItem] = useState<ItemRow | null>(null)
+    const [selectedGroup, setSelectedGroup] = useState<Group | null>(null)
 
     // Load persisted state from localStorage after mount (client-only)
     useEffect(() => {
@@ -78,14 +81,15 @@ export default function InnerItems() {
     const [editLoading, setEditLoading] = useState(false)
     const [editMsg, setEditMsg] = useState("")
     const [editImage, setEditImage] = useState<File | null>(null)
+    const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null)
     const [editPrice, setEditPrice] = useState<string>("")
     const [editBoxCost, setEditBoxCost] = useState<string>("")
     const [editTaxBps, setEditTaxBps] = useState<string>("")
     // If edit modal opens, ensure drawer is closed and selection cleared
     useEffect(() => {
-        if (editBoxKey) { setInfoOpen(false); setSelectedItem(null) }
+        if (editBoxKey) { setInfoOpen(false); setSelectedItem(null); setSelectedGroup(null) }
     }, [editBoxKey])
-    type EditRow = { id: string; size: string; quantity: string; itemId?: string }
+    type EditRow = { id: string; size: string; quantity: string; itemId?: string; currentStock?: number; measurementType?: ItemRow['measurementType']; unit?: string | null }
     const genId = () => globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2)
     const [editRows, setEditRows] = useState<EditRow[]>([])
     function addEditRow() { setEditRows((p) => [...p, { id: genId(), size: "", quantity: "0" }]) }
@@ -225,7 +229,9 @@ export default function InnerItems() {
 
     // update/delete helpers
     async function updateItem(id: string, patch: Partial<Pick<ItemRow, "name" | "sku" | "price" | "pricePaid" | "taxRateBps" | "isActive" | "measurementType" | "stockQuantity" | "description" | "color" | "size" | "brand" | "tags" | "categoryId">>, opts?: { categoryName?: string | null }) {
-        const res = await fetch(`/api/items/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(patch) })
+        const headers: Record<string, string> = { "Content-Type": "application/json" }
+        if (csrfToken) headers["X-CSRF-Token"] = csrfToken
+        const res = await fetch(`/api/items/${id}`, { method: "PATCH", headers, body: JSON.stringify(patch) })
         if (!res.ok) throw new Error("Failed to update")
         const updated: ItemRow = await res.json()
         setItems((prev) => prev.map((it) => {
@@ -310,7 +316,7 @@ export default function InnerItems() {
                             setItems((prev) => prev.filter((it) => it.id !== id))
                         }}
                         onConflict={(info) => setConflictInfo(info)}
-                        onSelectItem={(it) => { setSelectedItem(it); setInfoOpen(true) }}
+                        onSelectItem={(it) => { setSelectedItem(it); setSelectedGroup(null); setInfoOpen(true) }}
                     />
                 ) : (
                     <ItemsCardsView
@@ -337,13 +343,16 @@ export default function InnerItems() {
                                 setEditPrice(String(g.price))
                                 setEditTaxBps(String(g.taxRateBps))
                                 setEditBoxCost("")
-                                const rows: EditRow[] = g.items.map(it => ({ id: genId(), size: it.size || "", quantity: "0", itemId: it.id }))
+                                setExistingImageUrl(g.imageUrl ?? null)
+                                const rows: EditRow[] = g.items.map(it => ({ id: genId(), size: it.size || "", quantity: "0", itemId: it.id, currentStock: it.stockQuantity ?? 0, measurementType: it.measurementType, unit: it.unit }))
                                 setEditRows(rows)
                             } else {
                                 setEditRows([{ id: genId(), size: "", quantity: "0" }])
+                                setExistingImageUrl(null)
                             }
                         }}
-                        onSelectItem={(it) => { setSelectedItem(it); setInfoOpen(true) }}
+                        onSelectItem={(it) => { setSelectedItem(it); setSelectedGroup(null); setInfoOpen(true) }}
+                        onSelectGroup={(g) => { setSelectedGroup(g); setSelectedItem(null); setInfoOpen(true) }}
                     />
                 )}
             </main>
@@ -386,6 +395,7 @@ export default function InnerItems() {
                     setEditMsg={setEditMsg}
                     editImage={editImage}
                     setEditImage={setEditImage}
+                    existingImageUrl={existingImageUrl}
                     editPrice={editPrice}
                     setEditPrice={setEditPrice}
                     editBoxCost={editBoxCost}
@@ -402,7 +412,12 @@ export default function InnerItems() {
                 />
             </Modal>
 
-            <ItemInfoDrawer open={infoOpen} onClose={() => setInfoOpen(false)} item={selectedItem} />
+            <ItemInfoDrawer
+                open={infoOpen}
+                onClose={() => { setInfoOpen(false); setSelectedItem(null); setSelectedGroup(null) }}
+                item={selectedItem}
+                group={selectedGroup}
+            />
         </>
     )
 }

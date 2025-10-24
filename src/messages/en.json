@@ -692,11 +692,14 @@
         "price": "Price",
         "boxCost": "Box cost to split (optional)",
         "taxBps": "Tax (bps)",
+        "currentPicture": "Current picture",
+        "keepCurrentHint": "Leave the field below empty to keep this image",
         "replacePicture": "Replace box picture (applies to all items)",
         "pictureHint": "Optional. If provided, the image will be applied to all items in this box.",
         "sizesTitle": "Sizes in the box",
         "variantSize": "Variant/Size",
         "quantity": "Quantity (can be negative)",
+        "stock": "Stock",
         "remove": "Remove",
         "addSize": "+ Add size",
         "cancel": "Cancel",
@@ -732,6 +735,7 @@
       "noCategory": "No category",
       "newCategoryName": "New category name",
       "measurementType": "Measurement type",
+      "unit": "Unit",
       "measurementOptions": {
         "PCS": "Pieces",
         "WEIGHT": "Weight",
@@ -780,7 +784,8 @@
       "info": "Information",
       "noDescription": "No description.",
       "tags": "Tags",
-      "noTags": "No tags."
+      "noTags": "No tags.",
+      "variants": "Variants"
     },
     "labels": {
       "status": "Status",

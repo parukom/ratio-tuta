@@ -729,11 +729,14 @@
         "price": "Kaina",
         "boxCost": "Dėžės kaina paskirstymui (pasirinktinai)",
         "taxBps": "Mokestis (bps)",
+        "currentPicture": "Dabartinė nuotrauka",
+        "keepCurrentHint": "Palikite žemiau esantį lauką tuščią, kad išlaikytumėte šią nuotrauką",
         "replacePicture": "Pakeisti dėžės nuotrauką (taikoma visoms)",
         "pictureHint": "Pasirinktinai. Jei pateikta, nuotrauka bus pritaikyta visoms šios dėžės prekėms.",
         "sizesTitle": "Dydžiai dėžėje",
         "variantSize": "Variantas/Dydis",
         "quantity": "Kiekis (gali būti neigiamas)",
+        "stock": "Likutis",
         "remove": "Pašalinti",
         "addSize": "+ Pridėti dydį",
         "cancel": "Atšaukti",
@@ -769,6 +772,7 @@
       "noCategory": "Be kategorijos",
       "newCategoryName": "Naujos kategorijos pavadinimas",
       "measurementType": "Matavimo tipas",
+      "unit": "Vienetas",
       "measurementOptions": {
         "PCS": "Vnt.",
         "WEIGHT": "Svoris",
@@ -817,7 +821,8 @@
       "info": "Informacija",
       "noDescription": "Nėra aprašymo.",
       "tags": "Žymos",
-      "noTags": "Nėra žymų."
+      "noTags": "Nėra žymų.",
+      "variants": "Variantai"
     },
     "labels": {
       "status": "Būsena",

@@ -1,8 +1,8 @@
 'use client'
 import React, { useRef, useState } from 'react'
-import { ItemRowActions } from './ItemRowActions'
 import { formatQuantity } from './format'
 import { useTranslations } from 'next-intl'
+import { ItemRowActions } from './ItemRowActions'
 
 type ItemRow = {
     id: string
@@ -91,157 +91,66 @@ export function ItemCard({
     return (
         <div
             className={
-                'group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md dark:border-white/10 dark:bg-white/5'
+                'group relative overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition hover:shadow-md dark:border-white/10 dark:bg-white/5 flex flex-col cursor-pointer'
             }
-            role={onSelect ? 'button' : undefined}
-            tabIndex={onSelect ? 0 : -1}
-            onMouseDown={handleMouseDown}
             onClick={handleCardClick}
+            onMouseDown={handleMouseDown}
             onKeyDown={handleKeyDown}
+            role={onSelect ? 'button' : undefined}
+            tabIndex={onSelect ? 0 : undefined}
         >
-            {/* status and actions */}
-            <div className="mb-3 flex items-start justify-between gap-3">
-                <div className="flex items-center gap-2">
-                    <span
-                        className={
-                            'inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs ' +
-                            (item.isActive
-                                ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-300'
-                                : 'bg-gray-50 text-gray-600 ring-1 ring-gray-600/10 dark:bg-white/10 dark:text-gray-300')
-                        }
-                        title={item.isActive ? t('card.active') : t('card.inactive')}
-                    >
-                        <span
-                            className={
-                                'inline-block h-1.5 w-1.5 rounded-full ' +
-                                (item.isActive ? 'bg-emerald-500' : 'bg-gray-400')
-                            }
+            {/* main content fades in as a single block */}
+            <div className={`${fadeCls} flex flex-col flex-1`}>
+                {/* Image section */}
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100 dark:bg-white/5">
+                    {item.imageUrl && !imgFailed ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                            src={item.imageUrl}
+                            alt={item.name}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                            onError={() => setImgFailed(true)}
                         />
-                        {item.isActive ? t('card.active') : t('card.inactive')}
-                    </span>
-                    {item.categoryName && (
-                        <span className="hidden sm:inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs text-indigo-700 ring-1 ring-indigo-600/20 dark:bg-indigo-500/10 dark:text-indigo-300">
-                            {item.categoryName}
+                    ) : item.color ? (
+                        <div className="h-full w-full" style={colorStyle} />
+                    ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-xl font-bold text-gray-400 dark:from-white/10 dark:to-white/5 dark:text-gray-500">
+                            {item.name.slice(0, 2).toUpperCase()}
+                        </div>
+                    )}
+                    {/* Size badge if present */}
+                    {item.size && (
+                        <span className="absolute bottom-1 right-1 rounded bg-white/95 px-1.5 py-0.5 text-[10px] font-medium text-gray-700 shadow-sm ring-1 ring-gray-200 backdrop-blur-sm dark:bg-gray-900/90 dark:text-gray-200 dark:ring-white/10">
+                            {item.size}
                         </span>
                     )}
                 </div>
-                <div className="hidden sm:flex items-center gap-2 opacity-0 group-hover:opacity-100 transition" data-no-open>
-                    <ItemRowActions item={item} onItemUpdated={onItemUpdated} onItemDeleted={onItemDeleted} onConflict={onConflict} />
-                </div>
-            </div>
 
-            {/* main content fades in as a single block */}
-            <div className={fadeCls}>
-                {/* header */}
-                <div className="flex items-start gap-3">
-                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg ring-1 ring-inset ring-gray-200 dark:ring-white/10">
-                        {item.imageUrl && !imgFailed ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                                src={item.imageUrl}
-                                alt={item.name}
-                                className="h-full w-full object-cover"
-                                loading="lazy"
-                                decoding="async"
-                                onError={() => setImgFailed(true)}
-                            />
-                        ) : item.color ? (
-                            <div className="h-full w-full" style={colorStyle} />
-                        ) : (
-                            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-xs text-gray-500 dark:from-white/10 dark:to-white/5 dark:text-gray-400">
-                                {item.name.slice(0, 2).toUpperCase()}
-                            </div>
-                        )}
-                        {item.size && (
-                            <span className="absolute bottom-0 right-0 m-1 rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-medium text-gray-700 shadow ring-1 ring-gray-200 backdrop-blur-sm dark:bg-gray-900/80 dark:text-gray-200 dark:ring-white/10">
-                                {item.size}
-                            </span>
-                        )}
+                {/* Info section */}
+                <div className="p-2 flex flex-col flex-1">
+                    <div className="truncate text-xs font-semibold text-gray-900 dark:text-white" title={item.name}>
+                        {item.name}
                     </div>
-                    <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-semibold text-gray-900 dark:text-white" title={item.name}>
-                            {item.name}
-                        </div>
-                        <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
-                            {item.sku && <span className="truncate">{t('card.sku')}: {item.sku}</span>}
-                            {item.brand && <span className="truncate">• {item.brand}</span>}
-                        </div>
-                    </div>
-                </div>
 
-                {/* details */}
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                    <div>
-                        <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.price')}</div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">{price}</div>
-                    </div>
-                    <div className="text-right">
-                        <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.tax')}</div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">{taxPct}%</div>
-                    </div>
-                    {typeof item.pricePaid === 'number' && (
-                        <div>
-                            <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.cost')}</div>
-                            <div className="text-sm font-medium text-gray-900 dark:text-white">{cost}</div>
+                    {/* Stock and Price row */}
+                    <div className="mt-1 flex items-center justify-between gap-1">
+                        <div className="text-[10px] text-gray-500 dark:text-gray-400 truncate">
+                            <span className="font-medium text-gray-900 dark:text-white">{formatQuantity(
+                                item.stockQuantity ?? 0,
+                                item.measurementType,
+                                item.unit,
+                                { pcs: t('units.pcsShort') }
+                            )}</span>
                         </div>
-                    )}
-                    {typeof item.pricePaid === 'number' && (
-                        <div className="text-right">
-                            <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.profit')}</div>
-                            <div className="text-sm font-medium text-gray-900 dark:text-white">{profit}</div>
-                        </div>
-                    )}
-                    <div>
-                        <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.unit')}</div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">{(() => {
-                            switch (item.measurementType) {
-                                case 'WEIGHT': return 'kg/g'
-                                case 'LENGTH': return 'm'
-                                case 'VOLUME': return 'l'
-                                case 'AREA': return 'm2'
-                                case 'PCS':
-                                default: return item.unit || 'pcs'
-                            }
-                        })()}</div>
+                        <div className="text-xs font-semibold text-gray-900 dark:text-white whitespace-nowrap">{price}</div>
                     </div>
-                    <div className="text-right">
-                        <div className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.stock')}</div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">{formatQuantity(
-                            item.stockQuantity ?? 0,
-                            item.measurementType,
-                            item.unit,
-                            { pcs: t('units.pcsShort') }
-                        )}</div>
-                    </div>
-                </div>
 
-                {/* tags / description */}
-                {(item.tags && item.tags.length > 0) || item.description ? (
-                    <div className="mt-3">
-                        {item.tags && item.tags.length > 0 && (
-                            <div className="mb-2 flex flex-wrap gap-1.5">
-                                {item.tags.slice(0, 4).map((t) => (
-                                    <span
-                                        key={t}
-                                        className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-700 ring-1 ring-gray-200 dark:bg-white/10 dark:text-gray-300 dark:ring-white/10"
-                                    >
-                                        {t}
-                                    </span>
-                                ))}
-                                {item.tags.length > 4 && (
-                                    <span className="text-[11px] text-gray-500 dark:text-gray-400">{t('card.more', { count: item.tags.length - 4 })}</span>
-                                )}
-                            </div>
-                        )}
-                        {item.description && (
-                            <p className="line-clamp-2 text-xs text-gray-600 dark:text-gray-300">{item.description}</p>
-                        )}
+                    {/* Action buttons */}
+                    <div className="mt-auto pt-1.5" data-no-open onClick={(e) => e.stopPropagation()}>
+                        <ItemRowActions item={item} onItemUpdated={onItemUpdated} onItemDeleted={onItemDeleted} onConflict={onConflict} />
                     </div>
-                ) : null}
-
-                {/* bottom actions (visible on small screens) */}
-                <div className="mt-4 flex items-center justify-end gap-2 sm:hidden">
-                    <ItemRowActions item={item} onItemUpdated={onItemUpdated} onItemDeleted={onItemDeleted} onConflict={onConflict} />
                 </div>
             </div>
         </div>

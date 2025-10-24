@@ -4,8 +4,9 @@ import { useTranslations } from 'next-intl'
 import React from 'react'
 import toast from 'react-hot-toast'
 import type { ItemRow } from './types'
+import { formatQuantity } from './format'
 
-type EditRow = { id: string; size: string; quantity: string; itemId?: string }
+type EditRow = { id: string; size: string; quantity: string; itemId?: string; currentStock?: number; measurementType?: ItemRow['measurementType']; unit?: string | null }
 
 type Props = {
     editBoxKey: string | null
@@ -16,6 +17,7 @@ type Props = {
     setEditMsg: (msg: string) => void
     editImage: File | null
     setEditImage: (file: File | null) => void
+    existingImageUrl?: string | null
     editPrice: string
     setEditPrice: (v: string) => void
     editBoxCost: string
@@ -40,6 +42,7 @@ export const EditBoxModal: React.FC<Props> = ({
     setEditMsg,
     editImage,
     setEditImage,
+    existingImageUrl,
     editPrice,
     setEditPrice,
     editBoxCost,
@@ -62,6 +65,16 @@ export const EditBoxModal: React.FC<Props> = ({
             <h3 className="text-base font-semibold text-gray-900 dark:text-white">{t('modals.editBox.title')}</h3>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t('modals.editBox.subtitle')}</p>
             <div className="mt-4 space-y-3">
+                {existingImageUrl && (
+                    <div>
+                        <div className="mb-1 text-sm font-medium text-gray-800 dark:text-gray-200">{t('modals.editBox.currentPicture')}</div>
+                        <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-gray-200 dark:border-white/10">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={existingImageUrl} alt="Current" className="w-full h-full object-cover" />
+                        </div>
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('modals.editBox.keepCurrentHint')}</p>
+                    </div>
+                )}
                 <ImageUploader
                     id="edit-box-image"
                     label={t('modals.editBox.replacePicture')}
@@ -78,13 +91,37 @@ export const EditBoxModal: React.FC<Props> = ({
                 <div>
                     <div className="mb-1 text-sm font-medium text-gray-800 dark:text-gray-200">{t('modals.editBox.sizesTitle')}</div>
                     <div className="space-y-2">
-                        {editRows.map((row) => (
-                            <div key={row.id} className="grid grid-cols-12 items-center gap-2">
-                                <div className="col-span-6"><Input type="text" placeholder={t('modals.editBox.variantSize')} value={row.size} onChange={(e) => updateEditRow(row.id, { size: e.target.value })} /></div>
-                                <div className="col-span-4"><Input type="number" placeholder={t('modals.editBox.quantity')} value={row.quantity} onChange={(e) => updateEditRow(row.id, { quantity: e.target.value })} /></div>
-                                <div className="col-span-2 flex justify-end"><button type="button" onClick={() => removeEditRow(row.id)} className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-gray-100 dark:ring-white/10">{t('modals.editBox.remove')}</button></div>
-                            </div>
-                        ))}
+                        {editRows.map((row) => {
+                            const currentStock = row.currentStock ?? 0
+                            const change = Number(row.quantity) || 0
+                            const newStock = Math.max(0, currentStock + change)
+                            const currentStockFormatted = formatQuantity(currentStock, row.measurementType, row.unit, { pcs: t('units.pcsShort') })
+                            const newStockFormatted = formatQuantity(newStock, row.measurementType, row.unit, { pcs: t('units.pcsShort') })
+                            return (
+                                <div key={row.id} className="space-y-1">
+                                    <div className="grid grid-cols-12 items-center gap-2">
+                                        <div className="col-span-4"><Input type="text" placeholder={t('modals.editBox.variantSize')} value={row.size} onChange={(e) => updateEditRow(row.id, { size: e.target.value })} /></div>
+                                        <div className="col-span-3"><Input type="number" placeholder="+/-" value={row.quantity} onChange={(e) => updateEditRow(row.id, { quantity: e.target.value })} /></div>
+                                        <div className="col-span-3 flex justify-end"><button type="button" onClick={() => removeEditRow(row.id)} className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-gray-100 dark:ring-white/10">{t('modals.editBox.remove')}</button></div>
+                                    </div>
+                                    {row.itemId && (
+                                        <div className="text-xs text-gray-600 dark:text-gray-400 pl-1">
+                                            {t('modals.editBox.stock')}: <span className="font-medium text-gray-900 dark:text-white">{currentStockFormatted}</span>
+                                            {change !== 0 && (
+                                                <>
+                                                    {' → '}
+                                                    <span className={`font-medium ${change > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                                        {change > 0 ? '+' : ''}{change}
+                                                    </span>
+                                                    {' = '}
+                                                    <span className="font-medium text-gray-900 dark:text-white">{newStockFormatted}</span>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )
+                        })}
                     </div>
                     <div className="mt-2"><button type="button" onClick={addEditRow} className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-gray-100 dark:ring-white/10">{t('modals.editBox.addSize')}</button></div>
                 </div>
@@ -104,7 +141,7 @@ export const EditBoxModal: React.FC<Props> = ({
                             if (color && baseLabel.endsWith(` (${color})`)) {
                                 baseName = baseLabel.slice(0, -(` (${color})`).length)
                             }
-                            // Build sizes for API: only positive quantities allowed by API; we’ll send adds via box API
+                            // Build sizes for API: only positive quantities allowed by API; we'll send adds via box API
                             const adds = editRows.filter(r => r.size.trim() && Number(r.quantity) !== 0 && Number(r.quantity) > 0)
                                 .map(r => ({ size: r.size.trim(), quantity: Number(r.quantity) }))
                             // Send sizes update and/or image replacement
@@ -127,6 +164,24 @@ export const EditBoxModal: React.FC<Props> = ({
                                     ? (data as { error: string }).error
                                     : 'Failed to update box'
                                 if (!res.ok) throw new Error(errMsg)
+                            }
+                            // Update price/tax for existing items if only price/tax changed (no quantity changes)
+                            const existingItems = editRows.filter(r => r.itemId)
+                            const hasQuantityChanges = editRows.some(r => Number(r.quantity) !== 0)
+                            if (existingItems.length > 0 && !hasQuantityChanges && !editImage) {
+                                // Update each item's price and tax individually
+                                for (const r of existingItems) {
+                                    if (!r.itemId) continue
+                                    try {
+                                        await updateItem(r.itemId, {
+                                            price: Number(editPrice) || 0,
+                                            taxRateBps: Number(editTaxBps) || 0
+                                        })
+                                    } catch (err) {
+                                        // If individual update fails, continue with others
+                                        console.error('Failed to update item:', r.itemId, err)
+                                    }
+                                }
                             }
                             // Handle negative quantities: apply as per-item decrements via PATCH
                             const negs = editRows.filter(r => r.itemId && r.size.trim() && Number(r.quantity) < 0)

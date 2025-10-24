@@ -295,27 +295,39 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
             </div>
             <div>
               {measurementType === 'WEIGHT' && (
-                <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
-                  <button type="button" onClick={() => setWeightUnit('kg')} className={`px-2 py-1 text-xs ${weightUnit === 'kg' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>kg</button>
-                  <button type="button" onClick={() => setWeightUnit('g')} className={`px-2 py-1 text-xs ${weightUnit === 'g' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>g</button>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.unit')}</label>
+                  <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                    <button type="button" onClick={() => setWeightUnit('kg')} className={`px-2 py-1 text-xs ${weightUnit === 'kg' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>kg</button>
+                    <button type="button" onClick={() => setWeightUnit('g')} className={`px-2 py-1 text-xs ${weightUnit === 'g' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>g</button>
+                  </div>
                 </div>
               )}
               {measurementType === 'LENGTH' && (
-                <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
-                  <button type="button" onClick={() => setLengthUnit('m')} className={`px-2 py-1 text-xs ${lengthUnit === 'm' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>m</button>
-                  <button type="button" onClick={() => setLengthUnit('cm')} className={`px-2 py-1 text-xs ${lengthUnit === 'cm' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>cm</button>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.unit')}</label>
+                  <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                    <button type="button" onClick={() => setLengthUnit('m')} className={`px-2 py-1 text-xs ${lengthUnit === 'm' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>m</button>
+                    <button type="button" onClick={() => setLengthUnit('cm')} className={`px-2 py-1 text-xs ${lengthUnit === 'cm' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>cm</button>
+                  </div>
                 </div>
               )}
               {measurementType === 'VOLUME' && (
-                <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
-                  <button type="button" onClick={() => setVolumeUnit('l')} className={`px-2 py-1 text-xs ${volumeUnit === 'l' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>l</button>
-                  <button type="button" onClick={() => setVolumeUnit('ml')} className={`px-2 py-1 text-xs ${volumeUnit === 'ml' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>ml</button>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.unit')}</label>
+                  <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                    <button type="button" onClick={() => setVolumeUnit('l')} className={`px-2 py-1 text-xs ${volumeUnit === 'l' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>l</button>
+                    <button type="button" onClick={() => setVolumeUnit('ml')} className={`px-2 py-1 text-xs ${volumeUnit === 'ml' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>ml</button>
+                  </div>
                 </div>
               )}
               {measurementType === 'AREA' && (
-                <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
-                  <button type="button" onClick={() => setAreaUnit('m²')} className={`px-2 py-1 text-xs ${areaUnit === 'm²' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>m²</button>
-                  <button type="button" onClick={() => setAreaUnit('cm²')} className={`px-2 py-1 text-xs ${areaUnit === 'cm²' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>cm²</button>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.unit')}</label>
+                  <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                    <button type="button" onClick={() => setAreaUnit('m²')} className={`px-2 py-1 text-xs ${areaUnit === 'm²' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>m²</button>
+                    <button type="button" onClick={() => setAreaUnit('cm²')} className={`px-2 py-1 text-xs ${areaUnit === 'cm²' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>cm²</button>
+                  </div>
                 </div>
               )}
               <Input

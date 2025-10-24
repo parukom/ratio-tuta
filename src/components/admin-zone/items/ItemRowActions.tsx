@@ -7,6 +7,7 @@ import toast from "react-hot-toast"
 import Spinner from "@/components/ui/Spinner"
 import { useTranslations } from 'next-intl'
 import ImageUploader from '@/components/ui/ImageUploader'
+import { useCsrfToken } from '@/hooks/useCsrfToken'
 
 type ItemRow = {
     id: string
@@ -41,6 +42,7 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
 }) {
     const t = useTranslations('Common')
     const ti = useTranslations('Items')
+    const { token: csrfToken } = useCsrfToken()
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState('')
@@ -66,19 +68,19 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
     // For measurement items allow entering/editing in large or small units
     const [weightUnit, setWeightUnit] = useState<'kg' | 'g'>(() => {
         const q = Number(item.stockQuantity || 0)
-        return q >= 1000 ? 'g' : 'kg'
+        return q >= 1000 ? 'kg' : 'g'
     })
     const [lengthUnit, setLengthUnit] = useState<'m' | 'cm'>(() => {
         const q = Number(item.stockQuantity || 0)
-        return q >= 100 ? 'cm' : 'm'
+        return q >= 100 ? 'm' : 'cm'
     })
     const [volumeUnit, setVolumeUnit] = useState<'l' | 'ml'>(() => {
         const q = Number(item.stockQuantity || 0)
-        return q >= 1000 ? 'ml' : 'l'
+        return q >= 1000 ? 'l' : 'ml'
     })
     const [areaUnit, setAreaUnit] = useState<'m²' | 'cm²'>(() => {
         const q = Number(item.stockQuantity || 0)
-        return q >= 10000 ? 'cm²' : 'm²'
+        return q >= 10000 ? 'm²' : 'cm²'
     })
     const [description, setDescription] = useState(item.description ?? '')
     const [color, setColor] = useState(item.color ?? '')
@@ -118,9 +120,11 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
             const nextCategoryId: string | null = categoryId ? categoryId : null
             const nextCategoryName: string | null = nextCategoryId ? (categories.find(c => c.id === nextCategoryId)?.name ?? null) : null
             // Perform update via API
+            const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+            if (csrfToken) headers['X-CSRF-Token'] = csrfToken
             const res = await fetch(`/api/items/${item.id}`, {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
+                headers,
                 body: JSON.stringify({
                     name: name.trim(),
                     sku: sku.trim() || null,
@@ -190,7 +194,9 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
     async function doDelete() {
         setLoading(true)
         try {
-            const res = await fetch(`/api/items/${item.id}`, { method: 'DELETE' })
+            const headers: Record<string, string> = {}
+            if (csrfToken) headers['X-CSRF-Token'] = csrfToken
+            const res = await fetch(`/api/items/${item.id}`, { method: 'DELETE', headers })
             if (res.status === 409) {
                 try {
                     const r2 = await fetch(`/api/items/${item.id}/places`)
@@ -218,9 +224,9 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
     }
 
     return (
-        <div className="flex justify-end gap-2">
-            <button onClick={() => setOpen(true)} className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">{t('edit')}</button>
-            <button onClick={() => setConfirmOpen(true)} className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50 dark:border-red-500/40 dark:text-red-400 dark:hover:bg-red-500/10">{t('delete')}</button>
+        <div className="flex gap-1 w-full">
+            <button onClick={() => setOpen(true)} className="flex-1 rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">{t('edit')}</button>
+            <button onClick={() => setConfirmOpen(true)} className="flex-1 rounded-md border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50 dark:border-red-500/40 dark:text-red-400 dark:hover:bg-red-500/10">{t('delete')}</button>
 
             {/* Confirm deletion modal */}
             <Modal open={confirmOpen} onClose={() => (!loading && setConfirmOpen(false))} size="sm">
@@ -382,27 +388,39 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
                         </div>
                         <div>
                             {measurementType === 'WEIGHT' && (
-                                <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
-                                    <button type="button" onClick={() => setWeightUnit('kg')} className={`px-2 py-1 text-xs ${weightUnit === 'kg' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>kg</button>
-                                    <button type="button" onClick={() => setWeightUnit('g')} className={`px-2 py-1 text-xs ${weightUnit === 'g' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>g</button>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{ti('forms.unit')}</label>
+                                    <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                                        <button type="button" onClick={() => setWeightUnit('kg')} className={`px-2 py-1 text-xs ${weightUnit === 'kg' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>kg</button>
+                                        <button type="button" onClick={() => setWeightUnit('g')} className={`px-2 py-1 text-xs ${weightUnit === 'g' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>g</button>
+                                    </div>
                                 </div>
                             )}
                             {measurementType === 'LENGTH' && (
-                                <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
-                                    <button type="button" onClick={() => setLengthUnit('m')} className={`px-2 py-1 text-xs ${lengthUnit === 'm' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>m</button>
-                                    <button type="button" onClick={() => setLengthUnit('cm')} className={`px-2 py-1 text-xs ${lengthUnit === 'cm' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>cm</button>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{ti('forms.unit')}</label>
+                                    <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                                        <button type="button" onClick={() => setLengthUnit('m')} className={`px-2 py-1 text-xs ${lengthUnit === 'm' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>m</button>
+                                        <button type="button" onClick={() => setLengthUnit('cm')} className={`px-2 py-1 text-xs ${lengthUnit === 'cm' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>cm</button>
+                                    </div>
                                 </div>
                             )}
                             {measurementType === 'VOLUME' && (
-                                <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
-                                    <button type="button" onClick={() => setVolumeUnit('l')} className={`px-2 py-1 text-xs ${volumeUnit === 'l' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>l</button>
-                                    <button type="button" onClick={() => setVolumeUnit('ml')} className={`px-2 py-1 text-xs ${volumeUnit === 'ml' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>ml</button>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{ti('forms.unit')}</label>
+                                    <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                                        <button type="button" onClick={() => setVolumeUnit('l')} className={`px-2 py-1 text-xs ${volumeUnit === 'l' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>l</button>
+                                        <button type="button" onClick={() => setVolumeUnit('ml')} className={`px-2 py-1 text-xs ${volumeUnit === 'ml' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>ml</button>
+                                    </div>
                                 </div>
                             )}
                             {measurementType === 'AREA' && (
-                                <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
-                                    <button type="button" onClick={() => setAreaUnit('m²')} className={`px-2 py-1 text-xs ${areaUnit === 'm²' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>m²</button>
-                                    <button type="button" onClick={() => setAreaUnit('cm²')} className={`px-2 py-1 text-xs ${areaUnit === 'cm²' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>cm²</button>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{ti('forms.unit')}</label>
+                                    <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                                        <button type="button" onClick={() => setAreaUnit('m²')} className={`px-2 py-1 text-xs ${areaUnit === 'm²' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>m²</button>
+                                        <button type="button" onClick={() => setAreaUnit('cm²')} className={`px-2 py-1 text-xs ${areaUnit === 'cm²' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>cm²</button>
+                                    </div>
                                 </div>
                             )}
                             <Input

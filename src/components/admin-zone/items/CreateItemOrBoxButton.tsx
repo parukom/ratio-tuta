@@ -92,6 +92,9 @@ export default function CreateItemOrBoxButton({
     const [it_measurementType, it_setMeasurementType] = useState<'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'>('PCS')
     const [it_stockQuantity, it_setStockQuantity] = useState('0')
     const [it_weightUnit, it_setWeightUnit] = useState<'kg' | 'g'>('kg')
+    const [it_lengthUnit, it_setLengthUnit] = useState<'m' | 'cm'>('m')
+    const [it_volumeUnit, it_setVolumeUnit] = useState<'l' | 'ml'>('l')
+    const [it_areaUnit, it_setAreaUnit] = useState<'m²' | 'cm²'>('m²')
     const [it_description, it_setDescription] = useState('')
     const [it_color, it_setColor] = useState('')
     const [it_brand, it_setBrand] = useState('')
@@ -104,7 +107,7 @@ export default function CreateItemOrBoxButton({
     const [it_catMsg, it_setCatMsg] = useState('')
 
     function it_reset() {
-        it_setName(''); it_setSku(''); it_setPrice(''); it_setPricePaid(''); it_setTaxRateBps('0'); it_setIsActive(true); it_setMeasurementType('PCS'); it_setStockQuantity('0'); it_setWeightUnit('kg'); it_setDescription(''); it_setColor(''); it_setBrand(''); it_setTagsCSV(''); it_setCategoryId(''); it_setCreatingCat(false); it_setNewCatName(''); it_setCatMsg(''); it_setImageFile(null)
+        it_setName(''); it_setSku(''); it_setPrice(''); it_setPricePaid(''); it_setTaxRateBps('0'); it_setIsActive(true); it_setMeasurementType('PCS'); it_setStockQuantity('0'); it_setWeightUnit('kg'); it_setLengthUnit('m'); it_setVolumeUnit('l'); it_setAreaUnit('m²'); it_setDescription(''); it_setColor(''); it_setBrand(''); it_setTagsCSV(''); it_setCategoryId(''); it_setCreatingCat(false); it_setNewCatName(''); it_setCatMsg(''); it_setImageFile(null)
     }
 
     async function it_submit(e: React.FormEvent) {
@@ -136,6 +139,15 @@ export default function CreateItemOrBoxButton({
                         if (!Number.isFinite(v) || v < 0) return 0
                         if (it_measurementType === 'WEIGHT') {
                             return Math.round((it_weightUnit === 'kg' ? v * 1000 : v))
+                        }
+                        if (it_measurementType === 'LENGTH') {
+                            return Math.round((it_lengthUnit === 'm' ? v * 100 : v))
+                        }
+                        if (it_measurementType === 'VOLUME') {
+                            return Math.round((it_volumeUnit === 'l' ? v * 1000 : v))
+                        }
+                        if (it_measurementType === 'AREA') {
+                            return Math.round((it_areaUnit === 'm²' ? v * 10000 : v))
                         }
                         return Math.round(v)
                     })(),
@@ -519,15 +531,51 @@ export default function CreateItemOrBoxButton({
                                                 { key: 'VOLUME', label: t('forms.measurementOptions.VOLUME') },
                                                 { key: 'AREA', label: t('forms.measurementOptions.AREA') },
                                             ]}
-                                            onSelect={(key) => { it_setMeasurementType(key as typeof it_measurementType); if (key !== 'WEIGHT') it_setWeightUnit('kg') }}
+                                            onSelect={(key) => {
+                                                it_setMeasurementType(key as typeof it_measurementType)
+                                                if (key !== 'WEIGHT') it_setWeightUnit('kg')
+                                                if (key !== 'LENGTH') it_setLengthUnit('m')
+                                                if (key !== 'VOLUME') it_setVolumeUnit('l')
+                                                if (key !== 'AREA') it_setAreaUnit('m²')
+                                            }}
                                         />
                                     </div>
                                 </div>
                                 <div>
                                     {it_measurementType === 'WEIGHT' && (
-                                        <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
-                                            <button type="button" onClick={() => it_setWeightUnit('kg')} className={`px-2 py-1 text-xs ${it_weightUnit === 'kg' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>kg</button>
-                                            <button type="button" onClick={() => it_setWeightUnit('g')} className={`px-2 py-1 text-xs ${it_weightUnit === 'g' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>g</button>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.unit')}</label>
+                                            <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                                                <button type="button" onClick={() => it_setWeightUnit('kg')} className={`px-2 py-1 text-xs ${it_weightUnit === 'kg' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>kg</button>
+                                                <button type="button" onClick={() => it_setWeightUnit('g')} className={`px-2 py-1 text-xs ${it_weightUnit === 'g' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>g</button>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {it_measurementType === 'LENGTH' && (
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.unit')}</label>
+                                            <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                                                <button type="button" onClick={() => it_setLengthUnit('m')} className={`px-2 py-1 text-xs ${it_lengthUnit === 'm' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>m</button>
+                                                <button type="button" onClick={() => it_setLengthUnit('cm')} className={`px-2 py-1 text-xs ${it_lengthUnit === 'cm' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>cm</button>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {it_measurementType === 'VOLUME' && (
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.unit')}</label>
+                                            <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                                                <button type="button" onClick={() => it_setVolumeUnit('l')} className={`px-2 py-1 text-xs ${it_volumeUnit === 'l' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>l</button>
+                                                <button type="button" onClick={() => it_setVolumeUnit('ml')} className={`px-2 py-1 text-xs ${it_volumeUnit === 'ml' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>ml</button>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {it_measurementType === 'AREA' && (
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.unit')}</label>
+                                            <div className="mb-1 inline-flex rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-white/10">
+                                                <button type="button" onClick={() => it_setAreaUnit('m²')} className={`px-2 py-1 text-xs ${it_areaUnit === 'm²' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 dark:bg-transparent dark:text-gray-300'}`}>m²</button>
+                                                <button type="button" onClick={() => it_setAreaUnit('cm²')} className={`px-2 py-1 text-xs ${it_areaUnit === 'cm²' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border-l border-gray-200 dark:bg-transparent dark:text-gray-300 dark:border-white/10'}`}>cm²</button>
+                                            </div>
                                         </div>
                                     )}
                                     <Input
@@ -536,10 +584,10 @@ export default function CreateItemOrBoxButton({
                                         type="number"
                                         placeholder={
                                             it_measurementType === 'PCS' ? t('forms.initialStock.PCS')
-                                                : it_measurementType === 'WEIGHT' ? `${t('forms.initialStock.WEIGHT')}`.replace('(kg)', `(${it_weightUnit})`)
-                                                    : it_measurementType === 'LENGTH' ? t('forms.initialStock.LENGTH')
-                                                        : it_measurementType === 'VOLUME' ? t('forms.initialStock.VOLUME')
-                                                            : it_measurementType === 'AREA' ? t('forms.initialStock.AREA')
+                                                : it_measurementType === 'WEIGHT' ? `Stock (${it_weightUnit})`
+                                                    : it_measurementType === 'LENGTH' ? `Stock (${it_lengthUnit})`
+                                                        : it_measurementType === 'VOLUME' ? `Stock (${it_volumeUnit})`
+                                                            : it_measurementType === 'AREA' ? `Stock (${it_areaUnit})`
                                                                 : t('forms.initialStock.PCS')
                                         }
                                         value={it_stockQuantity}
@@ -548,6 +596,21 @@ export default function CreateItemOrBoxButton({
                                     {it_measurementType === 'WEIGHT' && it_stockQuantity && Number(it_stockQuantity) > 0 && (
                                         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                                             {it_weightUnit === 'kg' ? `${Math.round(Number(it_stockQuantity) * 1000)} g will be saved` : `${(Number(it_stockQuantity) / 1000).toFixed(3)} kg`}
+                                        </p>
+                                    )}
+                                    {it_measurementType === 'LENGTH' && it_stockQuantity && Number(it_stockQuantity) > 0 && (
+                                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                            {it_lengthUnit === 'm' ? `${Math.round(Number(it_stockQuantity) * 100)} cm will be saved` : `${(Number(it_stockQuantity) / 100).toFixed(2)} m`}
+                                        </p>
+                                    )}
+                                    {it_measurementType === 'VOLUME' && it_stockQuantity && Number(it_stockQuantity) > 0 && (
+                                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                            {it_volumeUnit === 'l' ? `${Math.round(Number(it_stockQuantity) * 1000)} ml will be saved` : `${(Number(it_stockQuantity) / 1000).toFixed(3)} l`}
+                                        </p>
+                                    )}
+                                    {it_measurementType === 'AREA' && it_stockQuantity && Number(it_stockQuantity) > 0 && (
+                                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                            {it_areaUnit === 'm²' ? `${Math.round(Number(it_stockQuantity) * 10000)} cm² will be saved` : `${(Number(it_stockQuantity) / 10000).toFixed(2)} m²`}
                                         </p>
                                     )}
                                 </div>
