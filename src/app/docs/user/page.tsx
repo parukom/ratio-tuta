@@ -146,17 +146,23 @@ export default function UserGuidePage() {
               <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
                 <li>Navigate to <strong>Dashboard → Places</strong></li>
                 <li>Click <strong>"Create Place"</strong></li>
-                <li>Fill in the required information:
+                <li>Fill in the information:
                   <ul className="list-disc list-inside ml-6 mt-2 space-y-1">
-                    <li><strong>Name:</strong> Your location name (e.g., "Downtown Store")</li>
-                    <li><strong>Address:</strong> Physical address (optional)</li>
-                    <li><strong>City & Country:</strong> Location details</li>
-                    <li><strong>Timezone:</strong> Local timezone for accurate reporting</li>
-                    <li><strong>Currency:</strong> Default currency (e.g., EUR, USD)</li>
+                    <li><strong>Name (required):</strong> Your location name - can be anything you like (e.g., "My Shop", "Downtown Store", "Store #1")</li>
+                    <li><strong>Address (optional):</strong> Physical address - can be added later</li>
+                    <li><strong>City & Country (optional):</strong> Location details</li>
+                    <li><strong>Timezone (optional):</strong> Local timezone for accurate reporting (e.g., Europe/Vilnius)</li>
+                    <li><strong>Currency (optional):</strong> Default currency (e.g., EUR, USD) - defaults to EUR if not specified</li>
                   </ul>
                 </li>
                 <li>Click <strong>"Create"</strong> to save</li>
               </ol>
+
+              <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                <p className="text-sm text-green-800 dark:text-green-200">
+                  <strong>✅ Quick Start:</strong> To get started quickly, you only need to provide a name. All other fields (address, timezone, currency) are optional and can be added or updated later in the place settings.
+                </p>
+              </div>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                 Managing Places
@@ -193,7 +199,7 @@ export default function UserGuidePage() {
             </div>
             <div className="prose prose-gray dark:prose-invert max-w-none">
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                Manage your products, track stock levels, and organize items by categories.
+                Manage your products, track stock levels, and organize items by categories. Items are displayed as visual cards showing key information at a glance.
               </p>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
@@ -201,7 +207,13 @@ export default function UserGuidePage() {
               </h3>
               <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
                 <li>Go to <strong>Dashboard → Items</strong></li>
-                <li>Click <strong>"Create Item"</strong></li>
+                <li>Click <strong>"+ Create"</strong> button</li>
+                <li>Choose between:
+                  <ul className="list-disc list-inside ml-6 mt-2 space-y-1">
+                    <li><strong>Create Item:</strong> Add a single product</li>
+                    <li><strong>Add Box:</strong> Create multiple variants at once (e.g., shoes in sizes 35, 36, 37)</li>
+                  </ul>
+                </li>
                 <li>Fill in item details:
                   <ul className="list-disc list-inside ml-6 mt-2 space-y-1">
                     <li><strong>Name:</strong> Product name</li>
@@ -213,10 +225,48 @@ export default function UserGuidePage() {
                     <li><strong>Measurement Type:</strong> PCS (pieces), WEIGHT (kg/g), LENGTH (m/cm), etc.</li>
                     <li><strong>Stock Quantity:</strong> Current inventory level</li>
                     <li><strong>Category:</strong> Organize items by type</li>
+                    <li><strong>Size/Color:</strong> Variant details (optional)</li>
                   </ul>
                 </li>
                 <li>Click <strong>"Create"</strong></li>
               </ol>
+
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                Viewing Item Details
+              </h3>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
+                Items are displayed as compact cards showing:
+              </p>
+              <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
+                <li><strong>Product Image:</strong> Visual representation or color swatch</li>
+                <li><strong>Name:</strong> Item or box name</li>
+                <li><strong>Stock Level:</strong> Current available quantity</li>
+                <li><strong>Price:</strong> Selling price per unit</li>
+                <li><strong>Variant Badge:</strong> Shows number of sizes/colors for grouped items</li>
+              </ul>
+              <p className="text-gray-700 dark:text-gray-300 mt-4">
+                <strong>Click any card</strong> to open a detailed drawer showing:
+              </p>
+              <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
+                <li>Full product information (status, SKU, pricing, tax, measurements)</li>
+                <li>Complete description and tags</li>
+                <li><strong>For grouped items:</strong> List of all variants with individual stock levels</li>
+                <li>Brand, color, and other metadata</li>
+              </ul>
+
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                Boxes and Grouped Items
+              </h3>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
+                When you have multiple variants of the same product (e.g., T-shirt in S/M/L/XL), use <strong>"Add Box"</strong> to create them together:
+              </p>
+              <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
+                <li>All variants share the same base name, price, and tax rate</li>
+                <li>Each variant can have different sizes, colors, and stock levels</li>
+                <li>Grouped items appear as a single card with a <strong>"variants"</strong> badge</li>
+                <li>Click the grouped card to see all variants with individual stock quantities</li>
+                <li>Edit or delete individual variants, or manage the entire box at once</li>
+              </ul>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                 Item Categories
@@ -227,7 +277,7 @@ export default function UserGuidePage() {
               <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
                 <li>Create categories like "Beverages", "Food", "Merchandise", etc.</li>
                 <li>Assign items to categories for easier browsing</li>
-                <li>Filter items by category in the cash register</li>
+                <li>Filter items by category in both the Items page and cash register</li>
               </ul>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
@@ -244,9 +294,28 @@ export default function UserGuidePage() {
                 <li><strong>AREA:</strong> Sell by area in m² or cm² (e.g., tiles, wallpaper)</li>
               </ul>
 
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                Managing Items
+              </h3>
+              <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
+                <li><strong>Edit:</strong> Click "Edit" button on any card to update details or adjust stock</li>
+                <li><strong>Delete:</strong> Remove items permanently (with confirmation)</li>
+                <li><strong>Toggle View:</strong> Switch between Cards view and Table view</li>
+                <li><strong>Group Toggle:</strong> Group similar items or show all items individually</li>
+                <li><strong>Search:</strong> Find items by name quickly</li>
+                <li><strong>Filter:</strong> Show only active items, in-stock items, or by category</li>
+                <li><strong>Sort:</strong> Order by name, price, stock level, or creation date</li>
+              </ul>
+
               <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
                 <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                  <strong>⚠️ Important:</strong> Stock quantities are tracked in the base unit (grams for WEIGHT, meters for LENGTH, etc.). The system converts between units automatically.
+                  <strong>⚠️ Important:</strong> Stock quantities are tracked in the base unit (grams for WEIGHT, cm for LENGTH, ml for VOLUME, cm² for AREA). The system converts between units automatically when displaying or editing.
+                </p>
+              </div>
+
+              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <p className="text-sm text-blue-800 dark:text-blue-200">
+                  <strong>💡 Pro Tip:</strong> Use the grouped view to keep your inventory organized. Items with the same base name and color are automatically grouped together, making it easier to manage products with multiple sizes or variants.
                 </p>
               </div>
             </div>

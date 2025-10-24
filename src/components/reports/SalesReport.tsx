@@ -123,25 +123,29 @@ export const SalesReport: React.FC = () => {
       label: t('metrics.totalRevenue'),
       value: `€${data.totalRevenue.toFixed(2)}`,
       icon: BanknotesIcon,
-      color: 'indigo',
+      bgClass: 'bg-indigo-100 dark:bg-indigo-900/30',
+      iconClass: 'text-indigo-600 dark:text-indigo-400',
     },
     {
       label: t('metrics.totalSales'),
       value: data.totalSales,
       icon: ShoppingCartIcon,
-      color: 'green',
+      bgClass: 'bg-green-100 dark:bg-green-900/30',
+      iconClass: 'text-green-600 dark:text-green-400',
     },
     {
       label: t('metrics.averageOrder'),
       value: `€${data.averageOrderValue.toFixed(2)}`,
       icon: ChartBarIcon,
-      color: 'purple',
+      bgClass: 'bg-purple-100 dark:bg-purple-900/30',
+      iconClass: 'text-purple-600 dark:text-purple-400',
     },
     {
       label: t('metrics.topPayment'),
       value: data.topPaymentMethod,
       icon: CreditCardIcon,
-      color: 'pink',
+      bgClass: 'bg-pink-100 dark:bg-pink-900/30',
+      iconClass: 'text-pink-600 dark:text-pink-400',
     },
   ];
 
@@ -184,8 +188,8 @@ export const SalesReport: React.FC = () => {
               <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
                 {metric.label}
               </span>
-              <div className={`p-2 rounded-lg bg-${metric.color}-100 dark:bg-${metric.color}-900/30`}>
-                <metric.icon className={`h-5 w-5 text-${metric.color}-600 dark:text-${metric.color}-400`} />
+              <div className={`p-2 rounded-lg ${metric.bgClass}`}>
+                <metric.icon className={`h-5 w-5 ${metric.iconClass}`} />
               </div>
             </div>
             <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">

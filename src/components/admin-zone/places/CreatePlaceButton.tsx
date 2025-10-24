@@ -160,22 +160,35 @@ export default function CreatePlaceButton({ teamId, onCreated }: Props) {
                     <div className="mt-3 text-left sm:mt-0 sm:text-left w-full">
                         <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">{t('createPlace')}</h3>
                         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{th('place.create.subtitle')}</p>
+                        <div className="mt-3 rounded-md bg-blue-50 dark:bg-blue-900/20 p-3 border border-blue-200 dark:border-blue-800">
+                            <p className="text-sm text-blue-800 dark:text-blue-200">
+                                <strong>{th('place.create.helpTitle')}</strong> {th('place.create.helpText')}
+                            </p>
+                        </div>
                     </div>
                 </div>
 
                 <form onSubmit={submit} className="mt-4 space-y-3">
-                    <Input id="name" name="name" type="text" className="" placeholder={th('place.form.name')} value={name} onChange={(e) => setName(e.target.value)} />
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <Input id="address1" name="address1" type="text" className="" placeholder={th('place.form.address1')} value={address1} onChange={(e) => setAddress1(e.target.value)} />
-                        <Input id="address2" name="address2" type="text" className="" placeholder={th('place.form.address2')} value={address2} onChange={(e) => setAddress2(e.target.value)} />
+                    <div>
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            {th('place.form.nameLabel')} <span className="text-red-600 dark:text-red-400">*</span>
+                        </label>
+                        <Input id="name" name="name" type="text" className="" placeholder={th('place.form.namePlaceholder')} value={name} onChange={(e) => setName(e.target.value)} />
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-2 mt-4">
+                        {th('place.form.optionalFieldsNote')}
                     </div>
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <Input id="city" name="city" type="text" className="" placeholder={th('place.form.city')} value={city} onChange={(e) => setCity(e.target.value)} />
-                        <Input id="country" name="country" type="text" className="" placeholder={th('place.form.country')} value={country} onChange={(e) => setCountry(e.target.value)} />
+                        <Input id="address1" name="address1" type="text" className="" placeholder={th('place.form.address1Optional')} value={address1} onChange={(e) => setAddress1(e.target.value)} />
+                        <Input id="address2" name="address2" type="text" className="" placeholder={th('place.form.address2Optional')} value={address2} onChange={(e) => setAddress2(e.target.value)} />
                     </div>
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <Input id="timezone" name="timezone" type="text" className="" placeholder={th('place.form.timezone')} value={timezone} onChange={(e) => setTimezone(e.target.value)} />
-                        <Input id="currency" name="currency" type="text" className="" placeholder={th('place.form.currency')} value={currency} onChange={(e) => setCurrency(e.target.value)} />
+                        <Input id="city" name="city" type="text" className="" placeholder={th('place.form.cityOptional')} value={city} onChange={(e) => setCity(e.target.value)} />
+                        <Input id="country" name="country" type="text" className="" placeholder={th('place.form.countryOptional')} value={country} onChange={(e) => setCountry(e.target.value)} />
+                    </div>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <Input id="timezone" name="timezone" type="text" className="" placeholder={th('place.form.timezoneOptional')} value={timezone} onChange={(e) => setTimezone(e.target.value)} />
+                        <Input id="currency" name="currency" type="text" className="" placeholder={th('place.form.currencyOptional')} value={currency} onChange={(e) => setCurrency(e.target.value)} />
                     </div>
                     <div className="flex items-center gap-2">
                         <input id="isActive" name="isActive" type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="size-4" />

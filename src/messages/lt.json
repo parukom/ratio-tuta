@@ -309,13 +309,22 @@
       },
       "form": {
         "name": "Pavadinimas",
+        "nameLabel": "Vietos pavadinimas",
+        "namePlaceholder": "pvz., Mano parduotuvė, Centro krautuvė, Pagrindinė vieta",
         "descriptionOptional": "Aprašymas (pasirinktinai)",
+        "optionalFieldsNote": "Visi žemiau esantys laukai yra neprivalomi:",
         "address1": "Adresas 1",
+        "address1Optional": "Adresas 1 (neprivalomas)",
         "address2": "Adresas 2",
+        "address2Optional": "Adresas 2 (neprivalomas)",
         "city": "Miestas",
+        "cityOptional": "Miestas (neprivalomas)",
         "country": "Šalis",
+        "countryOptional": "Šalis (neprivaloma)",
         "timezone": "Laiko juosta (pvz., Europe/Vilnius)",
+        "timezoneOptional": "Laiko juosta (neprivaloma, pvz., Europe/Vilnius)",
         "currency": "Valiuta (pvz., EUR)",
+        "currencyOptional": "Valiuta (neprivaloma, pvz., EUR, pagal nutylėjimą EUR)",
         "active": "Aktyvi"
       },
       "actions": {
@@ -390,6 +399,8 @@
       },
       "create": {
         "subtitle": "Užpildykite naujos vietos informaciją.",
+        "helpTitle": "Greitas kūrimas:",
+        "helpText": "Pradėti pakanka tik vietos pavadinimo. Adresą, laiko juostą ir kitus duomenis galėsite pridėti vėliau. Naudokite bet kokį pavadinimą - \"Mano parduotuvė\", \"Krautuvė Nr. 1\" ir pan.",
         "uniqueNote": "Komandoje unikali pagal pavadinimą.",
         "messages": {
           "nameRequired": "Pavadinimas privalomas",

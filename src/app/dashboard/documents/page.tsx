@@ -137,7 +137,7 @@ const ReceiptsTab: React.FC = () => {
 
     return (
         <div>
-            <div className="px-4 sm:px-6 lg:px-8">
+            <div className="px-4">
                 {error && (
                     <div className="my-4 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-700/40 dark:bg-red-950/40">
                         {error}

@@ -1,5 +1,4 @@
 import AdminHeader from '@/components/layout/AdminHeader';
-import RoundChart from '@/components/reports/charts/RoundChart';
 import TeamUsageCards from '@/components/reports/TeamUsageCards';
 import SalesReport from '@/components/reports/SalesReport';
 import React from 'react';
@@ -25,11 +24,6 @@ const ReportsPage = () => {
 
                 {/* Usage Metrics Cards - Full Width */}
                 <TeamUsageCards />
-
-                {/* Chart Section - Full Width */}
-                <div className="w-full">
-                    <RoundChart />
-                </div>
             </div>
         </div>
     )

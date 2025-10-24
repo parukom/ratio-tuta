@@ -20,7 +20,7 @@
       "emailHint": "For maximum privacy, consider using a private email service like ProtonMail or Tutanota.",
       "password": "Password",
       "teamName": "Team name",
-      "passwordRule": "Password must be 8-16 characters."
+      "passwordRule": "Password must be 8-128 characters."
     },
     "privacy": {
       "title": "Your privacy is our priority",
@@ -40,7 +40,7 @@
     "errors": {
       "login": "Error logging in",
       "register": "Error registering",
-      "passwordLength": "Password must be 8-16 characters"
+      "passwordLength": "Password must be 8-128 characters"
     },
     "createdCheckEmail": "Account created. Check your email to verify.",
     "cta": {
@@ -64,7 +64,7 @@
     "updated": "Password updated. You can now log in.",
     "errors": {
       "emailRequired": "Email required",
-      "passwordLength": "Password must be 8-16 characters",
+      "passwordLength": "Password must be 8-128 characters",
       "mismatch": "Passwords do not match",
       "invalidToken": "Invalid or expired link"
     }
@@ -116,11 +116,11 @@
       "current": "Current password",
       "new": "New password",
       "confirm": "Confirm password",
-      "hint": "Password must be 8-16 characters.",
+      "hint": "Password must be 8-128 characters.",
       "updated": "Password updated",
       "errors": {
         "fillAll": "Please fill in all fields",
-        "length": "Password must be 8-16 characters",
+        "length": "Password must be 8-128 characters",
         "mismatch": "Passwords do not match",
         "failed": "Failed to update password"
       }
@@ -269,13 +269,22 @@
       },
       "form": {
         "name": "Name",
+        "nameLabel": "Place name",
+        "namePlaceholder": "e.g., My Shop, Downtown Store, Main Location",
         "descriptionOptional": "Description (optional)",
+        "optionalFieldsNote": "All fields below are optional:",
         "address1": "Address line 1",
+        "address1Optional": "Address line 1 (optional)",
         "address2": "Address line 2",
+        "address2Optional": "Address line 2 (optional)",
         "city": "City",
+        "cityOptional": "City (optional)",
         "country": "Country",
+        "countryOptional": "Country (optional)",
         "timezone": "Timezone (e.g. Europe/Vilnius)",
+        "timezoneOptional": "Timezone (optional, e.g. Europe/Vilnius)",
         "currency": "Currency (e.g. EUR)",
+        "currencyOptional": "Currency (optional, e.g. EUR, defaults to EUR)",
         "active": "Active"
       },
       "actions": {
@@ -350,6 +359,8 @@
       },
       "create": {
         "subtitle": "Fill in details for the new place.",
+        "helpTitle": "Quick setup:",
+        "helpText": "Only the place name is required to get started. You can add address, timezone, and other details later. Use any name you like - \"My Shop\", \"Store #1\", etc.",
         "uniqueNote": "Unique per team by name.",
         "messages": {
           "nameRequired": "Name is required",
@@ -513,7 +524,7 @@
     "password": {
       "setOptional": "Set password (optional)",
       "leaveBlank": "Leave blank to auto-generate",
-      "hint": "If provided, password must be 8-16 characters. Leave blank to auto-generate a secure one."
+      "hint": "If provided, password must be 8-128 characters. Leave blank to auto-generate a secure one."
     },
     "drawer": {
       "title": "Edit member",
@@ -523,7 +534,7 @@
     "toasts": {
       "passwordCopied": "Password copied to clipboard",
       "copyFailed": "Failed to copy",
-      "passwordRule": "Password must be 8-16 characters",
+      "passwordRule": "Password must be 8-128 characters",
       "errorRegistering": "Error registering",
       "memberCreated": "Member created",
       "memberCreatedAndAdded": "Member created and added",
@@ -868,9 +879,9 @@
           "title": "Inventory Management",
           "description": "Managing items and stock levels",
           "content": {
-            "intro": "Ratio tuta provides powerful inventory management with support for different measurement types, categories, and variants.",
+            "intro": "Ratio tuta provides powerful inventory management with support for different measurement types, categories, and variants. Items are displayed as visual cards - click any card to view detailed information in a drawer.",
             "items": "Create individual items with prices, costs, tax rates, and stock levels. Items are team-wide and can be assigned to multiple places.",
-            "boxes": "Boxes let you create multiple size variants at once. Perfect for clothing, shoes, or any items with size variations.",
+            "boxes": "Boxes let you create multiple size variants at once. Perfect for clothing, shoes, or any items with size variations. Grouped items show a variants badge and display all sizes/colors when clicked.",
             "categories": "Organize items into categories for easier navigation and reporting.",
             "stock": "Track stock levels automatically. The system updates quantities as sales are made."
           }
