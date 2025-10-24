@@ -160,5 +160,14 @@ export async function getSession(
 
 export async function clearSession() {
   const store = await cookies();
+  // Must match the same options as setSession for proper deletion
   store.delete(SESSION_COOKIE);
+  // Also set an expired cookie to ensure deletion across all browsers
+  store.set(SESSION_COOKIE, '', {
+    httpOnly: true,
+    sameSite: 'strict',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: 0, // Expire immediately
+  });
 }

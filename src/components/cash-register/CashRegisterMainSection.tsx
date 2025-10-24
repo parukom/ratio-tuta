@@ -47,9 +47,9 @@ export const CashRegisterMainSection: React.FC<RegisterMainProps> = ({
         };
     }, [loading]);
     return (
-        <main className="flex-grow overflow-y-auto p-4">
+        <main className="flex-grow overflow-y-auto p-2 sm:p-3">
             {error && (
-                <div className="mb-4 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-700/40 dark:bg-red-950/40">
+                <div className="mb-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-700/40 dark:bg-red-950/40">
                     {error}
                 </div>
             )}
@@ -59,7 +59,7 @@ export const CashRegisterMainSection: React.FC<RegisterMainProps> = ({
                     <Spinner size={48} className="text-gray-600 dark:text-white" />
                 </div>
             ) : (
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-3 lg:grid-cols-6 xl:grid-cols-7">
+                <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 lg:grid-cols-7 xl:grid-cols-8 2xl:grid-cols-9">
                     {reloading && (
                         <div className="absolute right-6 top-6 z-20">
                             <Spinner size={20} className="text-gray-600 dark:text-white" />
@@ -102,39 +102,39 @@ export const CashRegisterMainSection: React.FC<RegisterMainProps> = ({
                             }}
                         >
                             {/* Background image card */}
-                            <div className="relative aspect-square sm:aspect-[3/4] w-full bg-gray-100 dark:bg-white/5">
+                            <div className="relative aspect-[3/4] w-full bg-gray-100 dark:bg-white/5">
                                 <Image
                                     src={pi.image ?? '/images/no-image.jpg'}
                                     alt={pi.name}
                                     fill
                                     priority={true}
-                                    sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, (max-width: 1024px) 20vw, 14vw"
+                                    sizes="(max-width: 640px) 25vw, (max-width: 768px) 20vw, (max-width: 1024px) 16vw, 12vw"
                                     style={{ objectFit: 'cover' }}
                                     className="transition-transform duration-200 ease-in-out group-hover:scale-[1.03]"
                                 />
 
                                 {/* Overlay gradient for readability */}
-                                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/100 via-black/70 to-transparent" />
+                                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/100 via-black/70 to-transparent" />
 
                                 {/* Footer content overlay */}
-                                <div className="absolute inset-x-0 bottom-0 p-1.5 sm:p-2">
-                                    <div className="flex items-end justify-between gap-1">
-                                        <div className="min-w-0">
-                                            <div className="flex items-center gap-1">
+                                <div className="absolute inset-x-0 bottom-0 p-1.5">
+                                    <div className="flex items-end justify-between gap-0.5">
+                                        <div className="min-w-0 flex-1">
+                                            <div className="flex items-center gap-0.5">
                                                 {pi.color ? (
                                                     <span
-                                                        className="hidden sm:inline-block h-3 w-3 rounded ring-1 ring-inset ring-white/30"
+                                                        className="inline-block h-2 w-2 rounded ring-1 ring-inset ring-white/30"
                                                         style={{ backgroundColor: pi.color || undefined }}
                                                         aria-label={"Color"}
                                                     />
                                                 ) : null}
-                                                <h3 className="truncate text-[11px] font-medium text-white drop-shadow sm:text-xs">
+                                                <h3 className="truncate text-[10px] font-medium text-white drop-shadow">
                                                     {pi.name}
                                                 </h3>
                                             </div>
-                                            {/* Sizes preview on larger screens only */}
+                                            {/* Sizes preview - show on all screens but compact */}
                                             {pi.items.some((c) => c.size) && (
-                                                <div className="mt-1 hidden flex-wrap gap-1 sm:flex">
+                                                <div className="mt-0.5 flex flex-wrap gap-0.5">
                                                     {(() => {
                                                         const uniqueSizes = Array.from(
                                                             new Set(pi.items.map((c) => c.size).filter(Boolean) as string[])
@@ -149,19 +149,19 @@ export const CashRegisterMainSection: React.FC<RegisterMainProps> = ({
                                                             if (bIsNum) return 1;
                                                             return String(a).localeCompare(String(b));
                                                         });
-                                                        const shown = uniqueSizes.slice(0, 4);
+                                                        const shown = uniqueSizes.slice(0, 3);
                                                         return (
                                                             <>
                                                                 {shown.map((sz) => (
                                                                     <span
                                                                         key={sz}
-                                                                        className="rounded bg-white/15 px-1.5 py-0.5 text-[10px] text-white/90 ring-1 ring-inset ring-white/30 backdrop-blur-sm"
+                                                                        className="rounded bg-white/15 px-1 py-0.5 text-[9px] text-white/90 ring-1 ring-inset ring-white/30 backdrop-blur-sm"
                                                                     >
                                                                         {sz}
                                                                     </span>
                                                                 ))}
-                                                                {uniqueSizes.length > 4 && (
-                                                                    <span className="text-[10px] text-white/80">…</span>
+                                                                {uniqueSizes.length > 3 && (
+                                                                    <span className="text-[9px] text-white/80">+{uniqueSizes.length - 3}</span>
                                                                 )}
                                                             </>
                                                         );
@@ -169,8 +169,8 @@ export const CashRegisterMainSection: React.FC<RegisterMainProps> = ({
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="flex shrink-0 flex-col items-end text-white">
-                                            <span className="text-[11px] font-semibold sm:text-xs">
+                                        <div className="flex shrink-0 flex-col items-end text-white gap-0.5">
+                                            <span className="text-[10px] font-bold leading-none">
                                                 {currency} {pi.price.toFixed(2)}
                                             </span>
                                             {(() => {
@@ -179,18 +179,18 @@ export const CashRegisterMainSection: React.FC<RegisterMainProps> = ({
                                                 const anyVolume = pi.items.some((c) => c.measurementType === 'VOLUME')
                                                 const anyArea = pi.items.some((c) => c.measurementType === 'AREA')
                                                 const qty = pi.quantity
-                                                const formatWeight = (g: number) => g >= 1000 ? `${(g / 1000).toFixed(1)} kg` : `${g} g`
-                                                const formatLength = (cm: number) => cm >= 100 ? `${(cm / 100).toFixed(1)} m` : `${cm} cm`
-                                                const formatVolume = (ml: number) => ml >= 1000 ? `${(ml / 1000).toFixed(1)} l` : `${ml} ml`
-                                                const formatArea = (cm2: number) => cm2 >= 10000 ? `${(cm2 / 10000).toFixed(1)} m²` : `${cm2} cm²`
+                                                const formatWeight = (g: number) => g >= 1000 ? `${(g / 1000).toFixed(1)}kg` : `${g}g`
+                                                const formatLength = (cm: number) => cm >= 100 ? `${(cm / 100).toFixed(1)}m` : `${cm}cm`
+                                                const formatVolume = (ml: number) => ml >= 1000 ? `${(ml / 1000).toFixed(1)}l` : `${ml}ml`
+                                                const formatArea = (cm2: number) => cm2 >= 10000 ? `${(cm2 / 10000).toFixed(1)}m²` : `${cm2}cm²`
                                                 const text = anyWeight ? formatWeight(qty) :
                                                              anyLength ? formatLength(qty) :
                                                              anyVolume ? formatVolume(qty) :
                                                              anyArea ? formatArea(qty) :
                                                              `${qty}`
                                                 return (
-                                                    <span className="mt-0.5 rounded bg-black/40 px-1 py-0.5 text-[9px] leading-none ring-1 ring-white/20 backdrop-blur-sm">
-                                                        {t('stock')}: {text}
+                                                    <span className="rounded bg-black/50 px-1 py-0.5 text-[8px] leading-none ring-1 ring-white/20 backdrop-blur-sm">
+                                                        {text}
                                                     </span>
                                                 )
                                             })()}

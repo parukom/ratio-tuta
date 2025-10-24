@@ -3,6 +3,36 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 
+// Component for theme-aware images with smooth transition using Tailwind dark mode
+function ThemeImage({ lightSrc, darkSrc, alt, objectPosition = 'center' }: { lightSrc: string; darkSrc: string; alt: string; objectPosition?: string }) {
+  const positionClass = objectPosition === 'top' ? 'object-top' :
+                        objectPosition === 'left' ? 'object-left' :
+                        'object-center';
+
+  return (
+    <div className="relative w-full h-full">
+      {/* Light mode image - visible in light mode, hidden in dark mode */}
+      <Image
+        alt={alt}
+        src={lightSrc}
+        fill
+        sizes="(max-width: 1024px) 100vw, 50vw"
+        className={`object-cover ${positionClass} transition-opacity duration-500 dark:opacity-0`}
+        priority
+      />
+      {/* Dark mode image - hidden in light mode, visible in dark mode */}
+      <Image
+        alt={alt}
+        src={darkSrc}
+        fill
+        sizes="(max-width: 1024px) 100vw, 50vw"
+        className={`object-cover ${positionClass} transition-opacity duration-500 absolute inset-0 opacity-0 dark:opacity-100`}
+        priority
+      />
+    </div>
+  )
+}
+
 export default function HowItWorks() {
   const t = useTranslations('Home')
 
@@ -23,13 +53,14 @@ export default function HowItWorks() {
           <div className="relative lg:col-span-3">
             <div className="absolute inset-0 rounded-lg bg-white max-lg:rounded-t-[2rem] lg:rounded-tl-[2rem] dark:bg-gray-800" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] max-lg:rounded-t-[calc(2rem+1px)] lg:rounded-tl-[calc(2rem+1px)]">
-              <Image
-                alt={t('howItWorks.steps.signup.title')}
-                src="/images/index/howitworks/1-signup.jpg"
-                width={800}
-                height={320}
-                className="h-80 w-full object-cover object-center"
-              />
+              <div className="h-80 w-full relative">
+                <ThemeImage
+                  alt={t('howItWorks.steps.signup.title')}
+                  lightSrc="/images/index/howitworks/auth-light.png"
+                  darkSrc="/images/index/howitworks/auth-dark.png"
+                  objectPosition="top"
+                />
+              </div>
               <div className="p-10 pt-4">
                 <h3 className="text-sm/4 font-semibold text-indigo-600 dark:text-indigo-400">
                   {t('howItWorks.steps.signup.title')}
@@ -49,13 +80,13 @@ export default function HowItWorks() {
           <div className="relative lg:col-span-3">
             <div className="absolute inset-0 rounded-lg bg-white lg:rounded-tr-[2rem] dark:bg-gray-800" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] lg:rounded-tr-[calc(2rem+1px)]">
-              <Image
-                alt={t('howItWorks.steps.createPlace.title')}
-                src="/images/index/howitworks/2-create-place.jpg"
-                width={800}
-                height={320}
-                className="h-80 w-full object-cover object-center lg:object-right"
-              />
+              <div className="h-80 w-full relative">
+                <ThemeImage
+                  alt={t('howItWorks.steps.createPlace.title')}
+                  lightSrc="/images/index/howitworks/create-place-light.png"
+                  darkSrc="/images/index/howitworks/create-place-dark.png"
+                />
+              </div>
               <div className="p-10 pt-4">
                 <h3 className="text-sm/4 font-semibold text-indigo-600 dark:text-indigo-400">
                   {t('howItWorks.steps.createPlace.title')}
@@ -75,13 +106,13 @@ export default function HowItWorks() {
           <div className="relative lg:col-span-2">
             <div className="absolute inset-0 rounded-lg bg-white lg:rounded-bl-[2rem] dark:bg-gray-800" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] lg:rounded-bl-[calc(2rem+1px)]">
-              <Image
-                alt={t('howItWorks.steps.addItems.title')}
-                src="/images/index/howitworks/3-add-items.jpg"
-                width={600}
-                height={320}
-                className="h-80 w-full object-cover object-center"
-              />
+              <div className="h-80 w-full relative">
+                <ThemeImage
+                  alt={t('howItWorks.steps.addItems.title')}
+                  lightSrc="/images/index/howitworks/create-item-light.png"
+                  darkSrc="/images/index/howitworks/create-item-dark.png"
+                />
+              </div>
               <div className="p-10 pt-4">
                 <h3 className="text-sm/4 font-semibold text-indigo-600 dark:text-indigo-400">
                   {t('howItWorks.steps.addItems.title')}
@@ -101,13 +132,13 @@ export default function HowItWorks() {
           <div className="relative lg:col-span-2">
             <div className="absolute inset-0 rounded-lg bg-white dark:bg-gray-800" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)]">
-              <Image
-                alt={t('howItWorks.steps.startSelling.title')}
-                src="/images/index/howitworks/4-start-selling.jpg"
-                width={600}
-                height={320}
-                className="h-80 w-full object-cover object-center"
-              />
+              <div className="h-80 w-full relative">
+                <ThemeImage
+                  alt={t('howItWorks.steps.startSelling.title')}
+                  lightSrc="/images/index/howitworks/cash-register-light.png"
+                  darkSrc="/images/index/howitworks/cash-register-dark.png"
+                />
+              </div>
               <div className="p-10 pt-4">
                 <h3 className="text-sm/4 font-semibold text-indigo-600 dark:text-indigo-400">
                   {t('howItWorks.steps.startSelling.title')}
@@ -127,13 +158,14 @@ export default function HowItWorks() {
           <div className="relative lg:col-span-2">
             <div className="absolute inset-0 rounded-lg bg-white max-lg:rounded-b-[2rem] lg:rounded-br-[2rem] dark:bg-gray-800" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] max-lg:rounded-b-[calc(2rem+1px)] lg:rounded-br-[calc(2rem+1px)]">
-              <Image
-                alt={t('howItWorks.steps.analytics.title')}
-                src="/images/index/howitworks/5-analytics.jpg"
-                width={600}
-                height={320}
-                className="h-80 w-full object-cover object-center"
-              />
+              <div className="h-80 w-full relative">
+                <ThemeImage
+                  alt={t('howItWorks.steps.analytics.title')}
+                  lightSrc="/images/index/howitworks/reports-light.png"
+                  darkSrc="/images/index/howitworks/reports-dark.png"
+                  objectPosition="left"
+                />
+              </div>
               <div className="p-10 pt-4">
                 <h3 className="text-sm/4 font-semibold text-indigo-600 dark:text-indigo-400">
                   {t('howItWorks.steps.analytics.title')}

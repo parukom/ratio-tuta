@@ -35,6 +35,7 @@ export default async function Home() {
     } else if (explicit.length > 1) {
       redirect('/cash-register');
     }
+    else return null; // should not reach here 
   }
 
   return (

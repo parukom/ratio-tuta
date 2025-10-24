@@ -41,18 +41,27 @@ export async function POST() {
     });
   }
 
-  // Clear session cookie
-  const res = NextResponse.json({ ok: true }, { status: 200 });
+  // Clear session cookie using the proper clearSession function
   try {
-    res.cookies.delete('session');
-  } catch {
-    // Fallback to store-based deletion
-    try {
-      await clearSession();
-    } catch {
-      console.warn('[logout] failed to clear session via store');
-    }
+    await clearSession();
+  } catch (e) {
+    console.warn('[logout] failed to clear session', e);
   }
+
+  // Return response with additional cookie deletion header as backup
+  const res = NextResponse.json({ ok: true }, { status: 200 });
+
+  // Set both possible cookie names to expired (dev and prod)
+  const cookieOptions = {
+    httpOnly: true,
+    sameSite: 'strict' as const,
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: 0,
+  };
+
+  res.cookies.set('pecunia-session', '', cookieOptions);
+  res.cookies.set('__Host-pecunia-session', '', cookieOptions);
 
   return res;
 }
