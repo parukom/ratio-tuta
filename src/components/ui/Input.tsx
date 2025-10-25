@@ -2,13 +2,13 @@ type Props = {
     id?: string;
     name?: string;
     type: string;
-    value?: string;
+    value?: string | number;
     placeholder?: string;
     className?: string;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     min?: number;
     max?: number;
-    step?: number;
+    step?: number | string;
     minLength?: number;
     maxLength?: number;
     hideLabel?: boolean;
