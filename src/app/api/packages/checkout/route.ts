@@ -4,9 +4,15 @@ import { getSession } from '@lib/session';
 import { logAudit } from '@lib/logger';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-09-30.clover',
-});
+// Lazy initialization to avoid build errors when STRIPE_SECRET_KEY is not set
+function getStripe() {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error('STRIPE_SECRET_KEY is not configured');
+  }
+  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2025-09-30.clover',
+  });
+}
 
 // POST /api/packages/checkout
 // Body: { teamId: string, packageSlug: string, annual?: boolean }
@@ -105,6 +111,8 @@ export async function POST(req: Request) {
 
     // Create or use existing Stripe customer
     let customerId = existingSubscription?.stripeCustomerId;
+
+    const stripe = getStripe();
 
     if (!customerId) {
       const customer = await stripe.customers.create({

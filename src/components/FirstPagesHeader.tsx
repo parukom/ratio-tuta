@@ -24,11 +24,10 @@ export const FirstPagesHeader = ({ session = null }: FirstPagesHeaderProps) => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
     const navigation = [
-        { name: t('hero.nav.features'), href: '#features', disabled: true },
-        { name: t('hero.nav.howItWorks'), href: '#how-it-works', disabled: true },
+        { name: t('hero.nav.features'), href: '/#features', disabled: false },
+        { name: t('hero.nav.howItWorks'), href: '/#how-it-works', disabled: false },
         { name: 'Docs', href: '/docs', disabled: false },
         { name: t('hero.nav.pricing'), href: '/pricing', disabled: false },
-        { name: t('hero.nav.contact'), href: '#', disabled: true },
     ]
     return (
         <header className="absolute inset-x-0 top-0 z-50">

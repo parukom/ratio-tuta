@@ -1,5 +1,4 @@
 'use client'
-/* eslint-disable react/no-unescaped-entities */
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { FirstPagesHeader } from '@/components/FirstPagesHeader'
@@ -56,7 +55,7 @@ export default function UserGuidePage() {
             className="inline-flex items-center gap-2 text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 mb-8"
           >
             <ArrowLeftIcon className="h-4 w-4" />
-            Back to Documentation
+            {t('userGuide.backToDocumentation')}
           </Link>
 
           {/* Header */}
@@ -81,46 +80,46 @@ export default function UserGuidePage() {
             </div>
             <div className="prose prose-gray dark:prose-invert max-w-none">
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                Welcome to Pecunia! This guide will help you get started with managing your business operations.
+                {tSections('gettingStarted.content.intro')}
               </p>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
-                Creating Your Account
+                {tSections('gettingStarted.content.creatingAccount.title')}
               </h3>
               <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                <li>Visit the <Link href="/auth?form=signup" className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">registration page</Link></li>
-                <li>Fill in your name, email, password (8-128 characters), and team name</li>
-                <li>Click "Create Account" and verify your email address</li>
-                <li>Log in with your credentials</li>
+                <li>{tSections('gettingStarted.content.creatingAccount.step1')} <Link href="/auth?form=signup" className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">registration page</Link></li>
+                <li>{tSections('gettingStarted.content.creatingAccount.step2')}</li>
+                <li>{tSections('gettingStarted.content.creatingAccount.step3')}</li>
+                <li>{tSections('gettingStarted.content.creatingAccount.step4')}</li>
               </ol>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
-                First Steps
+                {tSections('gettingStarted.content.firstSteps.title')}
               </h3>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                After logging in for the first time:
+                {tSections('gettingStarted.content.firstSteps.intro')}
               </p>
               <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                <li><strong>Create a Place:</strong> Set up your first business location (store, restaurant, event, etc.)</li>
-                <li><strong>Add Items:</strong> Build your inventory with products you sell</li>
-                <li><strong>Invite Team Members:</strong> Add staff who will help manage operations</li>
-                <li><strong>Start Selling:</strong> Use the cash register to process transactions</li>
+                <li><strong>{tSections('gettingStarted.content.firstSteps.createPlace.label')}:</strong> {tSections('gettingStarted.content.firstSteps.createPlace.description')}</li>
+                <li><strong>{tSections('gettingStarted.content.firstSteps.addItems.label')}:</strong> {tSections('gettingStarted.content.firstSteps.addItems.description')}</li>
+                <li><strong>{tSections('gettingStarted.content.firstSteps.inviteTeam.label')}:</strong> {tSections('gettingStarted.content.firstSteps.inviteTeam.description')}</li>
+                <li><strong>{tSections('gettingStarted.content.firstSteps.startSelling.label')}:</strong> {tSections('gettingStarted.content.firstSteps.startSelling.description')}</li>
               </ul>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
-                Navigation
+                {tSections('gettingStarted.content.navigation.title')}
               </h3>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                The main navigation menu includes:
+                {tSections('gettingStarted.content.navigation.intro')}
               </p>
               <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                <li><strong>Dashboard:</strong> Overview of your business metrics</li>
-                <li><strong>Cash Register:</strong> Process sales and create receipts</li>
-                <li><strong>Places:</strong> Manage your business locations</li>
-                <li><strong>Items:</strong> Manage your inventory</li>
-                <li><strong>Documents:</strong> View receipts and reports</li>
-                <li><strong>Team:</strong> Manage team members and permissions</li>
-                <li><strong>Settings:</strong> Configure your account and preferences</li>
+                <li><strong>{tSections('gettingStarted.content.navigation.dashboard.label')}:</strong> {tSections('gettingStarted.content.navigation.dashboard.description')}</li>
+                <li><strong>{tSections('gettingStarted.content.navigation.cashRegister.label')}:</strong> {tSections('gettingStarted.content.navigation.cashRegister.description')}</li>
+                <li><strong>{tSections('gettingStarted.content.navigation.places.label')}:</strong> {tSections('gettingStarted.content.navigation.places.description')}</li>
+                <li><strong>{tSections('gettingStarted.content.navigation.items.label')}:</strong> {tSections('gettingStarted.content.navigation.items.description')}</li>
+                <li><strong>{tSections('gettingStarted.content.navigation.documents.label')}:</strong> {tSections('gettingStarted.content.navigation.documents.description')}</li>
+                <li><strong>{tSections('gettingStarted.content.navigation.team.label')}:</strong> {tSections('gettingStarted.content.navigation.team.description')}</li>
+                <li><strong>{tSections('gettingStarted.content.navigation.settings.label')}:</strong> {tSections('gettingStarted.content.navigation.settings.description')}</li>
               </ul>
             </div>
           </section>
@@ -137,51 +136,51 @@ export default function UserGuidePage() {
             </div>
             <div className="prose prose-gray dark:prose-invert max-w-none">
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                Places represent your physical or virtual business locations. Each place can have its own inventory, team assignments, and sales tracking.
+                {tSections('places.content.intro')}
               </p>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
-                Creating a Place
+                {tSections('places.content.creating.title')}
               </h3>
               <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                <li>Navigate to <strong>Dashboard → Places</strong></li>
-                <li>Click <strong>"Create Place"</strong></li>
-                <li>Fill in the information:
+                <li>{tSections('places.content.creating.step1')}</li>
+                <li>{tSections('places.content.creating.step2')}</li>
+                <li>{tSections('places.content.creating.step3')}
                   <ul className="list-disc list-inside ml-6 mt-2 space-y-1">
-                    <li><strong>Name (required):</strong> Your location name - can be anything you like (e.g., "My Shop", "Downtown Store", "Store #1")</li>
-                    <li><strong>Address (optional):</strong> Physical address - can be added later</li>
-                    <li><strong>City & Country (optional):</strong> Location details</li>
-                    <li><strong>Timezone (optional):</strong> Local timezone for accurate reporting (e.g., Europe/Vilnius)</li>
-                    <li><strong>Currency (optional):</strong> Default currency (e.g., EUR, USD) - defaults to EUR if not specified</li>
+                    <li><strong>{tSections('places.content.creating.nameRequired.label')}:</strong> {tSections('places.content.creating.nameRequired.description')}</li>
+                    <li><strong>{tSections('places.content.creating.addressOptional.label')}:</strong> {tSections('places.content.creating.addressOptional.description')}</li>
+                    <li><strong>{tSections('places.content.creating.cityCountryOptional.label')}:</strong> {tSections('places.content.creating.cityCountryOptional.description')}</li>
+                    <li><strong>{tSections('places.content.creating.timezoneOptional.label')}:</strong> {tSections('places.content.creating.timezoneOptional.description')}</li>
+                    <li><strong>{tSections('places.content.creating.currencyOptional.label')}:</strong> {tSections('places.content.creating.currencyOptional.description')}</li>
                   </ul>
                 </li>
-                <li>Click <strong>"Create"</strong> to save</li>
+                <li>{tSections('places.content.creating.step4')}</li>
               </ol>
 
               <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
                 <p className="text-sm text-green-800 dark:text-green-200">
-                  <strong>✅ Quick Start:</strong> To get started quickly, you only need to provide a name. All other fields (address, timezone, currency) are optional and can be added or updated later in the place settings.
+                  <strong>✅ {tSections('places.content.creating.quickStartTip.label')}:</strong> {tSections('places.content.creating.quickStartTip.description')}
                 </p>
               </div>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
-                Managing Places
+                {tSections('places.content.managing.title')}
               </h3>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                You can:
+                {tSections('places.content.managing.intro')}
               </p>
               <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                <li><strong>Edit:</strong> Update place details, address, or settings</li>
-                <li><strong>Assign Items:</strong> Link inventory items to this location</li>
-                <li><strong>Assign Staff:</strong> Designate team members to work at this place</li>
-                <li><strong>View Reports:</strong> See sales and performance metrics per location</li>
-                <li><strong>Activate/Deactivate:</strong> Temporarily close a location without deleting it</li>
-                <li><strong>Delete:</strong> Permanently remove a place (requires confirmation)</li>
+                <li><strong>{tSections('places.content.managing.edit.label')}:</strong> {tSections('places.content.managing.edit.description')}</li>
+                <li><strong>{tSections('places.content.managing.assignItems.label')}:</strong> {tSections('places.content.managing.assignItems.description')}</li>
+                <li><strong>{tSections('places.content.managing.assignStaff.label')}:</strong> {tSections('places.content.managing.assignStaff.description')}</li>
+                <li><strong>{tSections('places.content.managing.viewReports.label')}:</strong> {tSections('places.content.managing.viewReports.description')}</li>
+                <li><strong>{tSections('places.content.managing.activateDeactivate.label')}:</strong> {tSections('places.content.managing.activateDeactivate.description')}</li>
+                <li><strong>{tSections('places.content.managing.delete.label')}:</strong> {tSections('places.content.managing.delete.description')}</li>
               </ul>
 
               <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                 <p className="text-sm text-blue-800 dark:text-blue-200">
-                  <strong>💡 Tip:</strong> Use multiple places to separate different locations, events, or business units for better reporting and management.
+                  <strong>💡 Tip:</strong> {tSections('places.content.managing.multiLocationTip')}
                 </p>
               </div>
             </div>
@@ -199,123 +198,123 @@ export default function UserGuidePage() {
             </div>
             <div className="prose prose-gray dark:prose-invert max-w-none">
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                Manage your products, track stock levels, and organize items by categories. Items are displayed as visual cards showing key information at a glance.
+                {tSections('inventory.content.intro')}
               </p>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
-                Adding Items
+                {tSections('inventory.content.adding.title')}
               </h3>
               <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                <li>Go to <strong>Dashboard → Items</strong></li>
-                <li>Click <strong>"+ Create"</strong> button</li>
-                <li>Choose between:
+                <li>{tSections('inventory.content.adding.step1')}</li>
+                <li>{tSections('inventory.content.adding.step2')}</li>
+                <li>{tSections('inventory.content.adding.step3')}
                   <ul className="list-disc list-inside ml-6 mt-2 space-y-1">
-                    <li><strong>Create Item:</strong> Add a single product</li>
-                    <li><strong>Add Box:</strong> Create multiple variants at once (e.g., shoes in sizes 35, 36, 37)</li>
+                    <li><strong>{tSections('inventory.content.adding.createItem.label')}:</strong> {tSections('inventory.content.adding.createItem.description')}</li>
+                    <li><strong>{tSections('inventory.content.adding.addBox.label')}:</strong> {tSections('inventory.content.adding.addBox.description')}</li>
                   </ul>
                 </li>
-                <li>Fill in item details:
+                <li>{tSections('inventory.content.adding.step4')}
                   <ul className="list-disc list-inside ml-6 mt-2 space-y-1">
-                    <li><strong>Name:</strong> Product name</li>
-                    <li><strong>SKU:</strong> Stock keeping unit (optional)</li>
-                    <li><strong>Price:</strong> Selling price</li>
-                    <li><strong>Cost:</strong> Purchase cost (for profit calculations)</li>
-                    <li><strong>Tax Rate:</strong> VAT or sales tax percentage</li>
-                    <li><strong>Image:</strong> Product photo (required)</li>
-                    <li><strong>Measurement Type:</strong> PCS (pieces), WEIGHT (kg/g), LENGTH (m/cm), etc.</li>
-                    <li><strong>Stock Quantity:</strong> Current inventory level</li>
-                    <li><strong>Category:</strong> Organize items by type</li>
-                    <li><strong>Size/Color:</strong> Variant details (optional)</li>
+                    <li><strong>{tSections('inventory.content.adding.name.label')}:</strong> {tSections('inventory.content.adding.name.description')}</li>
+                    <li><strong>{tSections('inventory.content.adding.sku.label')}:</strong> {tSections('inventory.content.adding.sku.description')}</li>
+                    <li><strong>{tSections('inventory.content.adding.price.label')}:</strong> {tSections('inventory.content.adding.price.description')}</li>
+                    <li><strong>{tSections('inventory.content.adding.cost.label')}:</strong> {tSections('inventory.content.adding.cost.description')}</li>
+                    <li><strong>{tSections('inventory.content.adding.taxRate.label')}:</strong> {tSections('inventory.content.adding.taxRate.description')}</li>
+                    <li><strong>{tSections('inventory.content.adding.image.label')}:</strong> {tSections('inventory.content.adding.image.description')}</li>
+                    <li><strong>{tSections('inventory.content.adding.measurementType.label')}:</strong> {tSections('inventory.content.adding.measurementType.description')}</li>
+                    <li><strong>{tSections('inventory.content.adding.stockQuantity.label')}:</strong> {tSections('inventory.content.adding.stockQuantity.description')}</li>
+                    <li><strong>{tSections('inventory.content.adding.category.label')}:</strong> {tSections('inventory.content.adding.category.description')}</li>
+                    <li><strong>{tSections('inventory.content.adding.sizeColor.label')}:</strong> {tSections('inventory.content.adding.sizeColor.description')}</li>
                   </ul>
                 </li>
-                <li>Click <strong>"Create"</strong></li>
+                <li>{tSections('inventory.content.adding.step5')}</li>
               </ol>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
-                Viewing Item Details
+                {tSections('inventory.content.viewing.title')}
               </h3>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                Items are displayed as compact cards showing:
+                {tSections('inventory.content.viewing.intro')}
               </p>
               <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                <li><strong>Product Image:</strong> Visual representation or color swatch</li>
-                <li><strong>Name:</strong> Item or box name</li>
-                <li><strong>Stock Level:</strong> Current available quantity</li>
-                <li><strong>Price:</strong> Selling price per unit</li>
-                <li><strong>Variant Badge:</strong> Shows number of sizes/colors for grouped items</li>
+                <li><strong>{tSections('inventory.content.viewing.productImage.label')}:</strong> {tSections('inventory.content.viewing.productImage.description')}</li>
+                <li><strong>{tSections('inventory.content.viewing.name.label')}:</strong> {tSections('inventory.content.viewing.name.description')}</li>
+                <li><strong>{tSections('inventory.content.viewing.stockLevel.label')}:</strong> {tSections('inventory.content.viewing.stockLevel.description')}</li>
+                <li><strong>{tSections('inventory.content.viewing.price.label')}:</strong> {tSections('inventory.content.viewing.price.description')}</li>
+                <li><strong>{tSections('inventory.content.viewing.variantBadge.label')}:</strong> {tSections('inventory.content.viewing.variantBadge.description')}</li>
               </ul>
               <p className="text-gray-700 dark:text-gray-300 mt-4">
-                <strong>Click any card</strong> to open a detailed drawer showing:
+                <strong>{tSections('inventory.content.viewing.clickCard')}</strong>
               </p>
               <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                <li>Full product information (status, SKU, pricing, tax, measurements)</li>
-                <li>Complete description and tags</li>
-                <li><strong>For grouped items:</strong> List of all variants with individual stock levels</li>
-                <li>Brand, color, and other metadata</li>
+                <li>{tSections('inventory.content.viewing.fullInfo')}</li>
+                <li>{tSections('inventory.content.viewing.description')}</li>
+                <li><strong>{tSections('inventory.content.viewing.forGrouped.label')}:</strong> {tSections('inventory.content.viewing.forGrouped.description')}</li>
+                <li>{tSections('inventory.content.viewing.metadata')}</li>
               </ul>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
-                Boxes and Grouped Items
+                {tSections('inventory.content.boxes.title')}
               </h3>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                When you have multiple variants of the same product (e.g., T-shirt in S/M/L/XL), use <strong>"Add Box"</strong> to create them together:
+                {tSections('inventory.content.boxes.intro')}
               </p>
               <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                <li>All variants share the same base name, price, and tax rate</li>
-                <li>Each variant can have different sizes, colors, and stock levels</li>
-                <li>Grouped items appear as a single card with a <strong>"variants"</strong> badge</li>
-                <li>Click the grouped card to see all variants with individual stock quantities</li>
-                <li>Edit or delete individual variants, or manage the entire box at once</li>
+                <li>{tSections('inventory.content.boxes.shared')}</li>
+                <li>{tSections('inventory.content.boxes.different')}</li>
+                <li>{tSections('inventory.content.boxes.singleCard')}</li>
+                <li>{tSections('inventory.content.boxes.clickToView')}</li>
+                <li>{tSections('inventory.content.boxes.manage')}</li>
               </ul>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
-                Item Categories
+                {tSections('inventory.content.categories.title')}
               </h3>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                Categories help organize your inventory:
+                {tSections('inventory.content.categories.intro')}
               </p>
               <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                <li>Create categories like "Beverages", "Food", "Merchandise", etc.</li>
-                <li>Assign items to categories for easier browsing</li>
-                <li>Filter items by category in both the Items page and cash register</li>
+                <li>{tSections('inventory.content.categories.create')}</li>
+                <li>{tSections('inventory.content.categories.assign')}</li>
+                <li>{tSections('inventory.content.categories.filter')}</li>
               </ul>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
-                Measurement Types
+                {tSections('inventory.content.measurementTypes.title')}
               </h3>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                Different selling methods for different products:
+                {tSections('inventory.content.measurementTypes.intro')}
               </p>
               <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                <li><strong>PCS (Pieces):</strong> Sell by unit (e.g., bottles, shirts)</li>
-                <li><strong>WEIGHT:</strong> Sell by weight in kg or grams (e.g., coffee, meat)</li>
-                <li><strong>LENGTH:</strong> Sell by length in meters or cm (e.g., fabric, cable)</li>
-                <li><strong>VOLUME:</strong> Sell by volume in liters or ml (e.g., bulk liquids)</li>
-                <li><strong>AREA:</strong> Sell by area in m² or cm² (e.g., tiles, wallpaper)</li>
+                <li><strong>{tSections('inventory.content.measurementTypes.pcs.label')}:</strong> {tSections('inventory.content.measurementTypes.pcs.description')}</li>
+                <li><strong>{tSections('inventory.content.measurementTypes.weight.label')}:</strong> {tSections('inventory.content.measurementTypes.weight.description')}</li>
+                <li><strong>{tSections('inventory.content.measurementTypes.length.label')}:</strong> {tSections('inventory.content.measurementTypes.length.description')}</li>
+                <li><strong>{tSections('inventory.content.measurementTypes.volume.label')}:</strong> {tSections('inventory.content.measurementTypes.volume.description')}</li>
+                <li><strong>{tSections('inventory.content.measurementTypes.area.label')}:</strong> {tSections('inventory.content.measurementTypes.area.description')}</li>
               </ul>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
-                Managing Items
+                {tSections('inventory.content.managing.title')}
               </h3>
               <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                <li><strong>Edit:</strong> Click "Edit" button on any card to update details or adjust stock</li>
-                <li><strong>Delete:</strong> Remove items permanently (with confirmation)</li>
-                <li><strong>Toggle View:</strong> Switch between Cards view and Table view</li>
-                <li><strong>Group Toggle:</strong> Group similar items or show all items individually</li>
-                <li><strong>Search:</strong> Find items by name quickly</li>
-                <li><strong>Filter:</strong> Show only active items, in-stock items, or by category</li>
-                <li><strong>Sort:</strong> Order by name, price, stock level, or creation date</li>
+                <li><strong>{tSections('inventory.content.managing.edit.label')}:</strong> {tSections('inventory.content.managing.edit.description')}</li>
+                <li><strong>{tSections('inventory.content.managing.delete.label')}:</strong> {tSections('inventory.content.managing.delete.description')}</li>
+                <li><strong>{tSections('inventory.content.managing.toggleView.label')}:</strong> {tSections('inventory.content.managing.toggleView.description')}</li>
+                <li><strong>{tSections('inventory.content.managing.groupToggle.label')}:</strong> {tSections('inventory.content.managing.groupToggle.description')}</li>
+                <li><strong>{tSections('inventory.content.managing.search.label')}:</strong> {tSections('inventory.content.managing.search.description')}</li>
+                <li><strong>{tSections('inventory.content.managing.filter.label')}:</strong> {tSections('inventory.content.managing.filter.description')}</li>
+                <li><strong>{tSections('inventory.content.managing.sort.label')}:</strong> {tSections('inventory.content.managing.sort.description')}</li>
               </ul>
 
               <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
                 <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                  <strong>⚠️ Important:</strong> Stock quantities are tracked in the base unit (grams for WEIGHT, cm for LENGTH, ml for VOLUME, cm² for AREA). The system converts between units automatically when displaying or editing.
+                  <strong>⚠️ Important:</strong> {tSections('inventory.content.managing.stockWarning')}
                 </p>
               </div>
 
               <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                 <p className="text-sm text-blue-800 dark:text-blue-200">
-                  <strong>💡 Pro Tip:</strong> Use the grouped view to keep your inventory organized. Items with the same base name and color are automatically grouped together, making it easier to manage products with multiple sizes or variants.
+                  <strong>💡 Pro Tip:</strong> {tSections('inventory.content.managing.groupedViewTip')}
                 </p>
               </div>
             </div>
@@ -333,57 +332,57 @@ export default function UserGuidePage() {
             </div>
             <div className="prose prose-gray dark:prose-invert max-w-none">
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                The cash register is your point-of-sale (POS) system for processing transactions.
+                {tSections('cashRegister.content.intro')}
               </p>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
-                Making a Sale
+                {tSections('cashRegister.content.making.title')}
               </h3>
               <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                <li>Navigate to <strong>Cash Register</strong> from the main menu</li>
-                <li>Select the <strong>Place</strong> where you're selling (if you have multiple)</li>
-                <li>Browse or search for items</li>
-                <li>Click on items to add them to the cart:
+                <li>{tSections('cashRegister.content.making.step1')}</li>
+                <li>{tSections('cashRegister.content.making.step2')}</li>
+                <li>{tSections('cashRegister.content.making.step3')}</li>
+                <li>{tSections('cashRegister.content.making.step4')}
                   <ul className="list-disc list-inside ml-6 mt-2 space-y-1">
-                    <li>For <strong>PCS items:</strong> Each click adds 1 unit</li>
-                    <li>For <strong>WEIGHT/LENGTH items:</strong> Enter the amount (kg, meters, etc.)</li>
-                    <li>Items with variants (sizes, colors) show a selection modal</li>
+                    <li><strong>{tSections('cashRegister.content.making.pcsItems.label')}:</strong> {tSections('cashRegister.content.making.pcsItems.description')}</li>
+                    <li><strong>{tSections('cashRegister.content.making.weightLengthItems.label')}:</strong> {tSections('cashRegister.content.making.weightLengthItems.description')}</li>
+                    <li><strong>{tSections('cashRegister.content.making.variants.label')}:</strong> {tSections('cashRegister.content.making.variants.description')}</li>
                   </ul>
                 </li>
-                <li>Review the cart on the right side:
+                <li>{tSections('cashRegister.content.making.step5')}
                   <ul className="list-disc list-inside ml-6 mt-2 space-y-1">
-                    <li>See item names, quantities, and prices</li>
-                    <li>View subtotal, tax, and total</li>
-                    <li>Adjust quantities if needed</li>
+                    <li><strong>{tSections('cashRegister.content.making.itemDetails.label')}:</strong> {tSections('cashRegister.content.making.itemDetails.description')}</li>
+                    <li><strong>{tSections('cashRegister.content.making.totals.label')}:</strong> {tSections('cashRegister.content.making.totals.description')}</li>
+                    <li><strong>{tSections('cashRegister.content.making.adjust.label')}:</strong> {tSections('cashRegister.content.making.adjust.description')}</li>
                   </ul>
                 </li>
-                <li>Click <strong>"Checkout"</strong></li>
-                <li>Choose payment method: <strong>Cash</strong> or <strong>Card</strong></li>
-                <li>For cash payments:
+                <li>{tSections('cashRegister.content.making.step6')}</li>
+                <li>{tSections('cashRegister.content.making.step7')}</li>
+                <li>{tSections('cashRegister.content.making.step8')}
                   <ul className="list-disc list-inside ml-6 mt-2 space-y-1">
-                    <li>Enter amount received from customer</li>
-                    <li>System calculates change automatically</li>
+                    <li><strong>{tSections('cashRegister.content.making.enterAmount.label')}:</strong> {tSections('cashRegister.content.making.enterAmount.description')}</li>
+                    <li><strong>{tSections('cashRegister.content.making.autoChange.label')}:</strong> {tSections('cashRegister.content.making.autoChange.description')}</li>
                   </ul>
                 </li>
-                <li>Click <strong>"Complete Sale"</strong></li>
-                <li>Receipt is generated and stock is updated automatically</li>
+                <li>{tSections('cashRegister.content.making.step9')}</li>
+                <li>{tSections('cashRegister.content.making.step10')}</li>
               </ol>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
-                Cash Register Features
+                {tSections('cashRegister.content.features.title')}
               </h3>
               <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                <li><strong>Search:</strong> Quickly find items by name or SKU</li>
-                <li><strong>Filters:</strong> Show only in-stock items, filter by category</li>
-                <li><strong>Sort:</strong> Sort by name, price, or stock level</li>
-                <li><strong>Cart Preview:</strong> Real-time total calculation with tax</li>
-                <li><strong>Quick Actions:</strong> Fast buttons for common items</li>
-                <li><strong>Stock Warnings:</strong> Visual indicators for low/out-of-stock items</li>
+                <li><strong>{tSections('cashRegister.content.features.search.label')}:</strong> {tSections('cashRegister.content.features.search.description')}</li>
+                <li><strong>{tSections('cashRegister.content.features.filters.label')}:</strong> {tSections('cashRegister.content.features.filters.description')}</li>
+                <li><strong>{tSections('cashRegister.content.features.sort.label')}:</strong> {tSections('cashRegister.content.features.sort.description')}</li>
+                <li><strong>{tSections('cashRegister.content.features.cartPreview.label')}:</strong> {tSections('cashRegister.content.features.cartPreview.description')}</li>
+                <li><strong>{tSections('cashRegister.content.features.quickActions.label')}:</strong> {tSections('cashRegister.content.features.quickActions.description')}</li>
+                <li><strong>{tSections('cashRegister.content.features.stockWarnings.label')}:</strong> {tSections('cashRegister.content.features.stockWarnings.description')}</li>
               </ul>
 
               <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
                 <p className="text-sm text-green-800 dark:text-green-200">
-                  <strong>✅ Pro Tip:</strong> The cash register automatically updates inventory levels after each sale. You can view transaction history in the Documents section.
+                  <strong>✅ Pro Tip:</strong> {tSections('cashRegister.content.features.autoUpdate')}
                 </p>
               </div>
             </div>
@@ -401,68 +400,68 @@ export default function UserGuidePage() {
             </div>
             <div className="prose prose-gray dark:prose-invert max-w-none">
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                Track your business performance with comprehensive reports and analytics.
+                {tSections('reports.content.intro')}
               </p>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
-                Available Reports
+                {tSections('reports.content.available.title')}
               </h3>
               <ul className="list-disc list-inside space-y-3 text-gray-700 dark:text-gray-300">
                 <li>
-                  <strong>Sales Overview:</strong> Total revenue, number of transactions, average transaction value
+                  <strong>{tSections('reports.content.available.salesOverview.label')}:</strong> {tSections('reports.content.available.salesOverview.description')}
                 </li>
                 <li>
-                  <strong>By Place:</strong> Compare performance across different locations
+                  <strong>{tSections('reports.content.available.byPlace.label')}:</strong> {tSections('reports.content.available.byPlace.description')}
                 </li>
                 <li>
-                  <strong>By Item:</strong> See which products sell best
+                  <strong>{tSections('reports.content.available.byItem.label')}:</strong> {tSections('reports.content.available.byItem.description')}
                 </li>
                 <li>
-                  <strong>By Category:</strong> Analyze sales by product category
+                  <strong>{tSections('reports.content.available.byCategory.label')}:</strong> {tSections('reports.content.available.byCategory.description')}
                 </li>
                 <li>
-                  <strong>By Time Period:</strong> Daily, weekly, monthly, and custom date ranges
+                  <strong>{tSections('reports.content.available.byTimePeriod.label')}:</strong> {tSections('reports.content.available.byTimePeriod.description')}
                 </li>
                 <li>
-                  <strong>Payment Methods:</strong> Cash vs. card transaction breakdown
+                  <strong>{tSections('reports.content.available.paymentMethods.label')}:</strong> {tSections('reports.content.available.paymentMethods.description')}
                 </li>
                 <li>
-                  <strong>Tax Reports:</strong> VAT/sales tax collected for accounting
+                  <strong>{tSections('reports.content.available.taxReports.label')}:</strong> {tSections('reports.content.available.taxReports.description')}
                 </li>
                 <li>
-                  <strong>Stock Levels:</strong> Current inventory status and low-stock alerts
+                  <strong>{tSections('reports.content.available.stockLevels.label')}:</strong> {tSections('reports.content.available.stockLevels.description')}
                 </li>
               </ul>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
-                Accessing Reports
+                {tSections('reports.content.accessing.title')}
               </h3>
               <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                <li>Go to <strong>Dashboard → Home</strong> for overview metrics</li>
-                <li>Visit <strong>Documents</strong> to see all receipts</li>
-                <li>Filter by date range, place, or payment method</li>
-                <li>Export data for external analysis (coming soon)</li>
+                <li>{tSections('reports.content.accessing.step1')}</li>
+                <li>{tSections('reports.content.accessing.step2')}</li>
+                <li>{tSections('reports.content.accessing.step3')}</li>
+                <li>{tSections('reports.content.accessing.step4')}</li>
               </ol>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
-                Key Metrics
+                {tSections('reports.content.keyMetrics.title')}
               </h3>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                Monitor these important business indicators:
+                {tSections('reports.content.keyMetrics.intro')}
               </p>
               <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                <li><strong>Revenue:</strong> Total sales income</li>
-                <li><strong>Gross Profit:</strong> Revenue minus cost of goods sold</li>
-                <li><strong>Transaction Count:</strong> Number of sales completed</li>
-                <li><strong>Average Order Value:</strong> Revenue divided by transactions</li>
-                <li><strong>Items Sold:</strong> Total quantity of products sold</li>
-                <li><strong>Top Sellers:</strong> Best-performing products</li>
-                <li><strong>Stock Turnover:</strong> How quickly inventory sells</li>
+                <li><strong>{tSections('reports.content.keyMetrics.revenue.label')}:</strong> {tSections('reports.content.keyMetrics.revenue.description')}</li>
+                <li><strong>{tSections('reports.content.keyMetrics.grossProfit.label')}:</strong> {tSections('reports.content.keyMetrics.grossProfit.description')}</li>
+                <li><strong>{tSections('reports.content.keyMetrics.transactionCount.label')}:</strong> {tSections('reports.content.keyMetrics.transactionCount.description')}</li>
+                <li><strong>{tSections('reports.content.keyMetrics.averageOrderValue.label')}:</strong> {tSections('reports.content.keyMetrics.averageOrderValue.description')}</li>
+                <li><strong>{tSections('reports.content.keyMetrics.itemsSold.label')}:</strong> {tSections('reports.content.keyMetrics.itemsSold.description')}</li>
+                <li><strong>{tSections('reports.content.keyMetrics.topSellers.label')}:</strong> {tSections('reports.content.keyMetrics.topSellers.description')}</li>
+                <li><strong>{tSections('reports.content.keyMetrics.stockTurnover.label')}:</strong> {tSections('reports.content.keyMetrics.stockTurnover.description')}</li>
               </ul>
 
               <div className="mt-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
                 <p className="text-sm text-purple-800 dark:text-purple-200">
-                  <strong>📊 Data Insights:</strong> Reports are updated in real-time. Use date filters to compare different time periods and identify trends.
+                  <strong>📊 Data Insights:</strong> {tSections('reports.content.keyMetrics.realTimeUpdate')}
                 </p>
               </div>
             </div>
@@ -471,32 +470,32 @@ export default function UserGuidePage() {
           {/* Quick Links */}
           <div className="mt-16 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Need More Help?
+              {t('userGuide.needMoreHelp')}
             </h3>
             <div className="grid gap-3 sm:grid-cols-2">
               <Link
                 href="/docs"
                 className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
               >
-                ← Back to All Documentation
+                {t('userGuide.backToAllDocs')}
               </Link>
               <Link
                 href="/docs/developer"
                 className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
               >
-                Developer Guide →
+                {t('userGuide.developerGuide')}
               </Link>
               <Link
                 href="/dashboard/home"
                 className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
               >
-                Go to Dashboard →
+                {t('userGuide.goToDashboard')}
               </Link>
               <Link
                 href="/auth"
                 className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
               >
-                Sign Up / Login →
+                {t('userGuide.signUpLogin')}
               </Link>
             </div>
           </div>

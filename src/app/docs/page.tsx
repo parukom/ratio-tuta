@@ -242,20 +242,20 @@ export default function DocsPage() {
           {/* Quick Links */}
           <div className="mt-16 rounded-lg bg-indigo-50 dark:bg-indigo-950/20 p-8">
             <h3 className="text-lg font-semibold text-indigo-900 dark:text-indigo-100">
-              Quick Links
+              {t('quickLinks')}
             </h3>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <Link
                 href="/auth"
                 className="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
               >
-                Get Started →
+                {t('getStarted')}
               </Link>
               <Link
                 href="/pricing"
                 className="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
               >
-                View Pricing →
+                {t('viewPricing')}
               </Link>
               <a
                 href="https://github.com/anthropics/ratio-tuta"
@@ -263,13 +263,13 @@ export default function DocsPage() {
                 rel="noopener noreferrer"
                 className="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
               >
-                GitHub Repository →
+                {t('githubRepository')}
               </a>
               <Link
                 href="/dashboard/home"
                 className="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
               >
-                Dashboard →
+                {t('dashboard')}
               </Link>
             </div>
           </div>

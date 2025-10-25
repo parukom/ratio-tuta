@@ -150,7 +150,9 @@
       "mismatch": "Текст не совпадает.",
       "success": "Аккаунт удалён. Вы будете выведены из системы.",
       "confirmPhrase": "i really want to delete this team and all data related to it",
-      "errors": { "failed": "Не удалось удалить аккаунт" },
+      "errors": {
+        "failed": "Не удалось удалить аккаунт"
+      },
       "copied": "Текст скопирован. Вставьте его ниже для подтверждения.",
       "copyFailed": "Не удалось скопировать текст"
     }
@@ -331,7 +333,10 @@
           "searchPlaceholder": "Поиск по названию, SKU или категории",
           "inStockOnTitle": "Показываются только в наличии",
           "inStockOffTitle": "Включая отсутствующие",
-          "view": { "boxes": "Коробки", "items": "Товары" },
+          "view": {
+            "boxes": "Коробки",
+            "items": "Товары"
+          },
           "loading": "Загрузка…",
           "noItems": "Товары не найдены.",
           "noBoxes": "Коробки не найдены.",
@@ -554,6 +559,42 @@
           "description": "Подробная документация, видеоуроки и отзывчивая поддержка, когда вам это нужно."
         }
       }
+    },
+    "faq": {
+      "badge": "FAQ",
+      "title": "Часто задаваемые вопросы",
+      "subtitle": "Всё, что нужно знать о Ratio Tuta",
+      "q1": {
+        "question": "Что такое Ratio Tuta?",
+        "answer": "Ratio Tuta — это современная система управления продажами (POS) и бизнесом, ориентированная на конфиденциальность. Мы помогаем компаниям отслеживать продажи, управлять инвентарём, работать с несколькими локациями и получать аналитику — всё это при сохранении безопасности и конфиденциальности ваших данных."
+      },
+      "q2": {
+        "question": "Сколько это стоит?",
+        "answer": "Ratio Tuta предлагает бесплатную версию, которую можно использовать неограниченно! По мере роста вашего бизнеса и потребности в дополнительных функциях, мы предлагаем гибкие платные планы с прозрачным ценообразованием и без скрытых платежей. Вы платите только за то, что используете. Подробную информацию смотрите на странице Цены."
+      },
+      "q3": {
+        "question": "Нужно ли специальное оборудование?",
+        "answer": "Нет! Ratio Tuta работает на любом устройстве с веб-браузером — ноутбуках, планшетах, смартфонах. Вам не нужны дорогие POS-терминалы или специальное оборудование. Если хотите печатать чеки, подойдёт любой стандартный принтер чеков."
+      },
+      "q4": {
+        "question": "Безопасны ли мои данные?",
+        "answer": "Абсолютно. Конфиденциальность — основа нашей работы. Мы используем шифрование банковского уровня, безопасные сеансы и никогда не продаём ваши данные третьим лицам. У вас полный контроль над тем, кто что видит, благодаря контролю доступа на основе ролей и полным журналам аудита."
+      },
+      "q5": {
+        "question": "Могу ли я управлять несколькими локациями?",
+        "answer": "Да! Ratio Tuta создана для бизнеса с несколькими локациями. Управляйте несколькими магазинами, складами или точками продаж с единой панели. Отслеживайте инвентарь и продажи во всех локациях в реальном времени, с отдельными правами и отчётами для каждой точки."
+      },
+      "q6": {
+        "question": "Как быстро я могу начать?",
+        "answer": "Очень быстро! Большинство компаний начинают работу менее чем за 5 минут. Просто зарегистрируйтесь, создайте своё первое место, добавьте несколько товаров — и вы готовы к первой продаже. Наш интуитивный интерфейс означает минимальное обучение для вашей команды."
+      },
+      "q7": {
+        "question": "Вы отслеживаете или собираете мои данные?",
+        "answer": "Нет. Мы не собираем, не отслеживаем и не продаём ваши данные. Мы не читаем вашу почту, нам неважно, кто вы и что вы продаёте. Данные вашего бизнеса остаются вашими—мы их никогда не анализируем, не используем и не применяем ни для каких целей. Конфиденциальность — это наша миссия, а не маркетинг. Мы создали Ratio Tuta действительно приватной по умолчанию."
+      },
+      "stillHaveQuestions": "Остались вопросы?",
+      "viewDocs": "Посмотреть документацию",
+      "contactSupport": "Связаться с поддержкой"
     }
   },
   "Team": {
@@ -682,7 +723,10 @@
       "expandAll": "Развернуть все",
       "collapseAll": "Свернуть все",
       "reset": "Сбросить",
-      "view": { "cards": "Карточки", "table": "Таблица" },
+      "view": {
+        "cards": "Карточки",
+        "table": "Таблица"
+      },
       "sort": {
         "label": "Сортировка",
         "newest": "Сначала новые",
@@ -886,31 +930,706 @@
     }
   },
   "Docs": {
-    "title": "Документация",
-    "subtitle": "Всё, что нужно знать для эффективного использования Ratio tuta",
-    "searchPlaceholder": "Поиск в документации...",
+    "title": "Documentation",
+    "subtitle": "Everything you need to know about using Ratio tuta effectively",
+    "searchPlaceholder": "Search documentation...",
     "categories": {
-      "user": "Руководство пользователя",
-      "developer": "Руководство разработчика",
-      "api": "Справочник API",
-      "security": "Безопасность"
+      "user": "User Guide",
+      "developer": "Developer Guide",
+      "api": "API Reference",
+      "security": "Security"
     },
     "userGuide": {
       "title": "Руководство пользователя",
-      "description": "Узнайте, как эффективно использовать Ratio tuta"
+      "description": "Узнайте, как эффективно использовать Ratio Tuta",
+      "backToDocumentation": "Назад к документации",
+      "needMoreHelp": "Нужна дополнительная помощь?",
+      "backToAllDocs": "← Назад ко всей документации",
+      "developerGuide": "Руководство разработчика →",
+      "goToDashboard": "Перейти на панель →",
+      "signUpLogin": "Регистрация / Вход →",
+      "sections": {
+        "gettingStarted": {
+          "title": "Начало работы",
+          "description": "Руководство по быстрому старту для новых пользователей",
+          "content": {
+            "intro": "Добро пожаловать в Ratio Tuta! Это руководство поможет вам начать управление бизнес-операциями.",
+            "creatingAccount": {
+              "title": "Создание учетной записи",
+              "step1": "Перейдите на страницу регистрации",
+              "step2": "Заполните ваше имя, email, пароль (8-128 символов) и название команды",
+              "step3": "Нажмите \"Создать учетную запись\" и подтвердите ваш email адрес",
+              "step4": "Войдите с вашими данными"
+            },
+            "firstSteps": {
+              "title": "Первые шаги",
+              "intro": "После первого входа:",
+              "createPlace": {
+                "label": "Создать место",
+                "description": "Настройте первую бизнес-локацию (магазин, ресторан, событие и т.д.)"
+              },
+              "addItems": {
+                "label": "Добавить товары",
+                "description": "Создайте инвентарь с продаваемыми товарами"
+              },
+              "inviteTeam": {
+                "label": "Пригласить членов команды",
+                "description": "Добавьте сотрудников, которые помогут управлять операциями"
+              },
+              "startSelling": {
+                "label": "Начать продажи",
+                "description": "Используйте кассу для обработки транзакций"
+              }
+            },
+            "navigation": {
+              "title": "Навигация",
+              "intro": "Основное меню навигации включает:",
+              "dashboard": {
+                "label": "Панель",
+                "description": "Обзор метрик вашего бизнеса"
+              },
+              "cashRegister": {
+                "label": "Касса",
+                "description": "Обработка продаж и создание чеков"
+              },
+              "places": {
+                "label": "Места",
+                "description": "Управление бизнес-локациями"
+              },
+              "items": {
+                "label": "Товары",
+                "description": "Управление инвентарем"
+              },
+              "documents": {
+                "label": "Документы",
+                "description": "Просмотр чеков и отчетов"
+              },
+              "team": {
+                "label": "Команда",
+                "description": "Управление членами команды и правами"
+              },
+              "settings": {
+                "label": "Настройки",
+                "description": "Конфигурация учетной записи и предпочтений"
+              }
+            }
+          }
+        },
+        "places": {
+          "title": "Управление местами",
+          "description": "Как создавать и управлять вашими локациями",
+          "content": {
+            "intro": "Места представляют ваши физические или виртуальные бизнес-локации. Каждое место может иметь свой собственный инвентарь, назначения команды и отслеживание продаж.",
+            "creating": {
+              "title": "Создание места",
+              "step1": "Перейдите в Панель → Места",
+              "step2": "Нажмите \"Создать место\"",
+              "step3": "Заполните информацию:",
+              "nameRequired": {
+                "label": "Название (обязательно)",
+                "description": "Название вашей локации - может быть любым (например, \"Мой магазин\", \"Магазин в центре\", \"Магазин №1\")"
+              },
+              "addressOptional": {
+                "label": "Адрес (необязательно)",
+                "description": "Физический адрес - можно добавить позже"
+              },
+              "cityCountryOptional": {
+                "label": "Город и страна (необязательно)",
+                "description": "Информация о местоположении"
+              },
+              "timezoneOptional": {
+                "label": "Часовой пояс (необязательно)",
+                "description": "Местный часовой пояс для точного форматирования отчетов (например, Europe/Vilnius)"
+              },
+              "currencyOptional": {
+                "label": "Валюта (необязательно)",
+                "description": "Валюта по умолчанию (например, EUR, USD) - если не указана, используется EUR"
+              },
+              "step4": "Нажмите \"Создать\" для сохранения",
+              "quickStartTip": {
+                "label": "Быстрый старт",
+                "description": "Для быстрого начала требуется только название. Все остальные поля (адрес, часовой пояс, валюта) необязательны и могут быть добавлены или обновлены позже в настройках места."
+              }
+            },
+            "managing": {
+              "title": "Управление местами",
+              "intro": "Вы можете:",
+              "edit": {
+                "label": "Редактировать",
+                "description": "Обновить детали места, адрес или настройки"
+              },
+              "assignItems": {
+                "label": "Назначить товары",
+                "description": "Связать товары инвентаря с этой локацией"
+              },
+              "assignStaff": {
+                "label": "Назначить персонал",
+                "description": "Назначить членов команды для работы в этом месте"
+              },
+              "viewReports": {
+                "label": "Просмотр отчетов",
+                "description": "Просмотреть метрики продаж и производительности по локации"
+              },
+              "activateDeactivate": {
+                "label": "Активировать/Деактивировать",
+                "description": "Временно закрыть локацию без удаления"
+              },
+              "delete": {
+                "label": "Удалить",
+                "description": "Полностью удалить место (требуется подтверждение)"
+              },
+              "multiLocationTip": "Используйте несколько мест для разделения различных локаций, событий или бизнес-подразделений для улучшенной отчетности и управления."
+            }
+          }
+        },
+        "inventory": {
+          "title": "Управление инвентарем",
+          "description": "Управление товарами и уровнями запасов",
+          "content": {
+            "intro": "Управляйте вашими товарами, отслеживайте уровни запасов и организуйте товары по категориям. Товары отображаются в виде визуальных карточек с ключевой информацией.",
+            "adding": {
+              "title": "Добавление товаров",
+              "step1": "Перейдите в Панель → Товары",
+              "step2": "Нажмите кнопку \"+ Создать\"",
+              "step3": "Выберите между:",
+              "createItem": {
+                "label": "Создать товар",
+                "description": "Добавить один продукт"
+              },
+              "addBox": {
+                "label": "Добавить коробку",
+                "description": "Создать несколько вариантов за раз (например, обувь размеров 35, 36, 37)"
+              },
+              "step4": "Заполните детали товара:",
+              "name": {
+                "label": "Название",
+                "description": "Название продукта"
+              },
+              "sku": {
+                "label": "SKU",
+                "description": "Код товара (необязательно)"
+              },
+              "price": {
+                "label": "Цена",
+                "description": "Цена продажи"
+              },
+              "cost": {
+                "label": "Себестоимость",
+                "description": "Цена закупки (для расчета прибыли)"
+              },
+              "taxRate": {
+                "label": "Ставка налога",
+                "description": "Процент НДС или налога с продаж"
+              },
+              "image": {
+                "label": "Изображение",
+                "description": "Фото продукта (обязательно)"
+              },
+              "measurementType": {
+                "label": "Тип измерения",
+                "description": "ШТ (штуки), ВЕС (кг/г), ДЛИНА (м/см) и т.д."
+              },
+              "stockQuantity": {
+                "label": "Количество на складе",
+                "description": "Текущий уровень запасов"
+              },
+              "category": {
+                "label": "Категория",
+                "description": "Организуйте товары по типу"
+              },
+              "sizeColor": {
+                "label": "Размер/Цвет",
+                "description": "Детали варианта (необязательно)"
+              },
+              "step5": "Нажмите \"Создать\""
+            },
+            "viewing": {
+              "title": "Просмотр деталей товара",
+              "intro": "Товары отображаются в виде компактных карточек, показывающих:",
+              "productImage": {
+                "label": "Изображение продукта",
+                "description": "Визуальное представление или образец цвета"
+              },
+              "name": {
+                "label": "Название",
+                "description": "Название товара или коробки"
+              },
+              "stockLevel": {
+                "label": "Уровень запасов",
+                "description": "Текущее доступное количество"
+              },
+              "price": {
+                "label": "Цена",
+                "description": "Цена продажи за единицу"
+              },
+              "variantBadge": {
+                "label": "Значок варианта",
+                "description": "Показывает количество размеров/цветов для групповых товаров"
+              },
+              "clickCard": "Нажмите на любую карточку, чтобы открыть подробную панель с:",
+              "fullInfo": "Полная информация о товаре (статус, SKU, цены, налог, измерения)",
+              "description": "Полное описание и теги",
+              "forGrouped": {
+                "label": "Для групповых товаров",
+                "description": "Список всех вариантов с индивидуальными уровнями запасов"
+              },
+              "metadata": "Бренд, цвет и другие метаданные"
+            },
+            "boxes": {
+              "title": "Коробки и сгруппированные товары",
+              "intro": "Когда у вас есть несколько вариантов одного товара (например, футболка в размерах S/M/L/XL), используйте \"Добавить коробку\" для их совместного создания:",
+              "shared": "Все варианты имеют одинаковое базовое название, цену и налоговую ставку",
+              "different": "Каждый вариант может иметь разные размеры, цвета и уровни запасов",
+              "singleCard": "Сгруппированные товары отображаются как одна карточка со значком \"варианты\"",
+              "clickToView": "Нажмите на сгруппированную карточку, чтобы увидеть все варианты с индивидуальным количеством на складе",
+              "manage": "Редактируйте или удаляйте отдельные варианты, или управляйте всей коробкой сразу"
+            },
+            "categories": {
+              "title": "Категории товаров",
+              "intro": "Категории помогают организовать ваш инвентарь:",
+              "create": "Создавайте категории типа \"Напитки\", \"Еда\", \"Товары\" и т.д.",
+              "assign": "Назначайте товары категориям для удобного просмотра",
+              "filter": "Фильтруйте товары по категориям как на странице товаров, так и в кассе"
+            },
+            "measurementTypes": {
+              "title": "Типы измерения",
+              "intro": "Различные способы продажи для разных товаров:",
+              "pcs": {
+                "label": "PCS (Штуки)",
+                "description": "Продажа по единицам (например, бутылки, рубашки)"
+              },
+              "weight": {
+                "label": "WEIGHT",
+                "description": "Продажа по весу в кг или граммах (например, кофе, мясо)"
+              },
+              "length": {
+                "label": "LENGTH",
+                "description": "Продажа по длине в метрах или см (например, ткань, кабель)"
+              },
+              "volume": {
+                "label": "VOLUME",
+                "description": "Продажа по объему в литрах или мл (например, жидкости навалом)"
+              },
+              "area": {
+                "label": "AREA",
+                "description": "Продажа по площади в м² или см² (например, плитка, обои)"
+              }
+            },
+            "managing": {
+              "title": "Управление товарами",
+              "edit": {
+                "label": "Редактировать",
+                "description": "Нажмите кнопку \"Редактировать\" на любой карточке для обновления деталей или корректировки запасов"
+              },
+              "delete": {
+                "label": "Удалить",
+                "description": "Удалить товары навсегда (с подтверждением)"
+              },
+              "toggleView": {
+                "label": "Переключить вид",
+                "description": "Переключаться между видом Карточки и Таблицы"
+              },
+              "groupToggle": {
+                "label": "Переключатель группировки",
+                "description": "Группировать похожие товары или показывать все товары отдельно"
+              },
+              "search": {
+                "label": "Поиск",
+                "description": "Быстро найти товары по названию"
+              },
+              "filter": {
+                "label": "Фильтр",
+                "description": "Показать только активные товары, товары в наличии или по категории"
+              },
+              "sort": {
+                "label": "Сортировка",
+                "description": "Упорядочить по названию, цене, уровню запасов или дате создания"
+              },
+              "stockWarning": "Количество на складе отслеживается в базовых единицах (граммы для WEIGHT, см для LENGTH, мл для VOLUME, см² для AREA). Система автоматически конвертирует между единицами при отображении или редактировании.",
+              "groupedViewTip": "Используйте сгруппированный вид для организации вашего инвентаря. Товары с одинаковым базовым названием и цветом автоматически группируются вместе, что облегчает управление товарами с несколькими размерами или вариантами."
+            }
+          }
+        },
+        "cashRegister": {
+          "title": "Использование кассы",
+          "description": "Обработка продаж и транзакций",
+          "content": {
+            "intro": "Касса — это ваша система точек продаж (POS) для обработки транзакций.",
+            "making": {
+              "title": "Совершение продажи",
+              "step1": "Перейдите в Касса из главного меню",
+              "step2": "Выберите Место, где вы продаете (если у вас их несколько)",
+              "step3": "Просматривайте или ищите товары",
+              "step4": "Нажимайте на товары, чтобы добавить их в корзину:",
+              "pcsItems": {
+                "label": "Для товаров PCS",
+                "description": "Каждое нажатие добавляет 1 единицу"
+              },
+              "weightLengthItems": {
+                "label": "Для товаров WEIGHT/LENGTH",
+                "description": "Введите количество (кг, метры и т.д.)"
+              },
+              "variants": {
+                "label": "Товары с вариантами (размеры, цвета)",
+                "description": "Показывают модальное окно выбора"
+              },
+              "step5": "Проверьте корзину справа:",
+              "itemDetails": {
+                "label": "Детали товара",
+                "description": "Посмотрите названия товаров, количества и цены"
+              },
+              "totals": {
+                "label": "Суммы",
+                "description": "Просмотрите промежуточную сумму, налог и итог"
+              },
+              "adjust": {
+                "label": "Скорректировать",
+                "description": "Скорректируйте количество при необходимости"
+              },
+              "step6": "Нажмите \"Оформить\"",
+              "step7": "Выберите способ оплаты: Наличные или Карта",
+              "step8": "Для оплаты наличными:",
+              "enterAmount": {
+                "label": "Введите сумму",
+                "description": "Введите сумму, полученную от клиента"
+              },
+              "autoChange": {
+                "label": "Автоматический расчет сдачи",
+                "description": "Система автоматически рассчитывает сдачу"
+              },
+              "step9": "Нажмите \"Завершить продажу\"",
+              "step10": "Чек генерируется, и запасы обновляются автоматически"
+            },
+            "features": {
+              "title": "Функции кассы",
+              "search": {
+                "label": "Поиск",
+                "description": "Быстро найти товары по названию или SKU"
+              },
+              "filters": {
+                "label": "Фильтры",
+                "description": "Показать только товары в наличии, фильтровать по категории"
+              },
+              "sort": {
+                "label": "Сортировка",
+                "description": "Сортировать по названию, цене или уровню запасов"
+              },
+              "cartPreview": {
+                "label": "Предпросмотр корзины",
+                "description": "Расчет итога в реальном времени с налогом"
+              },
+              "quickActions": {
+                "label": "Быстрые действия",
+                "description": "Быстрые кнопки для популярных товаров"
+              },
+              "stockWarnings": {
+                "label": "Предупреждения о запасах",
+                "description": "Визуальные индикаторы для товаров с низким запасом/отсутствующих на складе"
+              },
+              "autoUpdate": "Касса автоматически обновляет уровни запасов после каждой продажи. Вы можете просмотреть историю транзакций в разделе Документы."
+            }
+          }
+        },
+        "reports": {
+          "title": "Отчеты и аналитика",
+          "description": "Понимание ваших бизнес-данных",
+          "content": {
+            "intro": "Отслеживайте производительность вашего бизнеса с помощью комплексных отчетов и аналитики.",
+            "available": {
+              "title": "Доступные отчеты",
+              "salesOverview": {
+                "label": "Обзор продаж",
+                "description": "Общий доход, количество транзакций, средняя стоимость транзакции"
+              },
+              "byPlace": {
+                "label": "По местам",
+                "description": "Сравнение производительности разных локаций"
+              },
+              "byItem": {
+                "label": "По товарам",
+                "description": "Посмотрите, какие товары продаются лучше всего"
+              },
+              "byCategory": {
+                "label": "По категориям",
+                "description": "Анализ продаж по категориям товаров"
+              },
+              "byTimePeriod": {
+                "label": "По периодам времени",
+                "description": "Ежедневные, еженедельные, ежемесячные и пользовательские диапазоны дат"
+              },
+              "paymentMethods": {
+                "label": "Способы оплаты",
+                "description": "Разбивка транзакций наличными и картой"
+              },
+              "taxReports": {
+                "label": "Налоговые отчеты",
+                "description": "Собранный НДС/налог с продаж для бухгалтерии"
+              },
+              "stockLevels": {
+                "label": "Уровни запасов",
+                "description": "Текущий статус инвентаря и предупреждения о низком запасе"
+              }
+            },
+            "accessing": {
+              "title": "Доступ к отчетам",
+              "step1": "Перейдите в Панель → Главная для обзорных метрик",
+              "step2": "Посетите Документы, чтобы увидеть все чеки",
+              "step3": "Фильтруйте по диапазону дат, месту или способу оплаты",
+              "step4": "Экспорт данных для внешнего анализа (скоро)"
+            },
+            "keyMetrics": {
+              "title": "Ключевые метрики",
+              "intro": "Мониторьте эти важные бизнес-индикаторы:",
+              "revenue": {
+                "label": "Доход",
+                "description": "Общий доход от продаж"
+              },
+              "grossProfit": {
+                "label": "Валовая прибыль",
+                "description": "Доход минус себестоимость проданных товаров"
+              },
+              "transactionCount": {
+                "label": "Количество транзакций",
+                "description": "Количество завершенных продаж"
+              },
+              "averageOrderValue": {
+                "label": "Средняя стоимость заказа",
+                "description": "Доход, разделенный на транзакции"
+              },
+              "itemsSold": {
+                "label": "Проданные товары",
+                "description": "Общее количество проданных товаров"
+              },
+              "topSellers": {
+                "label": "Лидеры продаж",
+                "description": "Товары с лучшими результатами"
+              },
+              "stockTurnover": {
+                "label": "Оборот запасов",
+                "description": "Как быстро продается инвентарь"
+              },
+              "realTimeUpdate": "Отчеты обновляются в реальном времени. Используйте фильтры дат для сравнения разных периодов времени и выявления тенденций."
+            }
+          }
+        }
+      }
     },
     "developerGuide": {
       "title": "Руководство разработчика",
-      "description": "Техническая документация для разработчиков"
+      "description": "Техническая документация для разработчиков",
+      "backToDocumentation": "Назад к документации",
+      "additionalResources": "Дополнительные ресурсы",
+      "backToAllDocs": "← Назад ко всей документации",
+      "userGuide": "Руководство пользователя →",
+      "nextjsDocs": "Документация Next.js ↗",
+      "prismaDocs": "Документация Prisma ↗",
+      "sections": {
+        "architecture": {
+          "title": "Обзор архитектуры",
+          "description": "Архитектура системы и технологический стек",
+          "content": {
+            "intro": "Ratio Tuta is built with modern web technologies for performance, scalability, and developer experience.",
+            "techStack": "Tech Stack",
+            "frontend": "Frontend",
+            "nextjsDesc": "React framework with App Router",
+            "typescriptDesc": "Type safety",
+            "tailwindDesc": "Utility-first styling",
+            "nextIntlDesc": "Internationalization",
+            "toastDesc": "Notifications",
+            "backend": "Backend",
+            "apiRoutesDesc": "Serverless endpoints",
+            "prismaDesc": "ORM and database toolkit",
+            "postgresDesc": "Relational database",
+            "bcryptDesc": "Password hashing",
+            "ironSessionDesc": "Secure sessions",
+            "infrastructure": "Infrastructure",
+            "s3Desc": "File storage (avatars, images)",
+            "redisDesc": "Rate limiting & caching",
+            "resendDesc": "Transactional emails",
+            "vercelDesc": "Deployment platform",
+            "security": "Security",
+            "csrfDesc": "Stateless HMAC tokens",
+            "cspDesc": "Content Security Policy",
+            "rateLimitDesc": "DDoS protection",
+            "aesDesc": "Email encryption",
+            "projectStructure": "Project Structure",
+            "designPatterns": "Design Patterns",
+            "patternsList": {
+              "0": "Server Components: Default for data fetching and SSR",
+              "1": "Client Components: Only when needed for interactivity",
+              "2": "API Route Handlers: RESTful endpoints in /app/api",
+              "3": "Middleware: Session validation, CSRF, rate limiting",
+              "4": "Custom Hooks: Reusable stateful logic (e.g., useCsrfToken)",
+              "5": "Repository Pattern: Database operations abstracted via Prisma"
+            },
+            "architecturePrinciple": "Architecture Principle: We follow a pragmatic approach - use server components for data fetching, client components for interactivity, and API routes for mutations."
+          }
+        },
+        "database": {
+          "title": "Схема базы данных",
+          "description": "Понимание модели данных",
+          "content": {
+            "intro": "PostgreSQL database managed with Prisma ORM for type-safe queries and migrations.",
+            "coreModels": "Core Models",
+            "userAuth": "User & Authentication",
+            "userAuthSecurity": "Security: Emails are encrypted (AES-256-GCM) and HMAC-indexed for secure lookups.",
+            "teamMembers": "Team & Members",
+            "teamMultitenancy": "Multi-tenancy: Team-based isolation for security and data separation.",
+            "place": "Place (Location)",
+            "item": "Item (Product)",
+            "measurementTypes": "Measurement Types: PCS, WEIGHT, LENGTH, VOLUME, AREA",
+            "receipt": "Receipt & Line Items",
+            "databaseOperations": "Database Operations",
+            "securityNote": "Security: All database queries use parameterized statements via Prisma. Email addresses are encrypted at rest and HMAC-indexed for secure lookups."
+          }
+        },
+        "api": {
+          "title": "API маршруты",
+          "description": "Доступные API endpoints",
+          "content": {
+            "intro": "RESTful API built with Next.js 15 API Routes. All endpoints require authentication unless marked as public.",
+            "authEndpoints": "Authentication Endpoints",
+            "loginDescription": "Login with email & password. Returns user data and sets session cookie.",
+            "registerDescription": "Register new user account. Sends verification email.",
+            "logoutDescription": "End session and clear cookies. Requires CSRF token.",
+            "resourceEndpoints": "Resource Endpoints",
+            "endpoint": "Endpoint",
+            "method": "Method",
+            "description": "Description",
+            "csrf": "CSRF",
+            "getCurrentUser": "Get current user",
+            "updateProfile": "Update profile",
+            "deleteAccount": "Delete account",
+            "listPlaces": "List places",
+            "createPlace": "Create place",
+            "updatePlace": "Update place",
+            "deletePlace": "Delete place",
+            "listItems": "List items",
+            "createItem": "Create item",
+            "createReceipt": "Create receipt",
+            "usingApiClient": "Using the API Client",
+            "apiClientDescription": "Frontend uses a CSRF-enabled API wrapper:",
+            "csrfProtection": "CSRF Protection: All POST/PATCH/PUT/DELETE requests automatically include a CSRF token via the X-CSRF-Token header."
+          }
+        },
+        "security": {
+          "title": "Практики безопасности",
+          "description": "Встроенные функции безопасности",
+          "content": {
+            "intro": "Comprehensive security implementation following OWASP guidelines and industry best practices.",
+            "csrfProtection": "CSRF Protection",
+            "csrfImplementation": "Implementation: Stateless HMAC-based tokens tied to user sessions",
+            "csrfFeatures": {
+              "0": "Token format: randomValue.hmac(randomValue:userId)",
+              "1": "No server-side storage required",
+              "2": "Timing-safe token comparison (prevents timing attacks)",
+              "3": "Auto-included in all state-changing requests",
+              "4": "9 critical endpoints protected"
+            },
+            "authSessions": "Authentication & Sessions",
+            "authFeatures": {
+              "0": "Password Hashing: bcrypt with 12 rounds",
+              "1": "Password Requirements: 8-128 characters, complexity checks",
+              "2": "Pwned Password Check: k-Anonymity API integration",
+              "3": "Session Cookies: HttpOnly, Secure, SameSite=Strict, __Host- prefix",
+              "4": "Session Storage: iron-session with AES-256-GCM encryption",
+              "5": "Email Verification: Required for account activation"
+            },
+            "dataProtection": "Data Protection",
+            "emailEncryption": "Email Encryption",
+            "emailFeatures": {
+              "0": "AES-256-GCM at rest",
+              "1": "HMAC-SHA256 for lookups",
+              "2": "Prevents data breach exposure"
+            },
+            "fileStorage": "File Storage",
+            "fileFeatures": {
+              "0": "AWS S3 with signed URLs",
+              "1": "5MB max file size",
+              "2": "MIME type validation"
+            },
+            "securityHeaders": "Security Headers",
+            "rateLimiting": "Rate Limiting",
+            "rateLimitingFeatures": {
+              "0": "Authentication: 5 attempts per 15 minutes per IP",
+              "1": "API Endpoints: Sliding window algorithm",
+              "2": "Storage: Upstash Redis (distributed)",
+              "3": "Response Headers: X-RateLimit-* for debugging"
+            },
+            "auditLogging": "Audit Logging",
+            "auditDescription": "All security-sensitive actions are logged:",
+            "securityChecklist": "Security Checklist: Never commit secrets (.env), always use HTTPS in production, rotate JWT secrets regularly, monitor audit logs for suspicious activity."
+          }
+        },
+        "deployment": {
+          "title": "Руководство по развертыванию",
+          "description": "Как развернуть собственный экземпляр",
+          "content": {
+            "intro": "Deploy to production with Vercel, PostgreSQL, and AWS services.",
+            "environmentVariables": "Environment Variables",
+            "envDescription": "Required environment variables (see .env.example):",
+            "deploymentSteps": "Deployment Steps",
+            "step1": "Set up PostgreSQL database",
+            "step1Description": "Use Vercel Postgres, Supabase, or any PostgreSQL provider. Run migrations",
+            "step2": "Configure AWS S3 bucket",
+            "step2List": {
+              "0": "Create bucket with private access",
+              "1": "Configure CORS for your domain",
+              "2": "Create IAM user with S3 permissions"
+            },
+            "step3": "Set up Redis (Upstash)",
+            "step3Description": "Create Redis database at upstash.com. Copy REST URL and token to env vars",
+            "step4": "Deploy to Vercel",
+            "step4Description": "Install Vercel CLI, deploy with vercel --prod, or connect GitHub repo for auto-deploys",
+            "step5": "Set environment variables in Vercel dashboard",
+            "step6": "Configure custom domain",
+            "productionChecklist": "Production Checklist",
+            "checklistItems": {
+              "0": "Database migrations applied",
+              "1": "All environment variables set",
+              "2": "SESSION_SECRET is cryptographically strong (32+ chars)",
+              "3": "HTTPS enabled (automatic with Vercel)",
+              "4": "Email sending configured and tested",
+              "5": "S3 bucket CORS configured for your domain",
+              "6": "Rate limiting enabled (Upstash Redis connected)",
+              "7": "Audit logging reviewed",
+              "8": "Error monitoring configured (Sentry, etc.)"
+            },
+            "monitoring": "Monitoring",
+            "monitoringList": {
+              "0": "Vercel Analytics: Performance and usage metrics",
+              "1": "Database: Monitor connection pool, query performance",
+              "2": "Redis: Check rate limit hits, cache performance",
+              "3": "S3: Monitor storage usage and costs",
+              "4": "Logs: Review audit logs for security events"
+            },
+            "performance": "Performance: Next.js automatically optimizes your app with code splitting, image optimization, and edge caching. Vercel provides global CDN distribution."
+          }
+        }
+      }
     },
     "apiReference": {
-      "title": "Справочник API",
+      "title": "API справочник",
       "description": "Полная документация API",
-      "coming": "Подробная документация API скоро. Пока см. Руководство разработчика → Маршруты API."
+      "coming": "Подробная документация API скоро. Пока см. Руководство разработчика → API маршруты."
     },
+    "quickLinks": "Быстрые ссылки",
+    "getStarted": "Начать работу →",
+    "viewPricing": "Посмотреть цены →",
+    "githubRepository": "GitHub репозиторий →",
+    "dashboard": "Панель →",
     "security": {
       "title": "Безопасность и конфиденциальность",
-      "description": "Как мы защищаем ваши данные"
+      "description": "Как мы защищаем ваши данные",
+      "content": {
+        "intro": "Безопасность и конфиденциальность ваших данных — наши главные приоритеты.",
+        "encryption": "Все данные шифруются при передаче (TLS 1.3) и в состоянии покоя в базе данных.",
+        "access": "Контроль доступа на основе ролей гарантирует, что пользователи видят только то, к чему у них есть права доступа.",
+        "audit": "Комплексное журналирование аудита отслеживает все важные действия.",
+        "compliance": "Разработано с принципами конфиденциальности и соблюдением GDPR.",
+        "updates": "Регулярные обновления безопасности и сканирование уязвимостей.",
+        "score": "Оценка аудита безопасности: 9.5/10 (см. SECURITY_FIXES_COMPLETED.md)"
+      }
     }
   },
   "CashRegister": {
@@ -949,7 +1668,8 @@
       "VOLUME": "Объём",
       "AREA": "Площадь",
       "kilograms": "Килограммы"
-    }
+    },
+    "color": "Цвет"
   },
   "Pricing": {
     "title": "Цены",
@@ -1031,5 +1751,27 @@
       "chartTitle": "Доход со временем",
       "revenue": "Доход"
     }
+  },
+  "Footer": {
+    "tagline": "Конфиденциальность прежде всего. Ваши данные остаются вашими.",
+    "product": {
+      "title": "Продукт",
+      "features": "Функции",
+      "howItWorks": "Как это работает",
+      "pricing": "Цены",
+      "docs": "Документация"
+    },
+    "support": {
+      "title": "Поддержка",
+      "userGuide": "Руководство",
+      "developerDocs": "Документация для разработчиков",
+      "contact": "Связаться с нами"
+    },
+    "legal": {
+      "title": "Правовая информация",
+      "privacy": "Политика конфиденциальности",
+      "terms": "Условия использования"
+    },
+    "copyright": "© {year} Ratio Tuta. Все права защищены."
   }
 }

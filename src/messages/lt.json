@@ -150,7 +150,9 @@
       "mismatch": "Tekstas nesutampa.",
       "success": "Paskyra ištrinta. Būsite atjungti.",
       "confirmPhrase": "i really want to delete this team and all data related to it",
-      "errors": { "failed": "Nepavyko ištrinti paskyros" },
+      "errors": {
+        "failed": "Nepavyko ištrinti paskyros"
+      },
       "copied": "Tekstas nukopijuotas. Įklijuokite jį žemiau patvirtinimui.",
       "copyFailed": "Nepavyko nukopijuoti teksto"
     }
@@ -371,7 +373,10 @@
           "searchPlaceholder": "Ieškoti pagal pavadinimą, SKU ar kategoriją",
           "inStockOnTitle": "Rodomos tik sandėlyje",
           "inStockOffTitle": "Įtraukti ir pasibaigusias",
-          "view": { "boxes": "Dėžučių vaizdas", "items": "Prekių vaizdas" },
+          "view": {
+            "boxes": "Dėžučių vaizdas",
+            "items": "Prekių vaizdas"
+          },
           "loading": "Įkeliama…",
           "noItems": "Prekių nerasta.",
           "noBoxes": "Dėžučių nerasta.",
@@ -594,6 +599,42 @@
           "description": "Išsami dokumentacija, vaizdo pamokos ir atsakanti pagalba, kai jos reikia."
         }
       }
+    },
+    "faq": {
+      "badge": "DUK",
+      "title": "Dažniausiai užduodami klausimai",
+      "subtitle": "Visa, ką reikia žinoti apie Ratio Tuta",
+      "q1": {
+        "question": "Kas yra Ratio Tuta?",
+        "answer": "Ratio Tuta yra moderni, privatumą sauganti kasos aparato (POS) ir verslo valdymo sistema. Padedame verslams sekti pardavimus, valdyti inventorių, tvarkyti kelias lokacijas ir gauti įžvalgas per galingas analitines priemones—visa tai išlaikant jūsų duomenis saugius ir privačius."
+      },
+      "q2": {
+        "question": "Kiek tai kainuoja?",
+        "answer": "Ratio Tuta siūlo nemokamą versiją, kurią galite naudoti neribotai! Kai jūsų verslas auga ir jums reikia daugiau funkcijų, siūlome lanksčius mokamus planus su skaidria kainodara ir be paslėptų mokesčių. Mokate tik už tai, ką naudojate. Peržiūrėkite mūsų Kainų puslapį dėl išsamių planų."
+      },
+      "q3": {
+        "question": "Ar man reikia specialios įrangos?",
+        "answer": "Ne! Ratio Tuta veikia bet kuriame įrenginyje su interneto naršykle—nešiojamuosiuose kompiuteriuose, planšetėse, išmaniuosiuose telefonuose. Jums nereikia brangių POS terminalų ar specialios įrangos. Jei norite spausdinti kvitus, tiks bet koks standartinis kvitų spausdintuvas."
+      },
+      "q4": {
+        "question": "Ar mano duomenys yra saugūs ir privatūs?",
+        "answer": "Absoliučiai. Privatumas yra mūsų veiklos pagrindas. Naudojame bankinės klasės šifravimą, saugias sesijas ir niekada neparduodame jūsų duomenų trečiosioms šalims. Jūs visiškai kontroliuojate, kas ką mato, naudodami vaidmenimis pagrįstą prieigos kontrolę ir pilną auditų istoriją."
+      },
+      "q5": {
+        "question": "Ar galiu valdyti kelias lokacijas?",
+        "answer": "Taip! Ratio Tuta sukurta daugiavietėms įmonėms. Valdykite kelias parduotuves, sandėlius ar pardavimo taškus iš vieno valdymo pulto. Sekite inventorių ir pardavimus visose lokacijose realiuoju laiku, su atskiromis teisėmis ir ataskaitomis kiekvienai vietai."
+      },
+      "q6": {
+        "question": "Kaip greitai galiu pradėti?",
+        "answer": "Labai greitai! Dauguma įmonių pradeda veikti per mažiau nei 5 minutes. Tiesiog užsiregistruokite, sukurkite savo pirmąją vietą, pridėkite kelis produktus ir esate pasirengę atlikti pirmąjį pardavimą. Mūsų intuityvi sąsaja reiškia minimalų mokymą jūsų komandai."
+      },
+      "q7": {
+        "question": "Ar jūs sekate ar renkate mano duomenis?",
+        "answer": "Ne. Mes nerenkame, nesekame ir neparduodame jūsų duomenų. Mes neskaitome jūsų el. laiškų, nežinome kas jūs esate ar ką parduodate. Jūsų verslo duomenys lieka jūsų—mes jų niekada neanalizuojame, neišgauname ir nenaudojame niekam. Privatumas yra mūsų misija, o ne marketingas. Sukūrėme Ratio Tuta, kad būtų iš tikrųjų privati pagal nutylėjimą."
+      },
+      "stillHaveQuestions": "Vis dar turite klausimų?",
+      "viewDocs": "Peržiūrėti dokumentaciją",
+      "contactSupport": "Susisiekti su palaikymu"
     }
   },
   "Team": {
@@ -722,7 +763,10 @@
       "expandAll": "Išplėsti visas",
       "collapseAll": "Sutraukti visas",
       "reset": "Atstatyti",
-      "view": { "cards": "Kortelės", "table": "Lentelė" },
+      "view": {
+        "cards": "Kortelės",
+        "table": "Lentelė"
+      },
       "sort": {
         "label": "Rūšiuoti",
         "newest": "Naujausios",
@@ -926,31 +970,706 @@
     }
   },
   "Docs": {
-    "title": "Dokumentacija",
-    "subtitle": "Visa, ką reikia žinoti naudojantis Ratio tuta",
-    "searchPlaceholder": "Ieškoti dokumentacijoje...",
+    "title": "Documentation",
+    "subtitle": "Everything you need to know about using Ratio tuta effectively",
+    "searchPlaceholder": "Search documentation...",
     "categories": {
-      "user": "Vartotojo gidas",
-      "developer": "Programuotojo gidas",
-      "api": "API dokumentacija",
-      "security": "Saugumas"
+      "user": "User Guide",
+      "developer": "Developer Guide",
+      "api": "API Reference",
+      "security": "Security"
     },
     "userGuide": {
       "title": "Vartotojo gidas",
-      "description": "Sužinokite, kaip efektyviai naudotis Ratio tuta"
+      "description": "Sužinokite, kaip efektyviai naudotis Ratio Tuta",
+      "backToDocumentation": "Atgal į dokumentaciją",
+      "needMoreHelp": "Reikia daugiau pagalbos?",
+      "backToAllDocs": "← Atgal į visą dokumentaciją",
+      "developerGuide": "Programuotojo gidas →",
+      "goToDashboard": "Eiti į skydelį →",
+      "signUpLogin": "Registracija / Prisijungimas →",
+      "sections": {
+        "gettingStarted": {
+          "title": "Pradedame",
+          "description": "Greitas pradžios gidas naujiems vartotojams",
+          "content": {
+            "intro": "Sveiki atvykę į Ratio Tuta! Šis gidas padės jums pradėti valdyti savo verslo veiklą.",
+            "creatingAccount": {
+              "title": "Paskyros sukūrimas",
+              "step1": "Apsilankykite registracijos puslapyje",
+              "step2": "Užpildykite savo vardą, el. paštą, slaptažodį (8-128 simboliai) ir komandos pavadinimą",
+              "step3": "Spustelėkite \"Sukurti paskyrą\" ir patvirtinkite savo el. pašto adresą",
+              "step4": "Prisijunkite su savo duomenimis"
+            },
+            "firstSteps": {
+              "title": "Pirmieji žingsniai",
+              "intro": "Pirmą kartą prisijungę:",
+              "createPlace": {
+                "label": "Sukurkite vietą",
+                "description": "Nustatykite pirmą verslo lokaciją (parduotuvę, restoraną, renginį ir t.t.)"
+              },
+              "addItems": {
+                "label": "Pridėkite prekes",
+                "description": "Sukurkite inventorių su parduodamais produktais"
+              },
+              "inviteTeam": {
+                "label": "Pakvieskite komandos narius",
+                "description": "Pridėkite darbuotojus, kurie padės valdyti veiklą"
+              },
+              "startSelling": {
+                "label": "Pradėkite pardavinėti",
+                "description": "Naudokite kasą operacijoms apdoroti"
+              }
+            },
+            "navigation": {
+              "title": "Navigacija",
+              "intro": "Pagrindinis navigacijos meniu apima:",
+              "dashboard": {
+                "label": "Skydelis",
+                "description": "Jūsų verslo metrikų apžvalga"
+              },
+              "cashRegister": {
+                "label": "Kasa",
+                "description": "Pardavimų apdorojimas ir čekių kūrimas"
+              },
+              "places": {
+                "label": "Vietos",
+                "description": "Verslo lokacijų valdymas"
+              },
+              "items": {
+                "label": "Prekės",
+                "description": "Inventoriaus valdymas"
+              },
+              "documents": {
+                "label": "Dokumentai",
+                "description": "Čekių ir ataskaitų peržiūra"
+              },
+              "team": {
+                "label": "Komanda",
+                "description": "Komandos narių ir teisių valdymas"
+              },
+              "settings": {
+                "label": "Nustatymai",
+                "description": "Paskyros ir nuostatų konfigūravimas"
+              }
+            }
+          }
+        },
+        "places": {
+          "title": "Vietų valdymas",
+          "description": "Kaip kurti ir valdyti savo lokacijas",
+          "content": {
+            "intro": "Vietos reprezentuoja jūsų fizines ar virtualias verslo lokacijas. Kiekviena vieta gali turėti savo inventorių, komandos priskyrimą ir pardavimų stebėjimą.",
+            "creating": {
+              "title": "Vietos kūrimas",
+              "step1": "Eikite į Skydelis → Vietos",
+              "step2": "Spustelėkite \"Sukurti vietą\"",
+              "step3": "Užpildykite informaciją:",
+              "nameRequired": {
+                "label": "Pavadinimas (būtinas)",
+                "description": "Jūsų lokacijos pavadinimas - gali būti bet kas (pvz., \"Mano parduotuvė\", \"Miesto centro parduotuvė\", \"Parduotuvė Nr.1\")"
+              },
+              "addressOptional": {
+                "label": "Adresas (neprivalomas)",
+                "description": "Fizinis adresas - galima pridėti vėliau"
+              },
+              "cityCountryOptional": {
+                "label": "Miestas ir šalis (neprivaloma)",
+                "description": "Lokacijos informacija"
+              },
+              "timezoneOptional": {
+                "label": "Laiko zona (neprivaloma)",
+                "description": "Vietinė laiko zona tiksliam ataskaitų formavimui (pvz., Europe/Vilnius)"
+              },
+              "currencyOptional": {
+                "label": "Valiuta (neprivaloma)",
+                "description": "Numatytoji valiuta (pvz., EUR, USD) - jei nenurodyta, naudojama EUR"
+              },
+              "step4": "Spustelėkite \"Sukurti\" išsaugojimui",
+              "quickStartTip": {
+                "label": "Greitas pradžia",
+                "description": "Norint pradėti greitai, pakanka nurodyti tik pavadinimą. Visi kiti laukai (adresas, laiko zona, valiuta) yra neprivalomi ir gali būti pridėti ar atnaujinti vėliau vietų nustatymuose."
+              }
+            },
+            "managing": {
+              "title": "Vietų valdymas",
+              "intro": "Galite:",
+              "edit": {
+                "label": "Redaguoti",
+                "description": "Atnaujinti vietos duomenis, adresą ar nustatymus"
+              },
+              "assignItems": {
+                "label": "Priskirti prekes",
+                "description": "Susieti inventoriaus prekes su šia lokacija"
+              },
+              "assignStaff": {
+                "label": "Priskirti personalą",
+                "description": "Paskirti komandos narius dirbti šioje vietoje"
+              },
+              "viewReports": {
+                "label": "Peržiūrėti ataskaitas",
+                "description": "Matyti pardavimų ir našumo metrikas pagal lokaciją"
+              },
+              "activateDeactivate": {
+                "label": "Aktyvuoti/Išjungti",
+                "description": "Laikinai uždaryti lokaciją neištrinant jos"
+              },
+              "delete": {
+                "label": "Ištrinti",
+                "description": "Visam laikui pašalinti vietą (reikalingas patvirtinimas)"
+              },
+              "multiLocationTip": "Naudokite kelias vietas skirtingoms lokacijoms, renginiams ar verslo padaliniams atskirti geresniam ataskaitų teikimui ir valdymui."
+            }
+          }
+        },
+        "inventory": {
+          "title": "Inventoriaus valdymas",
+          "description": "Prekių ir atsargų lygių tvarkymas",
+          "content": {
+            "intro": "Valdykite savo produktus, stebėkite atsargų lygius ir organizuokite prekes pagal kategorijas. Prekės rodomos kaip vaizdinės kortelės, parodančios pagrindinę informaciją vienu žvilgsniu.",
+            "adding": {
+              "title": "Prekių pridėjimas",
+              "step1": "Eikite į Skydelis → Prekės",
+              "step2": "Spustelėkite \"+ Sukurti\" mygtuką",
+              "step3": "Pasirinkite iš:",
+              "createItem": {
+                "label": "Sukurti prekę",
+                "description": "Pridėti vieną produktą"
+              },
+              "addBox": {
+                "label": "Pridėti dėžutę",
+                "description": "Sukurti kelis variantus vienu metu (pvz., batai 35, 36, 37 dydžių)"
+              },
+              "step4": "Užpildykite prekės duomenis:",
+              "name": {
+                "label": "Pavadinimas",
+                "description": "Produkto pavadinimas"
+              },
+              "sku": {
+                "label": "SKU",
+                "description": "Prekės kodas (neprivalomas)"
+              },
+              "price": {
+                "label": "Kaina",
+                "description": "Pardavimo kaina"
+              },
+              "cost": {
+                "label": "Savikaina",
+                "description": "Pirkimo kaina (pelno skaičiavimui)"
+              },
+              "taxRate": {
+                "label": "Mokesčio tarifas",
+                "description": "PVM arba pardavimo mokesčio procentas"
+              },
+              "image": {
+                "label": "Nuotrauka",
+                "description": "Produkto foto (būtina)"
+              },
+              "measurementType": {
+                "label": "Matavimo tipas",
+                "description": "VNT (vienetai), SVORIS (kg/g), ILGIS (m/cm), ir t.t."
+              },
+              "stockQuantity": {
+                "label": "Atsargų kiekis",
+                "description": "Dabartinis inventoriaus lygis"
+              },
+              "category": {
+                "label": "Kategorija",
+                "description": "Organizuokite prekes pagal tipą"
+              },
+              "sizeColor": {
+                "label": "Dydis/Spalva",
+                "description": "Varianto duomenys (neprivaloma)"
+              },
+              "step5": "Spustelėkite \"Sukurti\""
+            },
+            "viewing": {
+              "title": "Prekių duomenų peržiūra",
+              "intro": "Prekės rodomos kaip kompaktiškos kortelės, parodančios:",
+              "productImage": {
+                "label": "Produkto nuotrauka",
+                "description": "Vizualinis atvaizdas arba spalvos pavyzdys"
+              },
+              "name": {
+                "label": "Pavadinimas",
+                "description": "Prekės ar dėžutės pavadinimas"
+              },
+              "stockLevel": {
+                "label": "Atsargų lygis",
+                "description": "Dabartinis prieinamas kiekis"
+              },
+              "price": {
+                "label": "Kaina",
+                "description": "Pardavimo kaina už vienetą"
+              },
+              "variantBadge": {
+                "label": "Varianto ženklelis",
+                "description": "Rodo dydžių/spalvų skaičių sugrupuotoms prekėms"
+              },
+              "clickCard": "Spustelėkite bet kurią kortelę norėdami atidaryti išsamų skydelį, parodantį:",
+              "fullInfo": "Pilną produkto informaciją (būklė, SKU, kainos, mokesčiai, matavimai)",
+              "description": "Išsamų aprašymą ir žymas",
+              "forGrouped": {
+                "label": "Sugrupuotoms prekėms",
+                "description": "Visų variantų sąrašą su individualiais atsargų lygiais"
+              },
+              "metadata": "Prekės ženklą, spalvą ir kitus metaduomenis"
+            },
+            "boxes": {
+              "title": "Dėžutės ir sugrupuotos prekės",
+              "intro": "Kai turite kelis to paties produkto variantus (pvz., marškinėliai S/M/L/XL dydžių), naudokite \"Pridėti dėžutę\" jų sukūrimui kartu:",
+              "shared": "Visi variantai dalijasi tuo pačiu bazinio pavadinimo, kainos ir mokesčio tarifu",
+              "different": "Kiekvienas variantas gali turėti skirtingus dydžius, spalvas ir atsargų lygius",
+              "singleCard": "Sugrupuotos prekės rodomos kaip viena kortelė su \"variantų\" ženkleliu",
+              "clickToView": "Spustelėkite sugrupuotą kortelę norėdami pamatyti visus variantus su individualiais atsargų kiekiais",
+              "manage": "Redaguokite ar ištrinkite atskirus variantus, arba tvarkykite visą dėžutę vienu metu"
+            },
+            "categories": {
+              "title": "Prekių kategorijos",
+              "intro": "Kategorijos padeda organizuoti jūsų inventorių:",
+              "create": "Kurkite kategorijas kaip \"Gėrimai\", \"Maistas\", \"Prekės\" ir t.t.",
+              "assign": "Priskirkite prekes kategorijoms lengvesniam naršymui",
+              "filter": "Filtruokite prekes pagal kategoriją tiek Prekių puslapyje, tiek kasoje"
+            },
+            "measurementTypes": {
+              "title": "Matavimo tipai",
+              "intro": "Skirtingi pardavimo būdai skirtingiems produktams:",
+              "pcs": {
+                "label": "PCS (Vienetai)",
+                "description": "Pardavimas vienetais (pvz., buteliai, marškinėliai)"
+              },
+              "weight": {
+                "label": "WEIGHT",
+                "description": "Pardavimas pagal svorį kg arba gramais (pvz., kava, mėsa)"
+              },
+              "length": {
+                "label": "LENGTH",
+                "description": "Pardavimas pagal ilgį metrais arba cm (pvz., audinys, kabelis)"
+              },
+              "volume": {
+                "label": "VOLUME",
+                "description": "Pardavimas pagal tūrį litrais arba ml (pvz., biriūs skysčiai)"
+              },
+              "area": {
+                "label": "AREA",
+                "description": "Pardavimas pagal plotą m² arba cm² (pvz., plytelės, tapetai)"
+              }
+            },
+            "managing": {
+              "title": "Prekių valdymas",
+              "edit": {
+                "label": "Redaguoti",
+                "description": "Spustelėkite \"Redaguoti\" mygtuką ant bet kurios kortelės, kad atnaujintumėte informaciją ar pakoreguotumėte atsargas"
+              },
+              "delete": {
+                "label": "Ištrinti",
+                "description": "Pašalinti prekes visiems laikams (su patvirtinimu)"
+              },
+              "toggleView": {
+                "label": "Perjungti vaizdą",
+                "description": "Perjungti tarp Kortelių vaizdo ir Lentelės vaizdo"
+              },
+              "groupToggle": {
+                "label": "Grupavimo perjungimas",
+                "description": "Grupuoti panašias prekes arba rodyti visas prekes atskirai"
+              },
+              "search": {
+                "label": "Paieška",
+                "description": "Greitai rasti prekes pagal pavadinimą"
+              },
+              "filter": {
+                "label": "Filtras",
+                "description": "Rodyti tik aktyvias prekes, turimas sandėlyje arba pagal kategoriją"
+              },
+              "sort": {
+                "label": "Rūšiavimas",
+                "description": "Rikiuoti pagal pavadinimą, kainą, atsargų lygį ar sukūrimo datą"
+              },
+              "stockWarning": "Atsargų kiekiai stebimi baziniais vienetais (gramai SVORIUI, cm ILGIUI, ml TŪRIUI, cm² PLOTUI). Sistema automatiškai konvertuoja tarp vienetų rodant ar redaguojant.",
+              "groupedViewTip": "Naudokite sugrupuotą vaizdą, kad išlaikytumėte inventorių tvarkingą. Prekės su tuo pačiu baziniu pavadinimu ir spalva automatiškai grupuojamos kartu, palengvinant produktų su keliais dydžiais ar variantais valdymą."
+            }
+          }
+        },
+        "cashRegister": {
+          "title": "Kasos naudojimas",
+          "description": "Pardavimų ir operacijų apdorojimas",
+          "content": {
+            "intro": "Kasa yra jūsų pardavimo taškų (POS) sistema operacijoms apdoroti.",
+            "making": {
+              "title": "Pardavimo atlikimas",
+              "step1": "Eikite į Kasa iš pagrindinio meniu",
+              "step2": "Pasirinkite Vietą, kurioje parduodate (jei turite kelias)",
+              "step3": "Naršykite arba ieškokite prekių",
+              "step4": "Spustelėkite ant prekių, kad pridėtumėte jas į krepšelį:",
+              "pcsItems": {
+                "label": "PCS prekėms",
+                "description": "Kiekvienas paspaudimas prideda 1 vienetą"
+              },
+              "weightLengthItems": {
+                "label": "WEIGHT/LENGTH prekėms",
+                "description": "Įveskite kiekį (kg, metrai ir t.t.)"
+              },
+              "variants": {
+                "label": "Prekės su variantais (dydžiai, spalvos)",
+                "description": "Rodyti pasirinkimo modalinį langą"
+              },
+              "step5": "Peržiūrėkite krepšelį dešinėje pusėje:",
+              "itemDetails": {
+                "label": "Prekių detalės",
+                "description": "Matyti prekių pavadinimus, kiekius ir kainas"
+              },
+              "totals": {
+                "label": "Sumos",
+                "description": "Peržiūrėti tarpinę sumą, mokestį ir iš viso"
+              },
+              "adjust": {
+                "label": "Koreguoti",
+                "description": "Koreguoti kiekius, jei reikia"
+              },
+              "step6": "Spustelėkite \"Atsiskaityti\"",
+              "step7": "Pasirinkite mokėjimo metodą: Grynieji arba Kortelė",
+              "step8": "Grynųjų mokėjimams:",
+              "enterAmount": {
+                "label": "Įvesti sumą",
+                "description": "Įvesti iš kliento gautą sumą"
+              },
+              "autoChange": {
+                "label": "Automatinis grąžos skaičiavimas",
+                "description": "Sistema automatiškai apskaičiuoja grąžą"
+              },
+              "step9": "Spustelėkite \"Užbaigti pardavimą\"",
+              "step10": "Čekis sugeneruojamas ir atsargos atnaujinamos automatiškai"
+            },
+            "features": {
+              "title": "Kasos funkcijos",
+              "search": {
+                "label": "Paieška",
+                "description": "Greitai rasti prekes pagal pavadinimą ar SKU"
+              },
+              "filters": {
+                "label": "Filtrai",
+                "description": "Rodyti tik turimas sandėlyje prekes, filtruoti pagal kategoriją"
+              },
+              "sort": {
+                "label": "Rūšiavimas",
+                "description": "Rūšiuoti pagal pavadinimą, kainą ar atsargų lygį"
+              },
+              "cartPreview": {
+                "label": "Krepšelio peržiūra",
+                "description": "Bendros sumos skaičiavimas realiuoju laiku su mokesčiu"
+              },
+              "quickActions": {
+                "label": "Greitieji veiksmai",
+                "description": "Greiti mygtukai populiarioms prekėms"
+              },
+              "stockWarnings": {
+                "label": "Atsargų perspėjimai",
+                "description": "Vizualūs indikatoriai prekėms su mažomis/pasibaigusiomis atsargomis"
+              },
+              "autoUpdate": "Kasa automatiškai atnaujina inventoriaus lygius po kiekvieno pardavimo. Galite peržiūrėti operacijų istoriją Dokumentai skyriuje."
+            }
+          }
+        },
+        "reports": {
+          "title": "Ataskaitos ir analitika",
+          "description": "Verslo duomenų supratimas",
+          "content": {
+            "intro": "Stebėkite savo verslo rezultatus su išsamiomis ataskaitomis ir analitika.",
+            "available": {
+              "title": "Prieinamos ataskaitos",
+              "salesOverview": {
+                "label": "Pardavimų apžvalga",
+                "description": "Bendros pajamos, sandorių skaičius, vidutinė sandorio vertė"
+              },
+              "byPlace": {
+                "label": "Pagal vietą",
+                "description": "Palyginti našumą skirtingose lokacijose"
+              },
+              "byItem": {
+                "label": "Pagal prekę",
+                "description": "Matyti, kurios prekės parduodamos geriausiai"
+              },
+              "byCategory": {
+                "label": "Pagal kategoriją",
+                "description": "Analizuoti pardavimus pagal prekių kategorijas"
+              },
+              "byTimePeriod": {
+                "label": "Pagal laikotarpį",
+                "description": "Dienos, savaitės, mėnesio ir pasirinktiniai datų diapazonai"
+              },
+              "paymentMethods": {
+                "label": "Mokėjimo būdai",
+                "description": "Grynųjų ir kortele sandorių paskirstymas"
+              },
+              "taxReports": {
+                "label": "Mokesčių ataskaitos",
+                "description": "Surinktas PVM/pardavimo mokestis apskaitai"
+              },
+              "stockLevels": {
+                "label": "Atsargų lygiai",
+                "description": "Dabartinis inventoriaus statusas ir mažų atsargų perspėjimai"
+              }
+            },
+            "accessing": {
+              "title": "Ataskaitų prieiga",
+              "step1": "Eikite į Skydelis → Pagrindinis apžvalgos metrikoms",
+              "step2": "Aplankykite Dokumentai, kad pamatytumėte visus čekius",
+              "step3": "Filtruokite pagal datų diapazoną, vietą ar mokėjimo metodą",
+              "step4": "Eksportuokite duomenis išorinei analizei (greitai)"
+            },
+            "keyMetrics": {
+              "title": "Pagrindinės metrikos",
+              "intro": "Stebėkite šiuos svarbius verslo rodiklius:",
+              "revenue": {
+                "label": "Pajamos",
+                "description": "Bendros pardavimo pajamos"
+              },
+              "grossProfit": {
+                "label": "Bendrasis pelnas",
+                "description": "Pajamos minus parduotų prekių savikaina"
+              },
+              "transactionCount": {
+                "label": "Sandorių skaičius",
+                "description": "Užbaigtų pardavimų skaičius"
+              },
+              "averageOrderValue": {
+                "label": "Vidutinė užsakymo vertė",
+                "description": "Pajamos padalintos iš sandorių"
+              },
+              "itemsSold": {
+                "label": "Parduotos prekės",
+                "description": "Bendras parduotų prekių kiekis"
+              },
+              "topSellers": {
+                "label": "Populiariausios",
+                "description": "Geriausiai besipardavinčios prekės"
+              },
+              "stockTurnover": {
+                "label": "Atsargų apyvarta",
+                "description": "Kaip greitai parduodamos atsargos"
+              },
+              "realTimeUpdate": "Ataskaitos atnaujinamos realiuoju laiku. Naudokite datų filtrus skirtingų laikotarpių palyginimui ir tendencijų nustatymui."
+            }
+          }
+        }
+      }
     },
     "developerGuide": {
       "title": "Programuotojo gidas",
-      "description": "Techninė dokumentacija programuotojams"
+      "description": "Techninė dokumentacija programuotojams",
+      "backToDocumentation": "Atgal į dokumentaciją",
+      "additionalResources": "Papildomi ištekliai",
+      "backToAllDocs": "← Atgal į visą dokumentaciją",
+      "userGuide": "Vartotojo gidas →",
+      "nextjsDocs": "Next.js dokumentacija ↗",
+      "prismaDocs": "Prisma dokumentacija ↗",
+      "sections": {
+        "architecture": {
+          "title": "Architektūros apžvalga",
+          "description": "Sistemos architektūra ir technologijų rinkinys",
+          "content": {
+            "intro": "Ratio Tuta is built with modern web technologies for performance, scalability, and developer experience.",
+            "techStack": "Tech Stack",
+            "frontend": "Frontend",
+            "nextjsDesc": "React framework with App Router",
+            "typescriptDesc": "Type safety",
+            "tailwindDesc": "Utility-first styling",
+            "nextIntlDesc": "Internationalization",
+            "toastDesc": "Notifications",
+            "backend": "Backend",
+            "apiRoutesDesc": "Serverless endpoints",
+            "prismaDesc": "ORM and database toolkit",
+            "postgresDesc": "Relational database",
+            "bcryptDesc": "Password hashing",
+            "ironSessionDesc": "Secure sessions",
+            "infrastructure": "Infrastructure",
+            "s3Desc": "File storage (avatars, images)",
+            "redisDesc": "Rate limiting & caching",
+            "resendDesc": "Transactional emails",
+            "vercelDesc": "Deployment platform",
+            "security": "Security",
+            "csrfDesc": "Stateless HMAC tokens",
+            "cspDesc": "Content Security Policy",
+            "rateLimitDesc": "DDoS protection",
+            "aesDesc": "Email encryption",
+            "projectStructure": "Project Structure",
+            "designPatterns": "Design Patterns",
+            "patternsList": {
+              "0": "Server Components: Default for data fetching and SSR",
+              "1": "Client Components: Only when needed for interactivity",
+              "2": "API Route Handlers: RESTful endpoints in /app/api",
+              "3": "Middleware: Session validation, CSRF, rate limiting",
+              "4": "Custom Hooks: Reusable stateful logic (e.g., useCsrfToken)",
+              "5": "Repository Pattern: Database operations abstracted via Prisma"
+            },
+            "architecturePrinciple": "Architecture Principle: We follow a pragmatic approach - use server components for data fetching, client components for interactivity, and API routes for mutations."
+          }
+        },
+        "database": {
+          "title": "Duomenų bazės schema",
+          "description": "Duomenų modelio supratimas",
+          "content": {
+            "intro": "PostgreSQL database managed with Prisma ORM for type-safe queries and migrations.",
+            "coreModels": "Core Models",
+            "userAuth": "User & Authentication",
+            "userAuthSecurity": "Security: Emails are encrypted (AES-256-GCM) and HMAC-indexed for secure lookups.",
+            "teamMembers": "Team & Members",
+            "teamMultitenancy": "Multi-tenancy: Team-based isolation for security and data separation.",
+            "place": "Place (Location)",
+            "item": "Item (Product)",
+            "measurementTypes": "Measurement Types: PCS, WEIGHT, LENGTH, VOLUME, AREA",
+            "receipt": "Receipt & Line Items",
+            "databaseOperations": "Database Operations",
+            "securityNote": "Security: All database queries use parameterized statements via Prisma. Email addresses are encrypted at rest and HMAC-indexed for secure lookups."
+          }
+        },
+        "api": {
+          "title": "API maršrutai",
+          "description": "Prieinami API galutiniai taškai",
+          "content": {
+            "intro": "RESTful API built with Next.js 15 API Routes. All endpoints require authentication unless marked as public.",
+            "authEndpoints": "Authentication Endpoints",
+            "loginDescription": "Login with email & password. Returns user data and sets session cookie.",
+            "registerDescription": "Register new user account. Sends verification email.",
+            "logoutDescription": "End session and clear cookies. Requires CSRF token.",
+            "resourceEndpoints": "Resource Endpoints",
+            "endpoint": "Endpoint",
+            "method": "Method",
+            "description": "Description",
+            "csrf": "CSRF",
+            "getCurrentUser": "Get current user",
+            "updateProfile": "Update profile",
+            "deleteAccount": "Delete account",
+            "listPlaces": "List places",
+            "createPlace": "Create place",
+            "updatePlace": "Update place",
+            "deletePlace": "Delete place",
+            "listItems": "List items",
+            "createItem": "Create item",
+            "createReceipt": "Create receipt",
+            "usingApiClient": "Using the API Client",
+            "apiClientDescription": "Frontend uses a CSRF-enabled API wrapper:",
+            "csrfProtection": "CSRF Protection: All POST/PATCH/PUT/DELETE requests automatically include a CSRF token via the X-CSRF-Token header."
+          }
+        },
+        "security": {
+          "title": "Saugumo praktikos",
+          "description": "Integruotos saugumo funkcijos",
+          "content": {
+            "intro": "Comprehensive security implementation following OWASP guidelines and industry best practices.",
+            "csrfProtection": "CSRF Protection",
+            "csrfImplementation": "Implementation: Stateless HMAC-based tokens tied to user sessions",
+            "csrfFeatures": {
+              "0": "Token format: randomValue.hmac(randomValue:userId)",
+              "1": "No server-side storage required",
+              "2": "Timing-safe token comparison (prevents timing attacks)",
+              "3": "Auto-included in all state-changing requests",
+              "4": "9 critical endpoints protected"
+            },
+            "authSessions": "Authentication & Sessions",
+            "authFeatures": {
+              "0": "Password Hashing: bcrypt with 12 rounds",
+              "1": "Password Requirements: 8-128 characters, complexity checks",
+              "2": "Pwned Password Check: k-Anonymity API integration",
+              "3": "Session Cookies: HttpOnly, Secure, SameSite=Strict, __Host- prefix",
+              "4": "Session Storage: iron-session with AES-256-GCM encryption",
+              "5": "Email Verification: Required for account activation"
+            },
+            "dataProtection": "Data Protection",
+            "emailEncryption": "Email Encryption",
+            "emailFeatures": {
+              "0": "AES-256-GCM at rest",
+              "1": "HMAC-SHA256 for lookups",
+              "2": "Prevents data breach exposure"
+            },
+            "fileStorage": "File Storage",
+            "fileFeatures": {
+              "0": "AWS S3 with signed URLs",
+              "1": "5MB max file size",
+              "2": "MIME type validation"
+            },
+            "securityHeaders": "Security Headers",
+            "rateLimiting": "Rate Limiting",
+            "rateLimitingFeatures": {
+              "0": "Authentication: 5 attempts per 15 minutes per IP",
+              "1": "API Endpoints: Sliding window algorithm",
+              "2": "Storage: Upstash Redis (distributed)",
+              "3": "Response Headers: X-RateLimit-* for debugging"
+            },
+            "auditLogging": "Audit Logging",
+            "auditDescription": "All security-sensitive actions are logged:",
+            "securityChecklist": "Security Checklist: Never commit secrets (.env), always use HTTPS in production, rotate JWT secrets regularly, monitor audit logs for suspicious activity."
+          }
+        },
+        "deployment": {
+          "title": "Diegimo gidas",
+          "description": "Kaip įdiegti savo egzempliorių",
+          "content": {
+            "intro": "Deploy to production with Vercel, PostgreSQL, and AWS services.",
+            "environmentVariables": "Environment Variables",
+            "envDescription": "Required environment variables (see .env.example):",
+            "deploymentSteps": "Deployment Steps",
+            "step1": "Set up PostgreSQL database",
+            "step1Description": "Use Vercel Postgres, Supabase, or any PostgreSQL provider. Run migrations",
+            "step2": "Configure AWS S3 bucket",
+            "step2List": {
+              "0": "Create bucket with private access",
+              "1": "Configure CORS for your domain",
+              "2": "Create IAM user with S3 permissions"
+            },
+            "step3": "Set up Redis (Upstash)",
+            "step3Description": "Create Redis database at upstash.com. Copy REST URL and token to env vars",
+            "step4": "Deploy to Vercel",
+            "step4Description": "Install Vercel CLI, deploy with vercel --prod, or connect GitHub repo for auto-deploys",
+            "step5": "Set environment variables in Vercel dashboard",
+            "step6": "Configure custom domain",
+            "productionChecklist": "Production Checklist",
+            "checklistItems": {
+              "0": "Database migrations applied",
+              "1": "All environment variables set",
+              "2": "SESSION_SECRET is cryptographically strong (32+ chars)",
+              "3": "HTTPS enabled (automatic with Vercel)",
+              "4": "Email sending configured and tested",
+              "5": "S3 bucket CORS configured for your domain",
+              "6": "Rate limiting enabled (Upstash Redis connected)",
+              "7": "Audit logging reviewed",
+              "8": "Error monitoring configured (Sentry, etc.)"
+            },
+            "monitoring": "Monitoring",
+            "monitoringList": {
+              "0": "Vercel Analytics: Performance and usage metrics",
+              "1": "Database: Monitor connection pool, query performance",
+              "2": "Redis: Check rate limit hits, cache performance",
+              "3": "S3: Monitor storage usage and costs",
+              "4": "Logs: Review audit logs for security events"
+            },
+            "performance": "Performance: Next.js automatically optimizes your app with code splitting, image optimization, and edge caching. Vercel provides global CDN distribution."
+          }
+        }
+      }
     },
     "apiReference": {
       "title": "API dokumentacija",
       "description": "Išsami API dokumentacija",
-      "coming": "Išsami API dokumentacija netrukus. Kol kas žiūrėkite Programuotojo gidas → API maršrutai."
+      "coming": "Išsami API dokumentacija greitai. Kol kas žiūrėkite Programuotojo gidas → API maršrutai."
     },
+    "quickLinks": "Greitos nuorodos",
+    "getStarted": "Pradėti →",
+    "viewPricing": "Žiūrėti kainodarą →",
+    "githubRepository": "GitHub saugykla →",
+    "dashboard": "Skydelis →",
     "security": {
       "title": "Saugumas ir privatumas",
-      "description": "Kaip saugome jūsų duomenis"
+      "description": "Kaip saugome jūsų duomenis",
+      "content": {
+        "intro": "Jūsų duomenų saugumas ir privatumas yra mūsų pagrindinis prioritetas.",
+        "encryption": "Visi duomenys yra šifruojami perduodant (TLS 1.3) ir laikant duomenų bazėje.",
+        "access": "Vaidmenimis pagrįsta prieigos kontrolė užtikrina, kad vartotojai mato tik tai, ką jiems leidžiama matyti.",
+        "audit": "Išsamus audito žurnalavimas seka visas svarbias veiklas.",
+        "compliance": "Sukurta su privatumu pirmiausia principais ir GDPR svarstymais.",
+        "updates": "Reguliarūs saugumo atnaujinimai ir pažeidžiamumo nuskaitymas.",
+        "score": "Saugumo audito įvertinimas: 9.5/10 (žiūrėkite SECURITY_FIXES_COMPLETED.md)"
+      }
     }
   },
   "CashRegister": {
@@ -989,7 +1708,8 @@
       "VOLUME": "Tūris",
       "AREA": "Plotas",
       "kilograms": "Kilogramai"
-    }
+    },
+    "color": "Spalva"
   },
   "Pricing": {
     "title": "Kainodarа",
@@ -1071,5 +1791,27 @@
       "chartTitle": "Pajamos per laiką",
       "revenue": "Pajamos"
     }
+  },
+  "Footer": {
+    "tagline": "Privatumą saugantis verslo valdymas. Jūsų duomenys lieka jūsų.",
+    "product": {
+      "title": "Produktas",
+      "features": "Funkcijos",
+      "howItWorks": "Kaip tai veikia",
+      "pricing": "Kainodaros planai",
+      "docs": "Dokumentacija"
+    },
+    "support": {
+      "title": "Pagalba",
+      "userGuide": "Vartotojo vadovas",
+      "developerDocs": "Kūrėjų dokumentacija",
+      "contact": "Susisiekite su mumis"
+    },
+    "legal": {
+      "title": "Teisinė informacija",
+      "privacy": "Privatumo politika",
+      "terms": "Naudojimosi sąlygos"
+    },
+    "copyright": "© {year} Ratio Tuta. Visos teisės saugomos."
   }
 }

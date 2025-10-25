@@ -125,7 +125,7 @@ export const CashRegisterMainSection: React.FC<RegisterMainProps> = ({
                                                     <span
                                                         className="inline-block h-2 w-2 rounded ring-1 ring-inset ring-white/30"
                                                         style={{ backgroundColor: pi.color || undefined }}
-                                                        aria-label={"Color"}
+                                                        aria-label={t('color')}
                                                     />
                                                 ) : null}
                                                 <h3 className="truncate text-[10px] font-medium text-white drop-shadow">

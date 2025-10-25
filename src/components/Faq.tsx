@@ -1,65 +1,107 @@
+'use client'
+import { useTranslations } from 'next-intl'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
 import { MinusSmallIcon, PlusSmallIcon } from '@heroicons/react/24/outline'
 
-const faqs = [
-  {
-    question: "What's the best thing about Switzerland?",
-    answer:
-      "I don't know, but the flag is a big plus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas cupiditate laboriosam fugiat.",
-  },
-  {
-    question: 'How do you make holy water?',
-    answer:
-      'You boil the hell out of it. Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam aut tempora vitae odio inventore fuga aliquam nostrum quod porro. Delectus quia facere id sequi expedita natus.',
-  },
-  {
-    question: 'What do you call someone with no body and no nose?',
-    answer:
-      'Nobody knows. Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa, voluptas ipsa quia excepturi, quibusdam natus exercitationem sapiente tempore labore voluptatem.',
-  },
-  {
-    question: 'Why do you never see elephants hiding in trees?',
-    answer:
-      "Because they're so good at it. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas cupiditate laboriosam fugiat.",
-  },
-  {
-    question: "Why can't you hear a pterodactyl go to the bathroom?",
-    answer:
-      'Because the pee is silent. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsam, quas voluptatibus ex culpa ipsum, aspernatur blanditiis fugiat ullam magnam suscipit deserunt illum natus facilis atque vero consequatur! Quisquam, debitis error.',
-  },
-  {
-    question: 'Why did the invisible man turn down the job offer?',
-    answer:
-      "He couldn't see himself doing it. Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eveniet perspiciatis officiis corrupti tenetur. Temporibus ut voluptatibus, perferendis sed unde rerum deserunt eius.",
-  },
-]
-
 export default function FAQ() {
+  const t = useTranslations('Home.faq')
+
+  const faqs = [
+    {
+      question: t('q1.question'),
+      answer: t('q1.answer'),
+    },
+    {
+      question: t('q2.question'),
+      answer: t('q2.answer'),
+    },
+    {
+      question: t('q3.question'),
+      answer: t('q3.answer'),
+    },
+    {
+      question: t('q4.question'),
+      answer: t('q4.answer'),
+    },
+    {
+      question: t('q5.question'),
+      answer: t('q5.answer'),
+    },
+    {
+      question: t('q6.question'),
+      answer: t('q6.answer'),
+    },
+    {
+      question: t('q7.question'),
+      answer: t('q7.answer'),
+    },
+  ]
+
   return (
-    <div className="bg-white dark:bg-gray-900">
-      <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8 lg:py-40">
-        <div className="mx-auto max-w-4xl">
-          <h2 className="text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl dark:text-white">
-            Frequently asked questions
+    <div className="bg-gray-50 py-24 sm:py-32 dark:bg-gray-950">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        {/* Header */}
+        <div className="mx-auto max-w-4xl text-center">
+          <p className="text-base/7 font-semibold text-indigo-600 dark:text-indigo-400">
+            {t('badge')}
+          </p>
+          <h2 className="mt-2 text-4xl font-semibold tracking-tight text-gray-950 sm:text-5xl dark:text-white">
+            {t('title')}
           </h2>
-          <dl className="mt-16 divide-y divide-gray-900/10 dark:divide-white/10">
-            {faqs.map((faq) => (
-              <Disclosure key={faq.question} as="div" className="py-6 first:pt-0 last:pb-0">
+          <p className="mt-6 text-xl text-gray-700 dark:text-gray-300">
+            {t('subtitle')}
+          </p>
+        </div>
+
+        {/* FAQ List */}
+        <div className="mx-auto mt-16 max-w-3xl sm:mt-20">
+          <dl className="divide-y divide-gray-200 dark:divide-gray-800">
+            {faqs.map((faq, index) => (
+              <Disclosure key={index} as="div" className="py-6 first:pt-0 last:pb-0">
                 <dt>
-                  <DisclosureButton className="group flex w-full items-start justify-between text-left text-gray-900 dark:text-white">
-                    <span className="text-base/7 font-semibold">{faq.question}</span>
+                  <DisclosureButton className="group flex w-full items-start justify-between text-left transition-colors hover:text-indigo-600 dark:hover:text-indigo-400">
+                    <span className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {faq.question}
+                    </span>
                     <span className="ml-6 flex h-7 items-center">
-                      <PlusSmallIcon aria-hidden="true" className="size-6 group-data-open:hidden" />
-                      <MinusSmallIcon aria-hidden="true" className="size-6 group-not-data-open:hidden" />
+                      <PlusSmallIcon
+                        aria-hidden="true"
+                        className="size-6 text-gray-500 transition-colors group-hover:text-indigo-600 group-data-open:hidden dark:text-gray-400 dark:group-hover:text-indigo-400"
+                      />
+                      <MinusSmallIcon
+                        aria-hidden="true"
+                        className="size-6 text-gray-500 transition-colors group-hover:text-indigo-600 group-not-data-open:hidden dark:text-gray-400 dark:group-hover:text-indigo-400"
+                      />
                     </span>
                   </DisclosureButton>
                 </dt>
-                <DisclosurePanel as="dd" className="mt-2 pr-12">
-                  <p className="text-base/7 text-gray-600 dark:text-gray-400">{faq.answer}</p>
+                <DisclosurePanel as="dd" className="mt-4 pr-12">
+                  <p className="text-base text-gray-600 dark:text-gray-400">{faq.answer}</p>
                 </DisclosurePanel>
               </Disclosure>
             ))}
           </dl>
+        </div>
+
+        {/* CTA */}
+        <div className="mx-auto mt-16 max-w-2xl text-center sm:mt-20">
+          <p className="text-lg text-gray-700 dark:text-gray-300">
+            {t('stillHaveQuestions')}
+          </p>
+          <div className="mt-6 flex items-center justify-center gap-x-6">
+            <a
+              href="/docs"
+              className="rounded-md bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+              {t('viewDocs')}
+            </a>
+            <a
+              href="mailto:support@ratiotuta.com"
+              className="text-sm font-semibold text-gray-900 transition-colors hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400"
+            >
+              {t('contactSupport')} <span aria-hidden="true">&rarr;</span>
+            </a>
+          </div>
         </div>
       </div>
     </div>

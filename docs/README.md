@@ -1,6 +1,6 @@
 # Documentation
 
-This directory contains technical documentation for the Pecunia application.
+This directory contains technical documentation for the Ratio Tuta application.
 
 ## 📚 Available Documentation
 

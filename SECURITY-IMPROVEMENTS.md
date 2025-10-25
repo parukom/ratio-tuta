@@ -306,7 +306,7 @@ Common additions:
 
 ## 🎉 Summary
 
-Your Pecunia app is now **pizdiec kaip saugus**!
+Your Ratio Tuta app is now **pizdiec kaip saugus**!
 
 You have:
 - ✅ **P0 completed** - Secrets rotated

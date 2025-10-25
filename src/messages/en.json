@@ -150,7 +150,9 @@
       "mismatch": "Text does not match.",
       "success": "Account deleted. You will be signed out.",
       "confirmPhrase": "i really want to delete this team and all data related to it",
-      "errors": { "failed": "Failed to delete account" },
+      "errors": {
+        "failed": "Failed to delete account"
+      },
       "copied": "Text copied. Paste it below to confirm.",
       "copyFailed": "Failed to copy text"
     }
@@ -331,7 +333,10 @@
           "searchPlaceholder": "Search by name, SKU, or category",
           "inStockOnTitle": "Showing in-stock only",
           "inStockOffTitle": "Include out-of-stock",
-          "view": { "boxes": "Boxes view", "items": "Raw items view" },
+          "view": {
+            "boxes": "Boxes view",
+            "items": "Raw items view"
+          },
           "loading": "Loading…",
           "noItems": "No items found.",
           "noBoxes": "No boxes found.",
@@ -554,6 +559,42 @@
           "description": "Comprehensive documentation, video tutorials, and responsive support when you need it."
         }
       }
+    },
+    "faq": {
+      "badge": "FAQ",
+      "title": "Frequently Asked Questions",
+      "subtitle": "Everything you need to know about Ratio Tuta",
+      "q1": {
+        "question": "What is Ratio Tuta?",
+        "answer": "Ratio Tuta is a modern, privacy-focused point-of-sale (POS) and business management system. We help businesses track sales, manage inventory, handle multiple locations, and gain insights through powerful analytics—all while keeping your data secure and private."
+      },
+      "q2": {
+        "question": "How much does it cost?",
+        "answer": "Ratio Tuta offers a free version that you can use indefinitely! As your business grows and you need more features, we offer flexible paid plans with transparent pricing and no hidden fees. You only pay for what you use. Check our Pricing page for detailed plans."
+      },
+      "q3": {
+        "question": "Do I need special hardware or equipment?",
+        "answer": "No! Ratio Tuta works on any device with a web browser—laptops, tablets, smartphones. You don't need expensive POS terminals or special hardware. If you want to print receipts, any standard receipt printer will work."
+      },
+      "q4": {
+        "question": "Is my data secure and private?",
+        "answer": "Absolutely. Privacy is at the core of what we do. We use bank-grade encryption, secure sessions, and never sell your data to third parties. You have full control over who sees what with role-based access controls and complete audit trails."
+      },
+      "q5": {
+        "question": "Can I manage multiple locations?",
+        "answer": "Yes! Ratio Tuta is built for multi-location businesses. Manage multiple stores, warehouses, or sales points from a single dashboard. Track inventory and sales across all locations in real-time, with separate permissions and reporting for each place."
+      },
+      "q6": {
+        "question": "How quickly can I get started?",
+        "answer": "Very quickly! Most businesses are up and running in under 5 minutes. Just sign up, create your first place, add a few products, and you're ready to make your first sale. Our intuitive interface means minimal training for your team."
+      },
+      "q7": {
+        "question": "Do you track or collect my data?",
+        "answer": "No. We don't collect, track, or sell your data. We don't read your emails, we don't know who you are or what you sell. Your business data stays yours—we never analyze it, mine it, or use it for anything. Privacy is our mission, not marketing. We built Ratio Tuta to be truly private by default."
+      },
+      "stillHaveQuestions": "Still have questions?",
+      "viewDocs": "View Documentation",
+      "contactSupport": "Contact Support"
     }
   },
   "Team": {
@@ -685,7 +726,10 @@
       "expandAll": "Expand all",
       "collapseAll": "Collapse all",
       "reset": "Reset",
-      "view": { "cards": "Cards view", "table": "Table view" },
+      "view": {
+        "cards": "Cards view",
+        "table": "Table view"
+      },
       "sort": {
         "label": "Sort",
         "newest": "Newest",
@@ -899,65 +943,475 @@
     },
     "userGuide": {
       "title": "User Guide",
-      "description": "Learn how to use Ratio tuta effectively",
+      "description": "Learn how to use Ratio Tuta effectively",
+      "backToDocumentation": "Back to Documentation",
+      "needMoreHelp": "Need More Help?",
+      "backToAllDocs": "← Back to All Documentation",
+      "developerGuide": "Developer Guide →",
+      "goToDashboard": "Go to Dashboard →",
+      "signUpLogin": "Sign Up / Login →",
       "sections": {
         "gettingStarted": {
           "title": "Getting Started",
           "description": "Quick start guide for new users",
           "content": {
-            "intro": "Welcome to Ratio tuta! This guide will help you get started with your secure online notebook.",
-            "step1Title": "Create your account",
-            "step1": "Sign up with your email and verify your account. You'll receive a verification link in your inbox.",
-            "step2Title": "Set up your first place",
-            "step2": "Places help you organize different locations or departments. Go to Dashboard → Home → Create Place to add your first location.",
-            "step3Title": "Add team members",
-            "step3": "Invite teammates from Dashboard → Team. Assign roles (Admin, Member, User) based on their responsibilities.",
-            "step4Title": "Create your inventory",
-            "step4": "Add items to your catalog from Dashboard → Items. You can create individual items or use boxes for multiple variants.",
-            "step5Title": "Start selling",
-            "step5": "Open the cash register for your place and start recording transactions. All data is automatically synced and secured."
+            "intro": "Welcome to Ratio Tuta! This guide will help you get started with managing your business operations.",
+            "creatingAccount": {
+              "title": "Creating Your Account",
+              "step1": "Visit the registration page",
+              "step2": "Fill in your name, email, password (8-128 characters), and team name",
+              "step3": "Click \"Create Account\" and verify your email address",
+              "step4": "Log in with your credentials"
+            },
+            "firstSteps": {
+              "title": "First Steps",
+              "intro": "After logging in for the first time:",
+              "createPlace": {
+                "label": "Create a Place",
+                "description": "Set up your first business location (store, restaurant, event, etc.)"
+              },
+              "addItems": {
+                "label": "Add Items",
+                "description": "Build your inventory with products you sell"
+              },
+              "inviteTeam": {
+                "label": "Invite Team Members",
+                "description": "Add staff who will help manage operations"
+              },
+              "startSelling": {
+                "label": "Start Selling",
+                "description": "Use the cash register to process transactions"
+              }
+            },
+            "navigation": {
+              "title": "Navigation",
+              "intro": "The main navigation menu includes:",
+              "dashboard": {
+                "label": "Dashboard",
+                "description": "Overview of your business metrics"
+              },
+              "cashRegister": {
+                "label": "Cash Register",
+                "description": "Process sales and create receipts"
+              },
+              "places": {
+                "label": "Places",
+                "description": "Manage business locations"
+              },
+              "items": {
+                "label": "Items",
+                "description": "Manage inventory"
+              },
+              "documents": {
+                "label": "Documents",
+                "description": "View receipts and reports"
+              },
+              "team": {
+                "label": "Team",
+                "description": "Manage team members and permissions"
+              },
+              "settings": {
+                "label": "Settings",
+                "description": "Configure account and preferences"
+              }
+            }
           }
         },
         "places": {
           "title": "Managing Places",
           "description": "How to create and manage your locations",
           "content": {
-            "intro": "Places represent physical locations or departments in your organization. Each place has its own inventory, team members, and sales data.",
-            "creating": "To create a place, go to Dashboard → Home and click 'Create Place'. Fill in the name, address, timezone, and currency.",
-            "assigning": "Assign items to places by opening a place and going to the Items tab. You can control quantities for each location.",
-            "members": "Add team members to specific places to control access. Members can only see places they're assigned to."
+            "intro": "Places represent your physical or virtual business locations. Each place can have its own inventory, team assignments, and sales tracking.",
+            "creating": {
+              "title": "Creating a Place",
+              "step1": "Navigate to Dashboard → Places",
+              "step2": "Click \"Create Place\"",
+              "step3": "Fill in the information:",
+              "nameRequired": {
+                "label": "Name (required)",
+                "description": "Your location name - can be anything (e.g., \"My Store\", \"Downtown Shop\", \"Store #1\")"
+              },
+              "addressOptional": {
+                "label": "Address (optional)",
+                "description": "Physical address - can be added later"
+              },
+              "cityCountryOptional": {
+                "label": "City & Country (optional)",
+                "description": "Location information"
+              },
+              "timezoneOptional": {
+                "label": "Timezone (optional)",
+                "description": "Local timezone for accurate report formatting (e.g., Europe/Vilnius)"
+              },
+              "currencyOptional": {
+                "label": "Currency (optional)",
+                "description": "Default currency (e.g., EUR, USD) - if not specified, EUR is used"
+              },
+              "step4": "Click \"Create\" to save",
+              "quickStartTip": {
+                "label": "Quick Start",
+                "description": "To get started quickly, only the name is required. All other fields (address, timezone, currency) are optional and can be added or updated later in place settings."
+              }
+            },
+            "managing": {
+              "title": "Managing Places",
+              "intro": "You can:",
+              "edit": {
+                "label": "Edit",
+                "description": "Update place details, address, or settings"
+              },
+              "assignItems": {
+                "label": "Assign Items",
+                "description": "Link inventory items to this location"
+              },
+              "assignStaff": {
+                "label": "Assign Staff",
+                "description": "Designate team members to work at this place"
+              },
+              "viewReports": {
+                "label": "View Reports",
+                "description": "See sales and performance metrics per location"
+              },
+              "activateDeactivate": {
+                "label": "Activate/Deactivate",
+                "description": "Temporarily close a location without deleting it"
+              },
+              "delete": {
+                "label": "Delete",
+                "description": "Permanently remove a place (requires confirmation)"
+              },
+              "multiLocationTip": "Use multiple places to separate different locations, events, or business units for better reporting and management."
+            }
           }
         },
         "inventory": {
           "title": "Inventory Management",
           "description": "Managing items and stock levels",
           "content": {
-            "intro": "Ratio tuta provides powerful inventory management with support for different measurement types, categories, and variants. Items are displayed as visual cards - click any card to view detailed information in a drawer.",
-            "items": "Create individual items with prices, costs, tax rates, and stock levels. Items are team-wide and can be assigned to multiple places.",
-            "boxes": "Boxes let you create multiple size variants at once. Perfect for clothing, shoes, or any items with size variations. Grouped items show a variants badge and display all sizes/colors when clicked.",
-            "categories": "Organize items into categories for easier navigation and reporting.",
-            "stock": "Track stock levels automatically. The system updates quantities as sales are made."
+            "intro": "Manage your products, track stock levels, and organize items by categories. Items are displayed as visual cards showing key information at a glance.",
+            "adding": {
+              "title": "Adding Items",
+              "step1": "Go to Dashboard → Items",
+              "step2": "Click \"+ Create\" button",
+              "step3": "Choose between:",
+              "createItem": {
+                "label": "Create Item",
+                "description": "Add a single product"
+              },
+              "addBox": {
+                "label": "Add Box",
+                "description": "Create multiple variants at once (e.g., shoes in sizes 35, 36, 37)"
+              },
+              "step4": "Fill in item details:",
+              "name": {
+                "label": "Name",
+                "description": "Product name"
+              },
+              "sku": {
+                "label": "SKU",
+                "description": "Item code (optional)"
+              },
+              "price": {
+                "label": "Price",
+                "description": "Selling price"
+              },
+              "cost": {
+                "label": "Cost",
+                "description": "Purchase price (for profit calculations)"
+              },
+              "taxRate": {
+                "label": "Tax Rate",
+                "description": "VAT or sales tax percentage"
+              },
+              "image": {
+                "label": "Image",
+                "description": "Product photo (required)"
+              },
+              "measurementType": {
+                "label": "Measurement Type",
+                "description": "PCS (pieces), WEIGHT (kg/g), LENGTH (m/cm), etc."
+              },
+              "stockQuantity": {
+                "label": "Stock Quantity",
+                "description": "Current inventory level"
+              },
+              "category": {
+                "label": "Category",
+                "description": "Organize items by type"
+              },
+              "sizeColor": {
+                "label": "Size/Color",
+                "description": "Variant details (optional)"
+              },
+              "step5": "Click \"Create\""
+            },
+            "viewing": {
+              "title": "Viewing Item Details",
+              "intro": "Items are displayed as compact cards showing:",
+              "productImage": {
+                "label": "Product Image",
+                "description": "Visual representation or color sample"
+              },
+              "name": {
+                "label": "Name",
+                "description": "Item or box name"
+              },
+              "stockLevel": {
+                "label": "Stock Level",
+                "description": "Current available quantity"
+              },
+              "price": {
+                "label": "Price",
+                "description": "Selling price per unit"
+              },
+              "variantBadge": {
+                "label": "Variant Badge",
+                "description": "Shows size/color count for grouped items"
+              },
+              "clickCard": "Click any card to open a detailed drawer showing:",
+              "fullInfo": "Full product information (status, SKU, pricing, tax, measurements)",
+              "description": "Complete description and tags",
+              "forGrouped": {
+                "label": "For grouped items",
+                "description": "List of all variants with individual stock levels"
+              },
+              "metadata": "Brand, color, and other metadata"
+            },
+            "boxes": {
+              "title": "Boxes and Grouped Items",
+              "intro": "When you have multiple variants of the same product (e.g., T-shirt in S/M/L/XL), use \"Add Box\" to create them together:",
+              "shared": "All variants share the same base name, price, and tax rate",
+              "different": "Each variant can have different sizes, colors, and stock levels",
+              "singleCard": "Grouped items appear as a single card with a \"variants\" badge",
+              "clickToView": "Click the grouped card to see all variants with individual stock quantities",
+              "manage": "Edit or delete individual variants, or manage the entire box at once"
+            },
+            "categories": {
+              "title": "Item Categories",
+              "intro": "Categories help organize your inventory:",
+              "create": "Create categories like \"Beverages\", \"Food\", \"Merchandise\", etc.",
+              "assign": "Assign items to categories for easier browsing",
+              "filter": "Filter items by category in both the Items page and cash register"
+            },
+            "measurementTypes": {
+              "title": "Measurement Types",
+              "intro": "Different selling methods for different products:",
+              "pcs": {
+                "label": "PCS (Pieces)",
+                "description": "Sell by unit (e.g., bottles, shirts)"
+              },
+              "weight": {
+                "label": "WEIGHT",
+                "description": "Sell by weight in kg or grams (e.g., coffee, meat)"
+              },
+              "length": {
+                "label": "LENGTH",
+                "description": "Sell by length in meters or cm (e.g., fabric, cable)"
+              },
+              "volume": {
+                "label": "VOLUME",
+                "description": "Sell by volume in liters or ml (e.g., bulk liquids)"
+              },
+              "area": {
+                "label": "AREA",
+                "description": "Sell by area in m² or cm² (e.g., tiles, wallpaper)"
+              }
+            },
+            "managing": {
+              "title": "Managing Items",
+              "edit": {
+                "label": "Edit",
+                "description": "Click \"Edit\" button on any card to update details or adjust stock"
+              },
+              "delete": {
+                "label": "Delete",
+                "description": "Remove items permanently (with confirmation)"
+              },
+              "toggleView": {
+                "label": "Toggle View",
+                "description": "Switch between Cards view and Table view"
+              },
+              "groupToggle": {
+                "label": "Group Toggle",
+                "description": "Group similar items or show all items individually"
+              },
+              "search": {
+                "label": "Search",
+                "description": "Find items by name quickly"
+              },
+              "filter": {
+                "label": "Filter",
+                "description": "Show only active items, in-stock items, or by category"
+              },
+              "sort": {
+                "label": "Sort",
+                "description": "Order by name, price, stock level, or creation date"
+              },
+              "stockWarning": "Stock quantities are tracked in the base unit (grams for WEIGHT, cm for LENGTH, ml for VOLUME, cm² for AREA). The system converts between units automatically when displaying or editing.",
+              "groupedViewTip": "Use the grouped view to keep your inventory organized. Items with the same base name and color are automatically grouped together, making it easier to manage products with multiple sizes or variants."
+            }
           }
         },
         "cashRegister": {
           "title": "Using the Cash Register",
           "description": "Processing sales and transactions",
           "content": {
-            "intro": "The cash register is optimized for fast, easy transactions on any device.",
-            "selecting": "Browse items by category or search by name. Click an item to add it to the cart.",
-            "variants": "For items with variants (sizes), select the variant before adding to cart.",
-            "payment": "Choose payment method (Cash or Card). For cash payments, enter the amount given to calculate change.",
-            "receipts": "All receipts are automatically saved and viewable in Documents section."
+            "intro": "The cash register is your point-of-sale (POS) system for processing transactions.",
+            "making": {
+              "title": "Making a Sale",
+              "step1": "Navigate to Cash Register from the main menu",
+              "step2": "Select the Place where you're selling (if you have multiple)",
+              "step3": "Browse or search for items",
+              "step4": "Click on items to add them to the cart:",
+              "pcsItems": {
+                "label": "For PCS items",
+                "description": "Each click adds 1 unit"
+              },
+              "weightLengthItems": {
+                "label": "For WEIGHT/LENGTH items",
+                "description": "Enter the amount (kg, meters, etc.)"
+              },
+              "variants": {
+                "label": "Items with variants (sizes, colors)",
+                "description": "Show a selection modal"
+              },
+              "step5": "Review the cart on the right side:",
+              "itemDetails": {
+                "label": "Item details",
+                "description": "See item names, quantities, and prices"
+              },
+              "totals": {
+                "label": "Totals",
+                "description": "View subtotal, tax, and total"
+              },
+              "adjust": {
+                "label": "Adjust",
+                "description": "Adjust quantities if needed"
+              },
+              "step6": "Click \"Checkout\"",
+              "step7": "Choose payment method: Cash or Card",
+              "step8": "For cash payments:",
+              "enterAmount": {
+                "label": "Enter amount",
+                "description": "Enter amount received from customer"
+              },
+              "autoChange": {
+                "label": "Auto-calculate change",
+                "description": "System calculates change automatically"
+              },
+              "step9": "Click \"Complete Sale\"",
+              "step10": "Receipt is generated and stock is updated automatically"
+            },
+            "features": {
+              "title": "Cash Register Features",
+              "search": {
+                "label": "Search",
+                "description": "Quickly find items by name or SKU"
+              },
+              "filters": {
+                "label": "Filters",
+                "description": "Show only in-stock items, filter by category"
+              },
+              "sort": {
+                "label": "Sort",
+                "description": "Sort by name, price, or stock level"
+              },
+              "cartPreview": {
+                "label": "Cart Preview",
+                "description": "Real-time total calculation with tax"
+              },
+              "quickActions": {
+                "label": "Quick Actions",
+                "description": "Fast buttons for common items"
+              },
+              "stockWarnings": {
+                "label": "Stock Warnings",
+                "description": "Visual indicators for low/out-of-stock items"
+              },
+              "autoUpdate": "The cash register automatically updates inventory levels after each sale. You can view transaction history in the Documents section."
+            }
           }
         },
         "reports": {
           "title": "Reports & Analytics",
           "description": "Understanding your business data",
           "content": {
-            "intro": "View sales analytics, earnings, and performance metrics from the Reports section.",
-            "overview": "See total earnings, average ticket size, items sold, and trends over time.",
-            "filtering": "Filter by date range, place, payment method, or category.",
-            "exporting": "Export data for further analysis in spreadsheet applications."
+            "intro": "Track your business performance with comprehensive reports and analytics.",
+            "available": {
+              "title": "Available Reports",
+              "salesOverview": {
+                "label": "Sales Overview",
+                "description": "Total revenue, number of transactions, average transaction value"
+              },
+              "byPlace": {
+                "label": "By Place",
+                "description": "Compare performance across different locations"
+              },
+              "byItem": {
+                "label": "By Item",
+                "description": "See which products sell best"
+              },
+              "byCategory": {
+                "label": "By Category",
+                "description": "Analyze sales by product category"
+              },
+              "byTimePeriod": {
+                "label": "By Time Period",
+                "description": "Daily, weekly, monthly, and custom date ranges"
+              },
+              "paymentMethods": {
+                "label": "Payment Methods",
+                "description": "Cash vs. card transaction breakdown"
+              },
+              "taxReports": {
+                "label": "Tax Reports",
+                "description": "VAT/sales tax collected for accounting"
+              },
+              "stockLevels": {
+                "label": "Stock Levels",
+                "description": "Current inventory status and low-stock alerts"
+              }
+            },
+            "accessing": {
+              "title": "Accessing Reports",
+              "step1": "Go to Dashboard → Home for overview metrics",
+              "step2": "Visit Documents to see all receipts",
+              "step3": "Filter by date range, place, or payment method",
+              "step4": "Export data for external analysis (coming soon)"
+            },
+            "keyMetrics": {
+              "title": "Key Metrics",
+              "intro": "Monitor these important business indicators:",
+              "revenue": {
+                "label": "Revenue",
+                "description": "Total sales income"
+              },
+              "grossProfit": {
+                "label": "Gross Profit",
+                "description": "Revenue minus cost of goods sold"
+              },
+              "transactionCount": {
+                "label": "Transaction Count",
+                "description": "Number of sales completed"
+              },
+              "averageOrderValue": {
+                "label": "Average Order Value",
+                "description": "Revenue divided by transactions"
+              },
+              "itemsSold": {
+                "label": "Items Sold",
+                "description": "Total quantity of products sold"
+              },
+              "topSellers": {
+                "label": "Top Sellers",
+                "description": "Best-performing products"
+              },
+              "stockTurnover": {
+                "label": "Stock Turnover",
+                "description": "How quickly inventory sells"
+              },
+              "realTimeUpdate": "Reports are updated in real-time. Use date filters to compare different time periods and identify trends."
+            }
           }
         }
       }
@@ -965,63 +1419,193 @@
     "developerGuide": {
       "title": "Developer Guide",
       "description": "Technical documentation for developers",
+      "backToDocumentation": "Back to Documentation",
+      "additionalResources": "Additional Resources",
+      "backToAllDocs": "← Back to All Documentation",
+      "userGuide": "User Guide →",
+      "nextjsDocs": "Next.js Documentation ↗",
+      "prismaDocs": "Prisma Documentation ↗",
       "sections": {
         "architecture": {
           "title": "Architecture Overview",
           "description": "System architecture and technology stack",
           "content": {
-            "intro": "Ratio tuta is built with modern web technologies for performance, security, and scalability.",
-            "frontend": "Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS",
-            "backend": "Next.js API Routes, PostgreSQL, Prisma ORM",
-            "auth": "Custom session-based authentication with secure cookies",
-            "storage": "AWS S3 for images with automatic optimization",
-            "deployment": "Optimized for Vercel deployment with edge functions"
+            "intro": "Ratio Tuta is built with modern web technologies for performance, scalability, and developer experience.",
+            "techStack": "Tech Stack",
+            "frontend": "Frontend",
+            "nextjsDesc": "React framework with App Router",
+            "typescriptDesc": "Type safety",
+            "tailwindDesc": "Utility-first styling",
+            "nextIntlDesc": "Internationalization",
+            "toastDesc": "Notifications",
+            "backend": "Backend",
+            "apiRoutesDesc": "Serverless endpoints",
+            "prismaDesc": "ORM and database toolkit",
+            "postgresDesc": "Relational database",
+            "bcryptDesc": "Password hashing",
+            "ironSessionDesc": "Secure sessions",
+            "infrastructure": "Infrastructure",
+            "s3Desc": "File storage (avatars, images)",
+            "redisDesc": "Rate limiting & caching",
+            "resendDesc": "Transactional emails",
+            "vercelDesc": "Deployment platform",
+            "security": "Security",
+            "csrfDesc": "Stateless HMAC tokens",
+            "cspDesc": "Content Security Policy",
+            "rateLimitDesc": "DDoS protection",
+            "aesDesc": "Email encryption",
+            "projectStructure": "Project Structure",
+            "designPatterns": "Design Patterns",
+            "patternsList": {
+              "0": "Server Components: Default for data fetching and SSR",
+              "1": "Client Components: Only when needed for interactivity",
+              "2": "API Route Handlers: RESTful endpoints in /app/api",
+              "3": "Middleware: Session validation, CSRF, rate limiting",
+              "4": "Custom Hooks: Reusable stateful logic (e.g., useCsrfToken)",
+              "5": "Repository Pattern: Database operations abstracted via Prisma"
+            },
+            "architecturePrinciple": "Architecture Principle: We follow a pragmatic approach - use server components for data fetching, client components for interactivity, and API routes for mutations."
           }
         },
         "database": {
           "title": "Database Schema",
           "description": "Understanding the data model",
           "content": {
-            "intro": "The application uses PostgreSQL with Prisma ORM for type-safe database access.",
-            "models": "Key models: User, Team, Place, Item, Category, Receipt, PlaceMember, PlaceItem",
-            "relations": "Users belong to teams, places belong to teams, items are assigned to places with quantities.",
-            "migrations": "Use 'npx prisma migrate dev' to create new migrations."
+            "intro": "PostgreSQL database managed with Prisma ORM for type-safe queries and migrations.",
+            "coreModels": "Core Models",
+            "userAuth": "User & Authentication",
+            "userAuthSecurity": "Security: Emails are encrypted (AES-256-GCM) and HMAC-indexed for secure lookups.",
+            "teamMembers": "Team & Members",
+            "teamMultitenancy": "Multi-tenancy: Team-based isolation for security and data separation.",
+            "place": "Place (Location)",
+            "item": "Item (Product)",
+            "measurementTypes": "Measurement Types: PCS, WEIGHT, LENGTH, VOLUME, AREA",
+            "receipt": "Receipt & Line Items",
+            "databaseOperations": "Database Operations",
+            "securityNote": "Security: All database queries use parameterized statements via Prisma. Email addresses are encrypted at rest and HMAC-indexed for secure lookups."
           }
         },
         "api": {
           "title": "API Routes",
           "description": "Available API endpoints",
           "content": {
-            "intro": "All API routes are in /app/api/ directory and use Next.js Route Handlers.",
-            "auth": "POST /api/auth/login, /api/auth/register, /api/auth/logout",
-            "places": "GET/POST /api/places, GET/PATCH/DELETE /api/places/[id]",
-            "items": "GET/POST /api/items, GET/PATCH/DELETE /api/items/[id]",
-            "receipts": "GET /api/receipts, POST /api/receipts (create transaction)",
-            "team": "GET/POST /api/team, PATCH /api/team/[userId]"
+            "intro": "RESTful API built with Next.js 15 API Routes. All endpoints require authentication unless marked as public.",
+            "authEndpoints": "Authentication Endpoints",
+            "loginDescription": "Login with email & password. Returns user data and sets session cookie.",
+            "registerDescription": "Register new user account. Sends verification email.",
+            "logoutDescription": "End session and clear cookies. Requires CSRF token.",
+            "resourceEndpoints": "Resource Endpoints",
+            "endpoint": "Endpoint",
+            "method": "Method",
+            "description": "Description",
+            "csrf": "CSRF",
+            "getCurrentUser": "Get current user",
+            "updateProfile": "Update profile",
+            "deleteAccount": "Delete account",
+            "listPlaces": "List places",
+            "createPlace": "Create place",
+            "updatePlace": "Update place",
+            "deletePlace": "Delete place",
+            "listItems": "List items",
+            "createItem": "Create item",
+            "createReceipt": "Create receipt",
+            "usingApiClient": "Using the API Client",
+            "apiClientDescription": "Frontend uses a CSRF-enabled API wrapper:",
+            "csrfProtection": "CSRF Protection: All POST/PATCH/PUT/DELETE requests automatically include a CSRF token via the X-CSRF-Token header."
           }
         },
         "security": {
           "title": "Security Practices",
           "description": "Built-in security features",
           "content": {
-            "intro": "Ratio tuta implements multiple layers of security to protect your data.",
-            "csrf": "CSRF protection on all mutating requests using double-submit cookie pattern.",
-            "xss": "XSS protection through React's built-in escaping and Content Security Policy.",
-            "sql": "SQL injection prevention via Prisma's parameterized queries.",
-            "sessions": "Secure HTTP-only cookies with SameSite=Lax, signed with HMAC-SHA256.",
-            "passwords": "Passwords hashed with bcrypt (12 rounds).",
-            "rate": "Rate limiting on authentication endpoints to prevent brute force attacks."
+            "intro": "Comprehensive security implementation following OWASP guidelines and industry best practices.",
+            "csrfProtection": "CSRF Protection",
+            "csrfImplementation": "Implementation: Stateless HMAC-based tokens tied to user sessions",
+            "csrfFeatures": {
+              "0": "Token format: randomValue.hmac(randomValue:userId)",
+              "1": "No server-side storage required",
+              "2": "Timing-safe token comparison (prevents timing attacks)",
+              "3": "Auto-included in all state-changing requests",
+              "4": "9 critical endpoints protected"
+            },
+            "authSessions": "Authentication & Sessions",
+            "authFeatures": {
+              "0": "Password Hashing: bcrypt with 12 rounds",
+              "1": "Password Requirements: 8-128 characters, complexity checks",
+              "2": "Pwned Password Check: k-Anonymity API integration",
+              "3": "Session Cookies: HttpOnly, Secure, SameSite=Strict, __Host- prefix",
+              "4": "Session Storage: iron-session with AES-256-GCM encryption",
+              "5": "Email Verification: Required for account activation"
+            },
+            "dataProtection": "Data Protection",
+            "emailEncryption": "Email Encryption",
+            "emailFeatures": {
+              "0": "AES-256-GCM at rest",
+              "1": "HMAC-SHA256 for lookups",
+              "2": "Prevents data breach exposure"
+            },
+            "fileStorage": "File Storage",
+            "fileFeatures": {
+              "0": "AWS S3 with signed URLs",
+              "1": "5MB max file size",
+              "2": "MIME type validation"
+            },
+            "securityHeaders": "Security Headers",
+            "rateLimiting": "Rate Limiting",
+            "rateLimitingFeatures": {
+              "0": "Authentication: 5 attempts per 15 minutes per IP",
+              "1": "API Endpoints: Sliding window algorithm",
+              "2": "Storage: Upstash Redis (distributed)",
+              "3": "Response Headers: X-RateLimit-* for debugging"
+            },
+            "auditLogging": "Audit Logging",
+            "auditDescription": "All security-sensitive actions are logged:",
+            "securityChecklist": "Security Checklist: Never commit secrets (.env), always use HTTPS in production, rotate JWT secrets regularly, monitor audit logs for suspicious activity."
           }
         },
         "deployment": {
           "title": "Deployment Guide",
           "description": "How to deploy your own instance",
           "content": {
-            "intro": "Deploy Ratio tuta to Vercel or any Node.js hosting platform.",
-            "env": "Required environment variables: DATABASE_URL, SESSION_SECRET, AWS_* for S3, SMTP_* for emails.",
-            "database": "Use a PostgreSQL database (Neon, Supabase, or AWS RDS recommended).",
-            "storage": "Configure S3 bucket for image uploads with proper CORS and bucket policies.",
-            "build": "Run 'npm run build' to create production build. Ensure prisma generate runs first."
+            "intro": "Deploy to production with Vercel, PostgreSQL, and AWS services.",
+            "environmentVariables": "Environment Variables",
+            "envDescription": "Required environment variables (see .env.example):",
+            "deploymentSteps": "Deployment Steps",
+            "step1": "Set up PostgreSQL database",
+            "step1Description": "Use Vercel Postgres, Supabase, or any PostgreSQL provider. Run migrations",
+            "step2": "Configure AWS S3 bucket",
+            "step2List": {
+              "0": "Create bucket with private access",
+              "1": "Configure CORS for your domain",
+              "2": "Create IAM user with S3 permissions"
+            },
+            "step3": "Set up Redis (Upstash)",
+            "step3Description": "Create Redis database at upstash.com. Copy REST URL and token to env vars",
+            "step4": "Deploy to Vercel",
+            "step4Description": "Install Vercel CLI, deploy with vercel --prod, or connect GitHub repo for auto-deploys",
+            "step5": "Set environment variables in Vercel dashboard",
+            "step6": "Configure custom domain",
+            "productionChecklist": "Production Checklist",
+            "checklistItems": {
+              "0": "Database migrations applied",
+              "1": "All environment variables set",
+              "2": "SESSION_SECRET is cryptographically strong (32+ chars)",
+              "3": "HTTPS enabled (automatic with Vercel)",
+              "4": "Email sending configured and tested",
+              "5": "S3 bucket CORS configured for your domain",
+              "6": "Rate limiting enabled (Upstash Redis connected)",
+              "7": "Audit logging reviewed",
+              "8": "Error monitoring configured (Sentry, etc.)"
+            },
+            "monitoring": "Monitoring",
+            "monitoringList": {
+              "0": "Vercel Analytics: Performance and usage metrics",
+              "1": "Database: Monitor connection pool, query performance",
+              "2": "Redis: Check rate limit hits, cache performance",
+              "3": "S3: Monitor storage usage and costs",
+              "4": "Logs: Review audit logs for security events"
+            },
+            "performance": "Performance: Next.js automatically optimizes your app with code splitting, image optimization, and edge caching. Vercel provides global CDN distribution."
           }
         }
       }
@@ -1031,6 +1615,11 @@
       "description": "Complete API documentation",
       "coming": "Detailed API documentation coming soon. See Developer Guide → API Routes for now."
     },
+    "quickLinks": "Quick Links",
+    "getStarted": "Get Started →",
+    "viewPricing": "View Pricing →",
+    "githubRepository": "GitHub Repository →",
+    "dashboard": "Dashboard →",
     "security": {
       "title": "Security & Privacy",
       "description": "How we protect your data",
@@ -1083,7 +1672,8 @@
       "VOLUME": "Volume",
       "AREA": "Area",
       "kilograms": "Kilograms"
-    }
+    },
+    "color": "Color"
   },
   "Pricing": {
     "title": "Pricing",
@@ -1165,5 +1755,27 @@
       "chartTitle": "Revenue Over Time",
       "revenue": "Revenue"
     }
+  },
+  "Footer": {
+    "tagline": "Privacy-first business management. Your data stays yours.",
+    "product": {
+      "title": "Product",
+      "features": "Features",
+      "howItWorks": "How it Works",
+      "pricing": "Pricing",
+      "docs": "Documentation"
+    },
+    "support": {
+      "title": "Support",
+      "userGuide": "User Guide",
+      "developerDocs": "Developer Docs",
+      "contact": "Contact Us"
+    },
+    "legal": {
+      "title": "Legal",
+      "privacy": "Privacy Policy",
+      "terms": "Terms & Conditions"
+    },
+    "copyright": "© {year} Ratio Tuta. All rights reserved."
   }
 }

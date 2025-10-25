@@ -1,4 +1,4 @@
-# Pecunia
+# Ratio Tuta
 
 A modern financial management and inventory tracking application built with Next.js, featuring team collaboration, subscription packages, and comprehensive security.
 

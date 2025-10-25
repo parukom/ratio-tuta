@@ -6,6 +6,8 @@ import HeroSection from '@/components/HeroSection';
 import HowItWorks from '@/components/HowItWorks';
 import OurMission from '@/components/OurMission';
 import Features from '@/components/Features';
+import FAQ from '@/components/Faq';
+import Footer from '@/components/Footer';
 
 export default async function Home() {
   // Fast-path: verify cookie signature and expiry only; skip DB revocation check for a snappier homepage.
@@ -41,6 +43,8 @@ export default async function Home() {
       <OurMission />
       <Features />
       <HowItWorks />
+      <FAQ />
+      <Footer />
     </>
   );
 }
