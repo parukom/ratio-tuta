@@ -7,6 +7,7 @@ import { ChangePassword } from './sections/ChangePassword';
 import { LogoutOtherSessions } from './sections/LogoutOtherSessions';
 import { DeleteAccount } from './sections/DeleteAccount';
 import { LanguagePreference } from './sections/LanguagePreference';
+import { HelpPreference } from './sections/HelpPreference';
 
 type Props = { session: SessionData }
 
@@ -29,6 +30,8 @@ const UserForm: React.FC<Props> = ({ session }) => {
             />
 
             <LanguagePreference />
+
+            <HelpPreference />
 
             <ChangePassword />
 

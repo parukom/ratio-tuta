@@ -87,6 +87,13 @@
       "applying": "Taikoma…",
       "note": "\"Įrenginio kalba\" seka naršyklės pageidaujamą kalbą. Palaikomos: English, Lietuvių, Русский."
     },
+    "help": {
+      "title": "Pagalba ir paaiškinimai",
+      "subtitle": "Rodyti naudingus patarimus ir paaiškinimus visoje programoje.",
+      "enabled": "Pagalba įjungta",
+      "disabled": "Pagalba išjungta",
+      "note": "Kai įjungta, matysite naudingus paaiškinimus modaluose, formose ir kitose vietose, kurie padės jums naudotis funkcijomis."
+    },
     "personal": {
       "title": "Asmeninė informacija",
       "subtitle": "Naudokite nuolatinį adresą, kuriuo galite gauti laiškus.",
@@ -197,6 +204,7 @@
     "generatePassword": "Sugeneruoti slaptažodį",
     "copy": "Kopijuoti",
     "search": "Paieška",
+    "noResults": "Nieko nerasta",
     "home": "Pradžia",
     "accountSettings": "Paskyros nustatymai",
     "support": "Pagalba",
@@ -389,6 +397,21 @@
           "addAll": "Visus",
           "addAllTitle": "Pridėti visas vienetus iš sandėlio",
           "addBoxAllTitle": "Pridėti dėžę (Visus)",
+          "help": {
+            "viewModes": {
+              "title": "Rodymo režimai:",
+              "boxes": "Dėžučių vaizdas - grupuoja prekes pagal produktą ir spalvą",
+              "items": "Prekių vaizdas - rodo kiekvieną dydį/variantą atskirai"
+            },
+            "inStock": {
+              "title": "Sandėlio filtras:",
+              "description": "Perjunkite, kad matytumėte/paslėptumėte prekes su 0 kiekiu sandėlyje. Naudinga pakartotinai užpildant prekes, kurios buvo išparduotos."
+            },
+            "quantity": {
+              "title": "Pridėjimas į vietą:",
+              "description": "Įveskite kiekį, kurį perkelti iš sandėlio į šią vietą. Naudokite mygtuką 'Visus', kad perkeltumėte visą atsargą."
+            }
+          },
           "nothingAdded": "Nieko nepridėta (jau priskirta arba kiekis lygus nuliui).",
           "errors": {
             "load": "Nepavyko įkelti prekių"
@@ -822,7 +845,33 @@
     "modals": {
       "create": {
         "itemIntro": "Prekės yra komandinės. Vėliau galėsite jas priskirti vietoms su kiekiais.",
-        "boxIntro": "Sukurkite kelis dydžių variantus vienu kartu. Visos prekės dalijasi tuo pačiu baziniu pavadinimu, spalva ir kaina."
+        "boxIntro": "Sukurkite kelis dydžių variantus vienu kartu. Visos prekės dalijasi tuo pačiu baziniu pavadinimu, spalva ir kaina.",
+        "help": {
+          "item": {
+            "title": "Individuali prekė:",
+            "description": "Naudokite šį režimą kurdami vieną produktą (pvz., 1 konkrečius marškinėlius, 1 konkretų bato dydį). Prekė pirmiausia patenka į komandos sandėlį.",
+            "measurementTitle": "Matavimo tipai:",
+            "measurementPCS": "PCS (Vienetai) - skaičiuojami daiktai kaip batai, telefonai",
+            "measurementWeight": "WEIGHT (Svoris) - parduodama kg/g kaip vaisiai, daržovės",
+            "measurementOther": "LENGTH/VOLUME/AREA (Ilgis/Tūris/Plotas) - medžiagoms parduodamoms metrais, litrais ir t.t."
+          },
+          "box": {
+            "title": "Dėžė (Keli dydžiai):",
+            "description": "Naudokite kurdami produktą su keliais dydžiais/variantais (pvz., marškinėlius S, M, L, XL). Visi variantai turi tą patį pavadinimą, spalvą ir kainą.",
+            "exampleTitle": "Pavyzdys:",
+            "example": "Sukurkite 'Nike Kedai - Balti' dėžę su dydžiais: 38, 39, 40, 41, 42. Tai automatiškai sukurs 5 atskiras prekes."
+          },
+          "pricing": {
+            "title": "Kaip veikia dėžės kainodara:",
+            "priceLabel": "Kaina:",
+            "priceDesc": "Pardavimo kaina už prekę. Taikoma visiems dydžiams dėžėje.",
+            "boxCostLabel": "Dėžės savikaina:",
+            "boxCostDesc": "Pasirinktinai. Bendra suma, kurią sumokėjote už visą dėžę. Bus proporcingai paskirstyta visiems dydžiams pagal kiekį.",
+            "taxLabel": "Mokestis (bps):",
+            "taxDesc": "Mokesčio tarifas baziniais punktais (100 bps = 1%). Taikomas visoms prekėms.",
+            "example": "Pavyzdys: Dėžės savikaina €100, pridėjote 5 prekes 38 dydžio ir 10 prekių 40 dydžio. 38 dydžio prekės gaus €33.33 bendrą savikainą (€6.67 kiekviena), 40 dydžio prekės gaus €66.67 bendrą savikainą (€6.67 kiekviena)."
+          }
+        }
       },
       "deleteBox": {
         "title": "Ištrinti dėžę",

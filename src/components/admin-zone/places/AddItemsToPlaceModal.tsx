@@ -3,9 +3,10 @@ import React, { useEffect, useMemo, useState } from 'react'
 import Modal from '@/components/modals/Modal'
 import Input from '@/components/ui/Input'
 import SearchInput from '@/components/ui/SearchInput'
-import { CheckCircle2, List, Package, ChevronDown, ChevronRight } from 'lucide-react'
+import { CheckCircle2, List, Package, ChevronDown, ChevronRight, Info } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { formatQuantity } from '../items/format'
+import { useHelp } from '@/hooks/useHelp'
 
 
 type Item = {
@@ -40,6 +41,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
     const t = useTranslations('Home')
     const tc = useTranslations('Common')
     const ti = useTranslations('Items')
+    const { showHelp } = useHelp()
     const VIEW_COOKIE = 'placeAddItemsViewMode'
     const readCookie = (name: string): string | null => {
         try {
@@ -282,6 +284,25 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
             <div className="text-left">
                 <h3 className="text-base font-semibold text-gray-900 dark:text-white">{t('place.items.assignModal.title')}</h3>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t('place.items.assignModal.subtitle')}</p>
+
+                {showHelp && (
+                    <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <div className="flex items-start gap-2">
+                            <Info className="size-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                            <div className="text-xs text-blue-900 dark:text-blue-100 space-y-1">
+                                <p><strong>{t('place.items.assignModal.help.viewModes.title')}</strong></p>
+                                <ul className="list-disc list-inside space-y-0.5 ml-2">
+                                    <li><Package className="size-3 inline mr-1" />{t('place.items.assignModal.help.viewModes.boxes')}</li>
+                                    <li><List className="size-3 inline mr-1" />{t('place.items.assignModal.help.viewModes.items')}</li>
+                                </ul>
+                                <p className="mt-2"><strong>{t('place.items.assignModal.help.inStock.title')}</strong></p>
+                                <p>{t('place.items.assignModal.help.inStock.description')}</p>
+                                <p className="mt-2"><strong>{t('place.items.assignModal.help.quantity.title')}</strong></p>
+                                <p>{t('place.items.assignModal.help.quantity.description')}</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 <div className="mt-4">
                     <div className="flex items-center gap-3">

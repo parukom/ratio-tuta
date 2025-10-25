@@ -87,6 +87,13 @@
       "applying": "Applying…",
       "note": "\"Device language\" follows your browser's preferred language. Supported: English, Lietuvių, Русский."
     },
+    "help": {
+      "title": "Help & Explanations",
+      "subtitle": "Show helpful hints and explanations throughout the app.",
+      "enabled": "Help enabled",
+      "disabled": "Help disabled",
+      "note": "When enabled, you'll see helpful explanations in modals, forms, and other places to guide you through features."
+    },
     "personal": {
       "title": "Personal Information",
       "subtitle": "Use a permanent address where you can receive mail.",
@@ -197,6 +204,7 @@
     "generatePassword": "Generate password",
     "copy": "Copy",
     "search": "Search",
+    "noResults": "No results found",
     "home": "Home",
     "accountSettings": "Account settings",
     "support": "Support",
@@ -349,6 +357,21 @@
           "addAll": "All",
           "addAllTitle": "Add all units from warehouse",
           "addBoxAllTitle": "Add box (All)",
+          "help": {
+            "viewModes": {
+              "title": "View modes:",
+              "boxes": "Boxes view - groups items by product and color",
+              "items": "Items view - shows each size/variant separately"
+            },
+            "inStock": {
+              "title": "In-stock filter:",
+              "description": "Toggle to show/hide items with 0 quantity in warehouse. Useful for re-stocking items that were sold out."
+            },
+            "quantity": {
+              "title": "Adding to place:",
+              "description": "Enter quantity to move from warehouse to this place. Use 'All' button to move entire stock."
+            }
+          },
           "nothingAdded": "Nothing was added (already assigned or zero quantities).",
           "errors": {
             "load": "Failed to load items"
@@ -785,7 +808,33 @@
     "modals": {
       "create": {
         "itemIntro": "Items are team-wide. You can assign them to places with quantities later.",
-        "boxIntro": "Create multiple size items in one go. All items share the same base name, color and price."
+        "boxIntro": "Create multiple size items in one go. All items share the same base name, color and price.",
+        "help": {
+          "item": {
+            "title": "Individual Item:",
+            "description": "Use this when creating a single product (e.g., 1 specific T-shirt, 1 specific shoe size). The item goes into your team warehouse first.",
+            "measurementTitle": "Measurement types:",
+            "measurementPCS": "PCS (Pieces) - countable items like shoes, phones",
+            "measurementWeight": "WEIGHT - sold by kg/g like fruits, vegetables",
+            "measurementOther": "LENGTH/VOLUME/AREA - for materials sold by meter, liter, etc."
+          },
+          "box": {
+            "title": "Box (Multiple Sizes):",
+            "description": "Use this when creating a product with multiple sizes/variants (e.g., T-shirt in S, M, L, XL). All variants share the same name, color, and price.",
+            "exampleTitle": "Example:",
+            "example": "Create 'Nike Sneakers - White' box with sizes: 38, 39, 40, 41, 42. This creates 5 separate items automatically."
+          },
+          "pricing": {
+            "title": "How box pricing works:",
+            "priceLabel": "Price:",
+            "priceDesc": "Selling price per item. Applies to all sizes in the box.",
+            "boxCostLabel": "Box Cost:",
+            "boxCostDesc": "Optional. Total cost you paid for the entire box. Will be distributed proportionally across all sizes based on quantity.",
+            "taxLabel": "Tax (bps):",
+            "taxDesc": "Tax rate in basis points (100 bps = 1%). Applies to all items.",
+            "example": "Example: Box cost €100, you add 5 items of size 38 and 10 items of size 40. Size 38 items get €33.33 total cost (€6.67 each), size 40 items get €66.67 total cost (€6.67 each)."
+          }
+        }
       },
       "deleteBox": {
         "title": "Delete box",

@@ -6,13 +6,11 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  // Use an unpooled, direct connection for schema migrations
-  // Set DIRECT_URL in your environment (see .env.example)
   directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id               String    @id @default(uuid())
+  id                      String                   @id @default(uuid())
   name             String
   // Privacy-preserving email storage
   // emailHmac is a deterministic HMAC of the normalized email used for lookups and uniqueness
@@ -27,6 +25,8 @@ model User {
   // Avatar stored in S3
   avatarUrl        String?
   avatarKey        String?
+  // User preferences
+  showHelp         Boolean   @default(true)
   createdAt        DateTime  @default(now())
   Receipt          Receipt[]
 
@@ -45,109 +45,90 @@ model User {
 }
 
 model Team {
-  id        String   @id @default(uuid())
-  name      String
-  createdAt DateTime @default(now())
-
-  ownerId String
-  owner   User   @relation("OwnedTeams", fields: [ownerId], references: [id])
-
-  members        TeamMember[]
-  places         Place[]
-  itemCategories ItemCategory[]
-  placeTypes     PlaceType[]
-  items          Item[]
-
-  // Back-reference: audit logs associated with this team
+  id               String             @id @default(uuid())
+  name             String
+  createdAt        DateTime           @default(now())
+  ownerId          String
   auditLogsForTeam AuditLog[]         @relation("AuditTeam")
-  // Package subscriptions for this team (history + active)
+  items            Item[]
+  itemCategories   ItemCategory[]
+  places           Place[]
+  placeTypes       PlaceType[]
+  owner            User               @relation("OwnedTeams", fields: [ownerId], references: [id])
+  members          TeamMember[]
   subscriptions    TeamSubscription[]
 }
 
 model TeamMember {
   id        String   @id @default(uuid())
   teamId    String
-  userId    String
+  userId    String   @unique
   role      TeamRole @default(MEMBER)
   createdAt DateTime @default(now())
-
-  team Team @relation(fields: [teamId], references: [id])
-  user User @relation(fields: [userId], references: [id])
+  team      Team     @relation(fields: [teamId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@unique([teamId, userId])
-  @@unique([userId])
 }
 
-// A physical or virtual venue to register sales (food trucks, kiosks, parks, events, etc.)
 model Place {
-  id            String     @id @default(uuid())
+  id            String        @id @default(uuid())
   teamId        String
   name          String
   placeTypeId   String?
-  placeType     PlaceType? @relation(fields: [placeTypeId], references: [id])
   description   String?
   address1      String?
   address2      String?
   city          String?
   country       String?
   timezone      String?
-  currency      String?    @default("EUR")
-  totalEarnings Float      @default(0)
-  isActive      Boolean    @default(true)
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  currency      String?       @default("EUR")
+  totalEarnings Float         @default(0)
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  placeType     PlaceType?    @relation(fields: [placeTypeId], references: [id])
+  team          Team          @relation(fields: [teamId], references: [id])
+  placeItems    PlaceItem[]
+  members       PlaceMember[]
+  Receipt       Receipt[]
 
-  team       Team          @relation(fields: [teamId], references: [id])
-  placeItems PlaceItem[]
-  Receipt    Receipt[]
-  // Users explicitly assigned to this place
-  members    PlaceMember[]
-
-  @@unique([teamId, name]) // unique place name per team
+  @@unique([teamId, name])
   @@index([teamId])
   @@index([placeTypeId])
 }
 
-// A sellable item scoped to a Team (team-wide catalog / storage)
 model Item {
-  id         String  @id @default(uuid())
-  teamId     String
-  name       String
-  sku        String?
-  price      Float
-  // Purchase cost (amount paid per unit) to compare profit = price - pricePaid
-  pricePaid  Float   @default(0)
-  taxRateBps Int     @default(0) // basis points (e.g. 2100 = 21.00%)
-  isActive   Boolean @default(true)
-
-  stockQuantity Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  description String?
-  color       String?
-  size        String?
-  brand       String?
-  tags        String[] // paprastas string array, tinka filtravimui
-
-  // Item picture stored in S3
-  imageUrl String?
-  imageKey String?
-
-  categoryId String?
-  category   ItemCategory? @relation(fields: [categoryId], references: [id])
-
+  id              String          @id @default(uuid())
+  teamId          String
+  name            String
+  sku             String?
+  price           Float
+  pricePaid       Float           @default(0)
+  taxRateBps      Int             @default(0)
+  isActive        Boolean         @default(true)
+  stockQuantity   Int             @default(0)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  description     String?
+  color           String?
+  size            String?
+  brand           String?
+  tags            String[]
+  imageUrl        String?
+  imageKey        String?
+  categoryId      String?
+  measurementType MeasurementType @default(PCS)
+  category        ItemCategory?   @relation(fields: [categoryId], references: [id])
   team            Team            @relation(fields: [teamId], references: [id])
   places          PlaceItem[]
-  measurementType MeasurementType @default(PCS)
 
-  @@unique([teamId, name]) // unique item name within a team
+  @@unique([teamId, name])
   @@unique([teamId, sku])
   @@index([teamId])
   @@index([categoryId])
 }
 
-// Team-scoped type for Items (user-defined). teamId null means global / shared.
 model ItemCategory {
   id        String   @id @default(uuid())
   teamId    String?
@@ -157,16 +138,14 @@ model ItemCategory {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  team  Team?  @relation(fields: [teamId], references: [id])
-  items Item[]
+  items     Item[]
+  team      Team?    @relation(fields: [teamId], references: [id])
 
   @@unique([teamId, name])
   @@unique([teamId, slug])
   @@index([teamId])
 }
 
-// Items assigned to a Place with a quantity in stock
 model PlaceItem {
   id        String   @id @default(uuid())
   placeId   String
@@ -174,16 +153,14 @@ model PlaceItem {
   quantity  Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  place Place @relation(fields: [placeId], references: [id])
-  item  Item  @relation(fields: [itemId], references: [id])
+  item      Item     @relation(fields: [itemId], references: [id])
+  place     Place    @relation(fields: [placeId], references: [id])
 
   @@unique([placeId, itemId])
   @@index([placeId])
   @@index([itemId])
 }
 
-// Team-scoped type for Places (user-defined). teamId null means global / shared.
 model PlaceType {
   id        String   @id @default(uuid())
   teamId    String?
@@ -193,48 +170,41 @@ model PlaceType {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  team   Team?   @relation(fields: [teamId], references: [id])
-  places Place[]
+  places    Place[]
+  team      Team?    @relation(fields: [teamId], references: [id])
 
   @@unique([teamId, name])
   @@unique([teamId, slug])
   @@index([teamId])
 }
 
-// Explicit membership of a User to a Place (within a Team)
 model PlaceMember {
   id        String   @id @default(uuid())
   placeId   String
   userId    String
   createdAt DateTime @default(now())
-
-  place Place @relation(fields: [placeId], references: [id])
-  user  User  @relation(fields: [userId], references: [id])
+  place     Place    @relation(fields: [placeId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@unique([placeId, userId])
   @@index([userId])
 }
 
-// Audit log for backend actions
 model AuditLog {
-  id        String      @id @default(uuid())
-  timestamp DateTime    @default(now())
-  action    String
-  status    AuditStatus
-  message   String?
-
+  id          String      @id @default(uuid())
+  timestamp   DateTime    @default(now())
+  action      String
+  status      AuditStatus
+  message     String?
   actorUserId String?
-  actorUser   User?   @relation(name: "AuditActorUser", fields: [actorUserId], references: [id])
-
-  teamId String?
-  team   Team?   @relation(name: "AuditTeam", fields: [teamId], references: [id])
-
+  teamId      String?
   targetTable String?
   targetId    Int?
   ip          String?
   userAgent   String?
   metadata    Json?
+  actorUser   User?       @relation("AuditActorUser", fields: [actorUserId], references: [id])
+  team        Team?       @relation("AuditTeam", fields: [teamId], references: [id])
 
   @@index([action, timestamp])
   @@index([actorUserId, timestamp])
@@ -275,8 +245,7 @@ model EmailVerificationToken {
   token     String   @unique
   expiresAt DateTime
   createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@index([userId])
 }
@@ -288,64 +257,51 @@ model PasswordResetToken {
   expiresAt DateTime
   createdAt DateTime  @default(now())
   usedAt    DateTime?
-
-  user User @relation(fields: [userId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
 
   @@index([userId])
 }
 
-// Subscription packages available for teams
 model Package {
   id                   String             @id @default(uuid())
   slug                 String             @unique
   name                 String
   description          String?
-  // prices stored in cents (EUR)
   monthlyCents         Int                @default(0)
   annualCents          Int                @default(0)
-  // Stripe product and price IDs
   stripeProductId      String?            @unique
   stripeMonthlyPriceId String?
   stripeAnnualPriceId  String?
-  // freeform list of features/limits
   features             String[]           @default([])
-  // metadata for future expansion (image quality, document storage, extra price, etc.)
   metadata             Json?
   isActive             Boolean            @default(true)
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
-  // Teams subscribed to this package
   teamSubscriptions    TeamSubscription[]
 }
 
-// Team subscriptions to packages (supports history and active subscriptions)
 model TeamSubscription {
-  id                     String    @id @default(uuid())
-  teamId                 String
-  packageId              String
-  isActive               Boolean   @default(true)
-  isAnnual               Boolean   @default(false)
-  // price at time of purchase (cents)
-  priceCents             Int
-  // Stripe subscription and customer IDs
-  stripeSubscriptionId   String?   @unique
-  stripeCustomerId       String?
-  stripeCheckoutSessionId String?  @unique
-  stripePriceId          String?
-  // seats or teammates allowed (nullable when unlimited)
-  seats                  Int?
-  // extra paid storage in cents for extras
-  extraStorageCents      Int?
-  metadata               Json?
-  startedAt              DateTime  @default(now())
-  expiresAt              DateTime?
-  cancelAt               DateTime?
-  canceledAt             DateTime?
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
-
-  team    Team    @relation(fields: [teamId], references: [id])
-  package Package @relation(fields: [packageId], references: [id])
+  id                      String    @id @default(uuid())
+  teamId                  String
+  packageId               String
+  isActive                Boolean   @default(true)
+  isAnnual                Boolean   @default(false)
+  priceCents              Int
+  stripeSubscriptionId    String?   @unique
+  stripeCustomerId        String?
+  stripeCheckoutSessionId String?   @unique
+  stripePriceId           String?
+  seats                   Int?
+  extraStorageCents       Int?
+  metadata                Json?
+  startedAt               DateTime  @default(now())
+  expiresAt               DateTime?
+  cancelAt                DateTime?
+  canceledAt              DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  package                 Package   @relation(fields: [packageId], references: [id])
+  team                    Team      @relation(fields: [teamId], references: [id])
 
   @@index([teamId])
   @@index([packageId])
@@ -382,9 +338,9 @@ enum ReceiptStatus {
 }
 
 enum MeasurementType {
-  PCS // vienetai
-  WEIGHT // kg, g
-  LENGTH // m, cm
-  VOLUME // l, ml
-  AREA // m2
+  PCS
+  WEIGHT
+  LENGTH
+  VOLUME
+  AREA
 }

@@ -27,7 +27,7 @@ export default function InnerItems() {
     const [onlyActive, setOnlyActive] = useState<boolean>(false)
     const [categoryId, setCategoryId] = useState<string>("")
     const [measurementType, setMeasurementType] = useState<"" | ItemRow["measurementType"]>("")
-    const [inStock, setInStock] = useState<boolean>(true)
+    const [inStock, setInStock] = useState<boolean>(false)
     const [minPrice, setMinPrice] = useState<string>("")
     const [maxPrice, setMaxPrice] = useState<string>("")
     const [sort, setSort] = useState<string>("createdAt_desc")

@@ -7,7 +7,8 @@ import Spinner from '@/components/ui/Spinner'
 import ImageUploader from '@/components/ui/ImageUploader'
 import toast from 'react-hot-toast'
 import { useTranslations } from 'next-intl'
-import { Plus, PackageX } from 'lucide-react'
+import { Plus, PackageX, Info } from 'lucide-react'
+import { useHelp } from '@/hooks/useHelp'
 
 type Mode = 'item' | 'box'
 
@@ -53,6 +54,7 @@ export default function CreateItemOrBoxButton({
 }: Props) {
     const t = useTranslations('Items')
     const tc = useTranslations('Common')
+    const { showHelp } = useHelp()
 
     const [open, setOpen] = useState(false)
     const [limitModal, setLimitModal] = useState(false)
@@ -465,6 +467,35 @@ export default function CreateItemOrBoxButton({
                 </div>
                 <div className="mt-2">{Toggle}</div>
 
+                {showHelp && (
+                    <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <div className="flex items-start gap-2">
+                            <Info className="size-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                            <div className="text-xs text-blue-900 dark:text-blue-100 space-y-1">
+                                {mode === 'item' ? (
+                                    <>
+                                        <p><strong>{t('modals.create.help.item.title')}</strong></p>
+                                        <p>{t('modals.create.help.item.description')}</p>
+                                        <p className="mt-2"><strong>{t('modals.create.help.item.measurementTitle')}</strong></p>
+                                        <ul className="list-disc list-inside space-y-0.5 ml-2">
+                                            <li>{t('modals.create.help.item.measurementPCS')}</li>
+                                            <li>{t('modals.create.help.item.measurementWeight')}</li>
+                                            <li>{t('modals.create.help.item.measurementOther')}</li>
+                                        </ul>
+                                    </>
+                                ) : (
+                                    <>
+                                        <p><strong>{t('modals.create.help.box.title')}</strong></p>
+                                        <p>{t('modals.create.help.box.description')}</p>
+                                        <p className="mt-2"><strong>{t('modals.create.help.box.exampleTitle')}</strong></p>
+                                        <p>{t('modals.create.help.box.example')}</p>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Forms container */}
                 <div className="mt-4">
                     {mode === 'item' ? (
@@ -478,8 +509,14 @@ export default function CreateItemOrBoxButton({
                                 hint={t('forms.pictureHint')}
 
                             />
-                            <Input id="it_name" name="name" type="text" placeholder={tc('name')} value={it_name} onChange={(e) => it_setName(e.target.value)} />
-                            <Input id="it_sku" name="sku" type="text" placeholder={t('forms.sku')} value={it_sku} onChange={(e) => it_setSku(e.target.value)} />
+                            <div>
+                                <label htmlFor="it_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{tc('name')} *</label>
+                                <Input id="it_name" name="name" type="text" placeholder="" value={it_name} onChange={(e) => it_setName(e.target.value)} />
+                            </div>
+                            <div>
+                                <label htmlFor="it_sku" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.sku')}</label>
+                                <Input id="it_sku" name="sku" type="text" placeholder="" value={it_sku} onChange={(e) => it_setSku(e.target.value)} />
+                            </div>
                             {/* Category selector */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.category')}</label>
@@ -504,10 +541,19 @@ export default function CreateItemOrBoxButton({
                                 )}
                                 {it_catMsg && <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">{it_catMsg}</p>}
                             </div>
-                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                <Input id="it_price" name="price" type="number" placeholder={t('labels.price')} value={it_price} onChange={(e) => it_setPrice(e.target.value)} />
-                                <Input id="it_pricePaid" name="pricePaid" type="number" placeholder={t('card.cost')} value={it_pricePaid} onChange={(e) => it_setPricePaid(e.target.value)} />
-                                <Input id="it_taxRateBps" name="taxRateBps" type="number" placeholder={`${t('labels.tax')} (bps)`} value={it_taxRateBps} onChange={(e) => it_setTaxRateBps(e.target.value)} />
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                                <div>
+                                    <label htmlFor="it_price" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('labels.price')} *</label>
+                                    <Input id="it_price" name="price" type="number" step="0.01" placeholder="" value={it_price} onChange={(e) => it_setPrice(e.target.value)} />
+                                </div>
+                                <div>
+                                    <label htmlFor="it_pricePaid" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('card.cost')}</label>
+                                    <Input id="it_pricePaid" name="pricePaid" type="number" step="0.01" placeholder="" value={it_pricePaid} onChange={(e) => it_setPricePaid(e.target.value)} />
+                                </div>
+                                <div>
+                                    <label htmlFor="it_taxRateBps" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('labels.tax')} (bps)</label>
+                                    <Input id="it_taxRateBps" name="taxRateBps" type="number" placeholder="" value={it_taxRateBps} onChange={(e) => it_setTaxRateBps(e.target.value)} />
+                                </div>
                             </div>
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                 <div>
@@ -615,12 +661,24 @@ export default function CreateItemOrBoxButton({
                                     )}
                                 </div>
                             </div>
-                            <Input id="it_description" name="description" type="text" placeholder={t('forms.descriptionOptional')} value={it_description} onChange={(e) => it_setDescription(e.target.value)} />
-                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                <Input id="it_color" name="color" type="text" placeholder={t('forms.colorOptional')} value={it_color} onChange={(e) => it_setColor(e.target.value)} />
-                                <Input id="it_brand" name="brand" type="text" placeholder={t('forms.brandOptional')} value={it_brand} onChange={(e) => it_setBrand(e.target.value)} />
+                            <div>
+                                <label htmlFor="it_description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.descriptionOptional')}</label>
+                                <Input id="it_description" name="description" type="text" placeholder="" value={it_description} onChange={(e) => it_setDescription(e.target.value)} />
                             </div>
-                            <Input id="it_tags" name="tags" type="text" placeholder={t('forms.tagsComma')} value={it_tagsCSV} onChange={(e) => it_setTagsCSV(e.target.value)} />
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label htmlFor="it_color" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.colorOptional')}</label>
+                                    <Input id="it_color" name="color" type="text" placeholder="" value={it_color} onChange={(e) => it_setColor(e.target.value)} />
+                                </div>
+                                <div>
+                                    <label htmlFor="it_brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.brandOptional')}</label>
+                                    <Input id="it_brand" name="brand" type="text" placeholder="" value={it_brand} onChange={(e) => it_setBrand(e.target.value)} />
+                                </div>
+                            </div>
+                            <div>
+                                <label htmlFor="it_tags" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.tagsComma')}</label>
+                                <Input id="it_tags" name="tags" type="text" placeholder="" value={it_tagsCSV} onChange={(e) => it_setTagsCSV(e.target.value)} />
+                            </div>
                             {/* ImageUploader placed at the top, so remove old input */}
                             <div className="flex items-center gap-2">
                                 <input id="it_isActive" name="isActive" type="checkbox" checked={it_isActive} onChange={(e) => it_setIsActive(e.target.checked)} className="size-4" />
@@ -645,13 +703,49 @@ export default function CreateItemOrBoxButton({
                                 hint={t('forms.pictureHint')}
 
                             />
-                            <Input id="bx_baseName" name="baseName" type="text" placeholder={t('forms.baseName')} value={bx_baseName} onChange={(e) => bx_setBaseName(e.target.value)} />
-                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
-                                <Input id="bx_color" name="color" type="text" placeholder={t('forms.colorOptional')} value={bx_color} onChange={(e) => bx_setColor(e.target.value)} />
-                                <Input id="bx_price" name="price" type="number" placeholder={t('labels.price')} value={bx_price} onChange={(e) => bx_setPrice(e.target.value)} />
-                                <Input id="bx_boxCost" name="boxCost" type="number" placeholder={t('modals.editBox.boxCost')} value={bx_boxCost} onChange={(e) => bx_setBoxCost(e.target.value)} />
-                                <Input id="bx_tax" name="tax" type="number" placeholder={`${t('labels.tax')} (bps)`} value={bx_taxRateBps} onChange={(e) => bx_setTaxRateBps(e.target.value)} />
+                            <div>
+                                <label htmlFor="bx_baseName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.baseName')} *</label>
+                                <Input id="bx_baseName" name="baseName" type="text" placeholder="" value={bx_baseName} onChange={(e) => bx_setBaseName(e.target.value)} />
                             </div>
+
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label htmlFor="bx_color" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.colorOptional')}</label>
+                                    <Input id="bx_color" name="color" type="text" placeholder="" value={bx_color} onChange={(e) => bx_setColor(e.target.value)} />
+                                </div>
+                                <div>
+                                    <label htmlFor="bx_price" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('labels.price')} *</label>
+                                    <Input id="bx_price" name="price" type="number" step="0.01" placeholder="" value={bx_price} onChange={(e) => bx_setPrice(e.target.value)} />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label htmlFor="bx_boxCost" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('modals.editBox.boxCost')}</label>
+                                    <Input id="bx_boxCost" name="boxCost" type="number" step="0.01" placeholder="" value={bx_boxCost} onChange={(e) => bx_setBoxCost(e.target.value)} />
+                                </div>
+                                <div>
+                                    <label htmlFor="bx_tax" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('labels.tax')} (bps)</label>
+                                    <Input id="bx_tax" name="tax" type="number" placeholder="" value={bx_taxRateBps} onChange={(e) => bx_setTaxRateBps(e.target.value)} />
+                                </div>
+                            </div>
+
+                            {showHelp && (
+                                <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                                    <div className="flex items-start gap-2">
+                                        <Info className="size-4 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                                        <div className="text-xs text-green-900 dark:text-green-100 space-y-1">
+                                            <p><strong>{t('modals.create.help.pricing.title')}</strong></p>
+                                            <ul className="list-disc list-inside space-y-0.5 ml-2">
+                                                <li><strong>{t('modals.create.help.pricing.priceLabel')}</strong> {t('modals.create.help.pricing.priceDesc')}</li>
+                                                <li><strong>{t('modals.create.help.pricing.boxCostLabel')}</strong> {t('modals.create.help.pricing.boxCostDesc')}</li>
+                                                <li><strong>{t('modals.create.help.pricing.taxLabel')}</strong> {t('modals.create.help.pricing.taxDesc')}</li>
+                                            </ul>
+                                            <p className="mt-2 italic">{t('modals.create.help.pricing.example')}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Category */}
                             <div>
@@ -678,7 +772,7 @@ export default function CreateItemOrBoxButton({
                                 {bx_catMsg && <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">{bx_catMsg}</p>}
                             </div>
 
-                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.measurementType')}</label>
                                     <div className="inline-block">
@@ -704,8 +798,10 @@ export default function CreateItemOrBoxButton({
                                         />
                                     </div>
                                 </div>
-                                <Input id="bx_skuPrefix" name="skuPrefix" type="text" placeholder={t('forms.skuPrefix')} value={bx_skuPrefix} onChange={(e) => bx_setSkuPrefix(e.target.value)} />
-                                <div />
+                                <div>
+                                    <label htmlFor="bx_skuPrefix" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('forms.skuPrefix')}</label>
+                                    <Input id="bx_skuPrefix" name="skuPrefix" type="text" placeholder="" value={bx_skuPrefix} onChange={(e) => bx_setSkuPrefix(e.target.value)} />
+                                </div>
                             </div>
 
                             {/* ImageUploader already present above */}
