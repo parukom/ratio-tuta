@@ -1,10 +1,10 @@
 'use client'
 
 import Image from 'next/image'
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
-import { MinusSmallIcon, PlusSmallIcon } from '@heroicons/react/24/outline'
 import { CheckIcon } from '@heroicons/react/20/solid'
 import { FirstPagesHeader } from '@/components/FirstPagesHeader'
+import FAQ from '@/components/Faq'
+import Footer from '@/components/Footer'
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
@@ -96,63 +96,6 @@ function formatPrice(cents: number) {
 function annualFromMonthly(cents: number) {
     // annual is 10x monthly
     return cents * 10
-}
-const faqs = [
-    {
-        question: "What's the best thing about Switzerland?",
-        answer:
-            "I don't know, but the flag is a big plus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas cupiditate laboriosam fugiat.",
-    },
-    {
-        question: 'How do you make holy water?',
-        answer:
-            'You boil the hell out of it. Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam aut tempora vitae odio inventore fuga aliquam nostrum quod porro. Delectus quia facere id sequi expedita natus.',
-    },
-    {
-        question: 'What do you call someone with no body and no nose?',
-        answer:
-            'Nobody knows. Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa, voluptas ipsa quia excepturi, quibusdam natus exercitationem sapiente tempore labore voluptatem.',
-    },
-    {
-        question: 'Why do you never see elephants hiding in trees?',
-        answer:
-            "Because they're so good at it. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas cupiditate laboriosam fugiat.",
-    },
-    {
-        question: "Why can't you hear a pterodactyl go to the bathroom?",
-        answer:
-            'Because the pee is silent. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsam, quas voluptatibus ex culpa ipsum, aspernatur blanditiis fugiat ullam magnam suscipit deserunt illum natus facilis atque vero consequatur! Quisquam, debitis error.',
-    },
-    {
-        question: 'Why did the invisible man turn down the job offer?',
-        answer:
-            "He couldn't see himself doing it. Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eveniet perspiciatis officiis corrupti tenetur. Temporibus ut voluptatibus, perferendis sed unde rerum deserunt eius.",
-    },
-]
-const footerNavigation = {
-    solutions: [
-        { name: 'Marketing', href: '#' },
-        { name: 'Analytics', href: '#' },
-        { name: 'Automation', href: '#' },
-        { name: 'Commerce', href: '#' },
-        { name: 'Insights', href: '#' },
-    ],
-    support: [
-        { name: 'Submit ticket', href: '#' },
-        { name: 'Documentation', href: '#' },
-        { name: 'Guides', href: '#' },
-    ],
-    company: [
-        { name: 'About', href: '#' },
-        { name: 'Blog', href: '#' },
-        { name: 'Jobs', href: '#' },
-        { name: 'Press', href: '#' },
-    ],
-    legal: [
-        { name: 'Terms of service', href: '#' },
-        { name: 'Privacy policy', href: '#' },
-        { name: 'License', href: '#' },
-    ],
 }
 
 type SessionData = {
@@ -611,121 +554,13 @@ export default function PricingPage() {
                     </div>
                 </div>
 
-                {/* FAQ section */}
-                <div className="mx-auto mt-24 max-w-7xl px-6 sm:mt-56 lg:px-8">
-                    <div className="mx-auto max-w-4xl">
-                        <h2 className="text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl dark:text-white">
-                            Frequently asked questions
-                        </h2>
-                        <dl className="mt-16 divide-y divide-gray-900/10 dark:divide-white/10">
-                            {faqs.map((faq) => (
-                                <Disclosure key={faq.question} as="div" className="py-6 first:pt-0 last:pb-0">
-                                    <dt>
-                                        <DisclosureButton className="group flex w-full items-start justify-between text-left text-gray-900 dark:text-white">
-                                            <span className="text-base/7 font-semibold">{faq.question}</span>
-                                            <span className="ml-6 flex h-7 items-center">
-                                                <PlusSmallIcon aria-hidden="true" className="size-6 group-data-open:hidden" />
-                                                <MinusSmallIcon aria-hidden="true" className="size-6 group-not-data-open:hidden" />
-                                            </span>
-                                        </DisclosureButton>
-                                    </dt>
-                                    <DisclosurePanel as="dd" className="mt-2 pr-12">
-                                        <p className="text-base/7 text-gray-600 dark:text-gray-400">{faq.answer}</p>
-                                    </DisclosurePanel>
-                                </Disclosure>
-                            ))}
-                        </dl>
-                    </div>
-                </div>
             </main>
 
+            {/* FAQ section */}
+            <FAQ />
+
             {/* Footer */}
-            <footer className="mx-auto max-w-7xl px-6 pt-24 pb-8 sm:pt-56 lg:px-8">
-                <div className="border-t border-gray-900/10 pt-24 dark:border-white/10">
-                    <div className="xl:grid xl:grid-cols-3 xl:gap-8">
-                        <Image
-                            height={36}
-                            width={36}
-                            alt="Company name"
-                            src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-                            className="h-9 dark:hidden"
-                        />
-                        <Image
-                            height={36}
-                            width={36}
-                            alt="Company name"
-                            src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
-                            className="h-9 not-dark:hidden"
-                        />
-                        <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
-                            <div className="md:grid md:grid-cols-2 md:gap-8">
-                                <div>
-                                    <h3 className="text-sm/6 font-semibold text-gray-900 dark:text-white">Solutions</h3>
-                                    <ul role="list" className="mt-6 space-y-4">
-                                        {footerNavigation.solutions.map((item) => (
-                                            <li key={item.name}>
-                                                <a
-                                                    href={item.href}
-                                                    className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-                                                >
-                                                    {item.name}
-                                                </a>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <div className="mt-10 md:mt-0">
-                                    <h3 className="text-sm/6 font-semibold text-gray-900 dark:text-white">Support</h3>
-                                    <ul role="list" className="mt-6 space-y-4">
-                                        {footerNavigation.support.map((item) => (
-                                            <li key={item.name}>
-                                                <a
-                                                    href={item.href}
-                                                    className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-                                                >
-                                                    {item.name}
-                                                </a>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            </div>
-                            <div className="md:grid md:grid-cols-2 md:gap-8">
-                                <div>
-                                    <h3 className="text-sm/6 font-semibold text-gray-900 dark:text-white">Company</h3>
-                                    <ul role="list" className="mt-6 space-y-4">
-                                        {footerNavigation.company.map((item) => (
-                                            <li key={item.name}>
-                                                <a
-                                                    href={item.href}
-                                                    className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-                                                >
-                                                    {item.name}
-                                                </a>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <div className="mt-10 md:mt-0">
-                                    <h3 className="text-sm/6 font-semibold text-gray-900 dark:text-white">Legal</h3>
-                                    <ul role="list" className="mt-6 space-y-4">
-                                        {footerNavigation.legal.map((item) => (
-                                            <li key={item.name}>
-                                                <a
-                                                    href={item.href}
-                                                    className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-                                                >
-                                                    {item.name}
-                                                </a>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </footer>
+            <Footer />
         </div>
     )
 }

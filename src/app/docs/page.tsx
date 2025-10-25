@@ -2,6 +2,7 @@
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { FirstPagesHeader } from '@/components/FirstPagesHeader'
+import Footer from '@/components/Footer'
 import { useEffect, useState } from 'react'
 import {
   BookOpenIcon,
@@ -275,6 +276,9 @@ export default function DocsPage() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

@@ -122,12 +122,16 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
         writeCookie(VIEW_COOKIE, viewMode)
     }, [viewMode])
 
-    const assignedIds = useMemo(() => new Set(assigned.map((pi) => pi.itemId)), [assigned])
+    // Items that are assigned AND have quantity > 0 should be hidden
+    // Items with quantity = 0 should be shown (sold out, can be re-added)
+    const assignedIdsWithStock = useMemo(() => {
+        return new Set(assigned.filter((pi) => pi.quantity > 0).map((pi) => pi.itemId))
+    }, [assigned])
 
     const visibleItems = useMemo(() => {
         const q = search.trim().toLowerCase()
         return items
-            .filter((it) => !assignedIds.has(it.id))
+            .filter((it) => !assignedIdsWithStock.has(it.id))
             .filter((it) => (inStockOnly ? (it.stockQuantity ?? 0) > 0 : true))
             .filter((it) =>
                 !q
@@ -135,7 +139,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                     : (it.name?.toLowerCase().includes(q) || it.sku?.toLowerCase().includes(q) || it.categoryName?.toLowerCase().includes(q)),
             )
             .slice(0, 100)
-    }, [items, assignedIds, search, inStockOnly])
+    }, [items, assignedIdsWithStock, search, inStockOnly])
 
     // Group items into boxes by base name and color (assumes "Name - Size" naming)
     type Group = {
@@ -230,8 +234,8 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
         let addedCount = 0
         try {
             for (const itemId of itemIds) {
-                // Skip already assigned items
-                if (assignedIds.has(itemId)) continue
+                // Skip items that are already assigned with stock > 0
+                if (assignedIdsWithStock.has(itemId)) continue
                 const it = items.find((i) => i.id === itemId)
                 if (!it) continue
                 const stock = Number(it.stockQuantity ?? 0)
