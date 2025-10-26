@@ -40,8 +40,10 @@
     "errors": {
       "login": "Klaida prisijungiant",
       "register": "Klaida registruojantis",
-      "passwordLength": "Slaptažodis turi būti 8–16 simbolių"
+      "passwordLength": "Slaptažodis turi būti 8–16 simbolių",
+      "rateLimit": "Per daug bandymų. Pabandykite dar kartą vėliau."
     },
+    "rateLimitWarning": "Pastaba: Per daug bandymų prisijungti per trumpą laiką gali laikinai apriboti prieigą.",
     "createdCheckEmail": "Paskyra sukurta. Patikrinkite el. paštą ir patvirtinkite.",
     "cta": {
       "notMember": "Nesate narys?",
@@ -62,11 +64,13 @@
     "newPassword": "Naujas slaptažodis",
     "confirmPassword": "Pakartokite slaptažodį",
     "updated": "Slaptažodis atnaujintas. Dabar galite prisijungti.",
+    "rateLimitWarning": "Pastaba: Per daug bandymų per trumpą laiką gali laikinai apriboti prieigą. Įveskite teisingus duomenis prieš paspausdami mygtuką.",
     "errors": {
       "emailRequired": "Reikalingas el. paštas",
       "passwordLength": "Slaptažodis turi būti 8–16 simbolių",
       "mismatch": "Slaptažodžiai nesutampa",
-      "invalidToken": "Nuoroda neteisinga arba negaliojanti"
+      "invalidToken": "Nuoroda neteisinga arba negaliojanti",
+      "rateLimit": "Per daug bandymų. Pabandykite dar kartą vėliau."
     }
   },
   "Settings": {
@@ -125,11 +129,13 @@
       "confirm": "Patvirtinti slaptažodį",
       "hint": "Slaptažodis turi būti 8–16 simbolių.",
       "updated": "Slaptažodis atnaujintas",
+      "rateLimitWarning": "Pastaba: Per daug bandymų keisti slaptažodį per trumpą laiką gali laikinai apriboti prieigą. Įveskite teisingus duomenis prieš paspausdami Išsaugoti.",
       "errors": {
         "fillAll": "Užpildykite visus laukus",
         "length": "Slaptažodis turi būti 8–16 simbolių",
         "mismatch": "Slaptažodžiai nesutampa",
-        "failed": "Nepavyko atnaujinti slaptažodžio"
+        "failed": "Nepavyko atnaujinti slaptažodžio",
+        "rateLimit": "Per daug bandymų. Pabandykite dar kartą vėliau."
       }
     },
     "logoutOthers": {

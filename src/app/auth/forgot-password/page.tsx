@@ -18,7 +18,12 @@ export default function ForgotPasswordPage() {
             setSubmitting(true);
             const res = await fetch('/api/password/forgot', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
             const data = await res.json().catch(() => ({}));
-            setMessage(data.message || t('forgotSent'));
+            // Check if it's a rate limit error (429)
+            if (res.status === 429) {
+                setMessage(t('errors.rateLimit'));
+            } else {
+                setMessage(data.message || t('forgotSent'));
+            }
         } finally { setSubmitting(false); }
     }
 
@@ -36,10 +41,11 @@ export default function ForgotPasswordPage() {
                                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
                             </div>
                         </div>
-                        <div>
+                        <div className="flex flex-col gap-3">
                             <button type="submit" disabled={submitting} className="flex w-full items-center justify-center gap-2 rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500">
                                 {submitting ? '…' : t('forgotCta')}
                             </button>
+                            <p className="text-xs text-center text-gray-500 dark:text-gray-400">{t('rateLimitWarning')}</p>
                         </div>
                         {message && <p className="text-sm/6 text-center text-gray-700 dark:text-gray-300">{message}</p>}
                     </form>

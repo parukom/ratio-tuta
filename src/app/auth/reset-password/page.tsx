@@ -24,7 +24,12 @@ export default function ResetPasswordPage() {
             setSubmitting(true);
             const res = await fetch('/api/password/reset', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token, password }) });
             const data = await res.json().catch(() => ({}));
-            if (!res.ok) { setMessage(data.error || 'Failed'); return; }
+            if (!res.ok) {
+                // Check if it's a rate limit error (429)
+                const errMsg = res.status === 429 ? t('errors.rateLimit') : (data.error || 'Failed');
+                setMessage(errMsg);
+                return;
+            }
             setDone(true);
             setMessage(data.message || t('updated'));
             setTimeout(() => router.replace('/auth?form=login'), 2000);
@@ -54,10 +59,11 @@ export default function ResetPasswordPage() {
                                 <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)} autoComplete="new-password" className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
                             </div>
                         </div>
-                        <div>
+                        <div className="flex flex-col gap-3">
                             <button type="submit" disabled={submitting || done} className="flex w-full items-center justify-center gap-2 rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500">
                                 {submitting ? '…' : done ? t('updated') : t('resetTitle')}
                             </button>
+                            <p className="text-xs text-center text-gray-500 dark:text-gray-400">{t('rateLimitWarning')}</p>
                         </div>
                         {message && <p className={`text-sm/6 text-center ${done ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{message}</p>}
                     </form>

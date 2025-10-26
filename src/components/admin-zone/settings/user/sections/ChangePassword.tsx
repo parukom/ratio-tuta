@@ -52,7 +52,10 @@ export const ChangePassword = () => {
             setConfirmPassword('')
         } catch (err) {
             if (err instanceof ApiError) {
-                const errMsg = err.message || t('errors.failed')
+                // Check if it's a rate limit error (429)
+                const errMsg = err.status === 429
+                    ? t('errors.rateLimit')
+                    : (err.message || t('errors.failed'))
                 setMessage(errMsg)
                 toast.error(errMsg)
             } else {
@@ -138,7 +141,7 @@ export const ChangePassword = () => {
                     </div>
                 </div>
 
-                <div className="mt-8 flex">
+                <div className="mt-8 flex flex-col gap-4">
                     <button
                         type="submit"
                         disabled={submitting}
@@ -146,6 +149,7 @@ export const ChangePassword = () => {
                     >
                         {submitting ? tc('saving') : tc('save')}
                     </button>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{t('rateLimitWarning')}</p>
                 </div>
             </form>
         </div>

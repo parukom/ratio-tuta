@@ -67,6 +67,7 @@ export const RATE_LIMITS = {
   REGISTER: isDevelopment ? 1000 : 3, // 1000 in dev, 3 in prod attempts per 15 minutes
   PASSWORD_FORGOT: isDevelopment ? 1000 : 3, // 1000 in dev, 3 in prod attempts per hour
   PASSWORD_RESET: isDevelopment ? 1000 : 5, // 1000 in dev, 5 in prod attempts per hour
+  PASSWORD_CHANGE: isDevelopment ? 1000 : 5, // 1000 in dev, 5 in prod attempts per 15 minutes
   EMAIL_VERIFY_RESEND: isDevelopment ? 1000 : 3, // 1000 in dev, 3 in prod attempts per 15 minutes
 
   // Financial endpoints (stricter limits)
@@ -95,6 +96,13 @@ export const strictAuthLimiter = new Ratelimit({
   limiter: Ratelimit.slidingWindow(RATE_LIMITS.PASSWORD_FORGOT, '1 h'),
   analytics: true,
   prefix: 'ratelimit:strict-auth',
+});
+
+export const passwordChangeLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(RATE_LIMITS.PASSWORD_CHANGE, '15 m'),
+  analytics: true,
+  prefix: 'ratelimit:password-change',
 });
 
 export const apiLimiter = new Ratelimit({

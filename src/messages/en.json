@@ -40,8 +40,10 @@
     "errors": {
       "login": "Error logging in",
       "register": "Error registering",
-      "passwordLength": "Password must be 8-128 characters"
+      "passwordLength": "Password must be 8-16 characters",
+      "rateLimit": "Too many requests. Please try again later."
     },
+    "rateLimitWarning": "Note: Too many login attempts in a short time may temporarily restrict access.",
     "createdCheckEmail": "Account created. Check your email to verify.",
     "cta": {
       "notMember": "Not a member?",
@@ -62,11 +64,13 @@
     "newPassword": "New password",
     "confirmPassword": "Confirm password",
     "updated": "Password updated. You can now log in.",
+    "rateLimitWarning": "Note: Too many attempts in a short time may temporarily restrict access. Make sure your information is correct before submitting.",
     "errors": {
       "emailRequired": "Email required",
-      "passwordLength": "Password must be 8-128 characters",
+      "passwordLength": "Password must be 8-16 characters",
       "mismatch": "Passwords do not match",
-      "invalidToken": "Invalid or expired link"
+      "invalidToken": "Invalid or expired link",
+      "rateLimit": "Too many requests. Please try again later."
     }
   },
   "Settings": {
@@ -123,13 +127,15 @@
       "current": "Current password",
       "new": "New password",
       "confirm": "Confirm password",
-      "hint": "Password must be 8-128 characters.",
+      "hint": "Password must be 8-16 characters.",
       "updated": "Password updated",
+      "rateLimitWarning": "Note: Too many password change attempts in a short time may temporarily restrict access. Make sure your information is correct before saving.",
       "errors": {
         "fillAll": "Please fill in all fields",
-        "length": "Password must be 8-128 characters",
+        "length": "Password must be 8-16 characters",
         "mismatch": "Passwords do not match",
-        "failed": "Failed to update password"
+        "failed": "Failed to update password",
+        "rateLimit": "Too many requests. Please try again later."
       }
     },
     "logoutOthers": {

@@ -90,7 +90,11 @@ function AuthContent() {
                 // Only re-enable on error
                 setSubmitting(false);
                 if (err instanceof ApiError) {
-                    setMessage(err.message || t("errors.login"));
+                    // Check if it's a rate limit error (429)
+                    const errMsg = err.status === 429
+                        ? t("errors.rateLimit")
+                        : (err.message || t("errors.login"));
+                    setMessage(errMsg);
                 } else {
                     setMessage(t("errors.login"));
                 }
@@ -335,13 +339,16 @@ function AuthContent() {
                                 <span>{mode === "login" ? (submitting ? t("submit.loginProgress") : t("submit.login")) : (submitting ? t("submit.registerProgress") : t("submit.register"))}</span>
                             </button>
                             {mode === 'login' && (
-                                <button
-                                    type="button"
-                                    onClick={() => router.replace('/auth/forgot-password')}
-                                    className="ml-4 font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                                >
-                                    Forgot password?
-                                </button>
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={() => router.replace('/auth/forgot-password')}
+                                        className="ml-4 font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                    >
+                                        Forgot password?
+                                    </button>
+                                    <p className="text-xs text-center text-gray-500 dark:text-gray-400">{t("rateLimitWarning")}</p>
+                                </>
                             )}
                         </div>
                         {message && <p className="text-sm/6 text-center text-red-600 dark:text-red-400">{message}</p>}

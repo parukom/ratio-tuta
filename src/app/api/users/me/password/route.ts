@@ -3,8 +3,25 @@ import { getSession } from '@lib/session';
 import { prisma } from '@lib/prisma';
 import { hashPassword, verifyPassword } from '@lib/auth';
 import { logAudit } from '@lib/logger';
+import { passwordChangeLimiter, rateLimit } from '@lib/rate-limit-redis';
 
 export async function PATCH(req: Request) {
+  // Apply rate limiting: 5 attempts per 15 minutes using Redis
+  const rateLimitResult = await rateLimit(req, passwordChangeLimiter);
+  if (!rateLimitResult.success) {
+    return NextResponse.json(
+      { error: 'Too many password change attempts. Please try again later.' },
+      {
+        status: 429,
+        headers: {
+          'X-RateLimit-Limit': rateLimitResult.limit.toString(),
+          'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+          'X-RateLimit-Reset': rateLimitResult.reset.toString(),
+        }
+      }
+    );
+  }
+
   const session = await getSession();
   if (!session)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
