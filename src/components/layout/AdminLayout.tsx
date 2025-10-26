@@ -19,6 +19,7 @@ import LogoutButton from '../LogoutButton'
 import { Settings } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import LoadingOverlay from '@/components/ui/LoadingOverlay'
+import Logo from '../ui/Logo'
 
 type NavKey = 'home' | 'team' | 'items' | 'documents' | 'reports' | 'settings'
 const navigation: Array<{ key: NavKey; href: string; icon: React.ComponentType<React.ComponentProps<'svg'>> }> = [
@@ -62,7 +63,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
     const pathname = usePathname()
 
     // NEW: current user info for avatar/initials
-    type CurrentUser = { name?: string | null; email?: string | null; avatarUrl?: string | null }
+    type CurrentUser = { name?: string | null; email?: string | null; avatarUrl?: string | null; teamName?: string | null }
     const [me, setMe] = useState<CurrentUser | null>(null)
     const [meLoading, setMeLoading] = useState(true)
     const [avatarError, setAvatarError] = useState(false)
@@ -162,20 +163,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                             {/* Sidebar component, swap this element with another sidebar if you like */}
                             <div className="relative flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-2 dark:bg-gray-900 dark:before:pointer-events-none dark:before:absolute dark:before:inset-0 dark:before:border-r dark:before:border-white/10 dark:before:bg-black/10">
                                 <div className="relative flex h-16 shrink-0 items-center">
-                                    <Image
-                                        alt={t('brandAlt')}
-                                        src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-                                        className="h-8 w-8 dark:hidden"
-                                        width={32}
-                                        height={32}
-                                    />
-                                    <Image
-                                        alt={t('brandAlt')}
-                                        src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=400"
-                                        className="h-8 w-8 not-dark:hidden"
-                                        width={32}
-                                        height={32}
-                                    />
+                                    <h1 className="text-xl font-bold text-gray-900 dark:text-white truncate">
+                                        {me?.teamName || 'ratiotuta.'}
+                                    </h1>
                                 </div>
                                 <nav className="relative flex flex-1 flex-col">
                                     <ul role="list" className="flex flex-1 flex-col gap-y-7">
@@ -272,20 +262,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                     {/* Sidebar component, swap this element with another sidebar if you like */}
                     <div className="relative flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 dark:border-white/10 dark:bg-gray-900 dark:before:pointer-events-none dark:before:absolute dark:before:inset-0 dark:before:bg-black/10">
                         <div className="relative flex h-16 shrink-0 items-center">
-                            <Image
-                                alt={t('brandAlt')}
-                                src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-                                className="h-8 w-8 dark:hidden"
-                                width={32}
-                                height={32}
-                            />
-                            <Image
-                                alt={t('brandAlt')}
-                                src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
-                                className="h-8 w-8 not-dark:hidden"
-                                width={32}
-                                height={32}
-                            />
+                            {me?.teamName ? (
+                                <h1 className="text-xl font-bold text-gray-900 dark:text-white truncate">
+                                    {me?.teamName || 'ratiotuta.'}
+                                </h1>
+                            ) : (
+                                <Logo size="md" />
+                            )}
                         </div>
                         <nav className="relative flex flex-1 flex-col">
                             <ul role="list" className="flex flex-1 flex-col gap-y-7">

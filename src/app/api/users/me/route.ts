@@ -28,14 +28,36 @@ export async function GET() {
       createdAt: true,
       emailVerified: true,
       avatarUrl: true,
+      teams: {
+        select: {
+          team: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+      ownedTeams: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
   });
   if (!user) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+  // Get team name: prefer owned team, fall back to member team
+  const teamName = user.ownedTeams[0]?.name || user.teams[0]?.team?.name || null;
 
   return NextResponse.json({
     ...user,
     email: decryptEmail(user.emailEnc),
     emailEnc: undefined,
+    teamName,
+    teams: undefined,
+    ownedTeams: undefined,
   });
 }
 
