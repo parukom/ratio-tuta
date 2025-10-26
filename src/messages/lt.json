@@ -268,42 +268,42 @@
     },
     "mission": {
       "label": "Apie mus",
-      "heading": "Mūsų misija – padėti jums sutaupyti laiko, pinigų ir būti informuotiems visuose objektuose",
-      "description": "Ratio tuta yra saugi internetinė užrašų knygelė, kuri apskaičiuoja viską už jus. Laikykite pastabas, lenteles ir formules kartu, sekite, kas vyksta vietose, ir būkite tikri, kad jūsų duomenys yra apsaugoti.",
-      "sectionTitle": "Mūsų misija",
+      "heading": "Suteikiame mažiesiems verslams paprastas, bet galingas priemones, kad pardavinėtų išmintingiau ir augtų greičiau",
+      "description": "Ratio tuta – tai viskas viename kasoje ir verslo valdymo platforma, sukurta padėti mažiesiems verslams klestėti. Sekite pardavimus, tvarkykite atsargas ir gaukite aiškias įžvalgas visose savo vietose – be tradicinių kasų sudėtingumo ir aukštos kainos.",
+      "sectionTitle": "Kodėl egzistuoja Ratio tuta",
       "saveTime": {
-        "title": "Sutaupykite laiko:",
-        "body": "Atsisakykite popieriaus — sutaupykite laiko su Ratio tuta, patogia programa, kuri vieną kartą užfiksuoja duomenis, laiko juos tvarkingai ir leidžia greitai ieškoti."
+        "title": "Taupykite laiką tam, kas tikrai svarbu",
+        "body": "Automatizuokite kasdienes užduotis – nuo atsargų sekimo iki akimirksniu sugeneruojamų kvitų – ir atsisveikinkite su rankiniu skaičiavimu. Skirkite mažiau laiko popieriams, o daugiau – tam, ką mėgstate: savo verslo augimui."
       },
       "saveMoney": {
-        "title": "Sutaupykite pinigų:",
-        "body": "Sumažinkite klaidas, aiškiau matykite išlaidas ir priimkite sprendimus greičiau."
+        "title": "Pasilikite daugiau to, ką uždirbate",
+        "body": "Pamirškite brangią įrangą ir paslėptus mokesčius. Stebėkite savo pelno maržas realiuoju laiku, atraskite geriausiai perkamus produktus ir sumažinkite nuostolius dėl per didelių atsargų ar gendančių prekių."
       },
       "stayUpdated": {
-        "title": "Būkite informuoti:",
-        "body": "Sekite, kas vyksta kiekvienoje vietoje realiu laiku."
+        "title": "Išlikite viskuo valdantys, bet kur",
+        "body": "Tikrinkite pardavimus, atsargas ir komandos rezultatus bet kada, iš bet kurio įrenginio. Gaukite akimirksnius pranešimus, kai atsargos senka arba pasiekiate naujus pardavimo rekordus – net būdami kelyje."
       },
       "beSecure": {
-        "title": "Saugumas pagal numatytuosius nustatymus:",
-        "body": "Privatumas yra prioritetas — vartotojų duomenys yra šifruojami perduodant ir saugant, o kur įmanoma, anonimizuojami; taikomas vaidmenimis pagrįstas prieigos valdymas ir audito įrašai."
+        "title": "Jūsų duomenys visada apsaugoti",
+        "body": "Jūsų verslo duomenis saugo bankinio lygio šifravimas. Su vaidmenimis pagrįstomis prieigomis kiekvienas komandos narys mato tik tai, ko jam reikia – o kiekviena transakcija palieka išsamų, skaidrų audito pėdsaką."
       },
-      "whatYouGet": "Ką gaunate",
+      "whatYouGet": "Realūs rezultatai",
       "features": {
         "timeBack": {
-          "title": "Atgautas laikas",
-          "desc": "Mažiau rankinio darbo kiekvieną savaitę"
+          "title": "Sutaupytos valandos",
+          "desc": "5–10 valandų per savaitę kiekvienoje vietoje – daugiau laiko klientams ir augimui"
         },
         "lowerCosts": {
-          "title": "Mažesnės sąnaudos",
-          "desc": "Mažiau klaidų, aiškesnė įžvalga"
+          "title": "Sumažinkite išlaidas",
+          "desc": "Sutaupykite 15–30% veiklos išlaidų – mažiau švaistymų, protingesnis išleidimas"
         },
         "liveVisibility": {
-          "title": "Tiesioginis matomumas",
-          "desc": "Sužinokite, kas vyksta kiekvienoje vietoje"
+          "title": "Įžvalgos realiuoju laiku",
+          "desc": "Tiesioginiai pardavimai ir atsargų sekimas visose vietose – akimirksniu aiškumas bet kur"
         },
         "security": {
-          "title": "Saugumas",
-          "desc": "Privatumas pagal numatytuosius nustatymus, prieiga po jūsų kontrole"
+          "title": "Įmonių lygio saugumas",
+          "desc": "Bankinio lygio šifravimas ir prieigos kontrolė – galinga apsauga padaryta paprasta"
         }
       }
     },
@@ -514,9 +514,9 @@
       }
     },
     "hero": {
-      "badge": "Privatu pagal numatytuosius nustatymus · Prieiga pagal vaidmenis · Audito žurnalas",
-      "title": "Saugus internetinis užrašų bloknotas, kuris atlieka skaičiavimus už jus",
-      "subtitle": "Rašykite, struktūrizuokite ir skaičiuokite vienoje vietoje. Apsaugokite jautrius duomenis, saugiai bendradarbiaukite ir patikėkite skaičiavimus formulėms.",
+      "badge": "Sukūrė tie, kurie patyrė tą patį",
+      "title": "Rašykite, skaičiuokite ir saugiai laikykite – viskas vienoje vietoje",
+      "subtitle": "Sukūrėme sau, kai begalinės lentelės ir išmėtyti užrašai tapo per daug. Dabar dalinamės su visais, kuriems įgriso žongliruoti formulėmis, kovoti su Excel ar nerimauti dėl jautrių skaičiavimų.",
       "cta": {
         "start": "Pradėkite naudotis",
         "learn": "Sužinokite daugiau"
@@ -1845,6 +1845,193 @@
       },
       "chartTitle": "Pajamos per laiką",
       "revenue": "Pajamos"
+    }
+  },
+  "Privacy": {
+    "backToHome": "Grįžti į pradžią",
+    "title": "Privatumo politika",
+    "lastUpdated": "Atnaujinta",
+    "commitment": {
+      "title": "Mūsų įsipareigojimas privatumui",
+      "description": "Ratio Tuta privatumas – tai ne tik funkcija, tai mūsų misija. Sukūrėme šią platformą laikydamiesi pagrindinio principo:",
+      "principle": "Jūsų duomenys priklauso jums ir tik jums."
+    },
+    "whatWeDont": {
+      "title": "Ko mes nedarome",
+      "items": {
+        "read": "Mes neskaitome jūsų el. laiškų ar žinučių",
+        "track": "Mes nesekame, ką parduodate ar kas yra jūsų klientai",
+        "analyze": "Mes neanalizuojame jūsų verslo duomenų savo naudai",
+        "sell": "Mes neparduodame jūsų duomenų trečiosioms šalims – niekada",
+        "advertise": "Mes nenaudojame jūsų duomenų reklamos ar rinkodaros tikslais",
+        "care": "Mums nerūpi, kas esate, išskyrus tai, kad suteiktume jums puikų aptarnavimą"
+      }
+    },
+    "whatWeCollect": {
+      "title": "Kokius duomenis renkame",
+      "intro": "Kad galėtume suteikti jums paslaugą, renkame tik minimalią būtiną informaciją:",
+      "account": {
+        "title": "Paskyros informacija",
+        "description": "El. pašto adresas ir slaptažodis (užšifruotas)"
+      },
+      "business": {
+        "title": "Verslo duomenys",
+        "description": "Informacija, kurią pasirenkate saugoti sistemoje (produktai, pardavimai, atsargos)"
+      },
+      "technical": {
+        "title": "Techniniai duomenys",
+        "description": "Pagrindiniai žurnalai sistemos saugumui ir klaidų taisymui"
+      }
+    },
+    "howWeProtect": {
+      "title": "Kaip saugome jūsų duomenis",
+      "encryption": {
+        "title": "Šifravimas",
+        "description": "Visi duomenys šifruojami perduodant ir saugant naudojant pramonės standartų šifravimą"
+      },
+      "access": {
+        "title": "Prieigos kontrolė",
+        "description": "Vaidmenimis pagrįstos teisės užtikrina, kad komandos nariai mato tik tai, ko jiems reikia"
+      },
+      "infrastructure": {
+        "title": "Saugi infrastruktūra",
+        "description": "Mūsų sistemos talpinamos saugioje, įmonių lygio infrastruktūroje"
+      },
+      "audits": {
+        "title": "Reguliarūs auditimai",
+        "description": "Vedame išsamius audito žurnalus atskaitomybei užtikrinti"
+      }
+    },
+    "retention": {
+      "title": "Duomenų saugojimas ir ištrynimas",
+      "intro": "Jūsų duomenys lieka sistemoje tol, kol jūs to norite. Galite:",
+      "export": "Bet kada eksportuoti savo duomenis",
+      "delete": "Ištrinti savo paskyrą ir visus su ja susijusius duomenis visam laikui",
+      "request": "Paprašyti pilnos savo duomenų kopijos"
+    },
+    "thirdParty": {
+      "title": "Trečiųjų šalių paslaugos",
+      "description": "Naudojame minimalų kiekį trečiųjų šalių paslaugų, o kai tai darome, užtikriname, kad jos atitiktų mūsų griežtus privatumo standartus. Niekada nedalijamės jūsų verslo duomenimis su trečiosiomis šalimis jų naudai."
+    },
+    "yourRights": {
+      "title": "Jūsų teisės",
+      "intro": "Pagal taikomus duomenų apsaugos įstatymus turite teisę:",
+      "access": "Pasiekti savo asmeninius duomenis",
+      "correct": "Ištaisyti neteisingus duomenis",
+      "requestDeletion": "Prašyti ištrinti savo duomenis",
+      "exportData": "Eksportuoti savo duomenis",
+      "object": "Prieštarauti duomenų tvarkymui"
+    },
+    "contact": {
+      "title": "Susisiekite su mumis",
+      "description": "Jei turite klausimų apie šią Privatumo politiką ar kaip tvarkome jūsų duomenis, susisiekite su mumis:"
+    },
+    "changes": {
+      "title": "Šios politikos pakeitimai",
+      "description": "Kartais galime atnaujinti šią Privatumo politiką. Apie svarbius pakeitimus informuosime paskelbdami naują politiką šiame puslapyje ir atnaujindami \"Atnaujinta\" datą."
+    }
+  },
+  "Terms": {
+    "backToHome": "Grįžti į pradžią",
+    "title": "Naudojimosi sąlygos",
+    "lastUpdated": "Atnaujinta",
+    "welcome": {
+      "title": "Sveiki atvykę į Ratio Tuta",
+      "description": "Naudodami Ratio Tuta, sutinkate su šiomis Naudojimosi sąlygomis. Prašome atidžiai jas perskaityti."
+    },
+    "acceptance": {
+      "title": "1. Sąlygų priėmimas",
+      "description": "Prisijungdami ar naudodami Ratio Tuta, sutinkate laikytis šių Naudojimosi sąlygų ir mūsų Privatumo politikos. Jei nesutinkate su šiomis sąlygomis, prašome nenaudoti mūsų paslaugos."
+    },
+    "service": {
+      "title": "2. Paslaugos aprašymas",
+      "intro": "Ratio Tuta teikia į privatumą orientuotą kasos ir verslo valdymo platformą. Mūsų paslauga apima:",
+      "items": {
+        "inventory": "Atsargų valdymą ir sekimą",
+        "sales": "Pardavimų tvarkymą ir ataskaitų generavimą",
+        "multiLocation": "Kelių vietų palaikymą",
+        "team": "Komandos bendradarbiavimo įrankius",
+        "analytics": "Analitikos ir įžvalgų teikimą"
+      }
+    },
+    "accounts": {
+      "title": "3. Vartotojų paskyros",
+      "intro": "Norėdami naudoti Ratio Tuta, turite sukurti paskyrą. Esate atsakingi už:",
+      "items": {
+        "confidentiality": "Paskyros prisijungimo duomenų konfidencialumo išsaugojimą",
+        "activities": "Visus veiksmus, atliktus naudojant jūsų paskyrą",
+        "unauthorized": "Nedelsiamą informavimą apie bet kokį neteisėtą naudojimą",
+        "accuracy": "Paskyros informacijos tikslumo ir aktualumo užtikrinimą"
+      }
+    },
+    "privacy": {
+      "title": "4. Privatumas ir duomenų nuosavybė",
+      "intro": "Jūsų duomenys priklauso jums. Įsipareigojame saugoti jūsų privatumą:",
+      "items": {
+        "noSell": "Neparduodame, nekeičiame ir nepelname iš jūsų duomenų",
+        "noAnalyze": "Neanalizuojame jūsų verslo duomenų savo naudai",
+        "export": "Bet kada galite eksportuoti ar ištrinti savo duomenis",
+        "seePolicy": "Daugiau informacijos rasite mūsų Privatumo politikoje"
+      }
+    },
+    "acceptable": {
+      "title": "5. Priimtinas naudojimas",
+      "intro": "Sutinkate nenaudoti:",
+      "items": {
+        "illegal": "Paslaugos neteisėtiems ar neleistiniems tikslams",
+        "laws": "Paslaugos pažeidžiant savo jurisdikcijos įstatymus",
+        "intellectual": "Paslaugos pažeidžiant intelektinės nuosavybės teises",
+        "malware": "Paslaugos virusų, kenkėjiškų programų ar žalingo kodo perdavimui",
+        "unauthorized": "Bandyti gauti neteisėtą prieigą prie mūsų sistemų",
+        "interfere": "Trukdyti ar ardyti paslaugos veikimą"
+      }
+    },
+    "availability": {
+      "title": "6. Paslaugos prieinamumas",
+      "intro": "Stengiamės teikti patikimą, nepertraukiamą paslaugą. Tačiau:",
+      "items": {
+        "uptime": "Negarantuojame 100% veikimo laiko",
+        "maintenance": "Galime atlikti priežiūros darbus, laikinai paveikiančius paslaugą",
+        "notify": "Kai įmanoma, informuosime apie suplanuotą priežiūrą"
+      }
+    },
+    "pricing": {
+      "title": "7. Kainodara ir mokėjimai",
+      "items": {
+        "free": "Ratio Tuta siūlo nemokamą versiją be laiko apribojimų",
+        "paid": "Mokamos versijos suteikia papildomas funkcijas ir didesnį pajėgumą",
+        "transparent": "Kainodara yra skaidri, be paslėptų mokesčių",
+        "cancel": "Bet kada galite atšaukti prenumeratą",
+        "refunds": "Pinigų grąžinimas nagrinėjamas individualiai"
+      }
+    },
+    "intellectual": {
+      "title": "8. Intelektinė nuosavybė",
+      "description": "Ratio Tuta ir jos originalus turinys, funkcijos bei funkcionalumas priklauso Ratio Tuta ir yra saugomi tarptautinių autorių teisių, prekių ženklų ir kitų intelektinės nuosavybės įstatymų."
+    },
+    "liability": {
+      "title": "9. Atsakomybės apribojimas",
+      "description": "Maksimaliai, kiek leidžia įstatymai, Ratio Tuta neatsako už jokias netiesiogines, atsitiktines, specialias, pasėkmines ar baudžiamąsias žalas, kylančias dėl paslaugos naudojimo ar negalėjimo naudoti."
+    },
+    "termination": {
+      "title": "10. Nutraukimas",
+      "description": "Pasiliekame teisę nutraukti ar sustabdyti jūsų paskyrą, jei pažeidžiate šias Naudojimosi sąlygas. Taip pat galite bet kada nutraukti savo paskyrą per paskyros nustatymus."
+    },
+    "changes": {
+      "title": "11. Sąlygų pakeitimai",
+      "description": "Kartais galime atnaujinti šias Naudojimosi sąlygas. Apie reikšmingus pakeitimus informuosime paskelbdami naujas sąlygas šiame puslapyje ir atnaujindami \"Atnaujinta\" datą."
+    },
+    "governing": {
+      "title": "12. Taikoma teisė",
+      "description": "Šios Naudojimosi sąlygos reglamentuojamos ir aiškinamos pagal Lietuvos įstatymus, neatsižvelgiant į įstatymų kolizijos nuostatas."
+    },
+    "contact": {
+      "title": "13. Susisiekite su mumis",
+      "description": "Jei turite klausimų apie šias Naudojimosi sąlygas, susisiekite su mumis:"
+    },
+    "entire": {
+      "title": "14. Visa sutartis",
+      "description": "Šios Naudojimosi sąlygos kartu su mūsų Privatumo politika sudaro visą sutartį tarp jūsų ir Ratio Tuta dėl mūsų paslaugos naudojimo."
     }
   },
   "Footer": {

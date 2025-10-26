@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl'
 import { FirstPagesHeader } from './FirstPagesHeader';
+import AutoDetectLanguage from './AutoDetectLanguage';
 
 type SessionData = {
     userId: string;
@@ -17,6 +18,7 @@ const HeroSection = ({ session }: HeroSectionProps) => {
     const t = useTranslations('Home')
     return (
         <div className="bg-white dark:bg-gray-900 flex items-center justify-center h-screen">
+            <AutoDetectLanguage />
             <FirstPagesHeader session={session} />
             <div className="relative isolate px-6 lg:px-8">
                 <div

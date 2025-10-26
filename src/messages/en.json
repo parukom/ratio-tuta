@@ -435,48 +435,48 @@
     "mission": {
       "label": "Our Mission",
       "heading": "Empowering small businesses with simple, powerful tools to sell smarter and grow faster",
-      "description": "Ratio tuta is your all-in-one point-of-sale and business management platform. Track sales, manage inventory, and gain insights across all your locations — without the complexity or cost of traditional POS systems.",
+      "description": "Ratio tuta is your all-in-one point-of-sale and business management platform — built to help small businesses thrive. Track sales, manage inventory, and gain clear insights across all your locations — without the complexity or high costs of traditional POS systems.",
       "sectionTitle": "Why Ratio tuta exists",
       "saveTime": {
-        "title": "Save time on daily operations:",
-        "body": "Automate inventory tracking, generate instant receipts, and eliminate manual counting. Spend less time on paperwork and more time growing your business."
+        "title": "Save time on what matters most",
+        "body": "Automate your daily tasks — from inventory tracking to instant receipts — and say goodbye to manual counting. Spend less time on paperwork, and more time doing what you love: growing your business."
       },
       "saveMoney": {
-        "title": "Keep more of what you earn:",
-        "body": "No expensive hardware, no hidden fees. Track profit margins in real-time, identify your best sellers, and reduce waste from overstocking or spoilage."
+        "title": "Keep more of what you earn",
+        "body": "Forget expensive hardware and hidden fees. Monitor your profit margins in real time, discover your best-selling products, and reduce waste from overstocking or spoilage."
       },
       "stayUpdated": {
-        "title": "Stay in control, anywhere:",
-        "body": "Monitor sales, inventory, and performance across multiple locations from any device. Get real-time alerts when stock runs low or when you hit sales milestones."
+        "title": "Stay in control, anywhere",
+        "body": "Check your sales, inventory, and team performance anytime, from any device. Get instant alerts when stock runs low or when you hit new sales milestones — even on the go."
       },
       "beSecure": {
-        "title": "Your data, protected:",
-        "body": "Bank-level encryption keeps your business data safe. Role-based permissions ensure team members only see what they need. Complete audit trails track every transaction."
+        "title": "Your data, always protected",
+        "body": "Your business data is guarded by bank-grade encryption. With role-based permissions, every team member sees only what they need — and every transaction leaves a complete, transparent audit trail."
       },
       "whatYouGet": "Real results",
       "features": {
         "timeBack": {
           "title": "Hours saved",
-          "desc": "5-10 hours saved weekly per location"
+          "desc": "5–10 hours saved weekly per location — more time for customers and growth"
         },
         "lowerCosts": {
           "title": "Reduce costs",
-          "desc": "Save 15-30% on operational expenses"
+          "desc": "Save 15–30% on operational expenses — less waste, smarter spending"
         },
         "liveVisibility": {
           "title": "Real-time insights",
-          "desc": "Live sales & inventory across all locations"
+          "desc": "Live sales and inventory tracking across all locations — instant clarity, anywhere"
         },
         "security": {
           "title": "Enterprise security",
-          "desc": "Bank-grade encryption & access control"
+          "desc": "Bank-grade encryption and access control — powerful protection made simple"
         }
       }
     },
     "hero": {
-      "badge": "Private by default · Role-based access · Audit trail",
-      "title": "A secure online notebook that does the math for you",
-      "subtitle": "Write, structure, and calculate in one place. Keep sensitive data protected, collaborate safely, and let formulas handle the numbers.",
+      "badge": "Built by people who felt your pain",
+      "title": "Write, calculate, and keep it safe — all in one place",
+      "subtitle": "We built this for ourselves when endless spreadsheets and scattered notes became overwhelming. Now we're sharing it with anyone who's tired of juggling formulas, fighting with Excel, or worrying about sensitive calculations.",
       "cta": {
         "start": "Start your notebook",
         "learn": "Learn more"
@@ -1809,6 +1809,193 @@
       },
       "chartTitle": "Revenue Over Time",
       "revenue": "Revenue"
+    }
+  },
+  "Privacy": {
+    "backToHome": "Back to Home",
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated",
+    "commitment": {
+      "title": "Our Commitment to Privacy",
+      "description": "At Ratio Tuta, privacy is not just a feature—it's our mission. We built this platform with a fundamental principle:",
+      "principle": "Your data belongs to you, and only you."
+    },
+    "whatWeDont": {
+      "title": "What We Don't Do",
+      "items": {
+        "read": "We don't read your emails or messages",
+        "track": "We don't track what you sell or who your customers are",
+        "analyze": "We don't analyze your business data for our benefit",
+        "sell": "We don't sell your data to third parties—ever",
+        "advertise": "We don't use your data for advertising or marketing purposes",
+        "care": "We don't care who you are beyond providing you with excellent service"
+      }
+    },
+    "whatWeCollect": {
+      "title": "What Data We Collect",
+      "intro": "To provide you with our service, we collect only the minimal information necessary:",
+      "account": {
+        "title": "Account Information",
+        "description": "Email address and password (encrypted)"
+      },
+      "business": {
+        "title": "Business Data",
+        "description": "Information you choose to store in the system (products, sales, inventory)"
+      },
+      "technical": {
+        "title": "Technical Data",
+        "description": "Basic logs for system security and debugging purposes only"
+      }
+    },
+    "howWeProtect": {
+      "title": "How We Protect Your Data",
+      "encryption": {
+        "title": "Encryption",
+        "description": "All data is encrypted in transit and at rest using industry-standard encryption"
+      },
+      "access": {
+        "title": "Access Control",
+        "description": "Role-based permissions ensure team members only see what they need"
+      },
+      "infrastructure": {
+        "title": "Secure Infrastructure",
+        "description": "Our systems are hosted on secure, enterprise-grade infrastructure"
+      },
+      "audits": {
+        "title": "Regular Audits",
+        "description": "We maintain complete audit trails for accountability"
+      }
+    },
+    "retention": {
+      "title": "Data Retention and Deletion",
+      "intro": "Your data stays in the system as long as you want it there. You can:",
+      "export": "Export your data at any time",
+      "delete": "Delete your account and all associated data permanently",
+      "request": "Request a complete copy of your data"
+    },
+    "thirdParty": {
+      "title": "Third-Party Services",
+      "description": "We use minimal third-party services, and when we do, we ensure they meet our strict privacy standards. We never share your business data with any third party for their benefit."
+    },
+    "yourRights": {
+      "title": "Your Rights",
+      "intro": "Under applicable data protection laws, you have the right to:",
+      "access": "Access your personal data",
+      "correct": "Correct inaccurate data",
+      "requestDeletion": "Request deletion of your data",
+      "exportData": "Export your data",
+      "object": "Object to data processing"
+    },
+    "contact": {
+      "title": "Contact Us",
+      "description": "If you have any questions about this Privacy Policy or how we handle your data, please contact us at:"
+    },
+    "changes": {
+      "title": "Changes to This Policy",
+      "description": "We may update this Privacy Policy from time to time. We will notify you of any significant changes by posting the new policy on this page and updating the \"Last updated\" date."
+    }
+  },
+  "Terms": {
+    "backToHome": "Back to Home",
+    "title": "Terms & Conditions",
+    "lastUpdated": "Last updated",
+    "welcome": {
+      "title": "Welcome to Ratio Tuta",
+      "description": "By using Ratio Tuta, you agree to these Terms and Conditions. Please read them carefully."
+    },
+    "acceptance": {
+      "title": "1. Acceptance of Terms",
+      "description": "By accessing or using Ratio Tuta, you agree to be bound by these Terms and Conditions and our Privacy Policy. If you do not agree to these terms, please do not use our service."
+    },
+    "service": {
+      "title": "2. Description of Service",
+      "intro": "Ratio Tuta provides a privacy-focused point-of-sale (POS) and business management platform. Our service includes:",
+      "items": {
+        "inventory": "Inventory management and tracking",
+        "sales": "Sales processing and reporting",
+        "multiLocation": "Multi-location support",
+        "team": "Team collaboration tools",
+        "analytics": "Analytics and insights"
+      }
+    },
+    "accounts": {
+      "title": "3. User Accounts",
+      "intro": "To use Ratio Tuta, you must create an account. You are responsible for:",
+      "items": {
+        "confidentiality": "Maintaining the confidentiality of your account credentials",
+        "activities": "All activities that occur under your account",
+        "unauthorized": "Notifying us immediately of any unauthorized use",
+        "accuracy": "Ensuring your account information is accurate and up-to-date"
+      }
+    },
+    "privacy": {
+      "title": "4. Privacy and Data Ownership",
+      "intro": "Your data belongs to you. We are committed to protecting your privacy:",
+      "items": {
+        "noSell": "We do not sell, trade, or monetize your data",
+        "noAnalyze": "We do not analyze your business data for our benefit",
+        "export": "You can export or delete your data at any time",
+        "seePolicy": "See our Privacy Policy for full details"
+      }
+    },
+    "acceptable": {
+      "title": "5. Acceptable Use",
+      "intro": "You agree not to:",
+      "items": {
+        "illegal": "Use the service for any illegal or unauthorized purpose",
+        "laws": "Violate any laws in your jurisdiction",
+        "intellectual": "Infringe on intellectual property rights",
+        "malware": "Transmit viruses, malware, or harmful code",
+        "unauthorized": "Attempt to gain unauthorized access to our systems",
+        "interfere": "Interfere with or disrupt the service"
+      }
+    },
+    "availability": {
+      "title": "6. Service Availability",
+      "intro": "We strive to provide reliable, uninterrupted service. However:",
+      "items": {
+        "uptime": "We do not guarantee 100% uptime",
+        "maintenance": "We may perform maintenance that temporarily affects service",
+        "notify": "We will notify you of scheduled maintenance when possible"
+      }
+    },
+    "pricing": {
+      "title": "7. Pricing and Payment",
+      "items": {
+        "free": "Ratio Tuta offers a free version with no time limit",
+        "paid": "Paid plans are available for additional features and capacity",
+        "transparent": "Pricing is transparent with no hidden fees",
+        "cancel": "You may cancel your subscription at any time",
+        "refunds": "Refunds are handled on a case-by-case basis"
+      }
+    },
+    "intellectual": {
+      "title": "8. Intellectual Property",
+      "description": "Ratio Tuta and its original content, features, and functionality are owned by Ratio Tuta and are protected by international copyright, trademark, and other intellectual property laws."
+    },
+    "liability": {
+      "title": "9. Limitation of Liability",
+      "description": "To the maximum extent permitted by law, Ratio Tuta shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use or inability to use the service."
+    },
+    "termination": {
+      "title": "10. Termination",
+      "description": "We reserve the right to terminate or suspend your account if you violate these Terms and Conditions. You may also terminate your account at any time through your account settings."
+    },
+    "changes": {
+      "title": "11. Changes to Terms",
+      "description": "We may update these Terms and Conditions from time to time. We will notify you of significant changes by posting the new terms on this page and updating the \"Last updated\" date."
+    },
+    "governing": {
+      "title": "12. Governing Law",
+      "description": "These Terms and Conditions are governed by and construed in accordance with the laws of Lithuania, without regard to its conflict of law provisions."
+    },
+    "contact": {
+      "title": "13. Contact Us",
+      "description": "If you have any questions about these Terms and Conditions, please contact us:"
+    },
+    "entire": {
+      "title": "14. Entire Agreement",
+      "description": "These Terms and Conditions, together with our Privacy Policy, constitute the entire agreement between you and Ratio Tuta regarding the use of our service."
     }
   },
   "Footer": {
