@@ -41,6 +41,7 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
   const [pricePaid, setPricePaid] = useState('')
   const [taxRateBps, setTaxRateBps] = useState('0')
   const [isActive, setIsActive] = useState(true)
+  const [isUnlimited, setIsUnlimited] = useState(false)
   const [measurementType, setMeasurementType] = useState<'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'>('PCS')
   const [stockQuantity, setStockQuantity] = useState('0')
   // For measurement items allow entering/editing in large or small units
@@ -76,7 +77,7 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
   useEffect(() => { if (open) loadCategories() }, [open, loadCategories])
 
   function reset() {
-    setName(''); setSku(''); setPrice(''); setTaxRateBps('0'); setIsActive(true); setMeasurementType('PCS'); setStockQuantity('0'); setWeightUnit('kg'); setLengthUnit('m'); setVolumeUnit('l'); setAreaUnit('m²'); setDescription(''); setColor(''); setBrand(''); setTagsCSV(''); setCategoryId(''); setCreatingCat(false); setNewCatName(''); setCatMsg(''); setImageFile(null)
+    setName(''); setSku(''); setPrice(''); setTaxRateBps('0'); setIsActive(true); setIsUnlimited(false); setMeasurementType('PCS'); setStockQuantity('0'); setWeightUnit('kg'); setLengthUnit('m'); setVolumeUnit('l'); setAreaUnit('m²'); setDescription(''); setColor(''); setBrand(''); setTagsCSV(''); setCategoryId(''); setCreatingCat(false); setNewCatName(''); setCatMsg(''); setImageFile(null)
   }
 
   async function submit(e: React.FormEvent) {
@@ -102,6 +103,7 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
           pricePaid: Number(pricePaid) || 0,
           taxRateBps: Number(taxRateBps) || 0,
           isActive,
+          isUnlimited,
           measurementType,
           // Convert to small units for storage
           stockQuantity: (() => {
@@ -378,6 +380,10 @@ export default function CreateItemButton({ teamId, onCreated, suppressToast }: P
           <div className="flex items-center gap-2">
             <input id="isActive" name="isActive" type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="size-4" />
             <label htmlFor="isActive" className="text-sm text-gray-700 dark:text-gray-300">{t('forms.active')}</label>
+          </div>
+          <div className="flex items-center gap-2">
+            <input id="isUnlimited" name="isUnlimited" type="checkbox" checked={isUnlimited} onChange={(e) => setIsUnlimited(e.target.checked)} className="size-4" />
+            <label htmlFor="isUnlimited" className="text-sm text-gray-700 dark:text-gray-300">Unlimited Quantity (∞)</label>
           </div>
 
           <div className="mt-4 flex items-center justify-between">

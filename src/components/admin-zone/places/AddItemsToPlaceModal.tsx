@@ -17,6 +17,7 @@ type Item = {
     price: number
     currency?: string | null
     isActive: boolean
+    isUnlimited?: boolean
     unit?: string | null
     stockQuantity?: number
     measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'
@@ -95,6 +96,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                     price: it.price,
                     currency: it.currency ?? 'EUR',
                     isActive: it.isActive,
+                    isUnlimited: it.isUnlimited ?? false,
                     unit: it.unit ?? 'pcs',
                     stockQuantity: typeof it.stockQuantity === 'number' ? it.stockQuantity : 0,
                     measurementType: it.measurementType as Item['measurementType'],
@@ -134,7 +136,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
         const q = search.trim().toLowerCase()
         return items
             .filter((it) => !assignedIdsWithStock.has(it.id))
-            .filter((it) => (inStockOnly ? (it.stockQuantity ?? 0) > 0 : true))
+            .filter((it) => (inStockOnly ? (it.isUnlimited || (it.stockQuantity ?? 0) > 0) : true))
             .filter((it) =>
                 !q
                     ? true
@@ -150,6 +152,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
         color: string | null
         items: Item[]
         totalStock: number
+        hasUnlimited: boolean
     }
     const groups = useMemo(() => {
         const map = new Map<string, Group>()
@@ -161,10 +164,11 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
             const stock = typeof it.stockQuantity === 'number' ? it.stockQuantity : 0
             const existing = map.get(key)
             if (!existing) {
-                map.set(key, { key, label: base, color, items: [it], totalStock: stock })
+                map.set(key, { key, label: base, color, items: [it], totalStock: stock, hasUnlimited: it.isUnlimited ?? false })
             } else {
                 existing.items.push(it)
                 existing.totalStock += stock
+                if (it.isUnlimited) existing.hasUnlimited = true
             }
         }
         // Sort items within group by inferred size/name
@@ -242,7 +246,8 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                 if (!it) continue
                 const stock = Number(it.stockQuantity ?? 0)
                 const unitMode = unitModeMap[itemId] || 'small'
-                let quantity = mode === 'all' ? stock : Number(qtyMap[itemId] ?? '1')
+                // For unlimited items in 'all' mode, use a default reasonable quantity instead of stock
+                let quantity = mode === 'all' ? (it.isUnlimited ? 100 : stock) : Number(qtyMap[itemId] ?? '1')
 
                 // Convert large units to small units for storage
                 if (mode !== 'all' && unitMode === 'large') {
@@ -253,8 +258,8 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                 }
 
                 if (!Number.isFinite(quantity) || quantity <= 0) continue
-                if (mode !== 'all') {
-                    // clamp to available stock if provided
+                if (mode !== 'all' && !it.isUnlimited) {
+                    // clamp to available stock if provided (only for non-unlimited items)
                     if (stock > 0) quantity = Math.min(quantity, stock)
                 }
                 const res = await fetch(`/api/places/${placeId}/items`, {
@@ -365,7 +370,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                                                 <span>{it.sku || '—'}</span>
                                                 {it.categoryName && <span>• {it.categoryName}</span>}
                                                 <span className="inline-flex items-center rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700 ring-1 ring-inset ring-gray-200 dark:bg-white/5 dark:text-gray-300 dark:ring-white/10">
-                                                    {t('place.items.assignModal.inWarehouse')}: {formatQuantity(it.stockQuantity ?? 0, it.measurementType, it.unit, { pcs: ti('units.pcsShort') })}
+                                                    {t('place.items.assignModal.inWarehouse')}: {it.isUnlimited ? '∞' : formatQuantity(it.stockQuantity ?? 0, it.measurementType, it.unit, { pcs: ti('units.pcsShort') })}
                                                 </span>
                                             </div>
                                         </div>
@@ -374,7 +379,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                                                 <Input
                                                     type="number"
                                                     min={1}
-                                                    max={Math.max(1, it.stockQuantity ?? 1)}
+                                                    max={it.isUnlimited ? undefined : Math.max(1, it.stockQuantity ?? 1)}
                                                     value={qtyMap[it.id] ?? '1'}
                                                     onChange={(e) => setQtyMap((m) => ({ ...m, [it.id]: e.target.value }))}
                                                     className="w-20 rounded-md bg-white px-2 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
@@ -399,7 +404,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                                             <div className='flex flex-col'>
                                                 <button
                                                     onClick={() => handleAdd(it.id, it.stockQuantity ?? 0)}
-                                                    disabled={addingIds.has(it.id) || (it.stockQuantity ?? 0) <= 0}
+                                                    disabled={addingIds.has(it.id) || (!it.isUnlimited && (it.stockQuantity ?? 0) <= 0)}
                                                     className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-60 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5"
                                                     title={t('place.items.assignModal.addAllTitle')}
                                                 >
@@ -438,7 +443,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                                                     <div className="truncate text-sm font-semibold text-gray-900 dark:text-white">
                                                         {g.label} {g.color ? <span className="ml-2 rounded bg-gray-100 px-1.5 py-0.5 text-xs font-normal text-gray-700 ring-1 ring-inset ring-gray-200 dark:bg-white/5 dark:text-gray-300 dark:ring-white/10">{g.color}</span> : null}
                                                     </div>
-                                                    <div className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{t('place.items.assignModal.totalInWarehouse')}: {formatQuantity(
+                                                    <div className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{t('place.items.assignModal.totalInWarehouse')}: {g.hasUnlimited ? '∞' : formatQuantity(
                                                         g.totalStock,
                                                         g.items[0]?.measurementType,
                                                         g.items[0]?.unit,
@@ -470,7 +475,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                                                                 <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                                                                     <span>{it.sku || '—'}</span>
                                                                     <span className="inline-flex items-center rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700 ring-1 ring-inset ring-gray-200 dark:bg-white/5 dark:text-gray-300 dark:ring-white/10">
-                                                                        {t('place.items.assignModal.inWarehouseShort')}: {formatQuantity(
+                                                                        {t('place.items.assignModal.inWarehouseShort')}: {it.isUnlimited ? '∞' : formatQuantity(
                                                                             it.stockQuantity ?? 0,
                                                                             it.measurementType,
                                                                             it.unit,
@@ -484,7 +489,7 @@ const AddItemsToPlaceModal: React.FC<Props> = ({ placeId, open, onClose, onAdded
                                                                     <Input
                                                                         type="number"
                                                                         min={1}
-                                                                        max={Math.max(1, it.stockQuantity ?? 1)}
+                                                                        max={it.isUnlimited ? undefined : Math.max(1, it.stockQuantity ?? 1)}
                                                                         value={qtyMap[it.id] ?? '1'}
                                                                         onChange={(e) => setQtyMap((m) => ({ ...m, [it.id]: e.target.value }))}
                                                                         className="w-16 rounded-md bg-white px-2 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"

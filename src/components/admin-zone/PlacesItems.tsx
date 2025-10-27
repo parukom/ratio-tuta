@@ -14,7 +14,8 @@ type AssignedItem = {
         name: string;
         sku?: string | null;
         price: number;
-    measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
+        measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
+        isUnlimited?: boolean;
     };
 }
 
@@ -55,8 +56,9 @@ export const PlacesItems = ({ placeId, currency = 'EUR', onCountChange }: Props)
         price: number;
         taxRateBps: number;
         isActive: boolean;
-    unit: string;
-    measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
+        isUnlimited?: boolean;
+        unit: string;
+        measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
         stockQuantity: number;
         createdAt: string;
         updatedAt: string;
@@ -165,8 +167,8 @@ export const PlacesItems = ({ placeId, currency = 'EUR', onCountChange }: Props)
     const filteredAndSortedItems = useMemo(() => {
         // Filter by search query and quantity > 0
         const filtered = assignedItems.filter(item => {
-            // Hide items with 0 quantity (sold out)
-            if (item.quantity <= 0) return false
+            // Hide items with 0 quantity (sold out), unless they're unlimited
+            if (item.quantity <= 0 && !item.item?.isUnlimited) return false
 
             if (!searchQuery.trim()) return true
             const query = searchQuery.toLowerCase()
@@ -328,6 +330,7 @@ export const PlacesItems = ({ placeId, currency = 'EUR', onCountChange }: Props)
                                     <td className="p-2 text-right text-sm text-gray-900 dark:text-white">
                                         <div className={`transition-opacity duration-1000 ${assignedReveal ? 'opacity-100' : 'opacity-0'}`}>
                                             {(() => {
+                                                if (row.item?.isUnlimited) return '∞'
                                                 const q = Number(row.quantity || 0)
                                                 const mt = row.item?.measurementType as undefined | 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'
                                                 if (mt === 'WEIGHT') return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`
@@ -374,8 +377,8 @@ export const PlacesItems = ({ placeId, currency = 'EUR', onCountChange }: Props)
                         <div><span className="font-medium">{t('place.items.price')}:</span> {new Intl.NumberFormat('en-US', { style: 'currency', currency: currency || 'EUR' }).format(info.price || 0)}</div>
                         <div><span className="font-medium">{t('place.items.tax')}:</span> {(info.taxRateBps / 100).toFixed(2)}%</div>
                         <div><span className="font-medium">{t('place.items.active')}:</span> {info.isActive ? tc('yes') : tc('no')}</div>
-                        <div><span className="font-medium">{t('place.items.warehouseStock')}:</span> {(() => { const q = Number(info.stockQuantity || 0); if (info.measurementType === 'WEIGHT') return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`; if (info.measurementType === 'LENGTH') return q >= 100 ? `${(q / 100).toFixed(2)} m` : `${q} cm`; if (info.measurementType === 'VOLUME') return q >= 1000 ? `${(q / 1000).toFixed(2)} l` : `${q} ml`; if (info.measurementType === 'AREA') return q >= 10000 ? `${(q / 10000).toFixed(2)} m²` : `${q} cm²`; return q; })()}</div>
-                        <div><span className="font-medium">{t('place.items.assignedHere')}:</span> {(() => { const q = Number(info.placeQuantity || 0); if (info.measurementType === 'WEIGHT') return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`; if (info.measurementType === 'LENGTH') return q >= 100 ? `${(q / 100).toFixed(2)} m` : `${q} cm`; if (info.measurementType === 'VOLUME') return q >= 1000 ? `${(q / 1000).toFixed(2)} l` : `${q} ml`; if (info.measurementType === 'AREA') return q >= 10000 ? `${(q / 10000).toFixed(2)} m²` : `${q} cm²`; return q; })()}</div>
+                        <div><span className="font-medium">{t('place.items.warehouseStock')}:</span> {info.isUnlimited ? '∞' : (() => { const q = Number(info.stockQuantity || 0); if (info.measurementType === 'WEIGHT') return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`; if (info.measurementType === 'LENGTH') return q >= 100 ? `${(q / 100).toFixed(2)} m` : `${q} cm`; if (info.measurementType === 'VOLUME') return q >= 1000 ? `${(q / 1000).toFixed(2)} l` : `${q} ml`; if (info.measurementType === 'AREA') return q >= 10000 ? `${(q / 10000).toFixed(2)} m²` : `${q} cm²`; return q; })()}</div>
+                        <div><span className="font-medium">{t('place.items.assignedHere')}:</span> {info.isUnlimited ? '∞' : (() => { const q = Number(info.placeQuantity || 0); if (info.measurementType === 'WEIGHT') return q >= 1000 ? `${(q / 1000).toFixed(2)} kg` : `${q} g`; if (info.measurementType === 'LENGTH') return q >= 100 ? `${(q / 100).toFixed(2)} m` : `${q} cm`; if (info.measurementType === 'VOLUME') return q >= 1000 ? `${(q / 1000).toFixed(2)} l` : `${q} ml`; if (info.measurementType === 'AREA') return q >= 10000 ? `${(q / 10000).toFixed(2)} m²` : `${q} cm²`; return q; })()}</div>
                         <div><span className="font-medium">{t('place.items.createdAt')}:</span> {new Date(info.createdAt).toLocaleString()}</div>
                         <div><span className="font-medium">{t('place.items.updatedAt')}:</span> {new Date(info.updatedAt).toLocaleString()}</div>
                     </div>

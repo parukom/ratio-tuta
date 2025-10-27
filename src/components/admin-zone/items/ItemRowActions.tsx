@@ -20,6 +20,7 @@ type ItemRow = {
     pricePaid?: number
     taxRateBps: number
     isActive: boolean
+    isUnlimited?: boolean
     unit?: string
     measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'
     stockQuantity?: number
@@ -53,6 +54,7 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
     const [taxRateBps, setTaxRateBps] = useState(String(item.taxRateBps))
     const [pricePaid, setPricePaid] = useState(String(item.pricePaid ?? 0))
     const [isActive, setIsActive] = useState(!!item.isActive)
+    const [isUnlimited, setIsUnlimited] = useState(!!item.isUnlimited)
     // derive initial measurement type (prefer field, fallback from unit)
     const mapUnitToMT = (u?: string): ItemRow['measurementType'] => {
         const m = (u || '').toLowerCase();
@@ -132,6 +134,7 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
                     pricePaid: Number(pricePaid) || 0,
                     taxRateBps: Number(taxRateBps) || 0,
                     isActive,
+                    isUnlimited,
                     measurementType: (measurementType ?? 'PCS'),
                     stockQuantity: (() => {
                         const v = Number(stockQuantity)
@@ -472,6 +475,10 @@ export function ItemRowActions({ item, onItemUpdated, onItemDeleted, onConflict 
                     <div className="flex items-center gap-2">
                         <input id={`active-${item.id}`} name="isActive" type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="size-4" />
                         <label htmlFor={`active-${item.id}`} className="text-sm text-gray-700 dark:text-gray-300">{ti('forms.active')}</label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <input id={`unlimited-${item.id}`} name="isUnlimited" type="checkbox" checked={isUnlimited} onChange={(e) => setIsUnlimited(e.target.checked)} className="size-4" />
+                        <label htmlFor={`unlimited-${item.id}`} className="text-sm text-gray-700 dark:text-gray-300">Unlimited Quantity (∞)</label>
                     </div>
                     <div className="mt-4 flex items-center justify-between">
                         <div className="text-sm text-gray-600 dark:text-gray-400">{ti('forms.uniqueNote')}</div>

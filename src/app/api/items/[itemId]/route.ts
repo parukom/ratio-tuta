@@ -136,6 +136,7 @@ export async function PATCH(
     pricePaid: number;
     taxRateBps: number;
     isActive: boolean;
+    isUnlimited: boolean;
     stockQuantity: number;
     measurementType: string;
     description: string | null;
@@ -186,6 +187,9 @@ export async function PATCH(
   }
   if ('isActive' in body) {
     data.isActive = Boolean(body.isActive);
+  }
+  if ('isUnlimited' in body) {
+    data.isUnlimited = Boolean(body.isUnlimited);
   }
   // measurementType update (preferred)
   if ('measurementType' in body && typeof body.measurementType === 'string') {
@@ -292,6 +296,7 @@ export async function PATCH(
         pricePaid: true,
         taxRateBps: true,
         isActive: true,
+        isUnlimited: true,
         stockQuantity: true,
         createdAt: true,
         updatedAt: true,

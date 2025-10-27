@@ -91,6 +91,7 @@ export default function CreateItemOrBoxButton({
     const [it_pricePaid, it_setPricePaid] = useState('')
     const [it_taxRateBps, it_setTaxRateBps] = useState('0')
     const [it_isActive, it_setIsActive] = useState(true)
+    const [it_isUnlimited, it_setIsUnlimited] = useState(false)
     const [it_measurementType, it_setMeasurementType] = useState<'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'>('PCS')
     const [it_stockQuantity, it_setStockQuantity] = useState('0')
     const [it_weightUnit, it_setWeightUnit] = useState<'kg' | 'g'>('kg')
@@ -109,7 +110,7 @@ export default function CreateItemOrBoxButton({
     const [it_catMsg, it_setCatMsg] = useState('')
 
     function it_reset() {
-        it_setName(''); it_setSku(''); it_setPrice(''); it_setPricePaid(''); it_setTaxRateBps('0'); it_setIsActive(true); it_setMeasurementType('PCS'); it_setStockQuantity('0'); it_setWeightUnit('kg'); it_setLengthUnit('m'); it_setVolumeUnit('l'); it_setAreaUnit('m²'); it_setDescription(''); it_setColor(''); it_setBrand(''); it_setTagsCSV(''); it_setCategoryId(''); it_setCreatingCat(false); it_setNewCatName(''); it_setCatMsg(''); it_setImageFile(null)
+        it_setName(''); it_setSku(''); it_setPrice(''); it_setPricePaid(''); it_setTaxRateBps('0'); it_setIsActive(true); it_setIsUnlimited(false); it_setMeasurementType('PCS'); it_setStockQuantity('0'); it_setWeightUnit('kg'); it_setLengthUnit('m'); it_setVolumeUnit('l'); it_setAreaUnit('m²'); it_setDescription(''); it_setColor(''); it_setBrand(''); it_setTagsCSV(''); it_setCategoryId(''); it_setCreatingCat(false); it_setNewCatName(''); it_setCatMsg(''); it_setImageFile(null)
     }
 
     async function it_submit(e: React.FormEvent) {
@@ -135,6 +136,7 @@ export default function CreateItemOrBoxButton({
                     pricePaid: Number(it_pricePaid) || 0,
                     taxRateBps: Number(it_taxRateBps) || 0,
                     isActive: it_isActive,
+                    isUnlimited: it_isUnlimited,
                     measurementType: it_measurementType,
                     stockQuantity: (() => {
                         const v = Number(it_stockQuantity)
@@ -683,6 +685,10 @@ export default function CreateItemOrBoxButton({
                             <div className="flex items-center gap-2">
                                 <input id="it_isActive" name="isActive" type="checkbox" checked={it_isActive} onChange={(e) => it_setIsActive(e.target.checked)} className="size-4" />
                                 <label htmlFor="it_isActive" className="text-sm text-gray-700 dark:text-gray-300">{t('forms.active')}</label>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <input id="it_isUnlimited" name="isUnlimited" type="checkbox" checked={it_isUnlimited} onChange={(e) => it_setIsUnlimited(e.target.checked)} className="size-4" />
+                                <label htmlFor="it_isUnlimited" className="text-sm text-gray-700 dark:text-gray-300">Unlimited Quantity (∞)</label>
                             </div>
                             <div className="mt-4 flex items-center justify-between">
                                 <p className="text-sm text-gray-600 dark:text-gray-400">{t('forms.uniqueNote')}</p>

@@ -13,6 +13,7 @@ export type VariantChild = {
     size?: string | null
     unit?: string | null
     measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'
+    isUnlimited?: boolean
 }
 
 export type VariantGroup = {

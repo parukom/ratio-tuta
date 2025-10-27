@@ -52,7 +52,8 @@ export type PlaceItem = {
     color?: string | null;
     size?: string | null;
     unit?: string | null;
-  measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
+    measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
+    isUnlimited?: boolean;
   };
 };
 
@@ -73,6 +74,7 @@ export type GroupedPlaceItem = {
     image?: string | null;
     size?: string | null;
     unit?: string | null;
-  measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
+    measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
+    isUnlimited?: boolean;
   }>;
 };

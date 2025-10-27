@@ -188,6 +188,7 @@ export async function GET(req: Request) {
       pricePaid: true,
       taxRateBps: true,
       isActive: true,
+      isUnlimited: true,
       stockQuantity: true,
       createdAt: true,
       measurementType: true,
@@ -228,6 +229,7 @@ export async function GET(req: Request) {
       pricePaid: it.pricePaid ?? 0,
       taxRateBps: it.taxRateBps,
       isActive: it.isActive,
+      isUnlimited: it.isUnlimited,
       // backward-compat display field
       unit: displayUnit,
       stockQuantity: it.stockQuantity,
@@ -312,6 +314,7 @@ export async function POST(req: Request) {
     pricePaid?: number;
     taxRateBps?: number;
     isActive?: boolean;
+    isUnlimited?: boolean;
     stockQuantity?: number;
     measurementType?: string;
     unit?: string; // legacy alias
@@ -520,6 +523,7 @@ export async function POST(req: Request) {
         pricePaid,
         taxRateBps,
         isActive: body.isActive ?? true,
+        isUnlimited: body.isUnlimited ?? false,
         stockQuantity,
         measurementType,
         description,
@@ -540,6 +544,7 @@ export async function POST(req: Request) {
         pricePaid: true,
         taxRateBps: true,
         isActive: true,
+        isUnlimited: true,
         stockQuantity: true,
         createdAt: true,
         measurementType: true,

@@ -267,7 +267,7 @@ export async function POST(req: Request) {
 
   const dbItems = await prisma.item.findMany({
     where: { id: { in: itemIds }, teamId: place.teamId },
-    select: { id: true, name: true, price: true, measurementType: true },
+    select: { id: true, name: true, price: true, measurementType: true, isUnlimited: true },
   });
   if (dbItems.length !== itemIds.length)
     return NextResponse.json(
@@ -359,6 +359,12 @@ export async function POST(req: Request) {
       // Decrement stock per item for the place, guarding against negatives
       for (const it of items) {
         const qty = it.quantity!;
+        const meta = dbItemMap.get(it.itemId!)!;
+
+        // Skip stock decrement for unlimited items
+        if (meta.isUnlimited) {
+          continue;
+        }
 
         // 1) Place stock: ensure sufficient quantity atomically
         const placeUpd = await tx.placeItem.updateMany({

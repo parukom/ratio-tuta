@@ -9,6 +9,7 @@ export type ItemRow = {
   pricePaid?: number;
   taxRateBps: number;
   isActive: boolean;
+  isUnlimited?: boolean;
   unit?: string;
   measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA';
   stockQuantity?: number;
@@ -35,6 +36,7 @@ export type Group = {
   brand?: string | null;
   items: ItemRow[];
   totalStock: number;
+  hasUnlimited?: boolean;
 };
 
 export type EditRow = {

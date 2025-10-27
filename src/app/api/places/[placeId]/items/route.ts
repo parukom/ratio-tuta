@@ -54,6 +54,7 @@ export async function GET(
           price: true,
           taxRateBps: true,
           isActive: true,
+          isUnlimited: true,
           createdAt: true,
           imageUrl: true,
           color: true,
@@ -128,7 +129,7 @@ export async function POST(
   // Ensure the item belongs to the same team
   const item = await prisma.item.findFirst({
     where: { id: itemId, teamId: place.teamId },
-    select: { id: true },
+    select: { id: true, isUnlimited: true },
   });
   if (!item)
     return NextResponse.json(
@@ -147,25 +148,28 @@ export async function POST(
       const prevQty = existing?.quantity ?? 0;
       const delta = quantity - prevQty; // positive means moving from warehouse to place
 
-      if (delta > 0) {
-        // Ensure enough stock in warehouse and decrement
-        const upd = await tx.item.updateMany({
-          where: {
-            id: itemId,
-            teamId: place.teamId,
-            stockQuantity: { gte: delta },
-          },
-          data: { stockQuantity: { decrement: delta } },
-        });
-        if (upd.count !== 1) {
-          throw new Error('INSUFFICIENT_TEAM_STOCK');
+      // Skip warehouse allocation for unlimited items
+      if (!item.isUnlimited) {
+        if (delta > 0) {
+          // Ensure enough stock in warehouse and decrement
+          const upd = await tx.item.updateMany({
+            where: {
+              id: itemId,
+              teamId: place.teamId,
+              stockQuantity: { gte: delta },
+            },
+            data: { stockQuantity: { decrement: delta } },
+          });
+          if (upd.count !== 1) {
+            throw new Error('INSUFFICIENT_TEAM_STOCK');
+          }
+        } else if (delta < 0) {
+          // Returning stock to warehouse
+          await tx.item.update({
+            where: { id: itemId },
+            data: { stockQuantity: { increment: -delta } },
+          });
         }
-      } else if (delta < 0) {
-        // Returning stock to warehouse
-        await tx.item.update({
-          where: { id: itemId },
-          data: { stockQuantity: { increment: -delta } },
-        });
       }
 
       const upserted = await tx.placeItem.upsert({

@@ -35,6 +35,11 @@ export default function ItemsTableView({ items, loading, onItemUpdated, onItemDe
     }
     function handleRowKeyDown(e: React.KeyboardEvent, it: ItemRow) {
         if (!onSelectItem) return
+        // Ignore if user is typing in an input/textarea/select or contentEditable element
+        const target = e.target as HTMLElement
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable) {
+            return
+        }
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectItem(it) }
     }
     return (
@@ -83,6 +88,9 @@ export default function ItemsTableView({ items, loading, onItemUpdated, onItemDe
                                 <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">{it.unit || "pcs"}</td>
                                 <td className="px-2 py-2 text-right text-gray-700 dark:text-gray-300">
                                     {(() => {
+                                        if (it.isUnlimited) {
+                                            return '∞'
+                                        }
                                         const q = typeof it.stockQuantity === 'number' ? it.stockQuantity : 0
                                         if (it.measurementType === 'WEIGHT') {
                                             // q is saved in grams

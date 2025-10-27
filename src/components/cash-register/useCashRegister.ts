@@ -207,7 +207,10 @@ export function useCart() {
       const next = new Map(prev);
       const current = next.get(child.itemId);
       const have = current?.quantity || 0;
-      const room = Math.max(0, child.quantity - have);
+
+      // For unlimited items, allow any quantity. Otherwise, respect stock limits.
+      const room = child.isUnlimited ? Infinity : Math.max(0, child.quantity - have);
+
       // LENGTH: allow decimal meters; others remain integers
       const isLength = child.measurementType === 'LENGTH';
       const normalizedReq = isLength
@@ -398,6 +401,7 @@ export function useGroupedSearch(placeItems: PlaceItem[] | null) {
         size: pi.item.size ?? null,
         unit: pi.item.unit ?? null,
         measurementType: pi.item.measurementType ?? 'PCS',
+        isUnlimited: pi.item.isUnlimited,
       };
       const existing = map.get(key);
       if (!existing) {
@@ -440,7 +444,9 @@ export function useGroupedSearch(placeItems: PlaceItem[] | null) {
     // In-stock filter
     if (inStockOnly) {
       list = list.filter(
-        (gi) => (gi.quantity ?? 0) > 0 || gi.items.some((c) => c.quantity > 0),
+        (gi) =>
+          (gi.quantity ?? 0) > 0 ||
+          gi.items.some((c) => c.quantity > 0 || c.isUnlimited),
       );
     }
 

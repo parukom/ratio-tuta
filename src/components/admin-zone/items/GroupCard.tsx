@@ -93,7 +93,7 @@ export function GroupCard({ group, reveal = true, onSelect, onAskEditBox, onAskD
                     {/* Stock and Price row */}
                     <div className="mt-1 flex items-center justify-between gap-1">
                         <div className="text-[10px] text-gray-500 dark:text-gray-400 truncate">
-                            <span className="font-medium text-gray-900 dark:text-white">{formatQuantity(
+                            <span className="font-medium text-gray-900 dark:text-white">{group.hasUnlimited ? '∞' : formatQuantity(
                                 group.totalStock,
                                 group.items[0]?.measurementType,
                                 group.items[0]?.unit,

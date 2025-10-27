@@ -80,6 +80,15 @@ export function ItemCard({
 
     function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
         if (!onSelect) return
+        // Ignore if user is typing in an input/textarea/select or contentEditable element
+        const target = e.target as HTMLElement
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable) {
+            return
+        }
+        // Only trigger if the card itself is focused (not bubbling from a child)
+        if (e.currentTarget !== e.target) {
+            return
+        }
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault()
             onSelect(item)
@@ -137,7 +146,7 @@ export function ItemCard({
                     {/* Stock and Price row */}
                     <div className="mt-1 flex items-center justify-between gap-1">
                         <div className="text-[10px] text-gray-500 dark:text-gray-400 truncate">
-                            <span className="font-medium text-gray-900 dark:text-white">{formatQuantity(
+                            <span className="font-medium text-gray-900 dark:text-white">{item.isUnlimited ? '∞' : formatQuantity(
                                 item.stockQuantity ?? 0,
                                 item.measurementType,
                                 item.unit,

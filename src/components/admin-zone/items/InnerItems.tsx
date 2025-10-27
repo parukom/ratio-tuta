@@ -253,10 +253,11 @@ export default function InnerItems() {
             const stock = typeof it.stockQuantity === "number" ? it.stockQuantity : 0
             const existing = map.get(key)
             if (!existing) {
-                map.set(key, { key, label: base, color: it.color ?? null, imageUrl: it.imageUrl ?? null, categoryName: it.categoryName ?? null, price: it.price, pricePaid: it.pricePaid ?? 0, taxRateBps: it.taxRateBps, unit: it.unit ?? null, brand: it.brand ?? null, items: [it], totalStock: stock ?? 0 })
+                map.set(key, { key, label: base, color: it.color ?? null, imageUrl: it.imageUrl ?? null, categoryName: it.categoryName ?? null, price: it.price, pricePaid: it.pricePaid ?? 0, taxRateBps: it.taxRateBps, unit: it.unit ?? null, brand: it.brand ?? null, items: [it], totalStock: stock ?? 0, hasUnlimited: it.isUnlimited ?? false })
             } else {
                 existing.items.push(it)
                 existing.totalStock += stock ?? 0
+                if (it.isUnlimited) existing.hasUnlimited = true
                 if (!existing.imageUrl && it.imageUrl) existing.imageUrl = it.imageUrl
             }
         }

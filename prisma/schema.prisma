@@ -107,6 +107,7 @@ model Item {
   pricePaid       Float           @default(0)
   taxRateBps      Int             @default(0)
   isActive        Boolean         @default(true)
+  isUnlimited     Boolean         @default(false)
   stockQuantity   Int             @default(0)
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
