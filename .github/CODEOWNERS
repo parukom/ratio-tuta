@@ -1,0 +1,14 @@
+# Code Owners
+# These owners will be automatically requested for review when someone opens a pull request.
+
+# Default owner for everything in the repo
+* @parukom
+
+# Critical files - require your review
+/.github/ @parukom
+/prisma/ @parukom
+/lib/session.ts @parukom
+/lib/crypto.ts @parukom
+/lib/auth.ts @parukom
+/next.config.ts @parukom
+/.env.example @parukom
