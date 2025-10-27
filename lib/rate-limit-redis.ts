@@ -19,17 +19,22 @@ function getRedisClient() {
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
   if (!url || !token) {
-    if (process.env.NODE_ENV === 'production') {
+    // Allow CI builds to pass without Redis
+    const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+
+    if (process.env.NODE_ENV === 'production' && !isCI) {
       throw new Error(
         'UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN must be set in production',
       );
     }
 
-    // Development fallback: warn and use ephemeral memory store
-    console.warn(
-      '[Rate Limit] Redis not configured. Using ephemeral in-memory store. ' +
-        'This is NOT suitable for production with multiple instances.',
-    );
+    // Development/CI fallback: warn and use ephemeral memory store
+    if (!isCI) {
+      console.warn(
+        '[Rate Limit] Redis not configured. Using ephemeral in-memory store. ' +
+          'This is NOT suitable for production with multiple instances.',
+      );
+    }
 
     // Return a mock Redis client for development
     // Must implement all methods used by @upstash/ratelimit

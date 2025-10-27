@@ -20,6 +20,10 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
+      // Ignore seed scripts (CommonJS)
+      "prisma/seed.js",
+      // Ignore utility scripts (non-production code)
+      "scripts/**",
     ],
   },
 ];
