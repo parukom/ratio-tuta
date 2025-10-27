@@ -15,6 +15,7 @@ type ItemRow = {
     pricePaid?: number
     taxRateBps: number
     isActive: boolean
+    isUnlimited?: boolean
     unit?: string
     measurementType?: 'PCS' | 'WEIGHT' | 'LENGTH' | 'VOLUME' | 'AREA'
     stockQuantity?: number
