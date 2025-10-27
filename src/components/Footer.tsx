@@ -25,7 +25,7 @@ export default function Footer() {
     social: [
       {
         name: 'GitHub',
-        href: 'https://github.com',
+        href: 'https://github.com/parukom/ratio-tuta',
         icon: (props: SVGProps<SVGSVGElement>) => (
           <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
             <path
