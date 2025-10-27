@@ -194,7 +194,7 @@ function DeveloperGuideContent() {
                 {tSections("architecture.content.projectStructure")}
               </h3>
               <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
-                {`pecunia/
+                {`ratio-tuta/
                           ├── src/
                           │   ├── app/                  # Next.js 15 App Router
                           │   │   ├── api/             # API endpoints
@@ -851,7 +851,7 @@ function DeveloperGuideContent() {
                       AWS_ACCESS_KEY_ID="..."
                       AWS_SECRET_ACCESS_KEY="..."
                       AWS_REGION="us-east-1"
-                      AWS_S3_BUCKET="pecunia-files"
+                      AWS_S3_BUCKET="ratio-tuta-files"
 
                       # Email (Resend)
                       RESEND_API_KEY="re_..."

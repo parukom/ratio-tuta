@@ -42,3 +42,6 @@ next-env.d.ts
 
 /src/generated/prisma
 local_db_backup.sql
+
+# archived development documentation
+.archived-docs/

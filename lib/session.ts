@@ -16,8 +16,8 @@ import { validateEnvironmentSecrets } from '@lib/crypto';
  * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie#cookie_prefixes
  */
 const SESSION_COOKIE = process.env.NODE_ENV === 'production'
-  ? '__Host-pecunia-session'
-  : 'pecunia-session';
+  ? '__Host-ratio-tuta-session'
+  : 'ratio-tuta-session';
 const DEFAULT_MAX_AGE_SEC = 60 * 60 * 24 * 7; // 7 days
 
 // SECURITY: Lazy validation of environment secrets

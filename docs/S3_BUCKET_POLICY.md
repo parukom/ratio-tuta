@@ -11,7 +11,7 @@ AWS SDK v3's `getSignedUrl()` doesn't support size limit conditions directly. Wi
 ### Bucket Policy Configuration
 
 1. Go to AWS S3 Console
-2. Select your bucket (e.g., `pecunia-uploads`)
+2. Select your bucket (e.g., `ratio-tuta-uploads`)
 3. Go to **Permissions** → **Bucket Policy**
 4. Add the following policy:
 
@@ -64,7 +64,7 @@ AWS SDK v3's `getSignedUrl()` doesn't support size limit conditions directly. Wi
 ### Configuration Steps
 
 1. **Replace placeholders:**
-   - `YOUR-BUCKET-NAME` → Your actual S3 bucket name (e.g., `pecunia-uploads`)
+   - `YOUR-BUCKET-NAME` → Your actual S3 bucket name (e.g., `ratio-tuta-uploads`)
    - `YOUR-ACCOUNT-ID` → Your AWS account ID (12 digits)
    - `YOUR-IAM-USER` → IAM user name used for uploads
 

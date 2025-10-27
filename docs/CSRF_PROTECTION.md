@@ -179,12 +179,12 @@ try {
 ```bash
 # Get CSRF token
 TOKEN=$(curl -s http://localhost:3000/api/csrf-token \
-  -H "Cookie: __Host-pecunia-session=..." \
+  -H "Cookie: __Host-ratio-tuta-session=..." \
   | jq -r '.csrfToken')
 
 # Use token in request
 curl -X POST http://localhost:3000/api/items \
-  -H "Cookie: __Host-pecunia-session=..." \
+  -H "Cookie: __Host-ratio-tuta-session=..." \
   -H "X-CSRF-Token: $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"name":"Test Item","price":10}'

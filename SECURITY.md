@@ -2,7 +2,7 @@
 
 ## 🔒 Our Commitment
 
-At Pecunia (Ratio Tuta), security and privacy are at the core of everything we do. We take the security of our users' data extremely seriously and appreciate the security community's efforts in responsibly disclosing vulnerabilities.
+At Ratio Tuta, security and privacy are at the core of everything we do. We take the security of our users' data extremely seriously and appreciate the security community's efforts in responsibly disclosing vulnerabilities.
 
 ## 📋 Supported Versions
 

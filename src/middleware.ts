@@ -41,8 +41,8 @@ export function middleware(req: NextRequest) {
 
   // SECURITY FIX: Use appropriate cookie name based on environment
   const cookieName = process.env.NODE_ENV === 'production'
-    ? '__Host-pecunia-session'
-    : 'pecunia-session';
+    ? '__Host-ratio-tuta-session'
+    : 'ratio-tuta-session';
   const cookie = req.cookies.get(cookieName)?.value;
   const verified = verifySession(cookie);
   if (!verified.ok) {

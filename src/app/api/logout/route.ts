@@ -60,8 +60,8 @@ export async function POST() {
     maxAge: 0,
   };
 
-  res.cookies.set('pecunia-session', '', cookieOptions);
-  res.cookies.set('__Host-pecunia-session', '', cookieOptions);
+  res.cookies.set('ratio-tuta-session', '', cookieOptions);
+  res.cookies.set('__Host-ratio-tuta-session', '', cookieOptions);
 
   return res;
 }

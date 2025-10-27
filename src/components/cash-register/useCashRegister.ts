@@ -325,7 +325,7 @@ export type SortKey = 'NAME_ASC' | 'PRICE_ASC' | 'PRICE_DESC' | 'STOCK_DESC';
 // Group duplicate place items by itemId and sum quantities + search/sort/filter state
 export function useGroupedSearch(placeItems: PlaceItem[] | null) {
   // Persisted filter state key
-  const COOKIE_KEY = 'pecunia_cash_filters';
+  const COOKIE_KEY = 'ratio_tuta_cash_filters';
 
   function readFiltersFromCookie() {
     try {

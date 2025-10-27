@@ -1,5 +1,9 @@
 # Ratio Tuta
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Next.js](https://img.shields.io/badge/Next.js-15.5-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
+
 A modern financial management and inventory tracking application built with Next.js, featuring team collaboration, subscription packages, and comprehensive security.
 
 ## 🚀 Features
@@ -50,7 +54,7 @@ A modern financial management and inventory tracking application built with Next
 1. **Clone and install dependencies:**
    ```bash
    git clone <repository-url>
-   cd pecunia
+   cd ratio-tuta
    npm install
    ```
 
@@ -210,7 +214,7 @@ npm run build
 ## 📊 Project Structure
 
 ```
-pecunia/
+ratio-tuta/
 ├── src/
 │   ├── app/              # Next.js app directory
 │   │   ├── api/          # API routes
@@ -260,17 +264,42 @@ pecunia/
 
 ## 🤝 Contributing
 
+Contributions are welcome! This project is open source under the MIT License.
+
+### How to Contribute:
+
 1. Fork the repository
-2. Create your feature branch
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
 3. Follow code style (ESLint + Prettier)
 4. Add tests for new features
 5. Ensure all tests pass
 6. Update documentation
-7. Submit a pull request
+7. Commit your changes (`git commit -m 'Add some amazing feature'`)
+8. Push to the branch (`git push origin feature/amazing-feature`)
+9. Open a Pull Request
+
+### Attribution
+
+If you use this project in your work, please provide attribution:
+
+```
+Based on Ratio Tuta by Tomas Dudovicius
+https://github.com/parukom/ratio-tuta
+Licensed under MIT License
+```
 
 ## 📄 License
 
-This project is proprietary and confidential.
+MIT License - see [LICENSE](./LICENSE) file for details.
+
+Copyright (c) 2025 Tomas Dudovicius
+
+**In simple terms:**
+- ✅ You can use this project commercially
+- ✅ You can modify and distribute it
+- ✅ You can use it privately
+- 🔒 **You MUST keep the copyright notice and license** (my name must stay)
+- ❌ No warranty provided
 
 ## 🆘 Support
 
