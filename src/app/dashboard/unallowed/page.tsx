@@ -1,7 +1,25 @@
+'use client'
 import Link from 'next/link'
 import React from 'react'
+import { useEffect, useState } from 'react'
 
 const Unallowed = () => {
+    const [locale, setLocale] = useState('en')
+
+    useEffect(() => {
+        // Get locale from cookie
+        const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+            const [key, value] = cookie.trim().split('=')
+            acc[key] = value
+            return acc
+        }, {} as Record<string, string>)
+
+        const cookieLocale = cookies.locale
+        if (['en', 'lt', 'ru'].includes(cookieLocale)) {
+            setLocale(cookieLocale)
+        }
+    }, [])
+
     return (
         <main className="min-h-screen w-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 flex items-center justify-center p-6">
             <div className="max-w-lg w-full bg-white/5 border border-white/6 backdrop-blur-sm rounded-2xl p-8 shadow-xl text-center space-y-6 transform transition-all duration-200 hover:scale-[1.01]">
@@ -20,7 +38,7 @@ const Unallowed = () => {
 
                 <div className="flex gap-3 justify-center">
                     <Link
-                        href="/"
+                        href={`/${locale}`}
                         className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 text-white hover:bg-white/20 rounded-md text-sm"
                         aria-label="Go back home"
                     >

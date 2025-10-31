@@ -3,33 +3,41 @@ import { MetadataRoute } from 'next'
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
   const currentDate = new Date()
+  const locales = ['en', 'lt', 'ru']
 
-  return [
-    {
-      url: baseUrl,
-      lastModified: currentDate,
-      changeFrequency: 'daily',
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/auth`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/docs/user`,
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/docs/developer`,
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    // Add more public pages as needed
-    // Dashboard and cash-register are excluded (require authentication)
+  const routes = [
+    { path: '', changeFrequency: 'daily' as const, priority: 1.0 },
+    { path: '/auth', changeFrequency: 'monthly' as const, priority: 0.8 },
+    { path: '/pricing', changeFrequency: 'weekly' as const, priority: 0.9 },
+    { path: '/docs', changeFrequency: 'weekly' as const, priority: 0.8 },
+    { path: '/docs/user', changeFrequency: 'weekly' as const, priority: 0.7 },
+    { path: '/docs/developer', changeFrequency: 'weekly' as const, priority: 0.7 },
+    { path: '/terms', changeFrequency: 'monthly' as const, priority: 0.5 },
+    { path: '/privacy', changeFrequency: 'monthly' as const, priority: 0.5 },
   ]
+
+  // Generate URLs for all locales
+  const sitemapEntries: MetadataRoute.Sitemap = []
+
+  // Add root redirect
+  sitemapEntries.push({
+    url: baseUrl,
+    lastModified: currentDate,
+    changeFrequency: 'daily',
+    priority: 1.0,
+  })
+
+  // Add localized routes
+  locales.forEach(locale => {
+    routes.forEach(route => {
+      sitemapEntries.push({
+        url: `${baseUrl}/${locale}${route.path}`,
+        lastModified: currentDate,
+        changeFrequency: route.changeFrequency,
+        priority: route.priority,
+      })
+    })
+  })
+
+  return sitemapEntries
 }

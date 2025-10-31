@@ -1847,6 +1847,28 @@
         "description": "Basic logs for system security and debugging purposes only"
       }
     },
+    "cookies": {
+      "title": "Cookies We Use",
+      "intro": "We use only essential cookies that are strictly necessary for the website to function properly. These cookies do not require consent under GDPR as they are fundamental to the service.",
+      "session": {
+        "title": "Session Cookie",
+        "name": "ratio-tuta-session (or __Host-ratio-tuta-session in production)",
+        "purpose": "Maintains your login session and authentication state",
+        "duration": "7 days",
+        "type": "Essential - Required for login functionality"
+      },
+      "locale": {
+        "title": "Language Preference Cookie",
+        "name": "locale",
+        "purpose": "Remembers your language preference (English, Lithuanian, or Russian)",
+        "duration": "1 year",
+        "type": "Functional - Enhances user experience"
+      },
+      "noTracking": {
+        "title": "No Tracking or Analytics Cookies",
+        "description": "We do not use any tracking, analytics, advertising, or third-party cookies. Your browsing behavior is not monitored or analyzed."
+      }
+    },
     "howWeProtect": {
       "title": "How We Protect Your Data",
       "encryption": {
@@ -2019,5 +2041,53 @@
       "terms": "Terms & Conditions"
     },
     "copyright": "© {year} Ratio Tuta. All rights reserved."
+  },
+  "SEO": {
+    "title": "Ratio Tuta - Modern Inventory & Financial Management System",
+    "description": "Secure, modern inventory tracking and financial management for teams. Real-time stock management, POS system, team collaboration, and comprehensive reporting. Built with Next.js and TypeScript.",
+    "keywords": {
+      "0": "inventory management",
+      "1": "inventory management system",
+      "2": "inventory software",
+      "3": "financial management",
+      "4": "financial management software",
+      "5": "POS system",
+      "6": "point of sale system",
+      "7": "stock tracking",
+      "8": "stock management",
+      "9": "team collaboration",
+      "10": "receipt management",
+      "11": "warehouse management",
+      "12": "business management",
+      "13": "sales tracking",
+      "14": "real-time inventory",
+      "15": "inventory control",
+      "16": "stock control software",
+      "17": "small business inventory",
+      "18": "retail inventory management",
+      "19": "restaurant POS system",
+      "20": "multi-location inventory",
+      "21": "inventory tracking app",
+      "22": "cloud inventory software",
+      "23": "web-based POS",
+      "24": "online inventory system",
+      "25": "inventory management SaaS"
+    },
+    "structuredData": {
+      "softwareName": "Ratio Tuta",
+      "softwareDescription": "Modern inventory tracking and financial management system for teams. Real-time stock control, POS system, and comprehensive reporting.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web Browser, Any",
+      "features": {
+        "0": "Real-time inventory tracking",
+        "1": "Point of Sale (POS) system",
+        "2": "Team collaboration",
+        "3": "Financial reporting",
+        "4": "Multi-location management",
+        "5": "Receipt management",
+        "6": "Sales analytics",
+        "7": "Stock alerts"
+      }
+    }
   }
 }

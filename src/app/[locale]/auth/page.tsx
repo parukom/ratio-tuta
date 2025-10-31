@@ -3,12 +3,13 @@
 import { Suspense, useEffect, useState } from "react";
 import Spinner from "@/components/ui/Spinner";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { api, ApiError } from "@/lib/api-client";
 import { Eye, EyeOff } from "lucide-react";
 
 function AuthContent() {
     const t = useTranslations("Auth");
+    const locale = useLocale();
     const searchParams = useSearchParams();
     const formParam = (searchParams.get("form") || "login").toLowerCase();
     const mode: "login" | "register" = formParam === "signup" ? "register" : "login";
@@ -59,6 +60,13 @@ function AuthContent() {
                 // Login is a public endpoint (no session yet), so skip CSRF
                 const data = await api.post<{ role?: string }>("/api/login", { email, password, remember }, { skipCsrf: true });
 
+                // Save locale preference before redirecting
+                await fetch("/api/locale", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ locale }),
+                });
+
                 // Decide where to go next based on role and place memberships
                 const role = (data?.role as string) || "USER";
                 if (role === 'ADMIN') {
@@ -70,7 +78,7 @@ function AuthContent() {
                     // Check explicit place memberships
                     const places = await api.get<Array<{ id: string; assignedToMe?: boolean }>>('/api/places');
                     if (Array.isArray(places)) {
-                        if (places.length === 0) router.replace('/no-events');
+                        if (places.length === 0) router.replace('/dashboard/no-events');
                         else if (places.length === 1) router.replace(`/cash-register?placeId=${places[0].id}`);
                         else {
                             // If exactly one of the returned places is assigned to the user, prefer that place
@@ -318,7 +326,7 @@ function AuthContent() {
                                     type="button"
                                     onClick={() => {
                                         const next = mode === "login" ? "signup" : "login";
-                                        router.replace(`/auth?form=${next}`);
+                                        router.replace(`/${locale}/auth?form=${next}`);
                                     }}
                                     className="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
                                 >
@@ -342,7 +350,7 @@ function AuthContent() {
                                 <>
                                     <button
                                         type="button"
-                                        onClick={() => router.replace('/auth/forgot-password')}
+                                        onClick={() => router.replace(`/${locale}/auth/forgot-password`)}
                                         className="ml-4 font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                                     >
                                         Forgot password?

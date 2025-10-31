@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { addCorsHeaders } from '@lib/cors';
+import createMiddleware from 'next-intl/middleware';
+import { routing } from '../next-intl.config';
 
 // Minimal verification of the session cookie structure, signature and role to protect /dashboard
 function verifySession(cookie: string | undefined): {
@@ -35,31 +37,60 @@ function verifySession(cookie: string | undefined): {
   }
 }
 
-export function middleware(req: NextRequest) {
-  // Add CORS headers to all responses
-  let response: NextResponse;
+// Create the internationalization middleware
+const intlMiddleware = createMiddleware(routing);
 
-  // SECURITY FIX: Use appropriate cookie name based on environment
-  const cookieName = process.env.NODE_ENV === 'production'
-    ? '__Host-ratio-tuta-session'
-    : 'ratio-tuta-session';
-  const cookie = req.cookies.get(cookieName)?.value;
-  const verified = verifySession(cookie);
-  if (!verified.ok) {
-    const url = new URL('/auth?form=login', req.url);
-    response = NextResponse.redirect(url);
-  } else if (verified.role !== 'ADMIN') {
-    const url = new URL('/unallowed', req.url);
-    response = NextResponse.redirect(url);
-  } else {
-    response = NextResponse.next();
+export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  // Check if this is a private route that doesn't need i18n
+  const isPrivateRoute =
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/cash-register') ||
+    pathname.startsWith('/api');
+
+  // Handle i18n routing only for public routes
+  if (!isPrivateRoute) {
+    const intlResponse = intlMiddleware(req);
+    return addCorsHeaders(intlResponse, req);
   }
 
-  // Apply CORS headers
+  // For dashboard routes, handle auth without i18n
+  if (pathname.startsWith('/dashboard')) {
+    // SECURITY FIX: Use appropriate cookie name based on environment
+    const cookieName =
+      process.env.NODE_ENV === 'production'
+        ? '__Host-ratio-tuta-session'
+        : 'ratio-tuta-session';
+    const cookie = req.cookies.get(cookieName)?.value;
+    const verified = verifySession(cookie);
+
+    if (!verified.ok) {
+      // Get user's preferred locale from cookie (fallback to 'en')
+      const localeCookie = req.cookies.get('locale')?.value;
+      const preferredLocale = ['en', 'lt', 'ru'].includes(localeCookie || '')
+        ? localeCookie
+        : 'en';
+      const url = new URL(`/${preferredLocale}/auth?form=login`, req.url);
+      const response = NextResponse.redirect(url);
+      return addCorsHeaders(response, req);
+    } else if (verified.role !== 'ADMIN') {
+      const url = new URL('/dashboard/unallowed', req.url);
+      const response = NextResponse.redirect(url);
+      return addCorsHeaders(response, req);
+    }
+  }
+
+  // For other private routes (cash-register, api), just pass through
+  const response = NextResponse.next();
   return addCorsHeaders(response, req);
 }
 
-// Only run on dashboard routes
 export const config = {
-  matcher: ['/dashboard/:path*'],
+  matcher: [
+    // Skip all internal paths (_next, assets, api), robots.txt, sitemap.xml, manifest, etc.
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Always run on root URL
+    '/(api|trpc)(.*)',
+  ],
 };

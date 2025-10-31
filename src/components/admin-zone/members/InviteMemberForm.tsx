@@ -4,7 +4,7 @@ import toast from 'react-hot-toast'
 import Input from '@/components/ui/Input'
 import Dropdown from '@/components/ui/Dropdown'
 import Spinner from '@/components/ui/Spinner'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import Modal from '@/components/modals/Modal'
 import Link from 'next/link'
 import { api, ApiError } from '@/lib/api-client'
@@ -17,6 +17,7 @@ type Props = {
 const AddMember = ({ teamId, onSuccess }: Props) => {
     const t = useTranslations('Common')
     const tt = useTranslations('Team')
+    const locale = useLocale()
     const [name, setName] = useState<string>('')
     const [email, setEmail] = useState<string>('')
     const [role, setRole] = useState<'USER' | 'ADMIN'>('USER')
@@ -261,7 +262,7 @@ const AddMember = ({ teamId, onSuccess }: Props) => {
                     </div>
                     <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
                         <button onClick={() => setLimitModal(false)} className="inline-flex justify-center rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">{t('close', { default: 'Close' })}</button>
-                        <Link href="/pricing" className="inline-flex justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400">
+                        <Link href={`/${locale}/pricing`} className="inline-flex justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400">
                             {tt('limit.upgradeCta', { default: 'Upgrade plan' })}
                         </Link>
                     </div>

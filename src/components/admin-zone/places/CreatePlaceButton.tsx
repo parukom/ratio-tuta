@@ -4,7 +4,7 @@ import Modal from '@/components/modals/Modal'
 import Input from '@/components/ui/Input'
 import toast from 'react-hot-toast'
 import Spinner from '@/components/ui/Spinner'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import Link from 'next/link'
 import { api, ApiError } from '@/lib/api-client'
 
@@ -16,6 +16,7 @@ type Props = {
 export default function CreatePlaceButton({ teamId, onCreated }: Props) {
     const t = useTranslations('Common')
     const th = useTranslations('Home')
+    const locale = useLocale()
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const [limitModal, setLimitModal] = useState(false)
@@ -148,7 +149,7 @@ export default function CreatePlaceButton({ teamId, onCreated }: Props) {
                     </div>
                     <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
                         <button onClick={() => setLimitModal(false)} className="inline-flex justify-center rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5">{t('close', { default: 'Close' })}</button>
-                        <Link href="/pricing" className="inline-flex justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400">
+                        <Link href={`/${locale}/pricing`} className="inline-flex justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400">
                             {th('place.limit.upgradeCta', { default: 'Upgrade plan' })}
                         </Link>
                     </div>

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Spinner from "@/components/ui/Spinner";
 import { useTranslations } from "next-intl";
 import { LogOut } from "lucide-react";
@@ -10,7 +10,23 @@ type Props = {
 
 export default function LogoutButton({ widthFull }: Props) {
     const [loading, setLoading] = useState(false);
+    const [locale, setLocale] = useState('en');
     const t = useTranslations('Common');
+
+    useEffect(() => {
+        // Get locale from cookie
+        const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+            const [key, value] = cookie.trim().split('=')
+            acc[key] = value
+            return acc
+        }, {} as Record<string, string>)
+
+        const cookieLocale = cookies.locale
+        if (['en', 'lt', 'ru'].includes(cookieLocale)) {
+            setLocale(cookieLocale)
+        }
+    }, [])
+
     async function handleLogout() {
         try {
             setLoading(true);
@@ -20,11 +36,11 @@ export default function LogoutButton({ widthFull }: Props) {
                 console.warn('Logout failed', await res.text().catch(() => ''))
             }
             // Force a full page reload to /auth to ensure session cookie is cleared
-            window.location.href = "/auth";
+            window.location.href = `/${locale}/auth`;
         } catch (error) {
             console.error('Logout error:', error);
             // Even on error, try to redirect to auth page
-            window.location.href = "/auth";
+            window.location.href = `/${locale}/auth`;
         } finally {
             setLoading(false);
         }

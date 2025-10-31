@@ -11,7 +11,8 @@ import {
   GlobeAltIcon,
   ScaleIcon,
   EnvelopeIcon,
-  BellAlertIcon
+  BellAlertIcon,
+  CakeIcon
 } from '@heroicons/react/24/outline'
 import { useTranslations } from 'next-intl'
 
@@ -127,6 +128,65 @@ export default function PrivacyPolicy() {
                   <h3 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white">{t('whatWeCollect.technical.title')}</h3>
                   <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5">{t('whatWeCollect.technical.description')}</p>
                 </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Cookies We Use */}
+          <section className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-5 sm:p-6 lg:p-8">
+            <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+              <CakeIcon className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-amber-500 flex-shrink-0" />
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{t('cookies.title')}</h2>
+            </div>
+            <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 mb-4 sm:mb-6">
+              {t('cookies.intro')}
+            </p>
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                <div className="flex-shrink-0 mt-1">
+                  <div className="h-2 w-2 bg-amber-500 rounded-full"></div>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white">{t('cookies.session.title')}</h3>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    <span className="font-medium">Name:</span> {t('cookies.session.name')}
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5">
+                    <span className="font-medium">Purpose:</span> {t('cookies.session.purpose')}
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5">
+                    <span className="font-medium">Duration:</span> {t('cookies.session.duration')}
+                  </p>
+                  <p className="text-xs sm:text-sm text-amber-700 dark:text-amber-400 mt-1 font-medium">
+                    {t('cookies.session.type')}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                <div className="flex-shrink-0 mt-1">
+                  <div className="h-2 w-2 bg-amber-500 rounded-full"></div>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white">{t('cookies.locale.title')}</h3>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    <span className="font-medium">Name:</span> {t('cookies.locale.name')}
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5">
+                    <span className="font-medium">Purpose:</span> {t('cookies.locale.purpose')}
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5">
+                    <span className="font-medium">Duration:</span> {t('cookies.locale.duration')}
+                  </p>
+                  <p className="text-xs sm:text-sm text-amber-700 dark:text-amber-400 mt-1 font-medium">
+                    {t('cookies.locale.type')}
+                  </p>
+                </div>
+              </div>
+              <div className="p-3 sm:p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                <h3 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white mb-1">{t('cookies.noTracking.title')}</h3>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                  {t('cookies.noTracking.description')}
+                </p>
               </div>
             </div>
           </section>

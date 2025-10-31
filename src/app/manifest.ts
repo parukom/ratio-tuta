@@ -2,9 +2,9 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Ratio Tuta',
-    short_name: 'Ratio',
-    description: 'secure account/calculations, management',
+    name: 'Ratio Tuta - Inventory & Financial Management',
+    short_name: 'Ratio Tuta',
+    description: 'Modern inventory tracking and financial management system for teams. Real-time stock control, POS system, team collaboration, and comprehensive reporting.',
     start_url: '/',
     scope: '/',
     display: 'fullscreen',

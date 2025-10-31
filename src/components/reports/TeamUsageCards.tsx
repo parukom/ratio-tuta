@@ -2,7 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowUpCircleIcon } from '@heroicons/react/24/outline';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 type Metric = {
   key: string;
@@ -13,6 +13,7 @@ type Metric = {
 
 export const TeamUsageCards: React.FC = () => {
   const t = useTranslations('Reports');
+  const locale = useLocale();
   const [metrics, setMetrics] = React.useState<Metric[]>([]);
   // const [teamName, setTeamName] = React.useState<string>('');
   const [packageName, setPackageName] = React.useState<string | null>(null);
@@ -66,7 +67,7 @@ export const TeamUsageCards: React.FC = () => {
           </p>
         </div>
         <Link
-          href="/pricing"
+          href={`/${locale}/pricing`}
           className="relative z-10 inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800 text-indigo-600 dark:text-indigo-400 font-semibold text-sm transition-all shadow-md hover:shadow-xl transform hover:scale-105"
         >
           <ArrowUpCircleIcon className="h-5 w-5" />

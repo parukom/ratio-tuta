@@ -6,7 +6,7 @@ import Dropdown from '@/components/ui/Dropdown'
 import Spinner from '@/components/ui/Spinner'
 import ImageUploader from '@/components/ui/ImageUploader'
 import toast from 'react-hot-toast'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Plus, PackageX, Info } from 'lucide-react'
 import { useHelp } from '@/hooks/useHelp'
 
@@ -54,6 +54,7 @@ export default function CreateItemOrBoxButton({
 }: Props) {
     const t = useTranslations('Items')
     const tc = useTranslations('Common')
+    const locale = useLocale()
     const { showHelp } = useHelp()
 
     const [open, setOpen] = useState(false)
@@ -450,7 +451,7 @@ export default function CreateItemOrBoxButton({
                         )}
                         <div className="mt-6 flex justify-end gap-2">
                             <button type="button" onClick={() => setLimitModal(false)} className="rounded-md bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 dark:bg-white/10 dark:text-gray-200 dark:hover:bg-white/20">{tc('close')}</button>
-                            <a href="/pricing" className="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400">{t('limit.upgradeCta')}</a>
+                            <a href={`/${locale}/pricing`} className="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400">{t('limit.upgradeCta')}</a>
                         </div>
                     </div>
                 </div>

@@ -1,12 +1,13 @@
 "use client";
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 export default function ResetPasswordPage() {
     const search = useSearchParams();
     const token = search.get('token') || '';
     const router = useRouter();
+    const locale = useLocale();
     const t = useTranslations('Password');
     const [password, setPassword] = useState('');
     const [confirm, setConfirm] = useState('');
@@ -32,7 +33,7 @@ export default function ResetPasswordPage() {
             }
             setDone(true);
             setMessage(data.message || t('updated'));
-            setTimeout(() => router.replace('/auth?form=login'), 2000);
+            setTimeout(() => router.replace(`/${locale}/auth?form=login`), 2000);
         } finally { setSubmitting(false); }
     }
 

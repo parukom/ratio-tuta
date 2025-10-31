@@ -1,13 +1,14 @@
 "use client";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState<string | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const router = useRouter();
+    const locale = useLocale();
     const t = useTranslations('Password');
 
     async function onSubmit(e: React.FormEvent) {
@@ -50,7 +51,7 @@ export default function ForgotPasswordPage() {
                         {message && <p className="text-sm/6 text-center text-gray-700 dark:text-gray-300">{message}</p>}
                     </form>
                     <div className="mt-6 text-center">
-                        <button onClick={() => router.replace('/auth?form=login')} className="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">←</button>
+                        <button onClick={() => router.replace(`/${locale}/auth?form=login`)} className="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">←</button>
                     </div>
                 </div>
             </div>

@@ -20,6 +20,7 @@ import { Settings } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import LoadingOverlay from '@/components/ui/LoadingOverlay'
 import Logo from '../ui/Logo'
+import LanguageSwitcher from './LanguageSwitcher'
 
 type NavKey = 'home' | 'team' | 'items' | 'documents' | 'reports' | 'settings'
 const navigation: Array<{ key: NavKey; href: string; icon: React.ComponentType<React.ComponentProps<'svg'>> }> = [
@@ -246,7 +247,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                                             </ul>
                                         </li>
                                         <li className="pb-4 mt-auto">
-                                            <div className="px-2 mt-3">
+                                            <div className="px-2 mt-3 space-y-2">
+                                                <LanguageSwitcher />
                                                 <LogoutButton widthFull />
                                             </div>
                                         </li>
@@ -343,7 +345,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                                     </ul>
                                 </li>
                                 <li className="pb-4 mt-auto">
-                                    <div className="px-2 mt-3">
+                                    <div className="px-2 mt-3 space-y-2">
+                                        <LanguageSwitcher />
                                         <LogoutButton widthFull />
                                     </div>
                                 </li>
@@ -366,6 +369,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                             <Bars3Icon aria-hidden="true" className="size-6" />
                         </button>
                         <div className="relative flex-1 text-sm/6 font-semibold text-gray-900 dark:text-white">{title ?? t('dashboard')}</div>
+                        <div className="flex items-center gap-2">
+                            <LanguageSwitcher />
+                        </div>
                         <a href="#" className="relative">
                             <span className="sr-only">{t('yourProfile')}</span>
 

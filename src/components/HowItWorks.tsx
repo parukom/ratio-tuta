@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 
 // Component for theme-aware images with smooth transition using Tailwind dark mode
 function ThemeImage({ lightSrc, darkSrc, alt, objectPosition = 'center' }: { lightSrc: string; darkSrc: string; alt: string; objectPosition?: string }) {
@@ -35,6 +35,7 @@ function ThemeImage({ lightSrc, darkSrc, alt, objectPosition = 'center' }: { lig
 
 export default function HowItWorks() {
   const t = useTranslations('Home')
+  const locale = useLocale()
 
   return (
     <div id="how-it-works" className="bg-white py-24 sm:py-32 dark:bg-gray-900">
@@ -192,13 +193,13 @@ export default function HowItWorks() {
           </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center sm:gap-6">
             <Link
-              href="/auth?form=signup"
+              href={`/${locale}/auth?form=signup`}
               className="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 text-base font-semibold text-indigo-600 shadow-sm hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               {t('howItWorks.cta.button')}
             </Link>
             <Link
-              href="/docs"
+              href={`/${locale}/docs`}
               className="inline-flex items-center justify-center rounded-lg border-2 border-white px-6 py-3 text-base font-semibold text-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               {t('howItWorks.cta.docs')}

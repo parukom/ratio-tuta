@@ -1,10 +1,12 @@
 'use client'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
 import { MinusSmallIcon, PlusSmallIcon } from '@heroicons/react/24/outline'
+import FaqStructuredData from './FaqStructuredData'
 
 export default function FAQ() {
   const t = useTranslations('Home.faq')
+  const locale = useLocale()
 
   const faqs = [
     {
@@ -39,6 +41,7 @@ export default function FAQ() {
 
   return (
     <div className="bg-gray-50 py-24 sm:py-32 dark:bg-gray-950">
+      <FaqStructuredData faqs={faqs} />
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Header */}
         <div className="mx-auto max-w-4xl text-center">
@@ -90,7 +93,7 @@ export default function FAQ() {
           </p>
           <div className="mt-6 flex items-center justify-center gap-x-6">
             <a
-              href="/docs"
+              href={`/${locale}/docs`}
               className="rounded-md bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
               {t('viewDocs')}

@@ -7,59 +7,105 @@
  * https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data
  */
 
-export default function StructuredData() {
+type StructuredDataProps = {
+  locale: string;
+  seoData: {
+    title: string;
+    description: string;
+    structuredData: {
+      softwareName: string;
+      softwareDescription: string;
+      applicationCategory: string;
+      operatingSystem: string;
+      features: Record<string, string>;
+    };
+  };
+};
+
+export default function StructuredData({ locale, seoData }: StructuredDataProps) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
+  // Convert features object to array
+  const featuresArray = Object.values(seoData.structuredData.features);
+
+  // Organization Schema
   const organizationSchema = {
     '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
-    name: 'Ratio Tuta',
-    applicationCategory: 'BusinessApplication',
-    operatingSystem: 'Web Browser',
-    description: 'Modern inventory tracking and financial management system for teams. Real-time stock control, POS system, and comprehensive reporting.',
+    '@type': 'Organization',
+    name: seoData.structuredData.softwareName,
     url: baseUrl,
+    logo: `${baseUrl}/images/icons/icon-512.png`,
+    description: seoData.structuredData.softwareDescription,
+    sameAs: [
+      'https://github.com/parukom/ratio-tuta',
+    ],
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'Customer Support',
+      email: 'support@ratiotuta.com',
+      availableLanguage: ['English', 'Lithuanian', 'Russian']
+    },
+    founder: {
+      '@type': 'Person',
+      name: 'Tomas Dudovicius',
+      url: 'https://github.com/parukom',
+    }
+  }
+
+  // Software Application Schema
+  const softwareSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: seoData.structuredData.softwareName,
+    applicationCategory: seoData.structuredData.applicationCategory,
+    operatingSystem: seoData.structuredData.operatingSystem,
+    description: seoData.structuredData.softwareDescription,
+    url: baseUrl,
+    softwareVersion: '1.0',
     author: {
       '@type': 'Person',
       name: 'Tomas Dudovicius',
       url: 'https://github.com/parukom',
     },
     offers: {
-      '@type': 'Offer',
-      price: '0',
+      '@type': 'AggregateOffer',
+      lowPrice: '0',
+      highPrice: '20',
       priceCurrency: 'EUR',
       availability: 'https://schema.org/InStock',
+      offerCount: '3'
     },
     aggregateRating: {
       '@type': 'AggregateRating',
       ratingValue: '4.8',
       ratingCount: '1',
+      bestRating: '5',
+      worstRating: '1'
     },
-    featureList: [
-      'Real-time inventory tracking',
-      'POS system',
-      'Team collaboration',
-      'Financial reporting',
-      'Multi-location management',
-      'Receipt management',
-    ],
+    featureList: featuresArray,
+    applicationSubCategory: 'Inventory Management Software',
+    releaseNotes: 'Feature-rich inventory and financial management platform'
   }
 
+  // Website Schema
   const websiteSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Ratio Tuta',
+    name: seoData.structuredData.softwareName,
     url: baseUrl,
-    description: 'Modern inventory and financial management system',
+    description: seoData.description,
+    inLanguage: ['en', 'lt', 'ru'],
     potentialAction: {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: `${baseUrl}/search?q={search_term_string}`,
+        urlTemplate: `${baseUrl}/${locale}/docs?q={search_term_string}`,
       },
       'query-input': 'required name=search_term_string',
     },
   }
 
+  // Breadcrumb Schema
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -68,13 +114,13 @@ export default function StructuredData() {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: baseUrl,
+        item: `${baseUrl}/${locale}`,
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Documentation',
-        item: `${baseUrl}/docs/user`,
+        item: `${baseUrl}/${locale}/docs`,
       },
     ],
   }
@@ -85,6 +131,12 @@ export default function StructuredData() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(organizationSchema),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(softwareSchema),
         }}
       />
       <script

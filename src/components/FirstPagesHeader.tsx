@@ -4,7 +4,7 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { LayoutDashboard } from 'lucide-react'
 import Link from 'next/link';
 import { useState } from 'react';
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import Logo from './ui/Logo';
 
@@ -21,13 +21,14 @@ type FirstPagesHeaderProps = {
 
 export const FirstPagesHeader = ({ session = null }: FirstPagesHeaderProps) => {
     const t = useTranslations('Home')
+    const locale = useLocale()
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
     const navigation = [
         { name: t('hero.nav.features'), href: '/#features', disabled: false },
         { name: t('hero.nav.howItWorks'), href: '/#how-it-works', disabled: false },
-        { name: 'Docs', href: '/docs', disabled: false },
-        { name: t('hero.nav.pricing'), href: '/pricing', disabled: false },
+        { name: 'Docs', href: `/${locale}/docs`, disabled: false },
+        { name: t('hero.nav.pricing'), href: `/${locale}/pricing`, disabled: false },
     ]
     return (
         <header className="absolute inset-x-0 top-0 z-50">
@@ -95,7 +96,7 @@ export const FirstPagesHeader = ({ session = null }: FirstPagesHeaderProps) => {
                             Dashboard
                         </Link>
                     ) : (
-                        <Link href="/auth" className="text-sm/6 font-semibold text-gray-900 dark:text-white">
+                        <Link href={`/${locale}/auth`} className="text-sm/6 font-semibold text-gray-900 dark:text-white">
                             Log in <span aria-hidden="true">&rarr;</span>
                         </Link>
                     )}

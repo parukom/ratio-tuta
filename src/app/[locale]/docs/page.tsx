@@ -1,5 +1,5 @@
 'use client'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import Link from 'next/link'
 import { FirstPagesHeader } from '@/components/FirstPagesHeader'
 import Footer from '@/components/Footer'
@@ -29,6 +29,7 @@ export default function DocsPage() {
   const t = useTranslations('Docs')
   const tUser = useTranslations('Docs.userGuide.sections')
   const tDev = useTranslations('Docs.developerGuide.sections')
+  const locale = useLocale()
   const [session, setSession] = useState<SessionData>(null)
 
   useEffect(() => {
@@ -185,7 +186,7 @@ export default function DocsPage() {
                     {category.sections.map((section) => (
                       <Link
                         key={section.id}
-                        href={`/docs/${category.id}#${section.id}`}
+                        href={`/${locale}/docs/${category.id}#${section.id}`}
                         className="group relative rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:border-indigo-500 dark:hover:border-indigo-400 hover:shadow-md transition-all"
                       >
                         <div className="flex items-start gap-x-3">
@@ -247,13 +248,13 @@ export default function DocsPage() {
             </h3>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <Link
-                href="/auth"
+                href={`/${locale}/auth`}
                 className="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
               >
                 {t('getStarted')}
               </Link>
               <Link
-                href="/pricing"
+                href={`/${locale}/pricing`}
                 className="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
               >
                 {t('viewPricing')}

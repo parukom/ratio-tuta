@@ -3,11 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AppToaster from '@/components/ui/Toaster'
 import Pwa from '@/components/providers/Pwa'
-import StructuredData from '@/components/StructuredData'
-import { NextIntlClientProvider } from "next-intl";
-import { cookies, headers } from "next/headers";
-import { defaultLocale, isLocale, type Locale } from "@/i18n/config";
-import { getMessages } from "@/i18n/getMessages";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,16 +22,44 @@ export const metadata: Metadata = {
   },
   description: "Secure, modern inventory tracking and financial management for teams. Real-time stock management, POS system, team collaboration, and comprehensive reporting. Built with Next.js and TypeScript.",
   keywords: [
+    // Primary keywords
     "inventory management",
+    "inventory management system",
+    "inventory software",
     "financial management",
+    "financial management software",
     "POS system",
+    "point of sale system",
     "stock tracking",
+    "stock management",
+
+    // Feature keywords
     "team collaboration",
     "receipt management",
     "warehouse management",
     "business management",
-    "inventory software",
-    "financial software"
+    "sales tracking",
+    "real-time inventory",
+    "inventory control",
+    "stock control software",
+
+    // Use case keywords
+    "small business inventory",
+    "retail inventory management",
+    "restaurant POS system",
+    "multi-location inventory",
+    "inventory tracking app",
+
+    // Local SEO
+    "inventory management Lithuania",
+    "atsargų valdymas",
+    "finansų valdymas",
+
+    // Technology keywords
+    "cloud inventory software",
+    "web-based POS",
+    "online inventory system",
+    "inventory management SaaS",
   ],
   authors: [{ name: "Tomas Dudovicius", url: "https://github.com/parukom" }],
   creator: "Tomas Dudovicius",
@@ -115,34 +138,15 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  // Resolve locale: cookie -> Accept-Language -> default
-  let locale: Locale = defaultLocale;
-  const cookieStore = await cookies();
-  const cookieLocale = cookieStore.get("locale")?.value;
-  if (isLocale(cookieLocale)) locale = cookieLocale;
-  else {
-    const accept = (await headers()).get("accept-language") || "";
-    const preferred = accept.split(",").map(s => s.trim().split(";")[0])[0];
-    const short = preferred?.slice(0, 2).toLowerCase();
-    if (isLocale(short)) locale = short;
-  }
-
-  const messages = await getMessages(locale);
-
   return (
-    <html lang={locale} className="h-full bg-gray-50 dark:bg-gray-900">
-      <head>
-        <StructuredData />
-      </head>
+    <html className="h-full bg-gray-50 dark:bg-gray-900">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}>
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <AppToaster />
-          <Pwa />
-          {children}
-        </NextIntlClientProvider>
+        <AppToaster />
+        <Pwa />
+        {children}
       </body>
     </html>
   );

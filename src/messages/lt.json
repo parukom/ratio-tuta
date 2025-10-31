@@ -1883,6 +1883,28 @@
         "description": "Pagrindiniai žurnalai sistemos saugumui ir klaidų taisymui"
       }
     },
+    "cookies": {
+      "title": "Naudojami slapukai (Cookies)",
+      "intro": "Naudojame tik būtinus slapukus, kurie yra griežtai reikalingi svetainės veikimui. Šiems slapukams pagal BDAR nereikalingas sutikimas, nes jie yra būtini paslaugai teikti.",
+      "session": {
+        "title": "Sesijos slapukas",
+        "name": "ratio-tuta-session (arba __Host-ratio-tuta-session produkcijoje)",
+        "purpose": "Palaiko jūsų prisijungimo sesiją ir autentifikacijos būseną",
+        "duration": "7 dienos",
+        "type": "Būtinas - Reikalingas prisijungimo funkcionalumui"
+      },
+      "locale": {
+        "title": "Kalbos pasirinkimo slapukas",
+        "name": "locale",
+        "purpose": "Įsimena jūsų kalbos pasirinkimą (anglų, lietuvių ar rusų)",
+        "duration": "1 metai",
+        "type": "Funkcinis - Pagerina vartotojo patirtį"
+      },
+      "noTracking": {
+        "title": "Jokių sekimo ar analitikos slapukų",
+        "description": "Nenaudojame jokių sekimo, analitikos, reklamos ar trečiųjų šalių slapukų. Jūsų naršymo elgesys nėra stebimas ar analizuojamas."
+      }
+    },
     "howWeProtect": {
       "title": "Kaip saugome jūsų duomenis",
       "encryption": {
@@ -2055,5 +2077,55 @@
       "terms": "Naudojimosi sąlygos"
     },
     "copyright": "© {year} Ratio Tuta. Visos teisės saugomos."
+  },
+  "SEO": {
+    "title": "Ratio Tuta - Šiuolaikinė atsargų ir finansų valdymo sistema",
+    "description": "Saugi, šiuolaikinė atsargų sekimo ir finansų valdymo sistema komandoms. Realiuoju laiku atsargų valdymas, POS sistema, komandos bendradarbiavimas ir išsamios ataskaitos. Sukurta su Next.js ir TypeScript.",
+    "keywords": {
+      "0": "atsargų valdymas",
+      "1": "atsargų valdymo sistema",
+      "2": "atsargų programa",
+      "3": "finansų valdymas",
+      "4": "finansų valdymo programa",
+      "5": "POS sistema",
+      "6": "pardavimo vietos sistema",
+      "7": "prekių sekimas",
+      "8": "prekių valdymas",
+      "9": "komandos bendradarbiavimas",
+      "10": "kvitų valdymas",
+      "11": "sandėlio valdymas",
+      "12": "verslo valdymas",
+      "13": "pardavimų sekimas",
+      "14": "realiojo laiko atsargos",
+      "15": "atsargų kontrolė",
+      "16": "prekių kontrolės programa",
+      "17": "mažo verslo atsargos",
+      "18": "mažmeninės prekybos atsargų valdymas",
+      "19": "restorano POS sistema",
+      "20": "kelių vietų atsargos",
+      "21": "atsargų sekimo programa",
+      "22": "debesų atsargų programa",
+      "23": "internetinė POS",
+      "24": "internetinė atsargų sistema",
+      "25": "atsargų valdymo SaaS",
+      "26": "atsargų valdymas Lietuva",
+      "27": "finansų valdymas Lietuva"
+    },
+    "structuredData": {
+      "softwareName": "Ratio Tuta",
+      "softwareDescription": "Šiuolaikinė atsargų sekimo ir finansų valdymo sistema komandoms. Realiuoju laiku prekių kontrolė, POS sistema ir išsamios ataskaitos.",
+      "applicationCategory": "Verslo programa",
+      "operatingSystem": "Interneto naršyklė, Bet kuri",
+      "features": {
+        "0": "Realiojo laiko atsargų sekimas",
+        "1": "Pardavimo vietos (POS) sistema",
+        "2": "Komandos bendradarbiavimas",
+        "3": "Finansinės ataskaitos",
+        "4": "Kelių vietų valdymas",
+        "5": "Kvitų valdymas",
+        "6": "Pardavimų analitika",
+        "7": "Prekių perspėjimai"
+      }
+    }
   }
 }
