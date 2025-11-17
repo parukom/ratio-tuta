@@ -96,8 +96,9 @@ export async function DELETE(
   if (!placeId || typeof placeId !== 'string')
     return NextResponse.json({ error: 'Invalid placeId' }, { status: 400 });
 
-  const body = (await req.json().catch(() => ({}))) as { confirmName?: string };
+  const body = (await req.json().catch(() => ({}))) as { confirmName?: string; returnItems?: boolean };
   const confirmName = (body.confirmName || '').trim();
+  const returnItems = body.returnItems ?? true; // Default to returning items
 
   const place = await prisma.place.findUnique({
     where: { id: placeId },
@@ -137,19 +138,38 @@ export async function DELETE(
   }
 
   try {
-    await prisma.$transaction([
-      // Remove place-item relations
-      prisma.placeItem.deleteMany({ where: { placeId: place.id } }),
-      // Remove explicit place members
-      prisma.placeMember.deleteMany({ where: { placeId: place.id } }),
-      // Set receipts to no longer point to the place (keep history)
-      prisma.receipt.updateMany({
+    await prisma.$transaction(async (tx) => {
+      // STEP 1 & 2: Conditionally return items to team storage (warehouse)
+      if (returnItems) {
+        const placeItems = await tx.placeItem.findMany({
+          where: { placeId: place.id },
+          select: { itemId: true, quantity: true },
+        });
+
+        // Return quantities to team storage (Item.stockQuantity)
+        for (const placeItem of placeItems) {
+          await tx.item.update({
+            where: { id: placeItem.itemId },
+            data: { stockQuantity: { increment: placeItem.quantity } },
+          });
+        }
+      }
+
+      // STEP 3: Remove place-item relations
+      await tx.placeItem.deleteMany({ where: { placeId: place.id } });
+
+      // STEP 4: Remove explicit place members
+      await tx.placeMember.deleteMany({ where: { placeId: place.id } });
+
+      // STEP 5: Set receipts to no longer point to the place (keep history)
+      await tx.receipt.updateMany({
         where: { placeId: place.id },
         data: { placeId: null },
-      }),
-      // Finally, delete the place
-      prisma.place.delete({ where: { id: place.id } }),
-    ]);
+      });
+
+      // STEP 6: Finally, delete the place
+      await tx.place.delete({ where: { id: place.id } });
+    });
 
     await logAudit({
       action: 'place.delete',

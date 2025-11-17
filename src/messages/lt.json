@@ -152,10 +152,10 @@
     },
     "delete": {
       "title": "Ištrinti paskyrą",
-      "subtitle": "Nebereikia mūsų paslaugos? Čia galite ištrinti paskyrą. Šio veiksmo atšaukti neįmanoma.",
+      "subtitle": "Nebereikia mūsų paslaugos? Čia galite ištrinti paskyrą. Šio veiksmo atšaukti neįmanoma. Visi duomenys, įskaitant įkeltas nuotraukas, bus negrįžtamai ištrinti.",
       "cta": "Taip, ištrinti mano paskyrą",
       "confirmTitle": "Patvirtinkite paskyros ištrynimą",
-      "confirmBody": "Tai visam laikui ištrins jūsų paskyrą ir visus susijusius duomenis. Patvirtinimui įveskite tiksliai šį tekstą:",
+      "confirmBody": "Tai visam laikui ištrins jūsų paskyrą, visus susijusius duomenis ir visas įkeltas nuotraukas (prekių, avatarų). Tai negalima atšaukti ir prarasite prieigą prie visko. Patvirtinimui įveskite tiksliai šį tekstą:",
       "confirmLabel": "Patvirtinimo tekstas",
       "copyTitle": "Kopijuoti tekstą",
       "copyBtn": "Kopijuoti",
@@ -446,7 +446,12 @@
       "delete": {
         "title": "Ištrinti vietą",
         "warning": "Šio veiksmo anuliuoti neįmanoma. Patvirtinimui įveskite vietos pavadinimą tiksliai",
-        "failed": "Nepavyko ištrinti vietos"
+        "failed": "Nepavyko ištrinti vietos",
+        "itemsQuestion": "Ką daryti su prekėmis šioje vietoje?",
+        "returnItems": "Grąžinti prekes į sandėlį",
+        "returnItemsDesc": "Visos prekės ir jų kiekiai bus perkelti atgal į komandos sandėlį",
+        "deleteItems": "Ištrinti prekes visam laikui",
+        "deleteItemsDesc": "Visos prekės ir jų kiekiai bus ištrinti (negalima atšaukti)"
       },
       "card": {
         "active": "Aktyvi",
@@ -1804,7 +1809,8 @@
     "loading": {
       "usage": "Kraunamas naudojimas...",
       "chart": "Kraunama diagrama...",
-      "activity": "Kraunama veikla..."
+      "activity": "Kraunama veikla...",
+      "earnings": "Kraunamos pajamos..."
     },
     "errors": {
       "failed": "Nepavyko įkelti",
@@ -1845,6 +1851,18 @@
       },
       "chartTitle": "Pajamos per laiką",
       "revenue": "Pajamos"
+    },
+    "earnings": {
+      "title": "Visos laiko pajamos",
+      "subtitle": "Viso laikotarpio pajamos iš visų vietų",
+      "total": "Bendros pajamos",
+      "allTime": "Visi mokėjimo būdai",
+      "cash": "Grynieji",
+      "card": "Kortelė",
+      "note": {
+        "title": "Pastaba:",
+        "description": "Tai visos laiko pajamos, kurios išlieka net ir ištrynus vietas. Grąžinimai automatiškai atskaitomi."
+      }
     }
   },
   "Privacy": {
@@ -1928,7 +1946,7 @@
       "title": "Duomenų saugojimas ir ištrynimas",
       "intro": "Jūsų duomenys lieka sistemoje tol, kol jūs to norite. Galite:",
       "export": "Bet kada eksportuoti savo duomenis",
-      "delete": "Ištrinti savo paskyrą ir visus su ja susijusius duomenis visam laikui",
+      "delete": "Ištrinti savo paskyrą ir visus su ja susijusius duomenis visam laikui, įskaitant visas įkeltas nuotraukas (prekių, avatarų)",
       "request": "Paprašyti pilnos savo duomenų kopijos"
     },
     "thirdParty": {
@@ -1946,7 +1964,8 @@
     },
     "contact": {
       "title": "Susisiekite su mumis",
-      "description": "Jei turite klausimų apie šią Privatumo politiką ar kaip tvarkome jūsų duomenis, susisiekite su mumis:"
+      "description": "Jei turite klausimų apie šią Privatumo politiką ar kaip tvarkome jūsų duomenis, susisiekite su mumis:",
+      "email": "Susisiekti"
     },
     "changes": {
       "title": "Šios politikos pakeitimai",
@@ -2049,7 +2068,8 @@
     },
     "contact": {
       "title": "13. Susisiekite su mumis",
-      "description": "Jei turite klausimų apie šias Naudojimosi sąlygas, susisiekite su mumis:"
+      "description": "Jei turite klausimų apie šias Naudojimosi sąlygas, susisiekite su mumis:",
+      "email": "Susisiekti"
     },
     "entire": {
       "title": "14. Visa sutartis",

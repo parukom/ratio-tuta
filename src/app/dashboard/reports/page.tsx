@@ -1,5 +1,6 @@
 import AdminHeader from '@/components/layout/AdminHeader';
 import TeamUsageCards from '@/components/reports/TeamUsageCards';
+import TeamEarningsCards from '@/components/reports/TeamEarningsCards';
 import SalesReport from '@/components/reports/SalesReport';
 import React from 'react';
 import { useTranslations } from 'next-intl';
@@ -16,6 +17,12 @@ const ReportsPage = () => {
 
             {/* Main Content */}
             <div className="flex-1 p-6 space-y-6">
+                {/* Lifetime Earnings Section */}
+                <TeamEarningsCards />
+
+                {/* Divider */}
+                <div className="border-t border-gray-200 dark:border-gray-700"></div>
+
                 {/* Sales Report Section */}
                 <SalesReport />
 

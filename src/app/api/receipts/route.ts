@@ -386,6 +386,19 @@ export async function POST(req: Request) {
         data: { totalEarnings: { increment: totalPrice } },
       });
 
+      // Update team lifetime earnings (survives place deletions)
+      // REFUND reduces earnings, CASH/CARD increases earnings
+      const earningsChange = paymentOption === 'REFUND' ? -totalPrice : totalPrice;
+
+      await tx.team.update({
+        where: { id: place.teamId },
+        data: {
+          totalEarningsAll: { increment: earningsChange },
+          ...(paymentOption === 'CASH' && { totalEarningsCash: { increment: earningsChange } }),
+          ...(paymentOption === 'CARD' && { totalEarningsCard: { increment: earningsChange } }),
+        },
+      });
+
       return receipt.id;
     });
 

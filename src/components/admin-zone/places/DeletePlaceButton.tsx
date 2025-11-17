@@ -17,6 +17,7 @@ export default function DeletePlaceButton({ placeId, placeName, onDeleted, size 
   const th = useTranslations('Home')
   const [open, setOpen] = useState(false)
   const [confirmName, setConfirmName] = useState('')
+  const [returnItems, setReturnItems] = useState(true)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
@@ -29,13 +30,14 @@ export default function DeletePlaceButton({ placeId, placeName, onDeleted, size 
       setError(null)
       await apiRequest(`/api/places/${placeId}`, {
         method: 'DELETE',
-        body: { confirmName }
+        body: { confirmName, returnItems }
       })
       onDeleted?.(placeId)
       // notify sidebar/layout to refresh places list
       try { window.dispatchEvent(new Event('places:changed')) } catch { /* noop */ }
       setOpen(false)
       setConfirmName('')
+      setReturnItems(true)
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message || th('place.delete.failed'))
@@ -87,6 +89,37 @@ export default function DeletePlaceButton({ placeId, placeName, onDeleted, size 
                   {copied ? t('copied') : t('copy')}
                 </button>
               </div>
+              {/* Item handling choice */}
+              <div className="mt-4 space-y-3 rounded-lg border border-gray-200 p-3 dark:border-white/10">
+                <p className="text-xs font-medium text-gray-700 dark:text-gray-300">{th('place.delete.itemsQuestion')}</p>
+                <div className="space-y-2">
+                  <label className="flex items-start gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      checked={returnItems}
+                      onChange={() => setReturnItems(true)}
+                      className="mt-0.5"
+                    />
+                    <div>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{th('place.delete.returnItems')}</span>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{th('place.delete.returnItemsDesc')}</p>
+                    </div>
+                  </label>
+                  <label className="flex items-start gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      checked={!returnItems}
+                      onChange={() => setReturnItems(false)}
+                      className="mt-0.5"
+                    />
+                    <div>
+                      <span className="text-sm text-red-600 dark:text-red-400">{th('place.delete.deleteItems')}</span>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{th('place.delete.deleteItemsDesc')}</p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
               <input
                 type="text"
                 value={confirmName}

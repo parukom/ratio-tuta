@@ -152,10 +152,10 @@
     },
     "delete": {
       "title": "Delete account",
-      "subtitle": "No longer want to use our service? You can delete your account here. This action is not reversible.",
+      "subtitle": "No longer want to use our service? You can delete your account here. This action is not reversible. All data including uploaded images will be permanently deleted.",
       "cta": "Yes, delete my account",
       "confirmTitle": "Confirm account deletion",
-      "confirmBody": "This will permanently delete your account and all related data. To confirm, type the following text exactly:",
+      "confirmBody": "This will permanently delete your account, all related data, and all uploaded images (items, avatars). This cannot be undone and you will lose access to everything. To confirm, type the following text exactly:",
       "confirmLabel": "Confirmation text",
       "copyTitle": "Copy text",
       "copyBtn": "Copy",
@@ -406,7 +406,12 @@
       "delete": {
         "title": "Delete place",
         "warning": "This action cannot be undone. To confirm, type the name of the place exactly",
-        "failed": "Failed to delete place"
+        "failed": "Failed to delete place",
+        "itemsQuestion": "What should happen to items in this place?",
+        "returnItems": "Return items to warehouse",
+        "returnItemsDesc": "All items and their quantities will be moved back to team storage",
+        "deleteItems": "Delete items permanently",
+        "deleteItemsDesc": "All items and their quantities will be deleted (cannot be undone)"
       },
       "card": {
         "active": "Active",
@@ -1768,7 +1773,8 @@
     "loading": {
       "usage": "Loading usage...",
       "chart": "Loading chart...",
-      "activity": "Loading activity..."
+      "activity": "Loading activity...",
+      "earnings": "Loading earnings..."
     },
     "errors": {
       "failed": "Failed to load",
@@ -1809,6 +1815,18 @@
       },
       "chartTitle": "Revenue Over Time",
       "revenue": "Revenue"
+    },
+    "earnings": {
+      "title": "Lifetime Earnings",
+      "subtitle": "All-time earnings across all locations",
+      "total": "Total Earnings",
+      "allTime": "All payment methods",
+      "cash": "Cash",
+      "card": "Card",
+      "note": {
+        "title": "Note:",
+        "description": "These are lifetime earnings that persist even when locations are deleted. Refunds are automatically subtracted."
+      }
     }
   },
   "Privacy": {
@@ -1892,7 +1910,7 @@
       "title": "Data Retention and Deletion",
       "intro": "Your data stays in the system as long as you want it there. You can:",
       "export": "Export your data at any time",
-      "delete": "Delete your account and all associated data permanently",
+      "delete": "Delete your account and all associated data permanently, including all uploaded images (items, avatars)",
       "request": "Request a complete copy of your data"
     },
     "thirdParty": {
@@ -1910,7 +1928,8 @@
     },
     "contact": {
       "title": "Contact Us",
-      "description": "If you have any questions about this Privacy Policy or how we handle your data, please contact us at:"
+      "description": "If you have any questions about this Privacy Policy or how we handle your data, please contact us at:",
+      "email": "Contact Us"
     },
     "changes": {
       "title": "Changes to This Policy",
@@ -2013,7 +2032,8 @@
     },
     "contact": {
       "title": "13. Contact Us",
-      "description": "If you have any questions about these Terms and Conditions, please contact us:"
+      "description": "If you have any questions about these Terms and Conditions, please contact us:",
+      "email": "Contact Us"
     },
     "entire": {
       "title": "14. Entire Agreement",

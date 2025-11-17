@@ -99,7 +99,7 @@ export default function FAQ() {
               {t('viewDocs')}
             </a>
             <a
-              href="mailto:support@ratiotuta.com"
+              href="mailto:tomasdudovicius@gmail.com"
               className="text-sm font-semibold text-gray-900 transition-colors hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400"
             >
               {t('contactSupport')} <span aria-hidden="true">&rarr;</span>

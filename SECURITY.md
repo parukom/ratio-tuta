@@ -22,7 +22,7 @@ If you discover a security vulnerability in Ratio Tuta, please help us protect o
 **Please DO NOT create a public GitHub issue for security vulnerabilities.**
 
 Instead, please email us at:
-- **Email:** support@ratiotuta.com
+- **Email:** tomasdudovicius@gmail.com
 - **Subject:** [SECURITY] Brief description of the issue
 
 ### What to Include in Your Report
@@ -143,12 +143,12 @@ We'd like to thank the following researchers for responsibly disclosing security
 ## 📞 Contact
 
 For security-related questions or concerns:
-- **Email:** support@ratiotuta.com
+- **Email:** tomasdudovicius@gmail.com
 - **GitHub:** [Report via Security Advisory](https://github.com/your-repo/security/advisories/new)
 
 For general support:
 - **User Guide:** [/docs/user](/docs/user)
-- **Email:** support@ratiotuta.com
+- **Email:** tomasdudovicius@gmail.com
 
 ---
 

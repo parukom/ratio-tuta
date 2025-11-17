@@ -45,18 +45,22 @@ model User {
 }
 
 model Team {
-  id               String             @id @default(uuid())
-  name             String
-  createdAt        DateTime           @default(now())
-  ownerId          String
-  auditLogsForTeam AuditLog[]         @relation("AuditTeam")
-  items            Item[]
-  itemCategories   ItemCategory[]
-  places           Place[]
-  placeTypes       PlaceType[]
-  owner            User               @relation("OwnedTeams", fields: [ownerId], references: [id])
-  members          TeamMember[]
-  subscriptions    TeamSubscription[]
+  id                   String             @id @default(uuid())
+  name                 String
+  createdAt            DateTime           @default(now())
+  ownerId              String
+  // Lifetime earnings tracking (survives place deletions)
+  totalEarningsCash    Float              @default(0)
+  totalEarningsCard    Float              @default(0)
+  totalEarningsAll     Float              @default(0)
+  auditLogsForTeam     AuditLog[]         @relation("AuditTeam")
+  items                Item[]
+  itemCategories       ItemCategory[]
+  places               Place[]
+  placeTypes           PlaceType[]
+  owner                User               @relation("OwnedTeams", fields: [ownerId], references: [id])
+  members              TeamMember[]
+  subscriptions        TeamSubscription[]
 }
 
 model TeamMember {

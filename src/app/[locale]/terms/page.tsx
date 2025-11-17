@@ -314,11 +314,11 @@ export default function TermsAndConditions() {
               {t('contact.description')}
             </p>
             <a
-              href="mailto:legal@ratiotuta.com"
+              href="mailto:tomasdudovicius@gmail.com"
               className="inline-flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm sm:text-base font-semibold rounded-lg transition-colors"
             >
               <EnvelopeIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-              legal@ratiotuta.com
+              {t('contact.email')}
             </a>
           </section>
 

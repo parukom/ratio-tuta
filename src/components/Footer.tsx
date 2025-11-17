@@ -16,7 +16,7 @@ export default function Footer() {
     support: [
       { name: t('support.userGuide'), href: '/docs/user' },
       { name: t('support.developerDocs'), href: '/docs/developer' },
-      { name: t('support.contact'), href: 'mailto:support@ratiotuta.com' },
+      { name: t('support.contact'), href: 'mailto:tomasdudovicius@gmail.com' },
     ],
     legal: [
       { name: t('legal.privacy'), href: '/privacy' },

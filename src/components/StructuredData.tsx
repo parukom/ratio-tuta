@@ -42,7 +42,7 @@ export default function StructuredData({ locale, seoData }: StructuredDataProps)
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'Customer Support',
-      email: 'support@ratiotuta.com',
+      email: 'tomasdudovicius@gmail.com',
       availableLanguage: ['English', 'Lithuanian', 'Russian']
     },
     founder: {

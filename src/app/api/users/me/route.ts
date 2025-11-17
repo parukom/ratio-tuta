@@ -12,6 +12,7 @@ import {
   decryptEmail,
 } from '@lib/crypto';
 import { requireCsrfToken } from '@lib/csrf';
+import { deleteObjectByKey } from '@lib/s3';
 
 export async function GET() {
   const session = await getSession();
@@ -298,9 +299,14 @@ export async function DELETE(req: Request) {
 
         const teamItems = await tx.item.findMany({
           where: { teamId: { in: ids } },
-          select: { id: true },
+          select: { id: true, imageKey: true },
         });
         const itemIds = teamItems.map((i) => i.id);
+
+        // Collect all image keys for S3 deletion
+        const imageKeys = teamItems
+          .map((i) => i.imageKey)
+          .filter((key): key is string => !!key);
 
         // Delete receipt items for receipts in these places
         if (placeIds.length) {
@@ -344,6 +350,15 @@ export async function DELETE(req: Request) {
           await tx.team.deleteMany({ where: { id: { in: ids } } });
         }
 
+        // Collect user avatar URLs for S3 deletion
+        const users = await tx.user.findMany({
+          where: { id: { in: memberUserIds } },
+          select: { avatarUrl: true },
+        });
+        const avatarUrls = users
+          .map((u) => u.avatarUrl)
+          .filter((url): url is string => !!url);
+
         // Delete all member users and their personal data
         if (memberUserIds.length) {
           // Delete receipts and receipt items by users
@@ -376,12 +391,28 @@ export async function DELETE(req: Request) {
 
           await tx.user.deleteMany({ where: { id: { in: memberUserIds } } });
         }
+
+        // Return image keys and avatar URLs for S3 deletion
+        return { imageKeys, avatarUrls };
       }
 
+      let allImageKeys: string[] = [];
+      let allAvatarUrls: string[] = [];
+
       if (teamIds.length) {
-        await deleteTeams(teamIds);
+        const teamDeletionResult = await deleteTeams(teamIds);
+        allImageKeys = teamDeletionResult.imageKeys;
+        allAvatarUrls = teamDeletionResult.avatarUrls;
       } else {
         // User does not own teams: delete their personal data and account
+        const user = await tx.user.findUnique({
+          where: { id: userId },
+          select: { avatarUrl: true },
+        });
+        if (user?.avatarUrl) {
+          allAvatarUrls.push(user.avatarUrl);
+        }
+
         const receipts = await tx.receipt.findMany({
           where: { userId: userId },
           select: { id: true },
@@ -400,16 +431,45 @@ export async function DELETE(req: Request) {
         await tx.user.delete({ where: { id: userId } });
       }
 
-      return { deletedTeams: teamIds.length };
+      return { deletedTeams: teamIds.length, imageKeys: allImageKeys, avatarUrls: allAvatarUrls };
     });
 
     await clearSession();
+
+    // Delete all images from S3 (outside transaction to avoid blocking)
+    const allS3Keys: string[] = [...result.imageKeys];
+
+    // Extract keys from avatar URLs
+    // Avatar URLs are like: https://bucket.s3.region.amazonaws.com/key
+    for (const avatarUrl of result.avatarUrls) {
+      try {
+        const url = new URL(avatarUrl);
+        const key = url.pathname.replace(/^\/+/, ''); // Remove leading slashes
+        if (key) allS3Keys.push(key);
+      } catch (e) {
+        console.warn('Failed to parse avatar URL:', avatarUrl, e);
+      }
+    }
+
+    // Delete all images from S3
+    let deletedImages = 0;
+    for (const key of allS3Keys) {
+      try {
+        await deleteObjectByKey(key);
+        deletedImages++;
+      } catch (e) {
+        console.warn('Failed to delete S3 object:', key, e);
+      }
+    }
 
     await logAudit({
       action: 'user.delete.account',
       status: 'SUCCESS',
       actor: session,
-      metadata: { deletedTeams: result.deletedTeams },
+      metadata: {
+        deletedTeams: result.deletedTeams,
+        deletedImages,
+      },
     });
 
     return NextResponse.json({ message: 'Account deleted' });
