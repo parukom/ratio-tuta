@@ -281,7 +281,9 @@ export async function DELETE(req: Request) {
 
       // Helper to delete all data for given teams
       async function deleteTeams(ids: string[]) {
-        if (ids.length === 0) return;
+        if (ids.length === 0) {
+          return { imageKeys: [], avatarUrls: [] };
+        }
 
         const memberRows = await tx.teamMember.findMany({
           where: { teamId: { in: ids } },
