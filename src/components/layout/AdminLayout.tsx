@@ -248,7 +248,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                                         </li>
                                         <li className="pb-4 mt-auto">
                                             <div className="px-2 mt-3 space-y-2">
-                                                <LanguageSwitcher />
                                                 <LogoutButton widthFull />
                                             </div>
                                         </li>
@@ -346,7 +345,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
                                 </li>
                                 <li className="pb-4 mt-auto">
                                     <div className="px-2 mt-3 space-y-2">
-                                        <LanguageSwitcher />
                                         <LogoutButton widthFull />
                                     </div>
                                 </li>
