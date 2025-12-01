@@ -348,6 +348,8 @@ export async function DELETE(req: Request) {
           await tx.itemCategory.deleteMany({ where: { teamId: { in: ids } } });
           await tx.placeType.deleteMany({ where: { teamId: { in: ids } } });
           await tx.teamMember.deleteMany({ where: { teamId: { in: ids } } });
+          // Remove subscriptions tied to these teams to satisfy FK constraints
+          await tx.teamSubscription.deleteMany({ where: { teamId: { in: ids } } });
           await tx.auditLog.deleteMany({ where: { teamId: { in: ids } } });
           await tx.team.deleteMany({ where: { id: { in: ids } } });
         }
