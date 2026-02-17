@@ -13,7 +13,7 @@ function getStripe() {
     throw new Error('STRIPE_SECRET_KEY is not configured');
   }
   return new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2025-09-30.clover',
+    apiVersion: '2026-01-28.clover',
   });
 }
 
@@ -87,7 +87,7 @@ export async function POST(req: Request) {
           });
 
           console.log(
-            `Activated subscription for team ${teamId}, subscription ${subscriptionId}`
+            `Activated subscription for team ${teamId}, subscription ${subscriptionId}`,
           );
         }
         break;
@@ -98,15 +98,23 @@ export async function POST(req: Request) {
         console.log('Subscription created:', subscription.id);
 
         const teamId = subscription.metadata?.teamId;
-        if (teamId && subscription.current_period_start && subscription.current_period_end) {
+        if (
+          teamId &&
+          subscription.current_period_start &&
+          subscription.current_period_end
+        ) {
           const currentPeriodStart =
             typeof subscription.current_period_start === 'number'
               ? subscription.current_period_start
-              : Math.floor(new Date(subscription.current_period_start).getTime() / 1000);
+              : Math.floor(
+                  new Date(subscription.current_period_start).getTime() / 1000,
+                );
           const currentPeriodEnd =
             typeof subscription.current_period_end === 'number'
               ? subscription.current_period_end
-              : Math.floor(new Date(subscription.current_period_end).getTime() / 1000);
+              : Math.floor(
+                  new Date(subscription.current_period_end).getTime() / 1000,
+                );
 
           await prisma.teamSubscription.updateMany({
             where: {
@@ -137,7 +145,9 @@ export async function POST(req: Request) {
         const currentPeriodEnd =
           typeof subscription.current_period_end === 'number'
             ? subscription.current_period_end
-            : Math.floor(new Date(subscription.current_period_end).getTime() / 1000);
+            : Math.floor(
+                new Date(subscription.current_period_end).getTime() / 1000,
+              );
 
         const updateData: {
           isActive: boolean;
@@ -173,7 +183,7 @@ export async function POST(req: Request) {
         });
 
         console.log(
-          `Updated subscription ${subscription.id}, active: ${isActive}`
+          `Updated subscription ${subscription.id}, active: ${isActive}`,
         );
         break;
       }
@@ -238,7 +248,7 @@ export async function POST(req: Request) {
             },
           });
           console.log(
-            `Deactivated subscription ${subscriptionId} due to payment failure`
+            `Deactivated subscription ${subscriptionId} due to payment failure`,
           );
         }
         break;

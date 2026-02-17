@@ -2,7 +2,7 @@ import Stripe from 'stripe';
 import { PrismaClient } from '../src/generated/prisma/index.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-09-30.clover',
+  apiVersion: '2026-01-28.clover',
 });
 
 const prisma = new PrismaClient();

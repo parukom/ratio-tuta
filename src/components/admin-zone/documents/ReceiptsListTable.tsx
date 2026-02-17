@@ -12,7 +12,7 @@ export type ReceiptListItem = {
     items: { id?: string; itemId?: string; title: string; quantity: number; price?: number }[];
 };
 
-type TranslationValues = Record<string, string | number | boolean | null | undefined> | undefined;
+type TranslationValues = Record<string, string | number | Date> | undefined;
 
 export interface ReceiptsListTableProps {
     data: ReceiptListItem[];
@@ -146,7 +146,7 @@ const ReceiptsListTable: React.FC<ReceiptsListTableProps> = ({
                                             <td className="px-4 py-3 text-gray-900 dark:text-white align-top">
                                                 <div className={`${fadeCls} font-medium tabular-nums`}>EUR {r.totalPrice.toFixed(2)}</div>
                                             </td>
-                                            <td className="px-4 py-3 text-gray-600 dark:text-gray-400 max-w-[640px] align-top">
+                                            <td className="px-4 py-3 text-gray-600 dark:text-gray-400 max-w-160 align-top">
                                                 <div className={`${fadeCls} truncate`}>{itemsLine}</div>
                                             </td>
                                         </tr>

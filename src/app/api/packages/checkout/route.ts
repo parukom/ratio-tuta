@@ -10,7 +10,7 @@ function getStripe() {
     throw new Error('STRIPE_SECRET_KEY is not configured');
   }
   return new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2025-09-30.clover',
+    apiVersion: '2026-01-28.clover',
   });
 }
 
@@ -94,7 +94,7 @@ export async function POST(req: Request) {
     });
     return NextResponse.json(
       { error: 'Package not configured for payments' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -174,7 +174,11 @@ export async function POST(req: Request) {
       status: 'SUCCESS',
       actor,
       teamId,
-      metadata: { packageSlug, annual: isAnnual, sessionId: checkoutSession.id },
+      metadata: {
+        packageSlug,
+        annual: isAnnual,
+        sessionId: checkoutSession.id,
+      },
     });
 
     return NextResponse.json(
@@ -182,7 +186,7 @@ export async function POST(req: Request) {
         url: checkoutSession.url,
         sessionId: checkoutSession.id,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error('Stripe checkout error:', error);
@@ -196,7 +200,7 @@ export async function POST(req: Request) {
     });
     return NextResponse.json(
       { error: 'Failed to create checkout session' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -272,7 +272,7 @@ const DocumentsInner: React.FC = () => {
     return (
         <main>
             {/* Sticky search header — align with Home */}
-            <div className="sticky top-0 z-40 flex w-full h-16 items-center justify-between border-b border-gray-200 bg-gradient-to-t from-white to-gray-50 px-4 safe-top shadow-xs dark:border-white/10 dark:bg-gradient-to-t dark:from-gray-900 dark:to-gray-900 dark:shadow-none">
+            <div className="sticky top-0 z-40 flex w-full h-16 items-center justify-between border-b border-gray-200 bg-linear-to-t from-white to-gray-50 px-4 safe-top shadow-xs dark:border-white/10 dark:bg-linear-to-t dark:from-gray-900 dark:to-gray-900 dark:shadow-none">
                 <AdminHeader
                     left={
                         <SearchInput
