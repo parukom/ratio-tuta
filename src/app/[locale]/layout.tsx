@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "@/i18n/getMessages";
 import { isLocale, type Locale } from "@/i18n/config";
 import StructuredData from "@/components/StructuredData";
+import { Analytics } from "@vercel/analytics/next"
 
 type Props = {
     children: React.ReactNode;
@@ -105,6 +106,7 @@ export default async function LocaleLayout({
 
     return (
         <>
+            <Analytics />
             <StructuredData locale={locale} seoData={seoMessages} />
             <NextIntlClientProvider locale={locale} messages={messages}>
                 {children}

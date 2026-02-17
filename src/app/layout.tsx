@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AppToaster from '@/components/ui/Toaster'
 import Pwa from '@/components/providers/Pwa'
+import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -145,6 +146,7 @@ export default function RootLayout({
     <html className="h-full bg-gray-50 dark:bg-gray-900">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}>
         <AppToaster />
+        <Analytics />
         <Pwa />
         {children}
       </body>
